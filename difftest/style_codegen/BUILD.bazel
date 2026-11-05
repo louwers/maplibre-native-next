@@ -1,5 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_test")
+load("//third_party/sqlite:defs.bzl", "ORACLE_SQLITE")
 load(":codegen.bzl", "difftest_sources")
 
 # Differential test of the generated style code (//tools/style-codegen ->
@@ -47,7 +48,7 @@ rust_test(
         "style_codegen_difftest.rs",
     ],
     crate_root = "style_codegen_difftest.rs",
-    link_deps = [":reference"],
+    link_deps = ORACLE_SQLITE + [":reference"],
     deps = [
         "//crates/mln_conversion",
         "//crates/mln_style",

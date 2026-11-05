@@ -1,5 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_test")
+load("//third_party/sqlite:defs.bzl", "ORACLE_SQLITE")
 
 # Differential tests: //crates/mln_style against the C++ core (style parser,
 # background-layer paint properties, transitions).
@@ -31,7 +32,7 @@ rust_test(
     size = "medium",
     srcs = ["style_difftest.rs"],
     data = ["@maplibre//metrics:render-test-files"],
-    link_deps = [":reference"],
+    link_deps = ORACLE_SQLITE + [":reference"],
     deps = [
         "//crates/mln_style",
         "//crates/mln_style_types",

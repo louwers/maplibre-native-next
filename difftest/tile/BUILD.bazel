@@ -1,5 +1,6 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_test")
+load("//third_party/sqlite:defs.bzl", "ORACLE_SQLITE")
 
 # Differential tests: //vendor/protozero, //vendor/vector-tile,
 # //vendor/wagyu and //crates/mln_tile against the C++ core
@@ -58,7 +59,7 @@ rust_test(
     ],
     crate_root = "tile_difftest.rs",
     data = TILE_DATA,
-    link_deps = [":reference"],
+    link_deps = ORACLE_SQLITE + [":reference"],
     deps = [
         "//crates/mln_tile",
         "//crates/mln_tile_id",
