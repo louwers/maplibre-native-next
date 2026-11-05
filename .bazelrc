@@ -8,10 +8,12 @@ build:linux --repo_env=CXX=g++
 
 test --test_output=errors
 
-# The C++ oracle sets -Werror (bazel/flags.bzl) and newer Apple clang warns
-# where upstream's compilers do not (e.g. -Wthread-safety-analysis in
-# tile_loader_impl.hpp); keep upstream's warnings non-fatal here.
-build:macos --per_file_copt=external/maplibre.*@-Wno-error
+# The C++ oracle sets -Werror (bazel/flags.bzl), and newer compilers warn
+# where upstream's do not (Apple clang: -Wthread-safety-analysis in
+# tile_loader_impl.hpp; clang 21 on the ubuntu-26.04 runners:
+# -Wunused-but-set-variable in vendor/earcut.hpp); keep upstream's warnings
+# non-fatal here.
+build --per_file_copt=external/maplibre.*@-Wno-error
 
 # Several agents/people share one Bazel server on a machine that also runs
 # other heavy work; leave headroom for it.
@@ -23,14 +25,14 @@ build --local_resources=cpu=HOST_CPUS*.75
 build:oracle-opt --compilation_mode=opt
 
 # CI (.github/workflows/ci.yml, Ubuntu and macOS runners): clang, all cores,
-# lavapipe for the GPU tests on Linux (wgpu picks Metal on macOS), no network
-# tests. Disk and repository caches come from bazel-contrib/setup-bazel's
-# user bazelrc, so they are not set here (this file would override it).
+# lavapipe for the GPU tests on Linux (wgpu picks Metal on macOS). The
+# requires-network tests run too: the runners have internet access. Disk and
+# repository caches come from bazel-contrib/setup-bazel's user bazelrc, so
+# they are not set here (this file would override it).
 build:ci --repo_env=CC=clang
 build:ci --repo_env=CXX=clang++
 build:ci --local_resources=memory=HOST_RAM*.8
 build:ci --local_resources=cpu=HOST_CPUS
-build:ci --test_tag_filters=-requires-network
 # Mesa 26 (ubuntu-26.04 runners) renamed the lavapipe ICD from
 # lvp_icd.x86_64.json to lvp_icd.json (same as the C++ repo's linux-ci.yml).
 build:ci --test_env=VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.json

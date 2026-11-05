@@ -146,8 +146,9 @@ per pair when we get there, from the measured edges.
    or an oracle linking platform/linux) carries
    `target_compatible_with = ["@platforms//os:linux"]`, so wildcard runs skip
    it elsewhere; the rest (the text stack, MVT, geo, string, expression
-   types, the vendored geometry fixtures) also run and pass on macOS/arm64,
-   where `.bazelrc` builds the oracle with `-Wno-error`.
+   types, the vendored geometry fixtures) also run and pass on macOS/arm64.
+   `.bazelrc` builds the oracle with `-Wno-error`, because newer compilers
+   than upstream's warn in it.
 2. **Shared data suites**, read in place from `@maplibre//metrics`:
    - render tests (`integration/render-tests`, 184 groups) and query tests:
      same `style.json` files, fixtures, `expected*.png` and pixelmatch metric

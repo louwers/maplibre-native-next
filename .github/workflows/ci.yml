@@ -54,10 +54,12 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
+          # libgl-dev, libgles-dev and libx11-dev: the difftest oracles that
+          # link @maplibre//platform/linux:impl (GLX headless backend).
           sudo apt-get install -y --no-install-recommends \
-            clang libcurl4-openssl-dev libglfw3-dev libicu-dev libjpeg-dev \
-            libpng-dev libuv1-dev libvulkan1 libwebp-dev mesa-vulkan-drivers \
-            pkg-config zlib1g-dev
+            clang libcurl4-openssl-dev libgl-dev libgles-dev libglfw3-dev \
+            libicu-dev libjpeg-dev libpng-dev libuv1-dev libvulkan1 \
+            libwebp-dev libx11-dev mesa-vulkan-drivers pkg-config zlib1g-dev
 
       - name: Install system packages
         if: runner.os == 'macOS'
@@ -69,16 +71,131 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
 
+      # The adapter the GPU tests get (lavapipe on Linux, the VM's
+      # paravirtualized Metal on macOS), with its limits.
+      - name: GPU
+        working-directory: maplibre-native-next
+        env:
+          VK_DRIVER_FILES: /usr/share/vulkan/icd.d/lvp_icd.json
+        run: bazel run --config=ci //tools/gpu-info
+
+      # tools/ci/log-memory.sh logs memory use once a minute on Linux, where
+      # the runner has lost contact with GitHub mid-run before.
       - name: Test
         working-directory: maplibre-native-next
-        run: bazel test --config=ci //... //tools/render-test:render_tests
+        run: |
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            tools/ci/log-memory.sh & trap "kill $!" EXIT
+          fi
+          bazel test --config=ci //...
 
-      - name: Upload test logs
+      # The full render suite on its own. Under lavapipe its GPU memory is
+      # process memory (gigabytes), and the Linux runner (16 GB) lost contact
+      # with GitHub while it ran next to the other GPU tests.
+      - name: Render tests
+        if: success() || failure()
+        working-directory: maplibre-native-next
+        run: |
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            tools/ci/log-memory.sh & trap "kill $!" EXIT
+          fi
+          bazel test --config=ci //tools/render-test:render_tests
+
+      - name: Disk and memory usage
+        if: always()
+        run: |
+          df -h / "$HOME"
+          du -sh "$HOME"/.bazel "$HOME"/.cache/bazel* 2>/dev/null || true
+          if command -v free > /dev/null; then free -m; else vm_stat; fi
+
+      # The log and the TEST_UNDECLARED_OUTPUTS_DIR files (e.g. the actual
+      # and diff images of a failed image comparison) of each failed test.
+      - name: Collect the failed tests
+        if: failure()
+        working-directory: maplibre-native-next
+        run: |
+          grep -rlE '<(failure|error)[ >]' --include=test.xml bazel-testlogs/ |
+            while read -r xml; do
+              dir=$(dirname "$xml")
+              mkdir -p "$RUNNER_TEMP/failed-tests/$dir"
+              cp -R "$dir/test.log" "$dir/test.outputs" "$RUNNER_TEMP/failed-tests/$dir/" 2> /dev/null || true
+            done
+
+      - name: Upload the failed tests
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: testlogs-${{ runner.os }}
-          path: maplibre-native-next/bazel-testlogs/**/test.log
+          name: failed-tests-${{ runner.os }}
+          path: ${{ runner.temp }}/failed-tests
+          if-no-files-found: ignore
+
+  # The shared render suite in headless Chrome on the browser's own WebGPU:
+  # tools/render-test built for wasm32-unknown-unknown with wgpu's WebGPU
+  # backend (tools/web-test). The runners have no GPU, so Chrome's Dawn runs
+  # on SwiftShader's Vulkan, and run.mjs picks
+  # tools/render-test/manifests/web-swiftshader-wgpu.json.
+  web-render-tests:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 90
+    env:
+      # Chrome for Testing, pinned: the pixels depend on its Dawn and
+      # SwiftShader (tools/render-test/ignores/web-swiftshader.json).
+      CHROME_VERSION: 157.0.8103.38
+      CARGO_INCREMENTAL: 0
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: maplibre-native-next
+
+      # The test data (metrics/); no submodules needed.
+      - uses: actions/checkout@v5
+        with:
+          repository: ${{ env.MAPLIBRE_NATIVE_REPOSITORY }}
+          ref: ${{ env.MAPLIBRE_NATIVE_REF }}
+          path: maplibre-native
+
+      # clang compiles SQLite and ring for wasm32.
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang
+
+      - uses: browser-actions/setup-chrome@v2
+        id: chrome
+        with:
+          chrome-version: ${{ env.CHROME_VERSION }}
+          install-dependencies: true
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            maplibre-native-next/target/web-test/cargo
+            maplibre-native-next/target/web-test/tools
+          key: web-test-${{ runner.os }}-${{ hashFiles('maplibre-native-next/tools/web-test/Cargo.lock', 'maplibre-native-next/MODULE.bazel.lock') }}
+          restore-keys: web-test-${{ runner.os }}-
+
+      - name: Set up Rust
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update \
+            --target wasm32-unknown-unknown --component llvm-tools
+          rustup default stable
+
+      - name: Build
+        working-directory: maplibre-native-next
+        run: python3 -I tools/web-test/build.py
+
+      - name: Render tests in Chrome
+        working-directory: maplibre-native-next
+        run: node tools/web-test/run.mjs --no-build --chrome "${{ steps.chrome.outputs.chrome-path }}"
+
+      - name: Upload the results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-render-tests
+          path: maplibre-native-next/target/web-test/output
           if-no-files-found: ignore
 
   # The crates.io crate (RELEASING.md): assemble it and check that it
