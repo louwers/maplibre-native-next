@@ -183,6 +183,13 @@ passed). `//crates/...`, `//vendor/...` and `//tools/...` pass on macOS;
 `//difftest/...` stays Linux-only (the oracle comparisons are pinned to
 Linux x86-64).
 
+Status 2026-11-05: CI runs on all three GPU paths. Linux renders through
+Vulkan on lavapipe and macOS through Metal on the runners' paravirtualized
+GPU (`//...` plus the render suite on both). The browser path builds the
+render-test runner for wasm32-unknown-unknown on wgpu's WebGPU backend and
+runs the suite in headless Chrome (`tools/web-test`; SwiftShader on CI:
+1314 passed, 0 failed).
+
 Near-term target (2026-11-03), **OpenFreeMap Liberty**: 111 layers
 (background, raster PNG z0-6, 16 fill incl. 2 `fill-pattern`, 67 line incl. 17
 `line-dasharray`, 25 symbol with glyph PBFs and sprite icons, 1
