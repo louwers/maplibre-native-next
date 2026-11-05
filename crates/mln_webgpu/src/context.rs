@@ -3,7 +3,10 @@
 // Cycle avoidance: C++ members are references; resources here hold
 // `Rc<Context>`, so the context itself keeps no `Rc` to a resource that
 // points back at it (the cached tile buffers are raw wgpu buffers, the clip
-// mask shader a `Weak`).
+// mask shader a `Weak`). The exception is the placeholder vertex buffers
+// (port-only), which the backends release with `release_cached_buffers`
+// when they drop the context; otherwise the context, and with it the
+// device, would never be freed.
 //
 // TODO(port): `getOrCreateVertexBindings`, `createDynamicTexture`,
 // `createRenderTarget`, render jobs of the backend thread pool
@@ -132,6 +135,12 @@ impl Context {
     }
 
     /// The placeholder vertex buffers (see `UploadPass::dummy_vertex_buffer`).
+    /// Port-only: drops the placeholder vertex buffers, which hold an `Rc`
+    /// to this context (see the top of this file).
+    pub(crate) fn release_cached_buffers(&self) {
+        self.dummy_vertex_buffers.borrow_mut().clear();
+    }
+
     pub(crate) fn dummy_vertex_buffers(
         &self,
     ) -> &RefCell<HashMap<AttributeDataType, (usize, UniqueVertexBufferResource)>> {

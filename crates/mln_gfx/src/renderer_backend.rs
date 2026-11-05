@@ -32,9 +32,10 @@ impl RendererBackendBase {
         RendererBackendBase { unique_id: SimpleIdentity::new(), context: OnceCell::new(), context_mode }
     }
 
-    /// `context.reset()` in the backend destructors.
-    pub fn reset_context(&mut self) {
-        self.context.take();
+    /// `context.reset()` in the backend destructors. Returns the context, so
+    /// a backend can release what it caches before dropping it.
+    pub fn reset_context(&mut self) -> Option<Rc<dyn Context>> {
+        self.context.take()
     }
 }
 

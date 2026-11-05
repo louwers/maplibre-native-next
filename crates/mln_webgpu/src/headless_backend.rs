@@ -271,7 +271,7 @@ impl Drop for HeadlessBackend {
     fn drop(&mut self) {
         // Explicitly reset the renderable resource before the context
         self.set_resource(None);
-        self.renderer_backend.base.reset_context();
+        self.renderer_backend.reset_context();
         // The browser build: dropping a wgpu device there drops only the
         // JavaScript reference, and the device's GPU memory waits for the
         // garbage collector. Destroy it, as releasing the last reference

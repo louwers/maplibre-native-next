@@ -125,6 +125,16 @@ impl RendererBackend {
         &self.impl_
     }
 
+    /// `context.reset()`, which also releases the buffers the context caches
+    /// (`Context::release_cached_buffers`).
+    pub(crate) fn reset_context(&mut self) {
+        if let Some(context) = self.base.reset_context()
+            && let Some(context) = context.as_any().downcast_ref::<Context>()
+        {
+            context.release_cached_buffers();
+        }
+    }
+
     /// `createContext()`
     pub fn create_context(&self) -> Rc<Context> {
         Context::new(self.impl_.clone())
@@ -186,7 +196,6 @@ impl RendererBackend {
 
 impl Drop for RendererBackend {
     fn drop(&mut self) {
-        // `context.reset()`
-        self.base.reset_context();
+        self.reset_context();
     }
 }

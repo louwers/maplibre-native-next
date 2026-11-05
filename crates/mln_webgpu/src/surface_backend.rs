@@ -697,7 +697,7 @@ impl Drop for SurfaceBackend {
     fn drop(&mut self) {
         // ~GLFWWebGPUBackend: context.reset(), release the textures, pump
         // outstanding callbacks; the surface goes before the device.
-        self.renderer_backend.base.reset_context();
+        self.renderer_backend.reset_context();
         self.state.current.borrow_mut().take();
         self.state.depth_stencil.borrow_mut().take();
         self.state.process_events();
