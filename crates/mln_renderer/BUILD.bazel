@@ -20,6 +20,7 @@ rust_library(
         "//crates/mln_tile_id",
         "//crates/mln_util",
         "//vendor/earcut",
+        "//vendor/geojson-vt:geojson_vt",
         "//vendor/libstdcxx",
         "//vendor/maplibre-native-base:maplibre_native_base",
         "//vendor/nunicode",

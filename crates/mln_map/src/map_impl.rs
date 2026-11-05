@@ -18,6 +18,7 @@ use crate::map_observer::{CameraChangeMode, MapLoadError, MapObserver, RenderFra
 use crate::map_options::MapOptions;
 use crate::transform::{Transform, TransformObserver};
 use mln_map_types::{CameraOptions, MapDebugOptions, MapMode, TileLodMode};
+use mln_renderer::annotation::AnnotationManager;
 use mln_renderer::{ExceptionPtr, RenderMode, RendererFrontend, RendererObserver, UpdateParameters};
 use mln_style::observer::{Observer as StyleObserver, SourceObserver};
 use mln_style::source::Source;
@@ -136,9 +137,12 @@ pub struct MapImpl {
     pub(crate) capture_rendered_features: bool,
 
     pub(crate) debug_options: Cell<MapDebugOptions>,
-    // TODO(port): renderingStatsView, lastFrameStats, annotationManager.
+    // TODO(port): renderingStatsView, lastFrameStats.
     pub(crate) style: RefCell<Style>,
     pending_style_events: RefCell<Vec<StyleEvent>>,
+    /// `AnnotationManager annotationManager` (shared with the renderer
+    /// through `UpdateParameters`, C++ `annotationManager.makeWeakPtr()`).
+    pub(crate) annotation_manager: Arc<AnnotationManager>,
 
     pub(crate) camera_mutated: Cell<bool>,
 
@@ -191,6 +195,7 @@ impl MapImpl {
             debug_options: Cell::new(MapDebugOptions::NO_DEBUG),
             style: RefCell::new(Style::with_file_source(file_source.clone(), pixel_ratio, thread_pool)),
             pending_style_events: RefCell::new(Vec::new()),
+            annotation_manager: Arc::new(AnnotationManager::new()),
             camera_mutated: Cell::new(false),
             // util::DEFAULT_PREFETCH_ZOOM_DELTA
             prefetch_zoom_delta: Cell::new(4),
@@ -310,6 +315,7 @@ impl MapImpl {
                 sources: style_impl.get_source_impls(),
                 layers: style_impl.get_layer_impls(),
                 global_state: Some(style_impl.get_global_state_shared()),
+                annotation_manager: Arc::downgrade(&self.annotation_manager),
                 file_source: self.file_source.clone(),
                 prefetch_zoom_delta: self.prefetch_zoom_delta.get(),
                 still_image_request: self.still_image_request.borrow().is_some(),
@@ -338,8 +344,21 @@ impl MapImpl {
             let camera = self.style.borrow().get_default_camera();
             self.jump_to(&camera);
         }
-        // TODO(port): if (LayerManager::annotationsEnabled)
-        // annotationManager.onStyleLoaded() (see DEVIATIONS.md).
+        {
+            // The style::Observer calls updateStyle makes (C++ handles them
+            // inside it) are queued while the style is borrowed; handle
+            // them before the observer hears of the load.
+            let first_new_event = self.pending_style_events.borrow().len();
+            {
+                let mut style = self.style.borrow_mut();
+                self.annotation_manager.on_style_loaded(&mut style.impl_);
+            }
+            let new_events: Vec<StyleEvent> =
+                self.pending_style_events.borrow_mut().drain(first_new_event..).collect();
+            for event in new_events {
+                self.handle_style_event(event);
+            }
+        }
 
         self.observer.on_did_finish_loading_style();
 

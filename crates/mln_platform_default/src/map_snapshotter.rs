@@ -17,17 +17,17 @@
 // - The MapObserver half of `MapSnapshotter::Impl` is `SnapshotterMapObserver`
 //   (the Map owns its observer as an `Rc`; the Impl owns the Map).
 //
-// TODO(port): addAnnotationImage/addAnnotation (annotations are not ported),
-// localFontFamily, getThreadPool.
+// TODO(port): localFontFamily, getThreadPool.
 
 use crate::headless_frontend::HeadlessFrontend;
 use mln_actor::{ActorRef, Mailbox, scheduler};
 use mln_gfx::{ContextMode, SwapBehaviour};
 use mln_map::transform::Transform;
-use mln_map::{CameraOptions, Map, MapLoadError, MapMode, MapObserver, MapOptions, TransformState};
+use mln_map::{Annotation, CameraOptions, Map, MapLoadError, MapMode, MapObserver, MapOptions, TransformState};
 use mln_renderer::{ExceptionPtr, RenderMode, RendererFrontend, RendererObserver, UpdateParameters};
 use mln_storage::{ClientOptions, ResourceOptions};
 use mln_style::Style;
+use mln_style::image::Image;
 use mln_util::exception::MisuseException;
 use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds, ScreenCoordinate, WrapMode};
 use mln_util::image::PremultipliedImage;
@@ -511,9 +511,16 @@ impl MapSnapshotter {
         self.impl_.get_padding()
     }
 
-    // TODO(port): addAnnotationImage(std::unique_ptr<style::Image>) and
-    // addAnnotation(const Annotation&) (Map::addAnnotation*; annotations are
-    // not ported).
+    /// `addAnnotationImage(std::unique_ptr<style::Image>)`.
+    pub fn add_annotation_image(&self, image: Image) {
+        self.impl_.map.borrow_mut().add_annotation_image(image);
+    }
+
+    /// `addAnnotation(const Annotation&)`. C++ lets `Map::addAnnotation`'s
+    /// exception propagate; this returns its error.
+    pub fn add_annotation(&self, annotation: &Annotation) -> Result<(), String> {
+        self.impl_.map.borrow_mut().add_annotation(annotation).map(|_| ())
+    }
 
     /// `getStyle()`: runs `f` with the map's style.
     pub fn with_style<R>(&self, f: impl FnOnce(&mut Style) -> R) -> R {

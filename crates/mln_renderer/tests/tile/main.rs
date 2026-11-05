@@ -57,6 +57,7 @@ impl RasterTileTest {
             transform_state: &self.transform_state,
             file_source: Some(file_source),
             mode: MapMode::Continuous,
+            annotation_manager: std::sync::Weak::new(),
             prefetch_zoom_delta: 0,
             thread_pool: self.thread_pool.clone(),
             tile_lod_min_radius: 3.0,

@@ -3,7 +3,8 @@
 // C++ keeps the tile's `GeometryTileFeature` (which may borrow the source
 // layer the SymbolLayout holds). A Rust feature borrows its layer, and the
 // layout lives across worker messages, so a SymbolFeature keeps an owned
-// copy of what the layout reads: type, id, properties and the geometry
+// copy of what the layout reads: type, id, properties (and the values
+// `getValue` answers, where they differ: `get_values`) and the geometry
 // (C++ also clones the geometry, for mergeLines).
 
 use mln_expression::image::Image;
@@ -18,6 +19,8 @@ pub struct SymbolFeature {
     feature_type: FeatureType,
     id: Identifier,
     properties: PropertyMap,
+    /// `feature->getValue(key)`, where it does not read the properties.
+    values: Option<PropertyMap>,
     /// The feature's own geometry (`feature->getGeometries()`).
     original_geometry: GeometryCollection,
     /// The mutable copy (`geometry`), merged by mergeLines and cleared once
@@ -37,6 +40,7 @@ impl SymbolFeature {
             feature_type: feature.get_type(),
             id: feature.get_id(),
             properties: feature.get_properties().clone(),
+            values: feature.get_values(),
             original_geometry: geometry.clone(),
             geometry,
             formatted_text: None,
@@ -53,7 +57,7 @@ impl GeometryTileFeature for SymbolFeature {
     }
 
     fn get_value(&self, key: &str) -> Option<Value> {
-        self.properties.get(key).cloned()
+        self.values.as_ref().unwrap_or(&self.properties).get(key).cloned()
     }
 
     fn get_properties(&self) -> &PropertyMap {

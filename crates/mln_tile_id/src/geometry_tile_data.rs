@@ -103,6 +103,15 @@ pub trait GeometryTileFeature {
     fn get_geometries(&self) -> &GeometryCollection {
         &EMPTY_GEOMETRIES
     }
+
+    /// Port-only: the values `get_value` answers, for a feature whose
+    /// `get_value` does not read `get_properties()` (the default, `None`,
+    /// means it does). A SymbolFeature keeps a copy of its feature where C++
+    /// keeps the feature itself and calls `getValue`; an annotation feature
+    /// answers `getValue` from properties its `getProperties` leaves out.
+    fn get_values(&self) -> Option<PropertyMap> {
+        None
+    }
 }
 
 /// `GeometryTileLayer`.

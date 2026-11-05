@@ -15,8 +15,8 @@ use maplibre_native_base::Value;
 use mln_actor::{RunLoop, Timer};
 use mln_gfx::{BackendScope, ScopeType};
 use mln_map::{
-    BoundOptions, CameraOptions, ConstrainMode, Map, MapMode, MapOptions, MapProjection, NorthOrientation,
-    ProjectionMode, RenderMode, TileLodMode, ViewportMode,
+    BoundOptions, CameraOptions, ConstrainMode, LineAnnotation, Map, MapMode, MapOptions, MapProjection,
+    NorthOrientation, ProjectionMode, RenderMode, ShapeAnnotationGeometry, TileLodMode, ViewportMode,
 };
 use mln_platform_default::HeadlessFrontend;
 use mln_renderer::{RendererFrontend, RendererObserver, UpdateParameters};
@@ -847,7 +847,6 @@ fn style_expired() {
 
 // gtest: Map.StyleExpiredWithAnnotations
 #[test]
-#[ignore = "TODO(port): annotations (Map::addAnnotation, AnnotationManager); see map.test.cpp:647"]
 fn style_expired_with_annotations() {
     // Adding an annotation should not prevent revalidation of an expired style.
     let test = MapTest::fake();
@@ -860,7 +859,15 @@ fn style_expired_with_annotations() {
     test.file_source.respond(Kind::Style, &response);
     assert_eq!(1, test.file_source.requests_len());
 
-    // TODO(port): test.map.addAnnotation(LineAnnotation{LineString<double>{{{0, 0}, {10, 10}}}});
+    test.map()
+        .add_annotation(
+            &LineAnnotation::new(ShapeAnnotationGeometry::LineString(vec![
+                Point::new(0.0, 0.0),
+                Point::new(10.0, 10.0),
+            ]))
+            .into(),
+        )
+        .unwrap();
     assert_eq!(1, test.file_source.requests_len());
 
     test.file_source.respond(Kind::Style, &response);
@@ -2177,7 +2184,6 @@ fn style_update_zoom_dependency() {
 
 // gtest: Map.LineLayerDepthDistribution
 #[test]
-#[ignore = "TODO(port): annotations: in C++ the AnnotationManager's points layer is the style's first layer, so the background added here is drawn per tile; the port has no annotation layer, so the background becomes the clear color and also fills the 5 rows above the pitched world that C++ leaves transparent (measured: 0.01953125 > 0.0006, exactly those 5 rows; DEVIATIONS.md [render] Layers without a source); see map.test.cpp:2105"]
 fn line_layer_depth_distribution() {
     let test = MapTest::new();
 
@@ -2239,7 +2245,6 @@ fn line_layer_depth_distribution() {
 
 // gtest: Map.SetFrustumOffset
 #[test]
-#[ignore = "TODO(port): annotations: in C++ the AnnotationManager's points layer is the style's first layer, so the background added here is drawn as a drawable inside the frustum-offset scissor; the port has no annotation layer, so the background becomes the clear color, which fills the whole frame (measured on `after`: 0.628662109375 > 0.0006; `before` passes; DEVIATIONS.md [render] Layers without a source); see map.test.cpp:2156"]
 fn set_frustum_offset() {
     let test = MapTest::new();
 

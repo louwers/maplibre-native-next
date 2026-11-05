@@ -8,6 +8,8 @@
 // by the orchestrator), which forwards to the source's observer exactly as
 // RenderSource::onTileChanged etc. do.
 
+use crate::annotation::annotation_source;
+use crate::annotation::render_annotation_source::RenderAnnotationSource;
 use crate::paint_parameters::TransformParameters;
 use crate::render_tile::RenderTile;
 use crate::render_tree::RenderItem;
@@ -312,10 +314,13 @@ pub fn create(impl_: &Immutable<dyn source::Impl>, thread_pool: &TaggedScheduler
             debug_assert!(false);
             None
         }
-        // TODO(port): RenderRasterDEMSource,
-        // RenderAnnotationSource, RenderImageSource,
-        // RenderCustomGeometrySource, RenderCustomVectorSource. The
-        // orchestrator skips the layers of a source without a render source.
+        SourceType::Annotations => Some(Box::new(RenderAnnotationSource::new(
+            source::static_immutable_cast::<annotation_source::Impl>(impl_),
+            thread_pool,
+        ))),
+        // TODO(port): RenderCustomGeometrySource, RenderCustomVectorSource.
+        // The orchestrator skips the layers of a source without a render
+        // source.
         _ => None,
     }
 }

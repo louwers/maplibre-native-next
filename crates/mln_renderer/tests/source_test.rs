@@ -62,6 +62,7 @@ fn tile_parameters<'a>(
         transform_state,
         file_source,
         mode: map_mode,
+        annotation_manager: std::sync::Weak::new(),
         prefetch_zoom_delta: 0,
         thread_pool: thread_pool.clone(),
         tile_lod_min_radius: 3.0,

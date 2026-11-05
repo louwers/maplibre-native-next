@@ -3,6 +3,8 @@
 //! (`CameraOptions`, `MapMode`, `TransformState`, ...) lives in
 //! `mln_map_types` and is re-exported here.
 
+/// `src/mln/annotation` lives in mln_renderer (see its module comment).
+pub use mln_renderer::annotation;
 pub mod map;
 pub mod map_impl;
 pub mod map_observer;
@@ -11,6 +13,10 @@ pub mod map_options;
 pub mod map_projection;
 pub mod transform;
 
+pub use annotation::{
+    Annotation, AnnotationID, AnnotationIDs, FillAnnotation, LineAnnotation, ShapeAnnotationGeometry,
+    SymbolAnnotation,
+};
 pub use map::Map;
 pub use map_impl::{StillImageCallback, StyleMut};
 pub use map_observer::{CameraChangeMode, MapLoadError, MapObserver, NullMapObserver, RenderFrameStatus, RenderMode};

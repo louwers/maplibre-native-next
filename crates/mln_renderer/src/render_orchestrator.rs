@@ -8,9 +8,9 @@
 // the renderer, so that half is `OrchestratorSourceObserver`, an `Rc` that
 // shares the orchestrator's observer.
 //
-// Not yet ported (TODO(port) at each use): annotations, glyph eviction,
-// image-manager memory trimming, DynamicFeatureIndex (location indicator),
-// shape-annotation and feature-extension queries, debug layer groups.
+// Not yet ported (TODO(port) at each use): glyph eviction, image-manager
+// memory trimming, DynamicFeatureIndex (location indicator),
+// feature-extension queries, debug layer groups.
 
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlas, DynamicTextureAtlasPtr};
@@ -329,7 +329,9 @@ impl RenderOrchestrator {
             self.zoom_history.first = true;
         }
 
-        // TODO(port): annotationManager->updateData() (annotations).
+        if let Some(annotation_manager) = update_parameters.annotation_manager.upgrade() {
+            annotation_manager.update_data();
+        }
 
         let zoom_changed = self
             .zoom_history
@@ -370,13 +372,13 @@ impl RenderOrchestrator {
         evaluation_parameters.global_state_changed = global_state_changed;
         evaluation_parameters.changed_global_state_keys = changed_global_state_keys.clone();
 
-        // TODO(port): annotationManager in TileParameters.
         let mut tile_parameters = TileParameters {
             pixel_ratio: update_parameters.pixel_ratio,
             debug_options: update_parameters.debug_options,
             transform_state: &update_parameters.transform_state,
             file_source: update_parameters.file_source.clone(),
             mode: update_parameters.mode,
+            annotation_manager: update_parameters.annotation_manager.clone(),
             prefetch_zoom_delta: update_parameters.prefetch_zoom_delta,
             thread_pool: self.thread_pool.clone(),
             tile_lod_min_radius: update_parameters.tile_lod_min_radius,
@@ -567,23 +569,13 @@ impl RenderOrchestrator {
         let mut update_list: Vec<bool> = vec![false; self.ordered_layers.len()];
 
         // Update all sources and initialize renderItems.
-        //
-        // DEVIATION: C++ always has at least one source, the annotation
-        // source that AnnotationManager::onStyleLoaded adds to every style,
-        // and handles the layers without a source (background) while it
-        // iterates over the first source. Annotations are not ported yet, so
-        // with no style sources the loop runs once without a source. See
-        // DEVIATIONS.md.
-        let source_count = std::cmp::max(self.source_impls.len(), 1);
-        for source_index in 0..source_count {
-            let source_impl = self.source_impls.get(source_index).cloned();
+        for source_index in 0..self.source_impls.len() {
+            let source_impl = self.source_impls[source_index].clone();
             let mut source_needs_rendering = false;
             let mut source_needs_relayout = false;
             // C++ has a render source for every source type; the port skips
             // the layers of a source type without one (TODO(port)).
-            let has_render_source = source_impl
-                .as_ref()
-                .is_some_and(|source_impl| self.render_sources.contains_key(&source_impl.base().id));
+            let has_render_source = self.render_sources.contains_key(&source_impl.base().id);
 
             for (index, layer_ptr) in self.ordered_layers.iter().enumerate() {
                 let layer = layer_ptr.borrow();
@@ -594,51 +586,49 @@ impl RenderOrchestrator {
                 render_tree_parameters.has_3d |= layer_info.pass3d == layer_type_info::Pass3D::Required;
 
                 if layer_info.source != layer_type_info::Source::NotRequired {
-                    if let Some(source_impl) = &source_impl {
-                        if has_render_source && base_impl.source == source_impl.base().id {
-                            let layer_id = layer.get_id().to_owned();
-                            // A global state change requires a relayout of
-                            // this layer's source if one of the changed state
-                            // properties is referenced by anything that is
-                            // baked into the tile's buckets.
-                            let global_state_requires_relayout = {
-                                if !global_state_changed
-                                    || !(base_impl.get_layout_dependencies()
-                                        | layer.base().evaluated_properties.get_evaluated_dependencies())
-                                    .intersects(Dependency::GLOBAL_STATE)
-                                {
-                                    false
-                                } else if changed_global_state_keys.is_none() {
-                                    true
-                                } else {
-                                    let mut refs = BTreeSet::new();
-                                    base_impl.collect_layout_global_state_refs(&mut refs);
-                                    layer
-                                        .base()
-                                        .evaluated_properties
-                                        .collect_evaluated_global_state_refs(&mut refs);
-                                    mln_style::expression::global_state_refs_intersect(
-                                        Some(&refs),
-                                        changed_global_state_keys.as_deref(),
-                                    )
-                                }
-                            };
-                            source_needs_relayout = source_needs_relayout
-                                || _has_image_diff
-                                || constants_mask_changed.contains(&layer_id)
-                                || has_layout_difference(&layer_diff, &layer_id)
-                                || global_state_requires_relayout;
-                            if layer_is_visible {
-                                self.filtered_layers_for_source
-                                    .push(layer.base().evaluated_properties.clone());
-                                if zoom_fits_layer {
-                                    source_needs_rendering = true;
-                                    let source_id = source_impl.base().id.clone();
-                                    layer_render_items.entry(index as u32).or_insert_with(|| {
-                                        LayerRenderItem::new(layer_ptr.clone(), Some(source_id), index as u32)
-                                    });
-                                    update_list[index] = true;
-                                }
+                    if has_render_source && base_impl.source == source_impl.base().id {
+                        let layer_id = layer.get_id().to_owned();
+                        // A global state change requires a relayout of
+                        // this layer's source if one of the changed state
+                        // properties is referenced by anything that is
+                        // baked into the tile's buckets.
+                        let global_state_requires_relayout = {
+                            if !global_state_changed
+                                || !(base_impl.get_layout_dependencies()
+                                    | layer.base().evaluated_properties.get_evaluated_dependencies())
+                                .intersects(Dependency::GLOBAL_STATE)
+                            {
+                                false
+                            } else if changed_global_state_keys.is_none() {
+                                true
+                            } else {
+                                let mut refs = BTreeSet::new();
+                                base_impl.collect_layout_global_state_refs(&mut refs);
+                                layer
+                                    .base()
+                                    .evaluated_properties
+                                    .collect_evaluated_global_state_refs(&mut refs);
+                                mln_style::expression::global_state_refs_intersect(
+                                    Some(&refs),
+                                    changed_global_state_keys.as_deref(),
+                                )
+                            }
+                        };
+                        source_needs_relayout = source_needs_relayout
+                            || _has_image_diff
+                            || constants_mask_changed.contains(&layer_id)
+                            || has_layout_difference(&layer_diff, &layer_id)
+                            || global_state_requires_relayout;
+                        if layer_is_visible {
+                            self.filtered_layers_for_source
+                                .push(layer.base().evaluated_properties.clone());
+                            if zoom_fits_layer {
+                                source_needs_rendering = true;
+                                let source_id = source_impl.base().id.clone();
+                                layer_render_items.entry(index as u32).or_insert_with(|| {
+                                    LayerRenderItem::new(layer_ptr.clone(), Some(source_id), index as u32)
+                                });
+                                update_list[index] = true;
                             }
                         }
                     }
@@ -646,8 +636,7 @@ impl RenderOrchestrator {
                 }
 
                 // Handle layers without source.
-                let is_first_source = source_index == 0;
-                if layer_is_visible && zoom_fits_layer && is_first_source {
+                if layer_is_visible && zoom_fits_layer && source_index == 0 {
                     if self.background_layer_as_color && Arc::ptr_eq(&base_impl, &self.layer_impls[0]) {
                         let solid_background = layer.get_solid_background();
                         if let Some(solid_background) = solid_background {
@@ -662,23 +651,21 @@ impl RenderOrchestrator {
                     update_list[index] = true;
                 }
             }
-            if let Some(source_impl) = &source_impl {
-                tile_parameters.is_update_synchronous = source_impl.is_update_synchronous();
-                let filtered_layers = std::mem::take(&mut self.filtered_layers_for_source);
-                // C++ `renderSources.at(sourceImpl->id)`; a source type
-                // without a render source port has none (TODO(port)).
-                if let Some(source) = self.render_sources.get_mut(&source_impl.base().id) {
-                    source.update(
-                        source_impl.clone(),
-                        &filtered_layers,
-                        source_needs_rendering,
-                        source_needs_relayout,
-                        &tile_parameters,
-                    );
-                }
-                self.filtered_layers_for_source = filtered_layers;
-                self.filtered_layers_for_source.clear();
+            tile_parameters.is_update_synchronous = source_impl.is_update_synchronous();
+            let filtered_layers = std::mem::take(&mut self.filtered_layers_for_source);
+            // C++ `renderSources.at(sourceImpl->id)`; a source type without
+            // a render source port has none (TODO(port)).
+            if let Some(source) = self.render_sources.get_mut(&source_impl.base().id) {
+                source.update(
+                    source_impl.clone(),
+                    &filtered_layers,
+                    source_needs_rendering,
+                    source_needs_relayout,
+                    &tile_parameters,
+                );
             }
+            self.filtered_layers_for_source = filtered_layers;
+            self.filtered_layers_for_source.clear();
 
             // Update all layers with their new renderability status, if it
             // changed.
@@ -1300,8 +1287,29 @@ impl RenderOrchestrator {
         source.query_source_features(options, self.global_state.as_deref())
     }
 
-    // TODO(port): queryShapeAnnotations, queryFeatureExtensions, debug layer
-    // groups, dumpDebugLogs and the glyph/tile observer callbacks.
+    /// `queryShapeAnnotations(const ScreenLineString&)`.
+    pub fn query_shape_annotations(
+        &self,
+        geometry: &[mln_util::geo::ScreenCoordinate],
+    ) -> Vec<mln_util::feature::Feature> {
+        let options = crate::query::RenderedQueryOptions::default();
+        let render_layers: Vec<std::cell::Ref<'_, dyn crate::render_layer::RenderLayer>> = self
+            .layer_impls
+            .iter()
+            .filter(|layer_impl| layer_impl.id.starts_with(crate::annotation::annotation_manager::SHAPE_LAYER_ID))
+            .filter_map(|layer_impl| self.render_layers.get(&layer_impl.id))
+            .map(|layer| layer.borrow())
+            .collect();
+        let mut shape_annotation_layers = crate::geometry::feature_index::QueryLayers::new();
+        for layer in &render_layers {
+            shape_annotation_layers.entry(layer.get_id().to_owned()).or_insert(&**layer);
+        }
+
+        self.query_rendered_features_in(geometry, &options, &shape_annotation_layers)
+    }
+
+    // TODO(port): queryFeatureExtensions, debug layer groups, dumpDebugLogs
+    // and the glyph/tile observer callbacks.
     // layers: feature state
     /// `setFeatureState(sourceID, sourceLayerID, featureID, state)`.
     pub fn set_feature_state(

@@ -4,20 +4,22 @@ use mln_actor::TaggedScheduler;
 use mln_map_types::{MapDebugOptions, MapMode, TileLodMode, TransformState};
 use mln_storage::FileSource;
 use mln_style::expression::GlobalStateMap;
+use crate::annotation::AnnotationManager;
 use crate::gfx::dynamic_texture_atlas::DynamicTextureAtlasPtr;
 use crate::image_manager::ImageManager;
 use crate::text::glyph_manager::GlyphManager;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 /// `TileParameters`.
-// TODO(port): annotationManager.
 pub struct TileParameters<'a> {
     pub pixel_ratio: f32,
     pub debug_options: MapDebugOptions,
     pub transform_state: &'a TransformState,
     pub file_source: Option<Arc<dyn FileSource>>,
     pub mode: MapMode,
+    /// `mapbox::base::WeakPtr<AnnotationManager> annotationManager`.
+    pub annotation_manager: Weak<AnnotationManager>,
     pub prefetch_zoom_delta: u8,
     pub thread_pool: TaggedScheduler,
     pub tile_lod_min_radius: f64,

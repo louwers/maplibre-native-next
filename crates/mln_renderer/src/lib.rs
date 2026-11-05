@@ -1,6 +1,7 @@
 //! Ports `src/mln/renderer` (+ `include/mln/renderer`) and `util/tile_cover`.
 
 pub mod algorithm;
+pub mod annotation;
 pub mod bucket;
 pub mod bucket_parameters;
 pub mod buckets;

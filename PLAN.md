@@ -89,9 +89,9 @@ all). Cutting there gives this layering, bottom to top:
 | `mln_style` | `style/` (layers, sources, properties, parser, light) | the `Interpolator` impls for style types live here (orphan rule) |
 | `mln_gfx` | `gfx/`, `shaders/` registry, `programs/` | backend-independent drawables, passes, uniform buffers |
 | `mln_webgpu` | `webgpu/` | the first backend: on the `wgpu` crate, using the C++ backend's WGSL sources unchanged |
-| `mln_renderer` | `renderer/`, `util/tile_cover`, `format_section_override` | |
+| `mln_renderer` | `renderer/`, `annotation/`, `util/tile_cover`, `format_section_override` | `annotation/` is re-exported as `mln_map::annotation`: the renderer includes it and it includes nothing above the renderer |
 | `mln_tile`, `mln_storage`, `mln_text`, `mln_layout`, `mln_sprite`, `mln_algorithm`, `mln_geometry` | the matching modules | phases 3-5 |
-| `mln_map` | `map/`, `annotation/`, `layermanager/`, `util/{camera,action_journal}` | top of the core |
+| `mln_map` | `map/`, `layermanager/`, `util/{camera,action_journal}` | top of the core |
 | `mln_platform_default` | `platform/default` (headless frontend and backend, file sources) | |
 | `//tools/render-test`, `//tools/expression-test` | `render-test/`, `expression-test/` | run the shared suites |
 | `//difftest/<area>` | | Rust vs. C++ differential tests |

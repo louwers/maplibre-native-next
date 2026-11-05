@@ -7,9 +7,11 @@ use mln_map_types::{
     AnimationOptions, BoundOptions, CameraOptions, ConstrainMode, MapDebugOptions, MapMode, NorthOrientation,
     ProjectionMode, TileLodMode, TransformState, ViewportMode,
 };
+use mln_renderer::annotation::{Annotation, AnnotationID};
 use mln_renderer::{ExceptionPtr, RendererFrontend};
 use mln_storage::{ClientOptions, FileSourceManager, FileSourceType, ResourceOptions};
 use mln_style::Style;
+use mln_style::image::Image;
 use mln_util::exception::MisuseException;
 use mln_util::geo::{EdgeInsets, ScreenCoordinate};
 use mln_util::size::Size;
@@ -547,8 +549,65 @@ impl Map {
         self.impl_.transform.borrow().get_free_camera_options()
     }
 
-    // TODO(port): annotations, rendering stats view, setFreeCameraOptions,
-    // rendered features.
+    // TODO(port): rendering stats view, setFreeCameraOptions, rendered
+    // features.
+
+    // MARK: - Annotations
+    //
+    // The AnnotationManager changes the style through the map's style
+    // (`StyleMut`, which delivers the style::Observer calls it makes when it
+    // drops); see mln_renderer::annotation.
+
+    /// `addAnnotationImage(std::unique_ptr<style::Image>)`.
+    pub fn add_annotation_image(&mut self, image: Image) {
+        let mut style = StyleMut::new(&self.impl_);
+        self.impl_.annotation_manager.add_image(&mut style.impl_, image);
+    }
+
+    /// `removeAnnotationImage(const std::string&)`.
+    pub fn remove_annotation_image(&mut self, id: &str) {
+        let mut style = StyleMut::new(&self.impl_);
+        self.impl_.annotation_manager.remove_image(&mut style.impl_, id);
+    }
+
+    /// `getTopOffsetPixelsForAnnotationImage(const std::string&)`.
+    pub fn get_top_offset_pixels_for_annotation_image(&self, id: &str) -> f64 {
+        self.impl_.annotation_manager.get_top_offset_pixels_for_image(id)
+    }
+
+    /// `addAnnotation(const Annotation&)`. C++ throws `std::domain_error`
+    /// for a symbol annotation at an invalid latitude or longitude; that is
+    /// the error here.
+    pub fn add_annotation(&mut self, annotation: &Annotation) -> Result<AnnotationID, String> {
+        let result = {
+            let mut style = StyleMut::new(&self.impl_);
+            self.impl_.annotation_manager.add_annotation(&mut style.impl_, annotation)?
+        };
+        self.impl_.on_update();
+        Ok(result)
+    }
+
+    /// `updateAnnotation(AnnotationID, const Annotation&)`. Errors as for
+    /// `add_annotation`.
+    pub fn update_annotation(&mut self, id: AnnotationID, annotation: &Annotation) -> Result<(), String> {
+        let changed = {
+            let mut style = StyleMut::new(&self.impl_);
+            self.impl_.annotation_manager.update_annotation(&mut style.impl_, id, annotation)?
+        };
+        if changed {
+            self.impl_.on_update();
+        }
+        Ok(())
+    }
+
+    /// `removeAnnotation(AnnotationID)`.
+    pub fn remove_annotation(&mut self, annotation: AnnotationID) {
+        {
+            let mut style = StyleMut::new(&self.impl_);
+            self.impl_.annotation_manager.remove_annotation(&mut style.impl_, annotation);
+        }
+        self.impl_.on_update();
+    }
 
     // MARK: - Debug
 

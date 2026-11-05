@@ -92,6 +92,52 @@ impl Renderer {
         )
     }
 
+    /// `queryPointAnnotations(const ScreenBox&)` (the box as its corners,
+    /// as for `query_rendered_features_in_box`).
+    pub fn query_point_annotations(
+        &self,
+        min: &mln_util::geo::ScreenCoordinate,
+        max: &mln_util::geo::ScreenCoordinate,
+    ) -> crate::annotation::AnnotationIDs {
+        let options = crate::query::RenderedQueryOptions::new(
+            Some(vec![crate::annotation::annotation_manager::POINT_LAYER_ID.to_owned()]),
+            None,
+        );
+        let features = self.query_rendered_features_in_box(min, max, &options);
+        self.get_annotation_ids(&features)
+    }
+
+    /// `queryShapeAnnotations(const ScreenBox&)`.
+    pub fn query_shape_annotations(
+        &self,
+        min: &mln_util::geo::ScreenCoordinate,
+        max: &mln_util::geo::ScreenCoordinate,
+    ) -> crate::annotation::AnnotationIDs {
+        use mln_util::geo::ScreenCoordinate;
+        let features = self.impl_ref().orchestrator.query_shape_annotations(&[
+            *min,
+            ScreenCoordinate::new(max.x, min.y),
+            *max,
+            ScreenCoordinate::new(min.x, max.y),
+            *min,
+        ]);
+        self.get_annotation_ids(&features)
+    }
+
+    /// `getAnnotationIDs(const std::vector<Feature>&)`: the features' ids,
+    /// sorted and without duplicates.
+    pub fn get_annotation_ids(&self, features: &[mln_util::feature::Feature]) -> crate::annotation::AnnotationIDs {
+        let mut set = std::collections::BTreeSet::new();
+        for feature in features {
+            let maplibre_native_base::Identifier::Uint(id) = feature.id else {
+                debug_assert!(false, "annotation feature id is not a uint64_t");
+                continue;
+            };
+            set.insert(id);
+        }
+        set.into_iter().collect()
+    }
+
     /// `querySourceFeatures(sourceID, options)`.
     pub fn query_source_features(
         &self,

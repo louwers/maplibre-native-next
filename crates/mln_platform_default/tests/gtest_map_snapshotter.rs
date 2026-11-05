@@ -5,7 +5,9 @@
 // sources are process-wide; gtest runs one test at a time).
 
 use crate::support::*;
+use maplibre_native_base::Point;
 use mln_actor::{RunLoop, Timer};
+use mln_map::{FillAnnotation, LineAnnotation, ShapeAnnotationGeometry, SymbolAnnotation};
 use mln_platform_default::map_snapshotter::{MapSnapshotter, MapSnapshotterObserver};
 use mln_storage::{ClientOptions, ResourceOptions};
 use mln_style::PropertyValue;
@@ -24,6 +26,14 @@ const GREEN_BACKGROUND_STYLE: &str = r#"{
             "paint": {"background-color": "green"}
         }]
     }"#;
+
+/// `namedMarker(name)`: `style::Image(name, namedImage(name), 1.0f)` of
+/// test/fixtures/sprites/<name>.png.
+fn named_marker(name: &str) -> mln_style::image::Image {
+    let image = decode_image(&format!("test/fixtures/sprites/{name}.png"));
+    mln_style::image::Image::new(name.to_owned(), image, 1.0, false, Vec::new(), Vec::new(), None, None, None)
+        .expect("style::Image")
+}
 
 #[derive(Default)]
 struct SnapshotterObserver {
@@ -178,9 +188,45 @@ fn runtime_styling() {
 
 // gtest: MapSnapshotter.annotation
 #[test]
-#[ignore = "TODO(port): annotations (MapSnapshotter::addAnnotationImage/addAnnotation over Map::addAnnotation*, AnnotationManager, the annotation source); see map_snapshotter.test.cpp:150"]
 fn annotation() {
-    // Symbol, fill and line annotations show in the snapshot of
-    // /online/style.json (test/fixtures/map/map_snapshotter_annotation,
-    // 0.005, 0.1).
+    let _serial = network_serial();
+    let server = HttpServer::new();
+    let run_loop = RunLoop::new();
+    let snapshotter = MapSnapshotter::new(
+        Size::new(256, 128),
+        1.0,
+        &ResourceOptions::default(),
+        &ClientOptions::default(),
+    );
+    snapshotter.set_style_url(&server.url("/online/style.json"));
+    snapshotter.add_annotation_image(named_marker("default_marker"));
+    snapshotter
+        .add_annotation(&SymbolAnnotation::new(Point::new(0.0, 0.0), "default_marker").into())
+        .expect("addAnnotation");
+    let mut fill_annotation = FillAnnotation::new(ShapeAnnotationGeometry::Polygon(vec![vec![
+        Point::new(0.0, 0.0),
+        Point::new(0.0, 45.0),
+        Point::new(45.0, 45.0),
+        Point::new(45.0, 0.0),
+    ]]));
+    fill_annotation.color = PropertyValue::Constant(Color::red());
+    snapshotter.add_annotation(&fill_annotation.into()).expect("addAnnotation");
+    let mut line_annotation = LineAnnotation::new(ShapeAnnotationGeometry::LineString(vec![
+        Point::new(0.0, 0.0),
+        Point::new(45.0, 45.0),
+        Point::new(30.0, 0.0),
+    ]));
+    line_annotation.color = PropertyValue::Constant(Color::blue());
+    line_annotation.width = PropertyValue::Constant(5.0);
+    snapshotter.add_annotation(&line_annotation.into()).expect("addAnnotation");
+    let stop = run_loop.clone();
+    snapshotter.snapshot(Box::new(move |error, image, _, _, _| {
+        assert!(error.is_none(), "{error:?}");
+        assert_eq!(256, image.size.width);
+        assert_eq!(128, image.size.height);
+        check_image("test/fixtures/map/map_snapshotter_annotation", &image, 0.005, 0.1);
+        stop.stop();
+    }));
+
+    run_with_timeout(&run_loop, 60);
 }

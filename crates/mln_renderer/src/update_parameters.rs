@@ -1,5 +1,6 @@
 // Ports src/mln/renderer/update_parameters.hpp
 
+use crate::annotation::AnnotationManager;
 use mln_map_types::{MapDebugOptions, MapMode, TileLodMode, TransformState};
 use mln_style::collection::ImmutableVector;
 use mln_style::expression::GlobalStateMap;
@@ -7,7 +8,7 @@ use mln_style::{image, layer, light, source};
 use mln_style::transition_options::TransitionOptions;
 use mln_util::chrono::TimePoint;
 use mln_util::immutable::Immutable;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 // Port-only Clone: a renderer on another thread than the map (a host's
 // graphics thread) receives a copy, since TransformState's caches aren't Sync.
@@ -32,7 +33,8 @@ pub struct UpdateParameters {
     /// The style's global state, used by "global-state" expressions.
     pub global_state: Option<Arc<GlobalStateMap>>,
 
-    // TODO(port): mapbox::base::WeakPtr<AnnotationManager> annotationManager.
+    /// `mapbox::base::WeakPtr<AnnotationManager> annotationManager`.
+    pub annotation_manager: Weak<AnnotationManager>,
     pub file_source: Option<Arc<dyn mln_storage::FileSource>>,
     pub prefetch_zoom_delta: u8,
 

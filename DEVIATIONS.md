@@ -231,17 +231,17 @@ account for it.
   `lowercase`, `unaccent`) decode them lossily (U+FFFD), because a Rust
   `String` cannot hold them. `//difftest/nunicode` checks the bytes exactly
   and the `String` against the lossy decoding of the C++ bytes.
-- **[render] Layers without a source and the annotation source**
-  (render_orchestrator.cpp `createRenderTree`). C++ handles background
-  layers (and the background-as-clear-colour shortcut) while iterating over
-  the style's *first source*; every C++ style has at least one, the
-  annotation source that `AnnotationManager::onStyleLoaded` adds (plus its
-  `org.maplibre.annotations.points` symbol layer). Annotations are not
-  ported, so a Rust style may have no sources; the Rust loop then runs once
-  without a source, handling only the source-less layers, exactly as the C++
-  iteration over the annotation source does for them. When annotations are
-  ported this becomes the C++ loop again. The output differs from C++ only
-  in the absent annotation layer/source (empty without annotations).
+- **[annotations] Symbol annotation order in a tile**
+  (annotation_manager.cpp `getTileData`). C++ indexes the symbol annotations
+  in a boost R*-tree (`rstar<16, 4>`) and adds the symbols of a tile to the
+  points layer in the order the tree's query returns them. The port keeps
+  them in a vector with the tree's leaf behaviour (appended on insert, the
+  last element moved into the hole on removal) and scans it, which is the
+  tree's order while it is a single leaf: up to 16 symbol annotations. With
+  more, the tree splits and the order of a tile's symbols can differ. Only
+  the draw order of overlapping icons at the same rounded screen y (the
+  bucket's tie-break is the feature index) can show it; the annotation
+  gtests have at most 30 annotations and compare query results by id.
 - **[render] Style observer calls during `&mut Style`** (map_impl.cpp). C++
   `Map::Impl` handles style::Observer calls synchronously inside
   `Style::loadJSON`, layer mutations etc. In Rust the map hands out the
@@ -971,5 +971,3 @@ account for it.
   runs from the caller's RunLoop through an actor, after the frame, as in
   C++. `getStyle()` is `with_style(|style| ...)`; the methods take `&self` so
   observer callbacks can reach the snapshotter through an `Rc`.
-  `addAnnotationImage`/`addAnnotation` are TODO(port) (annotations), so
-  MapSnapshotter.annotation stays ignored.

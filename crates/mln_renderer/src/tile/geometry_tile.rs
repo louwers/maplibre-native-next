@@ -18,9 +18,13 @@
 // onImagesAvailable forwarded to the worker), and LayoutResult carries the
 // glyph/image atlases of the shared DynamicTextureAtlas.
 //
-// TODO(port): image patches in GeometryTileRenderData (same-size runtime
-// image updates), queries, feature state, HarfBuzz shaping of font-face
-// glyphs in onGlyphsAvailable.
+// Image patches (same-size runtime image updates): C++ bumps the
+// `version` of the layout result's image positions as it patches them; the
+// port's layout results are shared immutably, so the patched versions are
+// kept beside the positions (`LayoutAtlases::patched_versions`).
+//
+// TODO(port): queries, feature state, HarfBuzz shaping of font-face glyphs
+// in onGlyphsAvailable.
 
 use crate::bucket::BucketPtr;
 use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlasPtr, GlyphAtlas, ImageAtlas, ImageVersionMap};
@@ -45,7 +49,7 @@ use mln_style::layer;
 use mln_style::layer::layer_type_info;
 use mln_style::layer_properties::LayerProperties;
 use mln_style_types::VisibilityType;
-use mln_style_types::image::{ImageMap, ImagePosition};
+use mln_style_types::image::{ImageMap, ImagePosition, ImagePositions, Impl as ImageImpl, RectU16};
 use mln_tile_id::OverscaledTileID;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
@@ -53,8 +57,8 @@ use std::any::Any;
 use std::cell::{Cell, RefCell};
 use std::collections::{BTreeSet, HashMap};
 use std::rc::{Rc, Weak};
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
 
 /// The atlases of a `LayoutResult`; dropping the last reference releases
 /// their bins (C++ `~LayoutResult`). Shared, so that copies of a
@@ -63,6 +67,16 @@ pub struct LayoutAtlases {
     pub glyph_atlas: GlyphAtlas,
     pub image_atlas: ImageAtlas,
     pub dynamic_texture_atlas: Option<DynamicTextureAtlasPtr>,
+    /// The `version`s `populateImagePatches` set on the image atlas's icon
+    /// and pattern positions (see the file comment).
+    patched_versions: Mutex<PatchedImageVersions>,
+}
+
+/// The patched versions of the icon and pattern positions, by image id.
+#[derive(Default)]
+struct PatchedImageVersions {
+    icons: HashMap<String, u32>,
+    patterns: HashMap<String, u32>,
 }
 
 impl Drop for LayoutAtlases {
@@ -93,7 +107,12 @@ impl LayoutResult {
         LayoutResult {
             layer_render_data,
             feature_index,
-            atlases: Arc::new(LayoutAtlases { glyph_atlas, image_atlas, dynamic_texture_atlas }),
+            atlases: Arc::new(LayoutAtlases {
+                glyph_atlas,
+                image_atlas,
+                dynamic_texture_atlas,
+                patched_versions: Mutex::new(PatchedImageVersions::default()),
+            }),
         }
     }
 
@@ -119,11 +138,47 @@ impl LayoutResult {
     }
 }
 
+/// `ImagePatch`.
+struct ImagePatch {
+    image: Immutable<ImageImpl>,
+    padded_rect: RectU16,
+}
+
+/// `populateImagePatches(imagePositions, imageManager, patches)`, with the
+/// positions' patched versions in `versions`.
+fn populate_image_patches(
+    image_positions: &ImagePositions,
+    versions: &mut HashMap<String, u32>,
+    image_manager: &ImageManager,
+    patches: &mut Vec<ImagePatch>,
+) {
+    for (name, version) in image_manager.updated_image_versions() {
+        if let Some(position) = image_positions.get(&name) {
+            let position_version = versions.get(&name).copied().unwrap_or(position.version);
+            if position_version == version {
+                continue;
+            }
+
+            let Some(updated_image) = image_manager.get_shared_image(&name) else {
+                continue;
+            };
+
+            patches.push(ImagePatch {
+                image: updated_image,
+                padded_rect: position.padded_rect,
+            });
+            versions.insert(name, version);
+        }
+    }
+}
+
 /// `GeometryTileRenderData`.
 struct GeometryTileRenderData {
     atlas_textures: Option<Rc<TileAtlasTextures>>,
     layout_result: Option<Rc<LayoutResult>>,
-    // TODO(port): std::vector<ImagePatch> imagePatches (sprite updates).
+    /// `std::vector<ImagePatch> imagePatches` (`upload` clears it, so a
+    /// cell: the render data is uploaded through `&self`).
+    image_patches: RefCell<Vec<ImagePatch>>,
 }
 
 impl TileRenderData for GeometryTileRenderData {
@@ -176,14 +231,42 @@ impl TileRenderData for GeometryTileRenderData {
             *atlas_textures.icon.borrow_mut() = image_dynamic_texture.get_texture();
         }
 
-        // TODO(port): imagePatches (same-size runtime image updates).
+        let image_patches = std::mem::take(&mut *self.image_patches.borrow_mut());
+        if !image_patches.is_empty() {
+            if let Some(icon) = atlas_textures.icon.borrow().as_ref() {
+                for image_patch in &image_patches {
+                    // patch updated images.
+                    icon.borrow_mut().upload_sub_region(
+                        Some(&image_patch.image.image.data),
+                        image_patch.image.image.size,
+                        image_patch.padded_rect.x + ImagePosition::PADDING,
+                        image_patch.padded_rect.y + ImagePosition::PADDING,
+                    );
+                }
+            }
+        }
     }
 
-    fn prepare(&mut self, _parameters: &SourcePrepareParameters<'_>) {
-        if self.layout_result.is_none() {
-            // return
-        }
-        // TODO(port): populateImagePatches (sprite image updates).
+    fn prepare(&mut self, parameters: &SourcePrepareParameters<'_>) {
+        let Some(layout_result) = &self.layout_result else {
+            return;
+        };
+        let mut image_patches = self.image_patches.borrow_mut();
+        image_patches.clear();
+        let image_atlas = layout_result.image_atlas();
+        let mut versions = layout_result.atlases.patched_versions.lock().unwrap();
+        populate_image_patches(
+            &image_atlas.icon_positions,
+            &mut versions.icons,
+            parameters.image_manager,
+            &mut image_patches,
+        );
+        populate_image_patches(
+            &image_atlas.pattern_positions,
+            &mut versions.patterns,
+            parameters.image_manager,
+            &mut image_patches,
+        );
     }
 }
 
@@ -590,6 +673,7 @@ impl Tile for GeometryTile {
         Box::new(GeometryTileRenderData {
             atlas_textures: self.inner.atlas_textures.borrow().clone(),
             layout_result: self.inner.layout_result.borrow().clone(),
+            image_patches: RefCell::new(Vec::new()),
         })
     }
 

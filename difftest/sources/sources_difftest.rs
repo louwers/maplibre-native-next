@@ -297,6 +297,7 @@ fn rust_tiles(source_json: &serde_json::Value, size: Size, camera: &Camera, cont
         transform_state: transform.get_state(),
         file_source: None,
         mode: if continuous { MapMode::Continuous } else { MapMode::Static },
+        annotation_manager: std::sync::Weak::new(),
         prefetch_zoom_delta: constants::DEFAULT_PREFETCH_ZOOM_DELTA,
         thread_pool: TaggedScheduler::new(scheduler::get_background(), SimpleIdentity::new()),
         tile_lod_min_radius: 3.0,
