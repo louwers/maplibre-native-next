@@ -416,8 +416,8 @@ impl TestRunner {
         let path = self.test_output_path(metadata, file);
         let result = path
             .parent()
-            .map_or(Ok(()), std::fs::create_dir_all)
-            .and_then(|()| std::fs::write(&path, data));
+            .map_or(Ok(()), filesystem::create_dir_all)
+            .and_then(|()| filesystem::write(&path, data));
         if let Err(e) = result {
             log::error(Event::General, &format!("Failed to write file {}: {e}", path.display()));
         }
@@ -539,7 +539,7 @@ impl TestRunner {
             }
 
             for entry in &expected_images_paths {
-                let Ok(maybe_expected_image) = std::fs::read(entry) else {
+                let Ok(maybe_expected_image) = filesystem::read(entry) else {
                     metadata.error_message = format!("Failed to load expected image {entry}");
                     metadata.render_errored += 1;
                     return;
@@ -1322,7 +1322,7 @@ fn self_check_image(metadata: &TestMetadata) -> PremultipliedImage {
         if filesystem::exists(dir) {
             let entries = read_expected_image_entries(dir);
             if let Some(first) = entries.first() {
-                if let Ok(image) = std::fs::read(first).map_err(|e| e.to_string()).and_then(|b| decode_image(&b)) {
+                if let Ok(image) = filesystem::read(first).map_err(|e| e.to_string()).and_then(|b| decode_image(&b)) {
                     return image;
                 }
                 break;

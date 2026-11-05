@@ -344,7 +344,7 @@ impl RendererImpl {
         // Ends the RenderPass
         parameters.render_pass = None;
 
-        let start_rendering = std::time::Instant::now();
+        let start_rendering = mln_util::time::Instant::now();
         // present submits render commands
         parameters
             .encoder

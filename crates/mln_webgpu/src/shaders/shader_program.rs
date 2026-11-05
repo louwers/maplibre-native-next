@@ -64,7 +64,7 @@ fn validated<T>(device: &wgpu::Device, create: impl FnOnce() -> T) -> Result<T, 
     {
         let scope = device.push_error_scope(wgpu::ErrorFilter::Validation);
         let value = create();
-        match pollster::block_on(scope.pop()) {
+        match crate::headless_backend::block_on(scope.pop()) {
             None => Ok(value),
             Some(error) => Err(error),
         }

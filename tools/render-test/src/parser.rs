@@ -133,7 +133,7 @@ pub fn to_json_features(features: &[mln_util::feature::Feature]) -> String {
 
 /// `readJson(path)`.
 pub fn read_json(json_path: &str) -> Result<serde_json::Value, ErrorMessage> {
-    let bytes = std::fs::read(json_path)
+    let bytes = filesystem::read(json_path)
         .map_err(|_| format!("Unable to open file {json_path}"))?;
     serde_json::from_slice(&bytes).map_err(|e| e.to_string())
 }
@@ -141,7 +141,7 @@ pub fn read_json(json_path: &str) -> Result<serde_json::Value, ErrorMessage> {
 /// `readJson(path)` keeping the text, for documents the runner hands on
 /// unchanged (style.json).
 pub fn read_json_with_text(json_path: &str) -> Result<(serde_json::Value, String), ErrorMessage> {
-    let bytes = std::fs::read(json_path)
+    let bytes = filesystem::read(json_path)
         .map_err(|_| format!("Unable to open file {json_path}"))?;
     let value = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
     let text = String::from_utf8(bytes).map_err(|e| e.to_string())?;
@@ -177,7 +177,7 @@ impl<'de> Deserialize<'de> for ObjectMembers {
 pub fn read_json_object_members(
     json_path: &str,
 ) -> Result<Vec<(String, serde_json::Value)>, ErrorMessage> {
-    let bytes = std::fs::read(json_path)
+    let bytes = filesystem::read(json_path)
         .map_err(|_| format!("Unable to open file {json_path}"))?;
     serde_json::from_slice::<ObjectMembers>(&bytes)
         .map(|members| members.0)
@@ -946,12 +946,12 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
                     return false;
                 }
                 let size = if compressed {
-                    let raw = std::fs::read(&file_path).unwrap_or_default();
+                    let raw = filesystem::read(&file_path).unwrap_or_default();
                     mln_platform_default_image::compression::compress(&raw)
                         .map(|c| c.len() as u64)
                         .unwrap_or(0)
                 } else {
-                    std::fs::metadata(&file_path).map(|m| m.len()).unwrap_or(0)
+                    filesystem::file_size(&file_path).unwrap_or(0)
                 };
 
                 ctx.get_metadata()

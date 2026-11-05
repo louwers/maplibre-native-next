@@ -11,7 +11,7 @@ use crate::types::BufferUsageType;
 use crate::vertex_attribute::VertexAttributeArray;
 use crate::vertex_buffer::{IndexBufferResource, UniqueVertexBufferResource, VertexBufferResource};
 use std::any::Any;
-use std::time::Instant;
+use mln_util::time::Instant;
 
 pub trait UploadPass: DebugGroupTarget + Any {
     fn get_context(&self) -> &dyn Context;

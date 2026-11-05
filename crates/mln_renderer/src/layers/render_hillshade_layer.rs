@@ -52,7 +52,7 @@ use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use std::sync::Arc;
-use std::time::Instant;
+use mln_util::time::Instant;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &HillshadeLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), HillshadeLayerImpl::static_type_info()));

@@ -2,7 +2,9 @@
 //
 // wgpu vs. Dawn/wgpu-native: the readback maps the staging buffer and blocks
 // with `Device::poll(PollType::Wait)` (C++: `wgpuInstanceWaitAny` on Dawn, a
-// 1000 x 1 ms `wgpuDevicePoll` loop on wgpu-native).
+// 1000 x 1 ms `wgpuDevicePoll` loop on wgpu-native). In the browser build
+// (wasm32-unknown-unknown) polling does nothing: the mapping completes on the
+// browser's event loop, which `mln_util::browser::wait` lets run until it has.
 //
 // TODO(port): the size-changed callback (`handleResize` / `setSizeListener`)
 // that resizes the textures when someone calls `setSize` on the color
@@ -155,7 +157,16 @@ impl OffscreenTextureResource {
         if let Err(e) = device.poll(wgpu::PollType::Wait { submission_index: None, timeout: None }) {
             eprintln!("WebGPU: Buffer mapping wait failed: {e}");
         }
-        match rx.try_recv() {
+        #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+        let mapped = rx.try_recv();
+        #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+        let mapped = loop {
+            match rx.try_recv() {
+                Err(std::sync::mpsc::TryRecvError::Empty) => mln_util::browser::wait(),
+                other => break other,
+            }
+        };
+        match mapped {
             Ok(Ok(())) => match staging_buffer.get_mapped_range(..) {
                 Ok(mapped) => {
                     if aligned_row_stride == row_stride {

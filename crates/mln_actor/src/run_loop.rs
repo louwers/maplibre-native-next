@@ -22,6 +22,11 @@
 //
 // TODO(port): fd watches (`addWatch`/`removeWatch`, only for libcurl),
 // `invokeCancellable`, `setPlatformCallback`.
+//
+// Port-only, wasm32-unknown-unknown (the browser build, tools/web-test),
+// which has one thread: nothing can wake a waiting loop, so `run()` never
+// sleeps, and `run_once` also gives the thread pools' queued tasks their turn
+// (thread_pool.rs), as their worker threads would run them meanwhile.
 
 use crate::scheduler::{self, Scheduler};
 use crate::timer::TimerHandle;
@@ -100,6 +105,7 @@ impl Core {
         }
     }
 
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
     fn wait(&self) {
         let mut signalled = self.signal.lock().unwrap();
         while !*signalled {
@@ -109,16 +115,29 @@ impl Core {
     }
 
     /// `wait`, but returns at `deadline` at the latest.
-    fn wait_until(&self, deadline: std::time::Instant) {
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    fn wait_until(&self, deadline: mln_util::time::Instant) {
         let mut signalled = self.signal.lock().unwrap();
         while !*signalled {
-            let now = std::time::Instant::now();
+            let now = mln_util::time::Instant::now();
             if now >= deadline {
                 return;
             }
             signalled = self.condvar.wait_timeout(signalled, deadline - now).unwrap().0;
         }
         *signalled = false;
+    }
+
+    /// The browser build: there is no other thread to wait for.
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    fn wait(&self) {
+        *self.signal.lock().unwrap() = false;
+    }
+
+    /// The browser build: see `wait`.
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    fn wait_until(&self, _deadline: mln_util::time::Instant) {
+        *self.signal.lock().unwrap() = false;
     }
 
     fn process(&self) {
@@ -255,6 +274,9 @@ impl RunLoop {
                 (handle.task.borrow_mut())();
             }
         }
+        // The browser build: the thread pools' workers.
+        #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+        crate::thread_pool::run_background_tasks();
     }
 
     /// `run()`: `uv_run(loop, UV_RUN_DEFAULT)` until `stop()`.
@@ -276,7 +298,7 @@ impl RunLoop {
     /// `uv__run_timers`: runs the timers that are due, earliest first (ties
     /// in start order). A callback may stop, restart or drop any timer.
     fn run_timers(&self) {
-        let now = std::time::Instant::now();
+        let now = mln_util::time::Instant::now();
         let mut due: Vec<Rc<TimerHandle>> = {
             let mut timers = self.inner.timers.borrow_mut();
             timers.retain(|t| t.strong_count() > 0);
@@ -296,7 +318,7 @@ impl RunLoop {
     }
 
     /// The earliest due time of this loop's running timers.
-    fn next_timer_due(&self) -> Option<std::time::Instant> {
+    fn next_timer_due(&self) -> Option<mln_util::time::Instant> {
         self.inner
             .timers
             .borrow()

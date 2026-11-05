@@ -1,0 +1,16 @@
+<!doctype html>
+<!-- The render-test page that tools/web-test/run.mjs opens in headless
+     Chrome; main.js runs the tests and reports to run.mjs's server. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Render tests</title>
+    <script type="importmap">
+      { "imports": { "mln_browser": "./mln_browser.js" } }
+    </script>
+  </head>
+  <body>
+    <pre id="status">starting</pre>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

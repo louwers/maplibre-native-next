@@ -36,7 +36,8 @@ use mln_util::size::Size;
 use std::any::Any;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
-use std::time::{Duration, Instant};
+use mln_util::time::Instant;
+use std::time::Duration;
 
 /// `maxConsecutiveErrors`
 const MAX_CONSECUTIVE_ERRORS: i32 = 3;
@@ -450,7 +451,7 @@ impl SurfaceBackend {
         let instance = crate::headless_backend::create_instance(instance_backends());
 
         // Request adapter
-        let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
+        let adapter = crate::headless_backend::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
             ..Default::default()
         }))
@@ -476,7 +477,7 @@ impl SurfaceBackend {
 
         // The WebGPU default limits, lowered to what the adapter supports, as
         // the headless backend requests them.
-        let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
+        let (device, queue) = crate::headless_backend::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
             label: Some("MapLibre WebGPU Device"),
             required_features,
             required_limits: wgpu::Limits::default().or_worse_values_from(&adapter.limits()),

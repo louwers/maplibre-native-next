@@ -36,7 +36,7 @@ use mln_gfx::vertex_buffer::{IndexBuffer as GfxIndexBuffer, UniqueVertexBufferRe
 use std::any::Any;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
-use std::time::Instant;
+use mln_util::time::Instant;
 
 #[derive(Clone, Copy, Pod, Zeroable)]
 #[repr(C, align(16))]

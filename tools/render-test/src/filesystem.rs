@@ -1,11 +1,95 @@
 // The std::filesystem operations the C++ runner uses (render-test/filesystem.hpp
 // aliases `mln::filesystem` to `std::filesystem`), on POSIX paths held as
 // strings: the runner computes test ids by string offsets into them, as C++
-// does.
+// does. The file reads and writes (`util::read_file`, `util::write_file`) go
+// through here too.
+//
+// Port-only: the browser build (wasm32-unknown-unknown, tools/web-test) has
+// no file system. There every operation goes to the `Host` its embedder
+// installs with `set_host` (tools/web-test reads and writes through its test
+// server); without one they fail as std::fs does there.
 
+#[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
 use std::fs;
 use std::io;
 use std::path::Path;
+
+/// The browser build's file system (see the top of the file).
+#[cfg(all(target_family = "wasm", target_os = "unknown"))]
+pub trait Host {
+    fn read(&self, path: &str) -> io::Result<Vec<u8>>;
+    fn write(&self, path: &str, data: &[u8]) -> io::Result<()>;
+    fn create_dir_all(&self, path: &str) -> io::Result<()>;
+    /// The entries of a directory: names and whether each is a directory.
+    fn read_dir(&self, path: &str) -> io::Result<Vec<(String, bool)>>;
+    /// Whether `path` is a regular file (else a directory), and its size.
+    fn metadata(&self, path: &str) -> io::Result<(bool, u64)>;
+}
+
+#[cfg(all(target_family = "wasm", target_os = "unknown"))]
+mod host {
+    use super::Host;
+    use std::cell::RefCell;
+    use std::io;
+
+    thread_local! {
+        static HOST: RefCell<Option<Box<dyn Host>>> = const { RefCell::new(None) };
+    }
+
+    pub fn set(host: Box<dyn Host>) {
+        HOST.with(|h| *h.borrow_mut() = Some(host));
+    }
+
+    pub fn with<R>(f: impl FnOnce(&dyn Host) -> io::Result<R>) -> io::Result<R> {
+        HOST.with(|h| match h.borrow().as_deref() {
+            Some(host) => f(host),
+            None => Err(io::ErrorKind::Unsupported.into()),
+        })
+    }
+}
+
+/// Installs the browser build's file system.
+#[cfg(all(target_family = "wasm", target_os = "unknown"))]
+pub fn set_host(host: Box<dyn Host>) {
+    host::set(host);
+}
+
+#[cfg(all(target_family = "wasm", target_os = "unknown"))]
+fn host_path(path: &Path) -> String {
+    path.to_string_lossy().into_owned()
+}
+
+/// `util::read_file` (std::fs::read).
+pub fn read(path: impl AsRef<Path>) -> io::Result<Vec<u8>> {
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    return fs::read(path);
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    return host::with(|host| host.read(&host_path(path.as_ref())));
+}
+
+/// `util::write_file` (std::fs::write).
+pub fn write(path: impl AsRef<Path>, data: impl AsRef<[u8]>) -> io::Result<()> {
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    return fs::write(path, data);
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    return host::with(|host| host.write(&host_path(path.as_ref()), data.as_ref()));
+}
+
+/// `std::filesystem::create_directories`.
+pub fn create_dir_all(path: impl AsRef<Path>) -> io::Result<()> {
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    return fs::create_dir_all(path);
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    return host::with(|host| host.create_dir_all(&host_path(path.as_ref())));
+}
+
+/// `std::filesystem::file_size`.
+pub fn file_size(path: &str) -> io::Result<u64> {
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    return fs::metadata(path).map(|m| m.len());
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    return host::with(|host| host.metadata(path)).map(|(_, len)| len);
+}
 
 /// `path::is_relative()` (POSIX: no leading `/`).
 pub fn is_relative(path: &str) -> bool {
@@ -58,7 +142,10 @@ pub fn stem(path: &str) -> &str {
 
 /// `std::filesystem::exists` (follows symlinks).
 pub fn exists(path: &str) -> bool {
-    Path::new(path).exists()
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    return Path::new(path).exists();
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    return host::with(|host| host.metadata(path)).is_ok();
 }
 
 /// `path::lexically_normal()` ([fs.path.generic] normal form, POSIX).
@@ -132,11 +219,27 @@ pub fn lexically_normal(path: &str) -> String {
 /// either).
 pub fn directory_entries(dir: &str) -> io::Result<Vec<String>> {
     let mut out = Vec::new();
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        out.push(join(dir, &entry.file_name().to_string_lossy()));
+    for (name, _) in read_dir(dir)? {
+        out.push(join(dir, &name));
     }
     Ok(out)
+}
+
+/// The names of a directory's entries and whether each is a directory
+/// (`directory_entry::is_directory()`, not following symlinks).
+fn read_dir(dir: &str) -> io::Result<Vec<(String, bool)>> {
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    {
+        let mut out = Vec::new();
+        for entry in fs::read_dir(dir)? {
+            let entry = entry?;
+            let is_dir = entry.file_type()?.is_dir();
+            out.push((entry.file_name().to_string_lossy().into_owned(), is_dir));
+        }
+        Ok(out)
+    }
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    host::with(|host| host.read_dir(dir))
 }
 
 /// The entries of `std::filesystem::recursive_directory_iterator(root)`:
@@ -144,10 +247,8 @@ pub fn directory_entries(dir: &str) -> io::Result<Vec<String>> {
 /// symlinks to directories (no `follow_directory_symlink`).
 pub fn recursive_directory_entries(root: &str) -> io::Result<Vec<String>> {
     fn walk(dir: &str, out: &mut Vec<String>) -> io::Result<()> {
-        for entry in fs::read_dir(dir)? {
-            let entry = entry?;
-            let path = join(dir, &entry.file_name().to_string_lossy());
-            let is_dir = entry.file_type()?.is_dir();
+        for (name, is_dir) in read_dir(dir)? {
+            let path = join(dir, &name);
             out.push(path.clone());
             if is_dir {
                 walk(&path, out)?;
@@ -163,7 +264,10 @@ pub fn recursive_directory_entries(root: &str) -> io::Result<Vec<String>> {
 /// `directory_entry::is_regular_file()` (follows symlinks; Bazel runfiles
 /// are symlinks).
 pub fn is_regular_file(path: &str) -> bool {
-    fs::metadata(path).map(|m| m.is_file()).unwrap_or(false)
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+    return fs::metadata(path).map(|m| m.is_file()).unwrap_or(false);
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    return host::with(|host| host.metadata(path)).is_ok_and(|(is_file, _)| is_file);
 }
 
 #[cfg(test)]

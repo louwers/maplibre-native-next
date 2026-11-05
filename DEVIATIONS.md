@@ -194,6 +194,32 @@ account for it.
   LineGradientShader, LinePatternShader, LineSDFShader,
   LineGradientSDFShader. The WGSL of all of them is extracted
   (tools/extract_wgsl.rs). Others arrive with their layers.
+- **[web] The browser build on wasm32-unknown-unknown** (tools/web-test: the
+  render-test runner in headless Chrome through wgpu's WebGPU backend; the
+  C++ core's browser build is Emscripten's, so there is no C++ counterpart).
+  It has one thread, the page's. `ThreadPool`/`ThreadedScheduler` start no
+  workers: their tagged queues are run by `RunLoop::run_once`, a round per
+  queue until they are empty, and `waitForEmpty` runs the tag's tasks
+  itself; `util::Thread` establishes its object on the creating thread's
+  RunLoop, `pause`/`resume` do nothing and `~Thread` drops the object without
+  running its remaining messages; `RunLoop::run` never sleeps. Where native
+  code blocks on the GPU (adapter and device requests, validation error
+  scopes, the readback's buffer mapping), it returns to the browser's event
+  loop through JSPI and continues (`mln_util::browser`). Clocks come from
+  web-time (`mln_util::time`; std's panic there). The headless backend
+  destroys its device when dropped, because dropping a wgpu device in the
+  browser only drops the JavaScript reference. The runner's file access goes
+  to a `filesystem::Host` (the test server) and the cache database is
+  imported into SQLite's memory VFS. Results: Chrome on Metal
+  (manifests/web-wgpu.json) matches the native Metal run except
+  `fill-extrusion-pattern/{feature-expression,global-state}`, which C++
+  WebGPU ignores too (platform-macos-webgpu.json) and which fail in Chrome
+  (1.3% and 12% of the pixels differ) but pass natively. On SwiftShader,
+  Chrome's software WebGPU and the only adapter on the CI runners
+  (manifests/web-swiftshader-wgpu.json), 39 more tests differ by up to 1% of
+  their pixels: icon edges, polygon/line/tile edges and distant minified
+  tiles sample and rasterize differently; ignores/web-swiftshader.json lists
+  them with those reasons.
 - **[expression] nunicode `b4_utf8` writes invalid UTF-8**
   (vendor/nunicode/include/libnu/utf8_internal.h). For 4-byte codepoints with
   bit 12 set, the C puts that bit into the third byte (mask `0x001F00`

@@ -16,7 +16,7 @@ use mln_gfx::vertex_buffer::{self, UniqueVertexBufferResource};
 use mln_gfx::vertex_vector::{VertexBufferBase, VertexVectorBasePtr};
 use std::any::Any;
 use std::rc::Rc;
-use std::time::Instant;
+use mln_util::time::Instant;
 
 pub struct UploadPass {
     context: Rc<Context>,

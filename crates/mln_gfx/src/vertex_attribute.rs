@@ -12,7 +12,7 @@ use crate::vertex_buffer::UniqueVertexBufferResource;
 use crate::vertex_vector::VertexVectorBasePtr;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
-use std::time::Instant;
+use mln_util::time::Instant;
 
 /// `VertexAttribute::ElementType = variant<int32_t, ushort8, int2, int3, int4,
 /// float, float2, float3, float4, matf3, matf4>` (same order).

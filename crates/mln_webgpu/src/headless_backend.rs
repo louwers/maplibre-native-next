@@ -93,6 +93,14 @@ pub struct HeadlessBackend {
     active: Cell<bool>,
 }
 
+// `pollster::block_on`, for wgpu's futures (adapter, device, error scope).
+// In the browser build (wasm32-unknown-unknown) they settle on the browser's
+// event loop, so `mln_util::browser::block_on` lets it run while it waits.
+#[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+pub(crate) use pollster::block_on;
+#[cfg(all(target_family = "wasm", target_os = "unknown"))]
+pub(crate) use mln_util::browser::block_on;
+
 fn instance_backends() -> wgpu::Backends {
     if let Some(backends) = wgpu::Backends::from_env() {
         return backends;
@@ -131,7 +139,7 @@ impl HeadlessBackend {
         let instance = create_instance(instance_backends());
 
         // Request adapter (blocking)
-        let adapter = match pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
+        let adapter = match block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::HighPerformance,
             ..Default::default()
         })) {
@@ -146,7 +154,7 @@ impl HeadlessBackend {
         // what the adapter supports: the Metal of the iOS, tvOS and visionOS
         // simulators allows fewer inter-stage shader variables than they ask.
         let required_limits = wgpu::Limits::default().or_worse_values_from(&adapter.limits());
-        let (device, queue) = match pollster::block_on(
+        let (device, queue) = match block_on(
             adapter.request_device(&wgpu::DeviceDescriptor { required_limits, ..Default::default() }),
         ) {
             Ok(pair) => pair,
@@ -264,6 +272,14 @@ impl Drop for HeadlessBackend {
         // Explicitly reset the renderable resource before the context
         self.set_resource(None);
         self.renderer_backend.base.reset_context();
+        // The browser build: dropping a wgpu device there drops only the
+        // JavaScript reference, and the device's GPU memory waits for the
+        // garbage collector. Destroy it, as releasing the last reference
+        // does natively (C++: the backend's wgpuDeviceRelease).
+        #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+        if let Some(device) = self.renderer_backend.get_device() {
+            device.destroy();
+        }
     }
 }
 

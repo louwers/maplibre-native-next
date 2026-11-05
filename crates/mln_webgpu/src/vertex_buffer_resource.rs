@@ -8,7 +8,7 @@ use crate::buffer_resource::BufferResource;
 use mln_gfx::vertex_buffer;
 use std::any::Any;
 use std::cell::{Cell, Ref, RefCell, RefMut};
-use std::time::Instant;
+use mln_util::time::Instant;
 
 pub struct VertexBufferResource {
     buffer: RefCell<BufferResource>,

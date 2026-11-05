@@ -492,7 +492,7 @@ pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>
     let manifest_name = filesystem::stem(&manifest_path).to_string();
     let result_path = output_path.join(format!("{manifest_name}.html"));
     let results_html = create_result_page(&stats, &metadatas, shuffle, seed);
-    if let Err(e) = std::fs::create_dir_all(&output_path).and_then(|()| std::fs::write(&result_path, results_html)) {
+    if let Err(e) = filesystem::create_dir_all(&output_path).and_then(|()| filesystem::write(&result_path, results_html)) {
         log::error(Event::General, &format!("Failed to write {}: {e}", result_path.display()));
     }
 

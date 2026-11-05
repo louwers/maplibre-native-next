@@ -20,7 +20,7 @@ use mln_util::constants;
 use mln_util::image::PremultipliedImage;
 use std::sync::atomic::Ordering;
 use std::sync::{Arc, Mutex, MutexGuard};
-use std::time::Instant;
+use mln_util::time::Instant;
 
 /// `RasterLayoutVertex = gfx::Vertex<TypeList<attributes::pos, attributes::texture_pos>>`.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, bytemuck::Pod, bytemuck::Zeroable)]

@@ -12,16 +12,25 @@
 // TODO(port): the thread priority setters (`makeThreadPrioritySetter`,
 // platform settings) and `platform::attachThread`/`detachThread` (no-ops on
 // Linux).
+//
+// Port-only, wasm32-unknown-unknown (the browser build, tools/web-test),
+// which has no threads: the object is established on the creating thread,
+// and its messages run on that thread's RunLoop. `pause` and `resume` do
+// nothing there (pausing would block the only thread), and dropping the
+// Thread drops the object without running its remaining messages.
 
 use crate::actor_ref::ActorRef;
 use crate::established_actor::{AspiringActor, EstablishedActor};
-use crate::run_loop::{Priority, RunLoop, RunLoopHandle};
+#[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
+use crate::run_loop::Priority;
+use crate::run_loop::{RunLoop, RunLoopHandle};
 use crate::scheduler;
 use std::sync::mpsc;
 use std::sync::{Mutex, OnceLock};
 use std::thread::JoinHandle;
 
 /// `util::Thread<Object>`.
+#[cfg_attr(all(target_family = "wasm", target_os = "unknown"), allow(dead_code))]
 pub struct Thread<O: 'static> {
     object: AspiringActor<O>,
     thread: Option<JoinHandle<()>>,
@@ -29,10 +38,31 @@ pub struct Thread<O: 'static> {
     running: Mutex<Option<mpsc::Receiver<RunLoopHandle>>>,
     run_loop: OnceLock<RunLoopHandle>,
     paused: Mutex<Option<mpsc::Sender<()>>>,
+    /// The browser build: the object, on the creating thread.
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    established: Option<crate::local_object::LocalObject<EstablishedActor<O>>>,
 }
 
 impl<O: 'static> Thread<O> {
+    /// `Thread(name, args...)`: the browser build establishes the object on
+    /// this thread's RunLoop.
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    pub fn new(_name: &str, make: impl FnOnce(ActorRef<O>) -> O + Send + 'static) -> Self {
+        let object = AspiringActor::<O>::new();
+        let run_loop = RunLoop::get();
+        let established = EstablishedActor::new(&scheduler::get_current(), &object, make);
+        Thread {
+            object,
+            thread: None,
+            running: Mutex::new(None),
+            run_loop: OnceLock::from(run_loop.handle()),
+            paused: Mutex::new(None),
+            established: Some(crate::local_object::LocalObject::new(established)),
+        }
+    }
+
     /// `Thread(name, args...)`.
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
     pub fn new(name: &str, make: impl FnOnce(ActorRef<O>) -> O + Send + 'static) -> Self {
         let object = AspiringActor::<O>::new();
         let mailbox = object.mailbox.clone();
@@ -58,6 +88,7 @@ impl<O: 'static> Thread<O> {
     }
 
     /// `running.wait()`, then the child's `loop`.
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
     fn run_loop(&self) -> &RunLoopHandle {
         self.run_loop.get_or_init(|| {
             let running = self.running.lock().unwrap().take().expect("running");
@@ -71,8 +102,17 @@ impl<O: 'static> Thread<O> {
         self.object.self_ref()
     }
 
+    /// `pause()`: nothing in the browser build (see the top of the file).
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    pub fn pause(&self) {}
+
+    /// `resume()`: nothing in the browser build.
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    pub fn resume(&self) {}
+
     /// `pause()`: blocks the thread's loop (high priority task) until
     /// `resume()`.
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
     pub fn pause(&self) {
         let mut paused = self.paused.lock().unwrap();
         assert!(paused.is_none());
@@ -87,6 +127,7 @@ impl<O: 'static> Thread<O> {
     }
 
     /// `resume()`.
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
     pub fn resume(&self) {
         let resumed = self.paused.lock().unwrap().take();
         assert!(resumed.is_some());
@@ -98,7 +139,15 @@ impl<O: 'static> Thread<O> {
 
 impl<O: 'static> Drop for Thread<O> {
     /// `~Thread()`: resume if paused, wait for the queue up to here, stop
+    /// the loop and join. The browser build drops the object.
+    #[cfg(all(target_family = "wasm", target_os = "unknown"))]
+    fn drop(&mut self) {
+        drop(self.established.take());
+    }
+
+    /// `~Thread()`: resume if paused, wait for the queue up to here, stop
     /// the loop and join.
+    #[cfg(not(all(target_family = "wasm", target_os = "unknown")))]
     fn drop(&mut self) {
         if self.paused.lock().unwrap().is_some() {
             self.resume();
