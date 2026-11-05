@@ -32,7 +32,9 @@ port, not a redesign:
 
 ## 1. Build
 
-- **Bazel only** (rules_rust 0.74, Rust edition 2024). `MODULE.bazel` depends
+- **Bazel only** (rules_rust 0.74, Rust edition 2024). Moving the Rust
+  build to Cargo was investigated in [CARGO.md](CARGO.md) (recommended: a
+  hybrid, Bazel only for the C++ oracle; not decided). `MODULE.bazel` depends
   on the C++ repo as the `maplibre` module through
   `local_path_override(path = "../maplibre-native")`, so tests see uncommitted
   C++ changes. The reference checkout is the `maplibre-native-next-support`
