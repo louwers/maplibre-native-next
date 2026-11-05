@@ -107,9 +107,12 @@ cc_library(
     deps = ["@maplibre//vendor:protozero"],
 )
 
+# Large: fixture_pbfs walks every PBF of the C++ checkout (with its nested
+# submodules) through both readers; 146 s on the macOS runner, over 300 s on
+# the Linux runner next to other tests.
 rust_test(
     name = "pbf_difftest",
-    size = "medium",
+    size = "large",
     srcs = ["pbf_difftest.rs"],
     data = TILE_DATA,
     link_deps = [":pbf_reference"],
