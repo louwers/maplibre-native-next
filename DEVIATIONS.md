@@ -920,3 +920,56 @@ account for it.
   list position by a linear scan instead of a map of list iterators, and the
   StringIndexer keeps owned `String`s instead of one char buffer re-indexed
   on reallocation. Same results; LRU `touch`/`remove` are O(n).
+- **[server-tests] The HTTP test server** (test/src/mln/test/http_server.cpp,
+  cpp-httplib on 127.0.0.1:3000; ported in `//crates/mln_test`,
+  `mln_test::HttpServer`). Every test starts its own in-process server on a
+  free port instead of one per process on port 3000, because the Rust
+  harness runs a binary's tests in parallel and Bazel runs test targets in
+  parallel; per-route state (`/cache` counter, `/style-fail-once-*`) starts
+  fresh per test, as when a C++ test runs alone. The JSON fixtures under
+  test/fixtures/map/online name `http://127.0.0.1:3000/online/...`; the
+  `/online/` route serves them with that origin replaced by the server's
+  (`rewrite_origin`), and Map.ExpiredSpriteSheet rewrites the fixtures it
+  puts into the cache the same way. The gtest_map tests that use the
+  network (NetworkStatus, the FileSourceManager's shared database/online
+  sources) take one lock (`support::network_serial()`, which also sets the
+  network Online again when the test ends), as gtest runs one test at a
+  time.
+- **[server-tests] MainResourceLoader.CachedResourceLowPriority**
+  (test/storage/main_resource_loader.test.cpp, marked flaky upstream:
+  maplibre-native#1071). C++ sets the network Online right after
+  `fs.resume()`; the five requests only reach the OnlineFileSource after
+  their cache lookups, so they all arrive after the network is Online
+  (measured: 5 of 5 in each of 20 runs) and start as they arrive, instead of
+  waiting offline for `networkIsReachableAgain` (which releases regular
+  before low priority requests). With one transfer at a time, the local
+  server can finish /load/0 and /load/1 before /load/2's lookup is done,
+  and the low priority /load/3 then goes second (Linux CI: "left: 2,
+  right: 3" in its callback). The port sets the network Online only once
+  all five requests wait offline: an identity ResourceTransform on the
+  online file source counts them on the online thread and, after the fifth
+  one's request is scheduled, posts `NetworkStatus::set(Online)` to the
+  test's loop. Same assertions; no timing dependence.
+- **[server-tests] Map.InvalidUTF8InTile** (test/map/map.test.cpp). C++
+  installs its frame callback in `didFinishLoadingMap` and stops at a frame
+  without `needsRepaint`. `didFinishLoadingMap` comes right after the first
+  Full frame; when that frame already needs no repaint, the map goes idle
+  and renders no further frame, so the callback never runs (Linux CI: "the
+  run loop was not stopped within 60 s"; reproduced locally in 1 of 30
+  runs: the tile was parsed 2.5 s after the style loaded, after the 300 ms
+  placement fade had ended; answering the z7 prefetch tile 7/64/64 1.5 s
+  late hangs it every time). That needs a tile that takes longer than the
+  fade, which happens when the binary's other tests, running in parallel,
+  keep the process-wide worker pool busy; C++ runs one test at a time. The
+  port also stops when the first Full frame needs no repaint.
+- **[server-tests] MapSnapshotter** (platform/default/src/mln/map/
+  map_snapshotter.cpp, ported in crates/mln_platform_default/src/
+  map_snapshotter.rs). C++ renders on a "Snapshotter" thread and forwards
+  the renderer observer's calls to the map's thread (ForwardingRendererObserver).
+  The port renders on the map's thread: `UpdateParameters` hold the style's
+  layer and source Impls, which are not `Send`. The snapshot callback still
+  runs from the caller's RunLoop through an actor, after the frame, as in
+  C++. `getStyle()` is `with_style(|style| ...)`; the methods take `&self` so
+  observer callbacks can reach the snapshotter through an `Rc`.
+  `addAnnotationImage`/`addAnnotation` are TODO(port) (annotations), so
+  MapSnapshotter.annotation stays ignored.

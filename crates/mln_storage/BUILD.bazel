@@ -28,6 +28,7 @@ rust_test(
         "@maplibre//metrics:render-test-files",
         "@maplibre//test:fixtures",
     ],
+    deps = ["//crates/mln_test"],
 )
 
 # Ports test/util/http_timeout.test.cpp (marker `// gtest: Group.Name`).

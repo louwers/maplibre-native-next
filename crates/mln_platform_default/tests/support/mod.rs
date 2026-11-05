@@ -20,6 +20,8 @@
 use mln_actor::{LocalObject, RunLoop, Timer};
 use mln_map::{Map, MapLoadError, MapMode, MapObserver, MapOptions, RenderFrameStatus};
 use mln_platform_default::{HeadlessFrontend, RenderResult};
+use mln_renderer::RendererFrontend;
+use mln_storage::network_status::{NetworkStatus, Status as NetworkStatusType};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_storage::{AsyncRequest, Callback, ClientOptions, FileSource, Kind, Resource, ResourceOptions, Response};
 use mln_util::image::PremultipliedImage;
@@ -437,13 +439,13 @@ pub fn run_with_timeout(run_loop: &RunLoop, seconds: i64) {
 
 // MARK: - MapTest (test/map/map.test.cpp)
 
-/// `MapTest<FileSource>`. Fields drop in declaration order, which is the
-/// C++ destruction order (reverse of declaration there). The map is shared
-/// (`Rc<RefCell<..>>`) so observer callbacks can reach it through a `Weak`
-/// as C++ lambdas capture `test`.
-pub struct MapTest<FS: FileSource + 'static = StubFileSource> {
+/// `MapTest<FileSource, Frontend>`. Fields drop in declaration order, which
+/// is the C++ destruction order (reverse of declaration there). The map is
+/// shared (`Rc<RefCell<..>>`) so observer callbacks can reach it through a
+/// `Weak` as C++ lambdas capture `test`.
+pub struct MapTest<FS: FileSource + 'static = StubFileSource, FE = HeadlessFrontend> {
     pub map: Rc<RefCell<Map>>,
-    pub frontend: HeadlessFrontend,
+    pub frontend: FE,
     pub observer: Rc<StubMapObserver>,
     pub file_source: Arc<FS>,
     pub run_loop: RunLoop,
@@ -477,11 +479,27 @@ impl<FS: FileSource + 'static> MapTest<FS> {
     /// `map(frontend, observer, fileSource, MapOptions().withMapMode(mode)
     /// .withSize(frontend.getSize()).withPixelRatio(pixelRatio))`.
     pub fn create(run_loop: RunLoop, file_source: Arc<FS>, pixel_ratio: f32, mode: MapMode) -> Self {
-        let observer = Rc::new(StubMapObserver::default());
         let frontend = HeadlessFrontend::with_pixel_ratio(pixel_ratio);
+        let size = frontend.get_size();
+        MapTest::create_with_frontend(run_loop, file_source, frontend, size, pixel_ratio, mode)
+    }
+}
+
+impl<FS: FileSource + 'static, FE: RendererFrontend + Clone + 'static> MapTest<FS, FE> {
+    /// `create` with another `Frontend` (C++ `MapTest<FileSource, Frontend>`;
+    /// `size` is `frontend.getSize()`).
+    pub fn create_with_frontend(
+        run_loop: RunLoop,
+        file_source: Arc<FS>,
+        frontend: FE,
+        size: mln_util::size::Size,
+        pixel_ratio: f32,
+        mode: MapMode,
+    ) -> Self {
+        let observer = Rc::new(StubMapObserver::default());
         let options = MapOptions::new()
             .with_map_mode(mode)
-            .with_size(frontend.get_size())
+            .with_size(size)
             .with_pixel_ratio(pixel_ratio);
         let map = Map::with_file_source(&frontend, observer.clone(), file_source.clone(), options);
         MapTest {
@@ -503,6 +521,13 @@ impl<FS: FileSource + 'static> MapTest<FS> {
         Rc::downgrade(&self.map)
     }
 
+    /// `test.map.getStyle().loadJSON(json)`.
+    pub fn load_json(&self, json: &str) {
+        self.map().get_style_mut().load_json(json);
+    }
+}
+
+impl<FS: FileSource + 'static> MapTest<FS, HeadlessFrontend> {
     /// `test.frontend.render(test.map)`; C++ rethrows a still image error.
     pub fn render(&self) -> RenderResult {
         self.try_render().unwrap_or_else(|e| panic!("render: {e}"))
@@ -513,9 +538,46 @@ impl<FS: FileSource + 'static> MapTest<FS> {
         let mut map = self.map.borrow_mut();
         frontend.render(&mut map)
     }
+}
 
-    /// `test.map.getStyle().loadJSON(json)`.
-    pub fn load_json(&self, json: &str) {
-        self.map().get_style_mut().load_json(json);
+// MARK: - Callbacks that capture the test's thread-local state
+
+/// A `Send` callback that runs `f` on this thread only (C++ passes lambdas
+/// that capture the test by reference to `forward`, which runs them on the
+/// calling thread through `Scheduler::bindOnce`; the Rust signature requires
+/// `Send`).
+pub fn local_callback(f: impl FnOnce() + 'static) -> Option<Box<dyn FnOnce() + Send>> {
+    let f: LocalObject<RefCell<Option<Box<dyn FnOnce()>>>> = LocalObject::new(RefCell::new(Some(Box::new(f))));
+    Some(Box::new(move || {
+        let f = f.get().and_then(|f| f.borrow_mut().take());
+        if let Some(f) = f {
+            f();
+        }
+    }))
+}
+
+// MARK: - One network test at a time
+
+/// Serializes the tests that use process-wide network state: NetworkStatus
+/// and the FileSourceManager's shared database and online file sources
+/// (gtest runs one test at a time; the Rust harness runs them in parallel,
+/// and a test that sets the network Offline would hold back another test's
+/// requests). Dropping the guard sets the network Online again, also when
+/// the test failed before doing so itself (a failed C++ EXPECT doesn't stop
+/// the test, a failed Rust assert does).
+pub struct NetworkSerial {
+    _lock: std::sync::MutexGuard<'static, ()>,
+}
+
+impl Drop for NetworkSerial {
+    fn drop(&mut self) {
+        NetworkStatus::set(NetworkStatusType::Online);
+    }
+}
+
+pub fn network_serial() -> NetworkSerial {
+    static LOCK: Mutex<()> = Mutex::new(());
+    NetworkSerial {
+        _lock: LOCK.lock().unwrap_or_else(|e| e.into_inner()),
     }
 }

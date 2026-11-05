@@ -1,5 +1,5 @@
 // Ports test/storage/online_file_source.test.cpp against the in-process test
-// server (tests/http_server.rs) instead of the C++ one on port 3000. The
+// server (//crates/mln_test http_server.rs) instead of the C++ one on port 3000. The
 // tests that request through the network take `serial()`: NetworkStatus is
 // process-wide and C++ runs one test at a time.
 

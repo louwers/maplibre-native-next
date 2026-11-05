@@ -1,5 +1,5 @@
 // Ports test/storage/http_file_source.test.cpp against the in-process test
-// server (tests/http_server.rs) instead of the C++ one on port 3000.
+// server (//crates/mln_test http_server.rs) instead of the C++ one on port 3000.
 
 use super::http_server::HttpServer;
 use super::{Req, req};

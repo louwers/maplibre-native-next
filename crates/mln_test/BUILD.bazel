@@ -1,0 +1,19 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+# Ports the shared helpers of the C++ unit tests in test/src/mln/test
+# (`mln::test`): for now the HTTP test server (http_server.cpp) that the
+# TEST_REQUIRES_SERVER gtests use. Test-only; tests that serve
+# test/fixtures/map/online need `@maplibre//test:fixtures` as data.
+rust_library(
+    name = "mln_test",
+    testonly = True,
+    srcs = glob(["src/**/*.rs"]),
+    visibility = ["//visibility:public"],
+    deps = ["//crates/mln_util"],
+)
+
+rust_test(
+    name = "mln_test_test",
+    crate = ":mln_test",
+    data = ["@maplibre//test:fixtures"],
+)

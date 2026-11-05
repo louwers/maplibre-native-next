@@ -6,13 +6,18 @@
 // (`HttpServer::new()`, URLs from `url(path)`) instead of one per process on
 // port 3000, so the per-route state (`/cache` counter, `/temporary-error`,
 // `/style-fail-once-*`, ...) starts fresh for each test, as when a C++ test
-// runs alone. HTTP/1.1 keep-alive is supported, as in httplib. A route that
-// sets no status answers 200 (httplib's `res.status == -1` default), and a
-// `Range: bytes=a-b` request header on a 200 response with content answers
-// 206 with that slice (httplib's range handling); an unknown path is a 404
-// with an empty body.
+// runs alone, and tests in parallel (one Rust test binary, several Bazel
+// test targets) never share a server. The JSON fixtures under
+// test/fixtures/map/online name their resources as
+// `http://127.0.0.1:3000/online/...`; `/online/` serves them with that
+// origin replaced by the server's own (`rewrite_origin`), so the style's
+// sources and sprite load from this server too. HTTP/1.1 keep-alive is
+// supported, as in httplib. A route that sets no status answers 200
+// (httplib's `res.status == -1` default), and a `Range: bytes=a-b` request
+// header on a 200 response with content answers 206 with that slice
+// (httplib's range handling); an unknown path is a 404 with an empty body.
 
-use super::cpp_path;
+use crate::cpp_path;
 use mln_util::chrono::{now, parse_timestamp_i32, parse_timestamp_str, rfc1123};
 use std::collections::BTreeMap;
 use std::io::{BufRead, BufReader, Write};
@@ -76,8 +81,11 @@ struct State {
     style_fail_once_404_cache_done: AtomicBool,
 }
 
+/// The origin the C++ fixtures and tests use for the test server.
+pub const CPP_ORIGIN: &str = "http://127.0.0.1:3000";
+
 /// `runServer`'s routes.
-fn route(state: &State, req: &Request, res: &mut Response) -> bool {
+fn route(state: &State, origin: &str, req: &Request, res: &mut Response) -> bool {
     let path = req.path.as_str();
     match path {
         "/test" => {
@@ -234,7 +242,7 @@ fn route(state: &State, req: &Request, res: &mut Response) -> bool {
                 // C++ reads "test/fixtures/map/online/<file>" relative to the
                 // working directory (util::read_file throws when missing).
                 let content = std::fs::read(cpp_path(&format!("test/fixtures/map/online/{file}"))).unwrap_or_default();
-                res.set_content(content);
+                res.set_content(if file.ends_with(".json") { rewrite_origin(&content, origin) } else { content });
             } else {
                 return false;
             }
@@ -308,7 +316,25 @@ fn parse_range(value: &str, len: usize) -> Option<(usize, usize)> {
     (start <= end && start < len).then_some((start, end.min(len - 1)))
 }
 
-fn serve(state: Arc<State>, stream: TcpStream) {
+/// `content` with every `http://127.0.0.1:3000` (the C++ server's origin)
+/// replaced by `origin`.
+pub fn rewrite_origin(content: &[u8], origin: &str) -> Vec<u8> {
+    let from = CPP_ORIGIN.as_bytes();
+    let mut out = Vec::with_capacity(content.len());
+    let mut i = 0;
+    while i < content.len() {
+        if content[i..].starts_with(from) {
+            out.extend_from_slice(origin.as_bytes());
+            i += from.len();
+        } else {
+            out.push(content[i]);
+            i += 1;
+        }
+    }
+    out
+}
+
+fn serve(state: Arc<State>, origin: Arc<str>, stream: TcpStream) {
     let mut reader = BufReader::new(match stream.try_clone() {
         Ok(s) => s,
         Err(_) => return,
@@ -344,7 +370,7 @@ fn serve(state: Arc<State>, stream: TcpStream) {
             headers: Vec::new(),
             content: None,
         };
-        let routed = route(&state, &req, &mut res);
+        let routed = route(&state, &origin, &req, &mut res);
         if !routed {
             res.status = 404;
         } else if res.status == -1 {
@@ -400,6 +426,7 @@ impl HttpServer {
         let port = listener.local_addr().expect("local address").port();
         let stop = Arc::new(AtomicBool::new(false));
         let state = Arc::new(State::default());
+        let origin: Arc<str> = format!("http://127.0.0.1:{port}").into();
         let stopped = stop.clone();
         let thread = std::thread::Builder::new()
             .name("HttpServer".to_owned())
@@ -411,10 +438,10 @@ impl HttpServer {
                     let Ok(stream) = stream else {
                         continue;
                     };
-                    let state = state.clone();
+                    let (state, origin) = (state.clone(), origin.clone());
                     let _ = std::thread::Builder::new()
                         .name("HttpServer connection".to_owned())
-                        .spawn(move || serve(state, stream));
+                        .spawn(move || serve(state, origin, stream));
                 }
             })
             .expect("spawn test server");
@@ -425,7 +452,6 @@ impl HttpServer {
         }
     }
 
-    #[allow(dead_code)]
     pub fn port(&self) -> u16 {
         self.port
     }
@@ -433,6 +459,18 @@ impl HttpServer {
     /// `http://127.0.0.1:<port><path>` (C++: `http://127.0.0.1:3000<path>`).
     pub fn url(&self, path: &str) -> String {
         format!("http://127.0.0.1:{}{path}", self.port)
+    }
+
+    /// `content` (a C++ fixture or URL naming `http://127.0.0.1:3000`) with
+    /// that origin replaced by this server's.
+    pub fn rewrite_origin(&self, content: &[u8]) -> Vec<u8> {
+        rewrite_origin(content, &self.url(""))
+    }
+}
+
+impl Default for HttpServer {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -454,4 +492,41 @@ pub fn closed_port_url(path: &str) -> String {
         listener.local_addr().expect("local address").port()
     };
     format!("http://127.0.0.1:{port}{path}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Read;
+
+    fn get(server: &HttpServer, path: &str) -> String {
+        let mut stream = TcpStream::connect(("127.0.0.1", server.port())).unwrap();
+        write!(stream, "GET {path} HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n").unwrap();
+        let mut response = String::new();
+        stream.read_to_string(&mut response).unwrap();
+        response
+    }
+
+    #[test]
+    fn online_json_fixtures_name_this_server() {
+        let server = HttpServer::new();
+        let style = get(&server, "/online/style.json");
+        assert!(style.starts_with("HTTP/1.1 200 OK\r\n"), "{style}");
+        assert!(style.contains(&format!("\"{}\"", server.url("/online/sprite"))), "{style}");
+        assert!(!style.contains(CPP_ORIGIN), "{style}");
+    }
+
+    #[test]
+    fn rewrite_origin_replaces_every_occurrence() {
+        assert_eq!(
+            b"[\"http://127.0.0.1:9/a\", \"http://127.0.0.1:9/b\"]".to_vec(),
+            rewrite_origin(b"[\"http://127.0.0.1:3000/a\", \"http://127.0.0.1:3000/b\"]", "http://127.0.0.1:9")
+        );
+    }
+
+    #[test]
+    fn unknown_paths_are_not_found() {
+        let server = HttpServer::new();
+        assert!(get(&server, "/nothing-here").starts_with("HTTP/1.1 404 Not Found\r\n"));
+    }
 }

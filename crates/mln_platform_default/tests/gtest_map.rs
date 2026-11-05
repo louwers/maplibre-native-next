@@ -18,14 +18,16 @@ use mln_map::{
     BoundOptions, CameraOptions, ConstrainMode, Map, MapMode, MapOptions, MapProjection, NorthOrientation,
     ProjectionMode, RenderMode, TileLodMode, ViewportMode,
 };
+use mln_platform_default::HeadlessFrontend;
 use mln_renderer::{RendererFrontend, RendererObserver, UpdateParameters};
 use mln_storage::response::{Error as ResponseError, Reason};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_storage::network_status::{NetworkStatus, Status as NetworkStatusType};
 use mln_storage::{
-    ClientOptions, FileSource, FileSourceManager, FileSourceType, Kind, LoadingMethod, MainResourceLoader, Resource,
-    ResourceOptions, Response, StoragePolicy,
+    ClientOptions, FileSource, FileSourceManager, FileSourceType, Kind, LoadingMethod, MainResourceLoader,
+    OnlineFileSource, Resource, ResourceOptions, Response, StoragePolicy,
 };
+use mln_test::HttpServer;
 use mln_style::layers::background_layer::BackgroundLayer;
 use mln_style::layers::line_layer::LineLayer;
 use mln_style::layers::location_indicator_layer::LocationIndicatorLayer;
@@ -541,6 +543,7 @@ fn no_op() -> Option<Box<dyn FnOnce() + Send>> {
 // gtest: Map.Offline
 #[test]
 fn offline() {
+    let _serial = network_serial();
     let test = main_resource_loader_test(":memory:", ".");
 
     // C++ CI leaves this test out on the macOS runners
@@ -952,21 +955,58 @@ fn style_loaded_signal() {
     assert!(!emitted.get());
 }
 
+/// `MapTest<OnlineFileSource> test(resourceOptions)`.
+fn online_file_source_test(resource_options: &ResourceOptions) -> MapTest<OnlineFileSource> {
+    let run_loop = RunLoop::new();
+    let file_source = Arc::new(OnlineFileSource::new(resource_options, &ClientOptions::default()));
+    MapTest::create(run_loop, file_source, 1.0, MapMode::Static)
+}
+
 // Test for https://github.com/mapbox/mapbox-gl-native/issues/7902
 // gtest: Map.StyleNetworkErrorRetry
 #[test]
-#[ignore = "TEST_REQUIRES_SERVER: needs the HTTP test server (test/storage/server.js) and MapTest<OnlineFileSource>; see map.test.cpp:751"]
 fn style_network_error_retry() {
-    // test/map/map.test.cpp:751: loadURL("http://127.0.0.1:3000/style-fail-once-500")
-    // over an OnlineFileSource; the style loads after one retry.
+    let _serial = network_serial();
+    let server = HttpServer::new();
+    let test = online_file_source_test(&ResourceOptions::default_options());
+
+    test.map().get_style_mut().load_url(&server.url("/style-fail-once-500"));
+
+    let run_loop = test.run_loop.clone();
+    test.observer.did_finish_loading_style_callback.set(move |_| run_loop.stop());
+
+    run_with_timeout(&test.run_loop, 60);
 }
 
 // gtest: Map.StyleNotFound
 #[test]
-#[ignore = "TEST_REQUIRES_SERVER: needs the HTTP test server (test/storage/server.js) and MapTest<OnlineFileSource>; see map.test.cpp:763"]
 fn style_not_found() {
-    // test/map/map.test.cpp:763: a 404 style is not retried (with and
-    // without cache headers).
+    let _serial = network_serial();
+    let server = HttpServer::new();
+    let test = online_file_source_test(&ResourceOptions::default_options());
+
+    test.map().get_style_mut().load_url(&server.url("/style-fail-once-404"));
+
+    let timer = Rc::new(Timer::new());
+
+    // Not found errors should not trigger a retry like other errors.
+    test.observer
+        .did_finish_loading_style_callback
+        .set(|_| panic!("Should not retry on not found!"));
+
+    {
+        let (timer, run_loop) = (timer.clone(), test.run_loop.clone());
+        test.observer.did_fail_loading_map_callback.set(move |_| {
+            let run_loop = run_loop.clone();
+            timer.start(Duration::from_millis(1100), Duration::zero(), move || run_loop.stop());
+        });
+    }
+
+    run_with_timeout(&test.run_loop, 60);
+
+    // Should also not retry if the response has cache headers.
+    test.map().get_style_mut().load_url(&server.url("/style-fail-once-404-cache"));
+    run_with_timeout(&test.run_loop, 60);
 }
 
 // gtest: Map.AddLayer
@@ -1490,9 +1530,108 @@ fn prefetch_delta_override_custom_source() {
 // currently used spritesheet.
 // gtest: Map.ExpiredSpriteSheet
 #[test]
-#[ignore = "TEST_REQUIRES_SERVER: the expired sprite forwarded into the cache is refetched from the HTTP test server (127.0.0.1:3000/online) once the network status is online; also needs a frontend that intercepts update() (UpdateParameters images sorted, fewer than 4); see map.test.cpp:1400"]
 fn expired_sprite_sheet() {
-    // test/map/map.test.cpp:1400.
+    /// The test's `ForwardingHeadlessFrontend : HeadlessFrontend`, whose
+    /// `update` runs `checkParams` first. C++ derives from HeadlessFrontend;
+    /// here it wraps one.
+    #[derive(Clone)]
+    struct ForwardingHeadlessFrontend {
+        frontend: HeadlessFrontend,
+        check_params: Rc<RefCell<Option<Box<dyn FnMut(&Arc<UpdateParameters>)>>>>,
+    }
+
+    impl RendererFrontend for ForwardingHeadlessFrontend {
+        fn reset(&self) {
+            self.frontend.reset();
+        }
+        fn set_observer(&self, observer: Weak<dyn RendererObserver>) {
+            self.frontend.set_observer(observer);
+        }
+        fn update(&self, params: Arc<UpdateParameters>) {
+            if let Some(check_params) = self.check_params.borrow_mut().as_mut() {
+                check_params(&params);
+            }
+            self.frontend.update(params);
+        }
+    }
+
+    let _serial = network_serial();
+    let server = HttpServer::new();
+
+    // MapTest<MainResourceLoader, ForwardingHeadlessFrontend> test{":memory:", ".", 1, MapMode::Continuous}
+    let run_loop = RunLoop::new();
+    let file_source = Arc::new(MainResourceLoader::new(
+        &ResourceOptions::default().with_cache_path(":memory:").with_asset_path("."),
+        &ClientOptions::default(),
+    ));
+    let frontend = ForwardingHeadlessFrontend {
+        frontend: HeadlessFrontend::with_pixel_ratio(1.0),
+        check_params: Rc::new(RefCell::new(None)),
+    };
+    let size = frontend.frontend.get_size();
+    let test = MapTest::create_with_frontend(run_loop, file_source, frontend, size, 1.0, MapMode::Continuous);
+
+    // The JSON fixtures name their resources at 127.0.0.1:3000; the test
+    // server's port replaces it.
+    let make_response = |path: &str, expires: bool| {
+        let mut response = Response::new();
+        let data = read_bytes(&format!("test/fixtures/map/online/{path}"));
+        let data = if path.ends_with(".json") { server.rewrite_origin(&data) } else { data };
+        response.data = Some(Arc::new(data));
+        // `Timestamp{Seconds(0)}` : `Timestamp::max()`
+        response.expires = Some(Timestamp::from_secs(if expires { 0 } else { i64::MAX }));
+        response
+    };
+
+    {
+        let check_params = test.frontend.check_params.clone();
+        let observer = Rc::downgrade(&test.observer);
+        let run_loop = test.run_loop.clone();
+        test.observer.did_finish_loading_map_callback.set(move |_| {
+            *check_params.borrow_mut() = Some(Box::new(|params: &Arc<UpdateParameters>| {
+                // std::is_sorted with `operator<` on Immutable<Image::Impl>
+                // (by id).
+                assert!(params.images.windows(2).all(|pair| !(pair[1].id < pair[0].id)));
+                assert!(params.images.len() < 4);
+            }));
+
+            NetworkStatus::set(NetworkStatusType::Online);
+
+            if let Some(observer) = observer.upgrade() {
+                let run_loop = run_loop.clone();
+                observer.did_become_idle_callback.set(move |_| run_loop.stop());
+            }
+        });
+    }
+
+    NetworkStatus::set(NetworkStatusType::Offline);
+    let prefix = server.url("/online/");
+    let dbfs = database_file_source();
+    dbfs.forward(&Resource::style(&format!("{prefix}style.json")), &make_response("style.json", false), no_op());
+    dbfs.forward(&Resource::source(&format!("{prefix}streets.json")), &make_response("streets.json", false), no_op());
+    dbfs.forward(&Resource::sprite_json(&format!("{prefix}sprite"), 1.0), &make_response("sprite.json", true), no_op());
+    dbfs.forward(&Resource::sprite_image(&format!("{prefix}sprite"), 1.0), &make_response("sprite.png", true), no_op());
+    let map = test.weak_map();
+    let style_url = format!("{prefix}style.json");
+    dbfs.forward(
+        &Resource::tile(
+            &format!("{prefix}{{z}}-{{x}}-{{y}}.vector.pbf"),
+            1.0,
+            0,
+            0,
+            0,
+            Scheme::XYZ,
+            LoadingMethod::All,
+        ),
+        &make_response("0-0-0.vector.pbf", false),
+        local_callback(move || {
+            if let Some(map) = map.upgrade() {
+                map.borrow_mut().get_style_mut().load_url(&style_url);
+            }
+        }),
+    );
+
+    run_with_timeout(&test.run_loop, 60);
 }
 
 // gtest: Map.SourceMinimumUpdateIntervalOverride
@@ -1876,12 +2015,32 @@ fn invalid_utf8_in_tile() {
     }"#,
     );
 
+    // C++ installs the frame callback in didFinishLoadingMap and waits for a
+    // frame without needsRepaint. didFinishLoadingMap comes right after the
+    // first Full frame; if that frame already needs no repaint (the tile
+    // arrived after the placement fade ended), the map goes idle and renders
+    // no further frame, so the callback would never run. That needs a tile
+    // that takes longer to parse than the 300 ms fade, which happens when the
+    // other tests of this binary keep the shared worker pool busy (C++ runs
+    // one test at a time). The port also stops on that first Full frame when
+    // it needs no repaint (DEVIATIONS.md [server-tests] Map.InvalidUTF8InTile).
+    let last_frame_needs_repaint = Rc::new(Cell::new(true));
+    {
+        let last_frame_needs_repaint = last_frame_needs_repaint.clone();
+        test.observer
+            .did_finish_rendering_frame_callback
+            .set(move |status| last_frame_needs_repaint.set(status.needs_repaint));
+    }
     let observer = Rc::downgrade(&test.observer);
     let run_loop = test.run_loop.clone();
     test.observer.did_finish_loading_map_callback.set(move |_| {
         let Some(observer) = observer.upgrade() else {
             return;
         };
+        if !last_frame_needs_repaint.get() {
+            run_loop.stop();
+            return;
+        }
         let run_loop = run_loop.clone();
         observer.did_finish_rendering_frame_callback.set(move |status| {
             if !status.needs_repaint {

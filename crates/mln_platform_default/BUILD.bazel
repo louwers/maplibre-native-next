@@ -1,6 +1,6 @@
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
-# Ports platform/default (headless frontend and backend, file sources).
+# Ports platform/default (headless frontend and backend, map snapshotter).
 rust_library(
     name = "mln_platform_default",
     srcs = glob(["src/**/*.rs"]),
@@ -10,6 +10,8 @@ rust_library(
         "//crates/mln_gfx",
         "//crates/mln_map",
         "//crates/mln_renderer",
+        "//crates/mln_storage",
+        "//crates/mln_style",
         "//crates/mln_util",
         "//crates/mln_webgpu",
     ],
@@ -63,8 +65,9 @@ rust_test(
 )
 
 # gtests-core: test/map/{map,prefetch,map_snapshotter}.test.cpp through Map
-# (over a StubFileSource/FakeFileSource) -> HeadlessFrontend. Shared fixture
-# in tests/support/mod.rs.
+# (over a StubFileSource/FakeFileSource, or the HTTP test server of
+# //crates/mln_test for the TEST_REQUIRES_SERVER tests) -> HeadlessFrontend.
+# Shared fixture in tests/support/mod.rs.
 rust_test(
     name = "gtest_map",
     srcs = [
@@ -85,6 +88,7 @@ rust_test(
         "//crates/mln_renderer",
         "//crates/mln_storage",
         "//crates/mln_style",
+        "//crates/mln_test",
         "//crates/mln_util",
         "//crates/mln_webgpu",
         "//vendor/geojson",
@@ -138,6 +142,7 @@ rust_test(
         "//crates/mln_actor",
         "//crates/mln_map",
         "//crates/mln_platform_default_image",
+        "//crates/mln_renderer",
         "//crates/mln_storage",
         "//crates/mln_util",
         "//vendor/pixelmatch",

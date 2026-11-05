@@ -1,5 +1,5 @@
 // Ports test/storage/main_resource_loader.test.cpp against the in-process
-// test server (tests/http_server.rs; C++: 127.0.0.1:3000). Every test takes
+// test server (//crates/mln_test http_server.rs; C++: 127.0.0.1:3000). Every test takes
 // `serial()`: they share the FileSourceManager's database and online file
 // sources (and NetworkStatus), and gtest runs one test at a time.
 
@@ -784,6 +784,40 @@ fn cached_resource_low_priority() {
     fs.pause();
     NetworkStatus::set(Status::Offline);
 
+    // C++ sets the network status Online right after `fs.resume()`. The five
+    // requests reach the OnlineFileSource only after their database lookups,
+    // so in practice they all arrive after that (measured: 5 of 5 in each of
+    // 20 runs) and start as they arrive, instead of waiting offline for
+    // networkIsReachableAgain (which notifies regular before low priority
+    // requests). Then, with one transfer at a time, the fast local server
+    // can finish /load/0 and /load/1 before /load/2's lookup is done, and
+    // the low priority /load/3 goes second (the Linux CI failure "left: 2,
+    // right: 3"; upstream marks the test flaky, maplibre-native#1071). The
+    // port waits until all five wait offline: an identity ResourceTransform
+    // counts them on the online thread, and after the fifth one's request is
+    // scheduled (the transform's reply is a message on that thread) it tells
+    // this loop to set the network Online (DEVIATIONS.md [server-tests]).
+    let arrived = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let main_loop = run_loop.handle();
+    online_fs.set_resource_transform(ResourceTransform::new(Some(Arc::new(
+        move |_kind: Kind, url: &str, finished: FinishedCallback| {
+            finished(url.to_owned());
+            if arrived.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1 == 5 {
+                let main_loop = main_loop.clone();
+                scheduler::get_current().schedule(Box::new(move || {
+                    main_loop.invoke(|| NetworkStatus::set(Status::Online));
+                }));
+            }
+        },
+    ))));
+    struct ResetTransform(Arc<dyn FileSource>);
+    impl Drop for ResetTransform {
+        fn drop(&mut self) {
+            self.0.set_resource_transform(ResourceTransform::default());
+        }
+    }
+    let _reset_transform = ResetTransform(online_fs.clone());
+
     // Ensure that the online requests for new resources are processed first.
     let non_cached0 = Resource::with_tile_data(Kind::Unknown, server.url("/load/0"), None, LoadingMethod::All);
     let req0 = req();
@@ -869,7 +903,7 @@ fn cached_resource_low_priority() {
     ));
 
     fs.resume();
-    NetworkStatus::set(Status::Online);
+    // NetworkStatus::set(Status::Online) comes from the transform above.
 
     run_loop.run();
 }

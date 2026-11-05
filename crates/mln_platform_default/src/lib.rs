@@ -4,3 +4,6 @@
 pub mod headless_frontend;
 
 pub use headless_frontend::{HeadlessFrontend, RenderResult};
+pub mod map_snapshotter;
+
+pub use map_snapshotter::{MapSnapshotter, MapSnapshotterObserver};
