@@ -188,7 +188,8 @@ Vulkan on lavapipe and macOS through Metal on the runners' paravirtualized
 GPU (`//...` plus the render suite on both). The browser path builds the
 render-test runner for wasm32-unknown-unknown on wgpu's WebGPU backend and
 runs the suite in headless Chrome (`tools/web-test`; SwiftShader on CI:
-1314 passed, 0 failed).
+1314 passed, 0 failed). All 52 C++ `TEST_REQUIRES_SERVER` gtests are ported
+and run over `//crates/mln_test`'s HTTP server.
 
 Near-term target (2026-11-03), **OpenFreeMap Liberty**: 111 layers
 (background, raster PNG z0-6, 16 fill incl. 2 `fill-pattern`, 67 line incl. 17
