@@ -1,0 +1,13 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+
+# Prints the wgpu adapter the headless backend gets, with its limits and
+# downlevel capabilities. CI runs it next to the tests, so the logs say
+# which GPU (lavapipe, a VM's paravirtualized Metal, ...) rendered them.
+rust_binary(
+    name = "gpu-info",
+    srcs = ["src/main.rs"],
+    deps = [
+        "@next_crates//:pollster",
+        "@next_crates//:wgpu",
+    ],
+)
