@@ -86,6 +86,7 @@ rust_test(
         "//crates/mln_storage",
         "//crates/mln_style",
         "//crates/mln_util",
+        "//crates/mln_webgpu",
         "//vendor/geojson",
         "//vendor/maplibre-native-base:maplibre_native_base",
         "//vendor/pixelmatch",
