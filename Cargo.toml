@@ -25,6 +25,9 @@ members = [
 # in the in-repo [workspace.dependencies] below (RELEASING.md).
 version = "0.0.8"
 edition = "2024"
+# The oldest Rust the packages build with (mlt-core 0.22 needs 1.98). CI's
+# msrv job builds the workspace with it.
+rust-version = "1.98"
 description = "Part of mln-rs, a Rust port of the MapLibre Native map rendering core. Depend on mln-rs instead."
 license = "BSD-2-Clause"
 repository = "https://github.com/louwers/maplibre-native-next"
@@ -163,6 +166,7 @@ neg_cmp_op_on_partial_ord = "allow"
 name = "mln-rs"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 description = "A Rust port of the MapLibre Native map rendering core"
 license.workspace = true
 repository.workspace = true

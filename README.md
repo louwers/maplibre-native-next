@@ -1,5 +1,9 @@
 # maplibre-native-next
 
+[![CI](https://github.com/louwers/maplibre-native-next/actions/workflows/ci.yml/badge.svg)](https://github.com/louwers/maplibre-native-next/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/mln-rs)](https://crates.io/crates/mln-rs)
+[![docs.rs](https://img.shields.io/docsrs/mln-rs)](https://docs.rs/mln-rs)
+
 A Rust port of the MapLibre Native core, tested against the C++ core in
 `../maplibre-native`. Start with [PLAN.md](PLAN.md); working rules are in
 [PORTING.md](PORTING.md).
@@ -26,3 +30,6 @@ As under Bazel, the tests read the C++ core's test data from
 `../maplibre-native`, with its `vendor/` submodules (`.cargo/config.toml`
 points them there), and the GPU tests need an adapter: Metal on macOS,
 Vulkan on Linux (without a GPU, lavapipe through `VK_DRIVER_FILES`).
+
+`scripts/fmt` formats every Rust file. CI checks that, and runs clippy and
+rustdoc with warnings as errors.

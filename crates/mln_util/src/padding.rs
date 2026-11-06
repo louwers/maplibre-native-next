@@ -50,7 +50,7 @@ impl Padding {
         [self.top, self.right, self.bottom, self.left]
     }
 
-    /// Used by ValueFactory<Padding>::make(): floats promote to double.
+    /// Used by `ValueFactory<Padding>::make()`: floats promote to double.
     pub fn serialize(&self) -> Value {
         Value::Array(self.to_array().iter().map(|v| Value::Double(*v)).collect())
     }

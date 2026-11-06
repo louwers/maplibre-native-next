@@ -204,7 +204,7 @@ impl CollisionFeature {
     /// `symbol-placement: line`). We're relying on most icons being "close
     /// enough" to square that having incorrect rotation alignment doesn't throw
     /// off collision detection too much. See:
-    /// https://github.com/mapbox/mapbox-gl-js/issues/4861
+    /// <https://github.com/mapbox/mapbox-gl-js/issues/4861>
     pub fn new_icon(
         line: &GeometryCoordinates,
         anchor: &Anchor,

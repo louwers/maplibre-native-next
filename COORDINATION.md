@@ -2006,7 +2006,7 @@ Append-only. One entry per message, newest last:
   green). Removed 138 of the 141 ignored-passed from rust-port.json (raster-*
   via RasterTile + conformance's raster layer, fill-extrusion-*, heatmap-*,
   combinations, feature-state, light, projection, tms/tms via MLT tiles, ...),
-  so the next run should show ~565 passed. Kept in rust-port.json: 
+  so the next run should show ~565 passed. Kept in rust-port.json:
   regressions/mapbox-gl-native#6063, runtime-styling/filter-default-to-false,
   runtime-styling/filter-true-to-false: symbol layers filtered to nothing,
   they "pass" only because symbols don't render yet.

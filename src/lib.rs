@@ -1,6 +1,6 @@
 //! A Rust port of the MapLibre Native map rendering core.
 //!
-//! Every library crate of https://github.com/louwers/maplibre-native-next is
+//! Every library crate of <https://github.com/louwers/maplibre-native-next> is
 //! re-exported here under its crate name: `mln_rs::mln_map`,
 //! `mln_rs::mln_util`, `mln_rs::earcut`, and so on. They are published as
 //! the `mln-rs-*` packages, which only exist for this crate.

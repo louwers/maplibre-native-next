@@ -3,3 +3,7 @@
 /.nix-shell/
 /target/
 __pycache__/
+.DS_Store
+.idea/
+.vscode/
+rustc-ice-*.txt

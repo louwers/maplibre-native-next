@@ -288,7 +288,7 @@ const NO_CLUSTER: &str = "No cluster with the specified id.";
 
 impl Supercluster {
     /// `Supercluster(features, options)`; `Err` if a feature is not a point
-    /// (C++: `bad_variant_access` "in get<T>()").
+    /// (C++: `bad_variant_access` `"in get<T>()"`).
     pub fn new(features: &GeoJSONFeatures, options: Options) -> Result<Self, String> {
         let mut index = Supercluster { features: features.clone(), options, zooms: HashMap::new() };
         let options = &index.options;

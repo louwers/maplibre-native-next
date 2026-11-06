@@ -9,7 +9,7 @@
 ///     Algorithmica (1986) 1: 251. http://xmailserver.org/diff2.pdf
 ///
 /// For understanding this algorithm,
-/// http://simplygenius.net/Article/DiffTutorial1 is also helpful.
+/// <http://simplygenius.net/Article/DiffTutorial1> is also helpful.
 ///
 /// TODO: implement the O(N) space refinement presented in the paper.
 ///

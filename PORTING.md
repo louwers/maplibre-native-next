@@ -47,6 +47,13 @@ everyone working in this repo).
   with sources, test-only dependencies in `[dev-dependencies]`. A new
   library needs the steps in RELEASING.md ("Adding a library"). CI's
   `release-crate` job checks the manifests.
+- Format with `scripts/fmt` (rustfmt, `rustfmt.toml`); leave generated
+  files ("Do not edit") as their generator writes them, and put
+  `#[rustfmt::skip]` on a new one's `mod` declaration. CI's `lint` job also
+  runs clippy (`cargo clippy --workspace --all-targets`) and rustdoc with
+  warnings as errors. The root `Cargo.toml` allows the clippy lints whose
+  fixes would make the port read or behave less like the C++; for another
+  such case, `#[allow]` it where it occurs and say why.
 - Third-party crates available as `@next_crates//:<name>`: the ones in the
   root `Cargo.toml`'s `[workspace.dependencies]` (with their features) and,
   for Bazel-only targets, in `third_party/bazel_crates/Cargo.toml`

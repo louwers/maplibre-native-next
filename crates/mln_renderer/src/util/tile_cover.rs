@@ -497,7 +497,7 @@ pub fn tile_cover_geometry(geometry: &Geometry<f64>, z: u8) -> Result<Vec<Unwrap
 
 /// Compute only the count of tiles needed for tileCover.
 ///
-/// Taken from https://github.com/mapbox/sphericalmercator#xyzbbox-zoom-tms_style-srs
+/// Taken from <https://github.com/mapbox/sphericalmercator#xyzbbox-zoom-tms_style-srs>
 /// Computes the projected tiles for the lower left and upper right points of the bounds
 /// and uses that to compute the tile cover count
 pub fn tile_count_bounds(bounds: &LatLngBounds, zoom: u8) -> u64 {

@@ -90,6 +90,8 @@ jobs:
   release-crate:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
+    env:
+      CARGO_BUILD_WARNINGS: deny
     steps:
       - uses: actions/checkout@v5
         with:
@@ -111,3 +113,79 @@ jobs:
           rustup default stable
           cargo package --workspace --locked
           cargo test --workspace --locked --no-run
+
+  # What the Bazel build does not check, all with warnings as errors:
+  # formatting (scripts/fmt, every Rust file), clippy with the workspace's
+  # lints (Cargo.toml) and the API docs as docs.rs builds them.
+  lint:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    env:
+      CARGO_BUILD_WARNINGS: deny
+      RUSTDOCFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            target
+          key: lint-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: lint-${{ runner.os }}-
+
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component clippy,rustfmt --no-self-update
+          rustup default stable
+
+      - name: rustfmt
+        run: scripts/fmt --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked
+
+      - name: Docs
+        run: cargo doc --workspace --no-deps --locked
+
+  # The oldest Rust the packages declare (`rust-version` in Cargo.toml) still
+  # builds them and their tests.
+  msrv:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            target
+          key: msrv-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: msrv-${{ runner.os }}-
+
+      - name: Install the MSRV
+        run: |
+          msrv=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
+          rustup toolchain install "$msrv" --profile minimal --no-self-update
+          rustup default "$msrv"
+
+      - name: Check
+        run: cargo check --workspace --all-targets --locked
+
+  # The one check for branch protection to require: it fails when a job above
+  # failed or was cancelled.
+  ci-passed:
+    needs: [test, release-crate, lint, msrv]
+    if: always()
+    runs-on: ubuntu-26.04
+    permissions: {}
+    steps:
+      - name: The jobs' results
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: echo "$NEEDS"
+
+      - name: Fail if a job failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1

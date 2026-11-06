@@ -1,8 +1,8 @@
 //! Ports vendor/csscolorparser (csscolorparser.cpp, csscolorparser.hpp):
 //! (c) Dean McNamee <dean@gmail.com>, 2012; C++ port by Mapbox, Konstantin
 //! Käfer <mail@kkaefer.com>, 2014-2017; MIT License
-//! (https://github.com/deanm/css-color-parser-js,
-//! https://github.com/kkaefer/css-color-parser-cpp).
+//! (<https://github.com/deanm/css-color-parser-js>,
+//! <https://github.com/kkaefer/css-color-parser-cpp>).
 //!
 //! The C++ works on the bytes of a `std::string` and leans on C library
 //! behaviour (`strtof`, `strtoll`, `std::getline`, `std::modf`, x86 float to
