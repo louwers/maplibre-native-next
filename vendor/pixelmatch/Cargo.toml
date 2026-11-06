@@ -1,0 +1,22 @@
+[package]
+name = "mln-rs-pixelmatch"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# Only the tests use it (and tools/render-test).
+publish = false
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
+autotests = false
+
+[lib]
+name = "pixelmatch"
+# Bazel never runs doctests.
+doctest = false
+
+[[test]]
+name = "pixelmatch_fixtures_test"
+path = "tests/fixtures.rs"

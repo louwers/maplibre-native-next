@@ -83,9 +83,10 @@ jobs:
           path: maplibre-native-next/bazel-testlogs/**/test.log
           if-no-files-found: ignore
 
-  # The crates.io packages (RELEASING.md): build each one from its packaged
-  # sources, as the release does, so a dependency missing from a Cargo.toml
-  # shows up here rather than in the release workflow.
+  # The Cargo manifests: build each crates.io package from its packaged
+  # sources, as the release does (RELEASING.md), and every test target, so a
+  # dependency or test missing from a Cargo.toml shows up here. Bazel runs
+  # the tests.
   release-crate:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -109,3 +110,4 @@ jobs:
           rustup toolchain install stable --profile minimal --no-self-update
           rustup default stable
           cargo package --workspace --locked
+          cargo test --workspace --locked --no-run

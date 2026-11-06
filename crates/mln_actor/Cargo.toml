@@ -6,12 +6,20 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
 autotests = false
 
 [lib]
 name = "mln_actor"
+# Bazel never runs doctests.
+doctest = false
 
 [dependencies]
 maplibre_native_base.workspace = true
 mln_util.workspace = true
+
+# One test at a time (RUST_TEST_THREADS in .cargo/config.toml).
+[[test]]
+name = "mln_actor_gtest"
+path = "tests/gtest/main.rs"

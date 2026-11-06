@@ -6,8 +6,8 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
-autotests = false
 
 [lib]
 name = "libstdcxx"
+# Bazel never runs doctests.
+doctest = false

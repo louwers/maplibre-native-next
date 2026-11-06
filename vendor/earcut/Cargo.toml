@@ -6,12 +6,22 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
 autotests = false
 
 [lib]
 name = "earcut"
+# Bazel never runs doctests.
+doctest = false
 
 [dependencies]
 libstdcxx.workspace = true
 maplibre_native_base.workspace = true
+
+[[test]]
+name = "earcut_fixtures_test"
+path = "tests/fixtures.rs"
+
+[dev-dependencies]
+earcut_test_fixtures = { package = "mln-rs-earcut-test-fixtures", path = "test_fixtures" }

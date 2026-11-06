@@ -38,11 +38,13 @@ jobs:
           rustup toolchain install stable --profile minimal --no-self-update
           rustup default stable
 
+      # The version, and the packages to publish: all but the publish = false
+      # test helpers.
       - name: Version
         run: |
-          version=$(cargo metadata --no-deps --format-version 1 --locked |
-            jq -r '.packages[] | select(.name == "mln-rs") | .version')
-          echo "VERSION=$version" >> "$GITHUB_ENV"
+          metadata=$(cargo metadata --no-deps --format-version 1 --locked)
+          echo "VERSION=$(jq -r '.packages[] | select(.name == "mln-rs") | .version' <<< "$metadata")" >> "$GITHUB_ENV"
+          echo "PACKAGES=$(jq -r '[.packages[] | select(.publish == null) | .name] | join(" ")' <<< "$metadata")" >> "$GITHUB_ENV"
 
       # Builds each package from its packaged sources. Packages resolve each
       # other locally, so this works before any of them is on crates.io.
@@ -58,15 +60,14 @@ jobs:
           USER_AGENT: mln-rs-release (https://github.com/louwers/maplibre-native-next)
         run: |
           set -o pipefail
-          packages=$(cargo metadata --no-deps --format-version 1 --locked | jq -r '.packages[].name')
           while true; do
             skip=()
-            for package in $packages; do
+            for package in $PACKAGES; do
               if curl -sf -o /dev/null -A "$USER_AGENT" "https://crates.io/api/v1/crates/$package/$VERSION"; then
                 skip+=("--exclude=$package")
               fi
             done
-            if [[ ${#skip[@]} == $(wc -w <<< "$packages") ]]; then
+            if [[ ${#skip[@]} == $(wc -w <<< "$PACKAGES") ]]; then
               echo "crates.io has every package at $VERSION."
               break
             fi
@@ -87,7 +88,11 @@ jobs:
             echo "The $tag release exists."
             exit 0
           fi
+          files=()
+          for package in $PACKAGES; do
+            files+=("target/package/$package-$VERSION.crate")
+          done
           gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "$tag" \
             --notes "https://crates.io/crates/mln-rs/$VERSION" \
-            target/package/*.crate
+            "${files[@]}"

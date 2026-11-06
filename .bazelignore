@@ -1,1 +1,3 @@
 target
+# Cargo test data: symlinks into ../maplibre-native.
+.cargo

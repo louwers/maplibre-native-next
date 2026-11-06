@@ -6,11 +6,14 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
 autotests = false
 
 [lib]
 name = "mln_renderer"
+# Bazel never runs doctests.
+doctest = false
 
 [dependencies]
 bytemuck.workspace = true
@@ -33,3 +36,76 @@ mln_util.workspace = true
 nunicode.workspace = true
 polylabel.workspace = true
 shelf_pack.workspace = true
+
+[[test]]
+name = "tile_cover_test"
+path = "tests/tile_cover_test.rs"
+
+[[test]]
+name = "geojson_tile_test"
+path = "tests/geojson_tile_test.rs"
+
+[[test]]
+name = "source_test"
+path = "tests/source_test.rs"
+
+[[test]]
+name = "format_section_override_test"
+path = "tests/format_section_override_test.rs"
+
+[[test]]
+name = "bucket_test"
+path = "tests/bucket_test.rs"
+
+[[test]]
+name = "vector_tile_test"
+path = "tests/vector_tile_test.rs"
+
+[[test]]
+name = "tile_test"
+path = "tests/tile/main.rs"
+
+[[test]]
+name = "text_test"
+path = "tests/text/main.rs"
+
+[[test]]
+name = "gl_test"
+path = "tests/gl/main.rs"
+
+[[test]]
+name = "gtest_update_renderables"
+path = "tests/gtest_update_renderables.rs"
+
+[[test]]
+name = "gtest_line_atlas"
+path = "tests/gtest_line_atlas.rs"
+
+[[test]]
+name = "gtest_image_manager"
+path = "tests/gtest_image_manager.rs"
+
+[[test]]
+name = "gtest_pattern_atlas"
+path = "tests/gtest_pattern_atlas.rs"
+
+[[test]]
+name = "gtest_style_diff"
+path = "tests/gtest_style_diff.rs"
+
+[[test]]
+name = "gtest_dynamic_texture_atlas"
+path = "tests/gtest_dynamic_texture_atlas.rs"
+
+[[test]]
+name = "gtest_tile_range"
+path = "tests/gtest_tile_range.rs"
+
+[dev-dependencies]
+geojson = { package = "mln-rs-geojson", path = "../../vendor/geojson" }
+mln_conversion = { package = "mln-rs-conversion", path = "../mln_conversion" }
+mln_map = { package = "mln-rs-map", path = "../mln_map" }
+mln_sprite = { package = "mln-rs-sprite", path = "../mln_sprite" }
+mln_webgpu = { package = "mln-rs-webgpu", path = "../mln_webgpu" }
+pixelmatch = { package = "mln-rs-pixelmatch", path = "../../vendor/pixelmatch" }
+serde_json.workspace = true

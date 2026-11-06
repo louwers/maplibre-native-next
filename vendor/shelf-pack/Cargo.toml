@@ -6,8 +6,15 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
 autotests = false
 
 [lib]
 name = "shelf_pack"
+# Bazel never runs doctests.
+doctest = false
+
+[[test]]
+name = "shelf_pack_unit_test"
+path = "tests/shelf_pack.rs"

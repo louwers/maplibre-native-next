@@ -6,12 +6,22 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
 autotests = false
 
 [lib]
 name = "polylabel"
+# Bazel never runs doctests.
+doctest = false
 
 [dependencies]
 libstdcxx.workspace = true
 maplibre_native_base.workspace = true
+
+[[test]]
+name = "polylabel_fixtures_test"
+path = "tests/polylabel.rs"
+
+[dev-dependencies]
+serde_json.workspace = true

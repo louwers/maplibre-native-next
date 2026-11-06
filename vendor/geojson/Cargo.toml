@@ -6,13 +6,20 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
 autotests = false
 
 [lib]
 name = "geojson"
+# Bazel never runs doctests.
+doctest = false
 
 [dependencies]
 maplibre_native_base.workspace = true
 rapidjson.workspace = true
 serde_json.workspace = true
+
+[[test]]
+name = "geojson_fixtures_test"
+path = "tests/geojson.rs"

@@ -6,11 +6,14 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
 autotests = false
 
 [lib]
 name = "mln_storage_offline"
+# Bazel never runs doctests.
+doctest = false
 
 [dependencies]
 maplibre_native_base.workspace = true
@@ -24,3 +27,12 @@ mln_text.workspace = true
 mln_tile_id.workspace = true
 mln_util.workspace = true
 regex.workspace = true
+
+[[test]]
+name = "offline_download_map_test"
+path = "tests/offline_download_map.rs"
+
+[dev-dependencies]
+mln_map = { package = "mln-rs-map", path = "../mln_map" }
+mln_platform_default = { package = "mln-rs-platform-default", path = "../mln_platform_default" }
+mln_platform_default_image = { package = "mln-rs-platform-default-image", path = "../mln_platform_default_image" }

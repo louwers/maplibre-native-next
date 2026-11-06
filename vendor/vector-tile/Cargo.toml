@@ -6,11 +6,11 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The tests run under Bazel (BUILD.bazel).
-autotests = false
 
 [lib]
 name = "vector_tile"
+# Bazel never runs doctests.
+doctest = false
 
 [dependencies]
 maplibre_native_base.workspace = true

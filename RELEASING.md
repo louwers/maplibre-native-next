@@ -69,12 +69,17 @@ A new library under `crates/` or `vendor/` needs, next to its `BUILD.bazel`:
 
 - a `Cargo.toml`: copy one from another library and set the package name
   (`mln-rs-<name>`), `[lib] name` and the dependencies (the same ones as in
-  `BUILD.bazel`, as `<crate>.workspace = true`);
+  `BUILD.bazel`, as `<crate>.workspace = true`). Its tests: a `[[test]]` per
+  `rust_test` with sources, and their extra dependencies in
+  `[dev-dependencies]`, in-repo ones by path without a version
+  (`mln_style = { package = "mln-rs-style", path = "../mln_style" }`):
+  Cargo drops those from the published package, so they may form cycles;
 - an entry in `[workspace.dependencies]` in the root `Cargo.toml`;
 - a dependency of mln-rs (root `[dependencies]`) and a `pub use` in
   `src/lib.rs`.
 
-A library that should not be released goes into `exclude` instead. A new
+A library that should not be released (a test helper) gets
+`publish = false` instead of the last two steps. A new
 third-party crate goes into `[workspace.dependencies]` as well as
 `MODULE.bazel`, with the same features.
 

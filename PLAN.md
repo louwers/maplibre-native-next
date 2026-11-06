@@ -33,9 +33,10 @@ port, not a redesign:
 ## 1. Build
 
 - **Bazel** builds and tests everything (rules_rust 0.74, Rust edition
-  2024). The root `Cargo.toml` is only for the crates.io release
-  (RELEASING.md): it builds the libraries as the `mln-rs-*` packages behind
-  `mln-rs`. `MODULE.bazel` depends
+  2024). The root `Cargo.toml` builds the same libraries for the crates.io
+  release (RELEASING.md), as the `mln-rs-*` packages behind `mln-rs`, and
+  runs their tests (`cargo test --workspace`; not the difftests or the
+  tools' suites). `MODULE.bazel` depends
   on the C++ repo as the `maplibre` module through
   `local_path_override(path = "../maplibre-native")`, so tests see uncommitted
   C++ changes. The reference checkout is the `maplibre-native-next-support`

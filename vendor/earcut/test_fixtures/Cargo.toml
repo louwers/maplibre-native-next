@@ -1,0 +1,15 @@
+[package]
+name = "mln-rs-earcut-test-fixtures"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# The earcut.hpp fixtures parser of earcut's tests and the difftests
+# (//vendor/earcut:earcut_test_fixtures).
+publish = false
+
+[lib]
+name = "earcut_test_fixtures"
+doctest = false

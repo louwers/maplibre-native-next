@@ -20,7 +20,7 @@ rust_test(
 rust_library(
     name = "earcut_test_fixtures",
     testonly = True,
-    srcs = ["tests/fixtures_parser.rs"],
+    srcs = ["test_fixtures/src/lib.rs"],
     data = ["@maplibre//vendor:earcut_fixtures"],
     visibility = [
         "//difftest/earcut_crate:__pkg__",

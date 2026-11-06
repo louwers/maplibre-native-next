@@ -9,10 +9,8 @@
 # Cargo.toml. CI builds both, so a missing one fails there.
 [workspace]
 resolver = "3"
-members = ["crates/*", "vendor/*"]
-# Libraries Bazel builds that the release leaves out: ports nothing in the
-# release uses.
-exclude = ["vendor/cheap-ruler", "vendor/pixelmatch"]
+# The packages with `publish = false` are test helpers or unused by mln-rs.
+members = ["crates/*", "vendor/*", "vendor/earcut/test_fixtures"]
 
 [workspace.package]
 # Every package is published at this version. To release, bump it here and
@@ -22,7 +20,7 @@ edition = "2024"
 description = "Part of mln-rs, a Rust port of the MapLibre Native map rendering core. Depend on mln-rs instead."
 license = "BSD-2-Clause"
 repository = "https://github.com/louwers/maplibre-native-next"
-include = ["/src"]
+include = ["/src", "/tests"]
 
 [workspace.dependencies]
 # In-repo libraries. The exact version keeps a release's packages together.

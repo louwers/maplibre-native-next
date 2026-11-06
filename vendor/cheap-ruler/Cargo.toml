@@ -1,0 +1,25 @@
+[package]
+name = "mln-rs-cheap-ruler"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# Nothing in the release uses it.
+publish = false
+# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
+# their modules.
+autotests = false
+
+[lib]
+name = "cheap_ruler"
+# Bazel never runs doctests.
+doctest = false
+
+[dependencies]
+maplibre_native_base.workspace = true
+
+[[test]]
+name = "cheap_ruler_fixtures_test"
+path = "tests/cheap_ruler.rs"
