@@ -12,6 +12,7 @@ members = [
     "tools/expression-test",
     "tools/render-test",
     "tools/style-codegen",
+    "tools/test-server",
     "vendor/*",
     "vendor/earcut/test_fixtures",
 ]
@@ -95,6 +96,8 @@ flate2 = { version = "1.1.11", default-features = false, features = ["zlib"] }
 # surface.
 glfw = { version = "0.63.0", default-features = false, features = ["dynamic-link", "raw-window-handle-v0-6", "wayland", "x11"] }
 harfrust = { version = "0.15.0" }
+# The HTTP test server of the tests (tools/test-server).
+httpmock = { version = "0.9.0", default-features = false }
 # decodeWEBP (platform/default/src/mln/util/webp_reader.cpp); pure Rust.
 image-webp = { version = "0.2.4" }
 # MLT decoding: the Rust implementation of the MapLibre Tile spec, instead of

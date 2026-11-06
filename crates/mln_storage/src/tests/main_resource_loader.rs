@@ -1,5 +1,5 @@
-// Ports test/storage/main_resource_loader.test.cpp against the in-process
-// test server (tests/http_server.rs; C++: 127.0.0.1:3000). Every test takes
+// Ports test/storage/main_resource_loader.test.cpp against the test server
+// (mln_test_server; C++: 127.0.0.1:3000). Every test takes
 // `serial()`: they share the FileSourceManager's database and online file
 // sources (and NetworkStatus), and gtest runs one test at a time.
 
@@ -9,10 +9,10 @@ use std::sync::Arc;
 
 use feature::Value;
 use mln_actor::{ActorRef, Mailbox, RunLoop, Timer, scheduler};
+use mln_test_server::HttpServer;
 use mln_util::chrono::{Duration, Timestamp, now};
 use mln_util::tile_server_options::TileServerOptions;
 
-use super::http_server::HttpServer;
 use super::{local_callback, req, serial, temp_path};
 use crate::ClientOptions;
 use crate::database_file_source::DatabaseFileSource;

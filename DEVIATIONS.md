@@ -300,6 +300,22 @@ account for it.
   download state, which create OfflineDownloads), reset/pack/invalidate/
   clear ambient cache, setMaximumAmbientCacheSize; no test in test/storage
   goes through them.
+- **[storage] The HTTP test server** (test/src/mln/test/http_server.cpp,
+  cpp-httplib on 127.0.0.1:3000). `mln_test_server` (tools/test-server) has
+  the same routes on an httpmock server, one per test on a free port, so
+  route state (`/cache`'s counter, the fail-once routes) starts fresh for
+  each test. The `/online/` fixtures name `127.0.0.1:3000`; they are served
+  (and `online_fixture` reads them) with the test's server address instead.
+  Query parameters split as httplib's do (`a=b=c` is `a` = `c`).
+- **[map] MapSnapshotter renders on the caller's thread**
+  (platform/default map_snapshotter.cpp). C++ renders on a renderer thread
+  and forwards the renderer's observer calls through an actor; the port's
+  renderer is single-threaded, so it renders on the snapshotter's thread.
+  The snapshot callback still runs from the run loop, as C++'s actor
+  delivers it, and the image, attributions and transforms are gathered
+  there rather than in the still image callback (nothing renders in
+  between). The callback is `FnMut`: like C++, a snapshot started while one
+  is rendering calls back with an error and then again with the result.
 - **[sprite] Sprite JSON parsing** (sprite_parser.cpp `parseSprite`, rapidjson
   `Parse<0>`). serde_json instead of rapidjson: the message after "Failed to
   parse JSON: " is serde_json's (C++: "Invalid value. at offset 0" etc.); with

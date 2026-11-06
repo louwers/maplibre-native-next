@@ -1,13 +1,13 @@
-// Ports test/storage/http_file_source.test.cpp against the in-process test
-// server (tests/http_server.rs) instead of the C++ one on port 3000.
+// Ports test/storage/http_file_source.test.cpp against the test server
+// (mln_test_server, one per test) instead of the C++ one on port 3000.
 
 use std::cell::Cell;
 use std::rc::Rc;
 
 use mln_actor::RunLoop;
+use mln_test_server::HttpServer;
 use mln_util::chrono::{Timestamp, now};
 
-use super::http_server::HttpServer;
 use super::{Req, req};
 use crate::ClientOptions;
 use crate::file_source::FileSource;

@@ -23,13 +23,14 @@ use mln_map::{
     BoundOptions, CameraOptions, ConstrainMode, Map, MapMode, MapOptions, MapProjection, NorthOrientation,
     ProjectionMode, RenderMode, TileLodMode, ViewportMode,
 };
+use mln_platform_default::HeadlessFrontend;
 use mln_renderer::{RendererFrontend, RendererObserver, UpdateParameters};
 use mln_storage::network_status::{NetworkStatus, Status as NetworkStatusType};
 use mln_storage::response::{Error as ResponseError, Reason};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_storage::{
-    ClientOptions, FileSource, FileSourceManager, FileSourceType, Kind, LoadingMethod, MainResourceLoader, Resource,
-    ResourceOptions, Response, StoragePolicy,
+    ClientOptions, FileSource, FileSourceManager, FileSourceType, Kind, LoadingMethod, MainResourceLoader,
+    OnlineFileSource, Resource, ResourceOptions, Response, StoragePolicy,
 };
 use mln_style::layers::background_layer::BackgroundLayer;
 use mln_style::layers::line_layer::LineLayer;
@@ -42,6 +43,7 @@ use mln_style::sources::image_source::ImageSource;
 use mln_style::sources::tile_source::{UrlOrTileset, VectorSource};
 use mln_style::style_property::Kind as StylePropertyKind;
 use mln_style::{PropertyValue, TransitionOptions};
+use mln_test_server::HttpServer;
 use mln_util::Color;
 use mln_util::chrono::{Duration, Timestamp};
 use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds, ScreenCoordinate, WrapMode};
@@ -879,21 +881,54 @@ fn style_loaded_signal() {
     assert!(!emitted.get());
 }
 
+/// `MapTest<OnlineFileSource> test(ResourceOptions::Default())`.
+fn online_file_source_test() -> MapTest<OnlineFileSource> {
+    let run_loop = RunLoop::new();
+    let file_source = Arc::new(OnlineFileSource::new(&ResourceOptions::default_options(), &ClientOptions::default()));
+    MapTest::create(run_loop, file_source, 1.0, MapMode::Static)
+}
+
 // Test for https://github.com/mapbox/mapbox-gl-native/issues/7902
 // gtest: Map.StyleNetworkErrorRetry
 #[test]
-#[ignore = "TEST_REQUIRES_SERVER: needs the HTTP test server (test/storage/server.js) and MapTest<OnlineFileSource>; see map.test.cpp:751"]
 fn style_network_error_retry() {
-    // test/map/map.test.cpp:751: loadURL("http://127.0.0.1:3000/style-fail-once-500")
-    // over an OnlineFileSource; the style loads after one retry.
+    let server = HttpServer::new();
+    let test = online_file_source_test();
+
+    test.map().get_style_mut().load_url(&server.url("/style-fail-once-500"));
+
+    let run_loop = test.run_loop.clone();
+    test.observer.did_finish_loading_style_callback.set(move |_| run_loop.stop());
+
+    run_with_timeout(&test.run_loop, 10);
 }
 
 // gtest: Map.StyleNotFound
 #[test]
-#[ignore = "TEST_REQUIRES_SERVER: needs the HTTP test server (test/storage/server.js) and MapTest<OnlineFileSource>; see map.test.cpp:763"]
 fn style_not_found() {
-    // test/map/map.test.cpp:763: a 404 style is not retried (with and
-    // without cache headers).
+    let server = HttpServer::new();
+    let test = online_file_source_test();
+
+    test.map().get_style_mut().load_url(&server.url("/style-fail-once-404"));
+
+    let timer = Rc::new(Timer::new());
+
+    // Not found errors should not trigger a retry like other errors.
+    test.observer.did_finish_loading_style_callback.set(|_| panic!("Should not retry on not found!"));
+
+    {
+        let (timer, run_loop) = (timer.clone(), test.run_loop.clone());
+        test.observer.did_fail_loading_map_callback.set(move |_| {
+            let run_loop = run_loop.clone();
+            timer.start(Duration::from_millis(1100), Duration::zero(), move || run_loop.stop());
+        });
+    }
+
+    run_with_timeout(&test.run_loop, 10);
+
+    // Should also not retry if the response has cache headers.
+    test.map().get_style_mut().load_url(&server.url("/style-fail-once-404-cache"));
+    run_with_timeout(&test.run_loop, 10);
 }
 
 // gtest: Map.AddLayer
@@ -1381,14 +1416,108 @@ fn prefetch_delta_override_custom_source() {
     // re-requests the z16 tiles and their parents (8 requests).
 }
 
+/// The `ForwardingHeadlessFrontend` of Map.ExpiredSpriteSheet: a
+/// HeadlessFrontend whose `update` first calls `check_params`.
+#[derive(Clone)]
+struct ForwardingHeadlessFrontend {
+    frontend: HeadlessFrontend,
+    check_params: Rc<RefCell<Option<Box<dyn Fn(&UpdateParameters)>>>>,
+}
+
+impl RendererFrontend for ForwardingHeadlessFrontend {
+    fn reset(&self) {
+        self.frontend.reset();
+    }
+    fn set_observer(&self, observer: Weak<dyn RendererObserver>) {
+        self.frontend.set_observer(observer);
+    }
+    fn update(&self, parameters: Arc<UpdateParameters>) {
+        if let Some(check_params) = self.check_params.borrow().as_ref() {
+            check_params(&parameters);
+        }
+        self.frontend.update(parameters);
+    }
+}
+
 // Test verifies that Style::Impl::onSpriteLoaded does not create duplicate
 // images when we get new spritesheet from the server and we merge it with
 // currently used spritesheet.
 // gtest: Map.ExpiredSpriteSheet
 #[test]
-#[ignore = "TEST_REQUIRES_SERVER: the expired sprite forwarded into the cache is refetched from the HTTP test server (127.0.0.1:3000/online) once the network status is online; also needs a frontend that intercepts update() (UpdateParameters images sorted, fewer than 4); see map.test.cpp:1400"]
 fn expired_sprite_sheet() {
-    // test/map/map.test.cpp:1400.
+    let server = HttpServer::new();
+
+    // `MapTest<MainResourceLoader, ForwardingHeadlessFrontend>
+    // test{":memory:", ".", 1, MapMode::Continuous}`.
+    let run_loop = RunLoop::new();
+    let file_source = Arc::new(MainResourceLoader::new(
+        &ResourceOptions::default().with_cache_path(":memory:").with_asset_path("."),
+        &ClientOptions::default(),
+    ));
+    let observer = Rc::new(StubMapObserver::default());
+    let frontend =
+        ForwardingHeadlessFrontend { frontend: HeadlessFrontend::with_pixel_ratio(1.0), check_params: Rc::default() };
+    let options = MapOptions::new()
+        .with_map_mode(MapMode::Continuous)
+        .with_size(frontend.frontend.get_size())
+        .with_pixel_ratio(1.0);
+    let map = Rc::new(RefCell::new(Map::with_file_source(&frontend, observer.clone(), file_source, options)));
+
+    // The server's own address replaces 127.0.0.1:3000 in the fixtures, as in
+    // what it serves.
+    let make_response = |path: &str, expires: bool| {
+        let mut response = Response::new();
+        response.data = Some(Arc::new(server.online_fixture(path)));
+        response.expires = Some(if expires { Timestamp::from_secs(0) } else { Timestamp::from_secs(i64::MAX) });
+        response
+    };
+
+    {
+        let check_params = frontend.check_params.clone();
+        let weak_observer = Rc::downgrade(&observer);
+        let run_loop = run_loop.clone();
+        observer.did_finish_loading_map_callback.set(move |_| {
+            *check_params.borrow_mut() = Some(Box::new(|params: &UpdateParameters| {
+                assert!(params.images.windows(2).all(|pair| pair[0].id <= pair[1].id));
+                assert!(params.images.len() < 4);
+            }));
+
+            NetworkStatus::set(NetworkStatusType::Online);
+
+            if let Some(observer) = weak_observer.upgrade() {
+                let run_loop = run_loop.clone();
+                observer.did_become_idle_callback.set(move |_| run_loop.stop());
+            }
+        });
+    }
+
+    NetworkStatus::set(NetworkStatusType::Offline);
+    let prefix = server.url("/online/");
+    let dbfs = database_file_source();
+    dbfs.forward(&Resource::style(&format!("{prefix}style.json")), &make_response("style.json", false), no_op());
+    dbfs.forward(&Resource::source(&format!("{prefix}streets.json")), &make_response("streets.json", false), no_op());
+    dbfs.forward(&Resource::sprite_json(&format!("{prefix}sprite"), 1.0), &make_response("sprite.json", true), no_op());
+    dbfs.forward(&Resource::sprite_image(&format!("{prefix}sprite"), 1.0), &make_response("sprite.png", true), no_op());
+    // C++ loads the style in this callback; see Map.Offline for why the port
+    // runs the loop until the callback has run and then loads it.
+    let handle = run_loop.handle();
+    dbfs.forward(
+        &Resource::tile(
+            &format!("{prefix}{{z}}-{{x}}-{{y}}.vector.pbf"),
+            1.0,
+            0,
+            0,
+            0,
+            Scheme::XYZ,
+            LoadingMethod::All,
+        ),
+        &make_response("0-0-0.vector.pbf", false),
+        Some(Box::new(move || handle.stop())),
+    );
+    run_with_timeout(&run_loop, 60);
+    map.borrow_mut().get_style_mut().load_url(&format!("{prefix}style.json"));
+
+    run_with_timeout(&run_loop, 60);
 }
 
 // gtest: Map.SourceMinimumUpdateIntervalOverride

@@ -1,5 +1,5 @@
-// Ports test/storage/online_file_source.test.cpp against the in-process test
-// server (tests/http_server.rs) instead of the C++ one on port 3000. The
+// Ports test/storage/online_file_source.test.cpp against the test server
+// (mln_test_server, one per test) instead of the C++ one on port 3000. The
 // tests that request through the network take `serial()`: NetworkStatus is
 // process-wide and C++ runs one test at a time.
 
@@ -8,11 +8,11 @@ use std::rc::Rc;
 
 use feature::Value;
 use mln_actor::{RunLoop, Timer};
+use mln_test_server::{HttpServer, closed_port_url};
 use mln_util::chrono::{Clock, Duration, Timestamp, now};
 use mln_util::tile_server_options::TileServerOptions;
 
 use super::http_file_source::{LoadState, load_request};
-use super::http_server::{HttpServer, closed_port_url};
 use super::{Req, req, serial};
 use crate::ClientOptions;
 use crate::file_source::{API_BASE_URL_KEY, API_KEY_KEY, FileSource, MAX_CONCURRENT_REQUESTS_KEY};

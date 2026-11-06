@@ -3,7 +3,6 @@
 mod asset_file_source;
 mod database_file_source;
 mod http_file_source;
-mod http_server;
 mod local_file_source;
 mod main_resource_loader;
 mod mbtiles_file_source;
