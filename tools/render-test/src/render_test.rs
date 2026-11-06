@@ -1,9 +1,8 @@
 // Ports render-test/render_test.cpp (`mln::runRenderTests`).
 //
 // Additions for the port, which never writes into the C++ tree:
-// - `--output <dir>`: where actual.png, diff.png and the HTML report go
-//   (default: `$TEST_UNDECLARED_OUTPUTS_DIR` under `bazel test`). C++ writes
-//   them next to the tests and the manifest.
+// - `--output <dir>` (required): where actual.png, diff.png and the HTML
+//   report go. C++ writes them next to the tests and the manifest.
 // - `--self-check`: renders nothing; every test's "actual" image is its
 //   expected image, so the run exercises manifest parsing, metadata and
 //   operation parsing, comparison and reporting. Exits non-zero unless
@@ -303,21 +302,6 @@ fn run_with_alternate_sources(
     }
 }
 
-/// The output directory: `--output` (relative to the directory `bazel run`
-/// was started in), else `$TEST_UNDECLARED_OUTPUTS_DIR`.
-fn output_directory(output: Option<&str>) -> Option<PathBuf> {
-    if let Some(output) = output {
-        let path = Path::new(output);
-        if path.is_relative() {
-            if let Some(cwd) = std::env::var_os("BUILD_WORKING_DIRECTORY") {
-                return Some(Path::new(&cwd).join(path));
-            }
-        }
-        return Some(path.to_path_buf());
-    }
-    std::env::var_os("TEST_UNDECLARED_OUTPUTS_DIR").map(PathBuf::from)
-}
-
 /// What a run produced: the process exit code, the statistics and the
 /// metadata of every test that was not skipped, in run order.
 #[derive(Debug)]
@@ -352,13 +336,12 @@ pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>
         return early(5);
     };
 
-    let Some(output_path) = output_directory(arguments.output.as_deref()) else {
-        log::error(Event::General, "No output directory: pass --output <dir> (or run under `bazel test`)");
+    let Some(output_path) = arguments.output.as_deref().map(PathBuf::from) else {
+        log::error(Event::General, "No output directory: pass --output <dir>");
         return early(1);
     };
 
-    // mln::util::RunLoop runLoop: created by the map factory
-    // (render_test_map::factory), which this crate does not depend on.
+    // mln::util::RunLoop runLoop: created by the map factory (map::factory).
     let mut runner = TestRunner::new(manifest_data, update_results, factory, arguments.self_check, output_path.clone());
     if !arguments.self_check && arguments.timeout_millis > 0 {
         runner.set_test_timeout(Some(std::time::Duration::from_millis(arguments.timeout_millis)));

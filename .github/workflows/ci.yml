@@ -23,9 +23,9 @@ env:
   MAPLIBRE_NATIVE_REF: 4e03abe94cf562b10562c528578d109c7273694d
 
 jobs:
-  # All tests plus the full shared C++ render suite (a manual target), on
-  # Linux (wgpu renders through Vulkan/lavapipe) and macOS (through Metal; the
-  # render suite picks manifests/macos-wgpu.json via the BUILD select).
+  # The Bazel tests (the libraries' tests and the difftests against the C++
+  # core), on Linux (wgpu renders through Vulkan/lavapipe) and macOS (through
+  # Metal).
   test:
     strategy:
       fail-fast: false
@@ -88,8 +88,8 @@ jobs:
 
   # The Cargo manifests: build each crates.io package from its packaged
   # sources, as the release does (RELEASING.md), and every test target, so a
-  # dependency or test missing from a Cargo.toml shows up here. Bazel runs
-  # the tests.
+  # dependency or test missing from a Cargo.toml shows up here. test-cargo
+  # runs the tests.
   release-crate:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -168,10 +168,81 @@ jobs:
       - name: Check
         run: just ci-test-msrv
 
+  # The Cargo tests (`just ci-coverage`): the libraries' tests and the shared
+  # render, query and expression suites, on Linux (lavapipe) and macOS
+  # (Metal), with their line coverage uploaded to Codecov (codecov.yml). Like
+  # `just test-cargo`, the tests read the C++ core's test data from
+  # ../maplibre-native and its vendor/ submodules.
+  test-cargo:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: maplibre-native-next
+
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ env.MAPLIBRE_NATIVE_REPOSITORY }}
+          ref: ${{ env.MAPLIBRE_NATIVE_REF }}
+          path: maplibre-native
+
+      - name: Fetch the C++ core's vendored submodules
+        run: git -C maplibre-native submodule update --init --recursive --depth 1 --jobs 8 -- vendor
+
+      # The GPU tests render through lavapipe, as in .bazelrc's ci config.
+      - name: Install system packages
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libvulkan1 mesa-vulkan-drivers
+          echo "VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.json" >> "$GITHUB_ENV"
+
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            maplibre-native-next/target
+          key: test-cargo-${{ runner.os }}-${{ hashFiles('maplibre-native-next/Cargo.lock') }}
+          restore-keys: test-cargo-${{ runner.os }}-
+
+      - uses: taiki-e/install-action@v2
+        with: { tool: 'just,cargo-llvm-cov' }
+
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component llvm-tools-preview --no-self-update
+          rustup default stable
+
+      - name: Test
+        working-directory: maplibre-native-next
+        run: just ci-coverage
+
+      # The render suite's report and actual/diff images (cargo-llvm-cov
+      # builds in target/llvm-cov-target).
+      - name: Upload the render test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: render-tests-${{ runner.os }}
+          path: maplibre-native-next/target/llvm-cov-target/tmp/render_tests
+          if-no-files-found: ignore
+
+      - name: Upload the coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          working-directory: maplibre-native-next
+          files: target/llvm-cov/lcov.info
+
   # The one check for branch protection to require: it fails when a job above
   # failed or was cancelled.
   ci-passed:
-    needs: [test, release-crate, lint, msrv]
+    needs: [test, test-cargo, release-crate, lint, msrv]
     if: always()
     runs-on: ubuntu-26.04
     permissions: {}

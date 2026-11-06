@@ -1,10 +1,11 @@
 # `cargo test` (README.md): the tests find their data as Bazel lays it out
 # for them, under $TEST_SRCDIR/maplibre+ (the C++ repository). runfiles/
-# mirrors that with a symlink to ../maplibre-native.
+# mirrors that with a symlink to ../maplibre-native, which the render test
+# manifests (tools/render-test/manifests) point into too.
 #
 # One test at a time per test binary: mln_actor_gtest's tests share the
 # background scheduler and can hang in parallel (Bazel passes
-# --test-threads=1 to it). The whole suite still takes under a minute.
+# --test-threads=1 to it).
 [env]
 RUST_TEST_THREADS = "1"
 TEST_SRCDIR = { value = ".cargo/runfiles", relative = true }

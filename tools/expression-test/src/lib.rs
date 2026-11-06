@@ -10,28 +10,11 @@ use std::path::{Path, PathBuf};
 use parser::{collect_test_paths, parse_expression_ignores, parse_test_data};
 use runner::{TestRunOutput, TestStats, run_expression_test};
 
-/// The `maplibre` module's metrics directory in the runfiles tree.
+/// The C++ repository's metrics directory, `$TEST_SRCDIR/maplibre+/metrics`
+/// (.cargo/config.toml sets `TEST_SRCDIR` for `cargo test` and `cargo run`).
 pub fn find_metrics_dir() -> Option<PathBuf> {
-    let mut roots: Vec<PathBuf> = Vec::new();
-    for var in ["RUNFILES_DIR", "TEST_SRCDIR"] {
-        if let Ok(dir) = std::env::var(var) {
-            roots.push(PathBuf::from(dir));
-        }
-    }
-    if let Ok(exe) = std::env::current_exe() {
-        let mut runfiles = exe.clone().into_os_string();
-        runfiles.push(".runfiles");
-        roots.push(PathBuf::from(runfiles));
-    }
-    for root in roots {
-        for repo in ["maplibre+", "maplibre"] {
-            let metrics = root.join(repo).join("metrics");
-            if metrics.join("integration/expression-tests").exists() {
-                return Some(metrics);
-            }
-        }
-    }
-    None
+    let metrics = PathBuf::from(std::env::var_os("TEST_SRCDIR")?).join("maplibre+/metrics");
+    metrics.join("integration/expression-tests").exists().then_some(metrics)
 }
 
 /// Runs the tests (the loop of expression-test/main.cpp). `verbose` prints

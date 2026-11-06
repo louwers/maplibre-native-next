@@ -13,9 +13,10 @@ use mln_map::{BoundOptions, Map, MapLoadError, MapObserver, MapOptions, Projecti
 use mln_platform_default::HeadlessFrontend;
 use mln_storage::{ClientOptions, FileSource, FileSourceManager, FileSourceType};
 use mln_util::image::PremultipliedImage;
-use render_test::metadata::{MapMode, TestMetadata};
-use render_test::runner::{CameraOptions, ImplFactory, MapError, QueryGeometry, ResourceOptions, TestRunnerImpl};
-use render_test_style as style_ops;
+
+use crate::metadata::{MapMode, TestMetadata};
+use crate::runner::{CameraOptions, ImplFactory, MapError, QueryGeometry, ResourceOptions, TestRunnerImpl};
+use crate::style_ops;
 
 /// `TestRunnerMapObserver` (runner.hpp).
 #[derive(Default)]
@@ -153,7 +154,7 @@ impl TestRunnerImpl for Impl {
         &mut self,
         camera: &CameraOptions,
         zoom: u8,
-    ) -> Result<Vec<render_test::runner::TileId>, MapError> {
+    ) -> Result<Vec<crate::runner::TileId>, MapError> {
         let camera = mln_map::CameraOptions::default()
             .with_center(camera.center)
             .with_center_altitude(camera.center_altitude)
@@ -164,12 +165,7 @@ impl TestRunnerImpl for Impl {
         let bounds = self.map.lat_lng_bounds_for_camera(&camera);
         Ok(mln_renderer::util::tile_cover::tile_cover_bounds(&bounds, zoom)
             .into_iter()
-            .map(|id| render_test::runner::TileId {
-                z: id.canonical.z,
-                x: id.canonical.x,
-                y: id.canonical.y,
-                wrap: id.wrap,
-            })
+            .map(|id| crate::runner::TileId { z: id.canonical.z, x: id.canonical.x, y: id.canonical.y, wrap: id.wrap })
             .collect())
     }
 
@@ -177,13 +173,13 @@ impl TestRunnerImpl for Impl {
         self.frontend.with_renderer(|renderer| renderer.collect_placed_symbol_data(enable));
     }
 
-    fn get_placed_symbols_data(&mut self) -> Vec<render_test::runner::PlacedSymbol> {
+    fn get_placed_symbols_data(&mut self) -> Vec<crate::runner::PlacedSymbol> {
         let to_box = |b: &mln_util::grid_index::BBox| [b.min.x, b.min.y, b.max.x, b.max.y];
         self.frontend.with_renderer(|renderer| {
             renderer
                 .get_placed_symbols_data()
                 .iter()
-                .map(|data| render_test::runner::PlacedSymbol {
+                .map(|data| crate::runner::PlacedSymbol {
                     key: data.key.clone(),
                     text_collision_box: data.text_collision_box.as_ref().map(to_box),
                     icon_collision_box: data.icon_collision_box.as_ref().map(to_box),
@@ -291,7 +287,7 @@ impl TestRunnerImpl for Impl {
     fn query_rendered_features(
         &mut self,
         geometry: &QueryGeometry,
-        options: &render_test::metadata::RenderedQueryOptions,
+        options: &crate::metadata::RenderedQueryOptions,
     ) -> Result<Vec<mln_util::feature::Feature>, MapError> {
         // The parser's `convert<style::Filter>(filter)` (C++ asserts it
         // converts).
@@ -338,10 +334,10 @@ impl TestRunnerImpl for Impl {
         Ok(())
     }
 
-    fn set_tile_lod_mode(&mut self, mode: render_test::parser::TileLodMode) -> Result<(), MapError> {
+    fn set_tile_lod_mode(&mut self, mode: crate::parser::TileLodMode) -> Result<(), MapError> {
         self.map.set_tile_lod_mode(match mode {
-            render_test::parser::TileLodMode::Default => mln_map::TileLodMode::Default,
-            render_test::parser::TileLodMode::Distance => mln_map::TileLodMode::Distance,
+            crate::parser::TileLodMode::Default => mln_map::TileLodMode::Default,
+            crate::parser::TileLodMode::Distance => mln_map::TileLodMode::Distance,
         });
         Ok(())
     }

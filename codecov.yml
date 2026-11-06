@@ -1,0 +1,10 @@
+# Codecov (.github/workflows/ci.yml, the test-cargo job) only reports the
+# coverage of the Cargo tests: it posts no commit statuses, so a coverage
+# change never fails a pull request.
+codecov:
+  require_ci_to_pass: false
+
+coverage:
+  status:
+    patch: off
+    project: off

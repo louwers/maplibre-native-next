@@ -1,4 +1,5 @@
 # Expression corpus tests (metrics/integration/expression-tests) that fail in the
-# Rust port today and pass in the C++ runner. //tools/expression-test:corpus_test
-# fails only on tests that fail and are not listed here. Reasons:
+# Rust port today and pass in the C++ runner. The corpus_test (`cargo test -p
+# mln-rs-expression-test`) fails only on tests that fail and are not listed
+# here. Reasons:
 # (none)

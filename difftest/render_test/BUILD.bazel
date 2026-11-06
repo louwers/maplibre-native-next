@@ -17,7 +17,7 @@ rust_test(
     srcs = ["render_test_difftest.rs"],
     link_deps = [":reference"],
     deps = [
-        "//tools/render-test:render_test",
+        "//tools/render-test:std_random",
         "@next_crates//:proptest",
     ],
 )

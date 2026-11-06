@@ -6,6 +6,8 @@ main_crate := 'mln-rs'
 just := quote(just_executable())
 # cargo-binstall needs a workaround due to caching when used in CI
 binstall_args := if env('CI', '') != '' {'--no-confirm --no-track --disable-telemetry'} else {''}
+# Where `just ci-coverage` writes the LCOV report that CI uploads to Codecov
+coverage_lcov := 'target/llvm-cov/lcov.info'
 
 # The C++ core the port is tested against (MODULE.bazel's local_path_override).
 cpp := justfile_directory() / '..' / 'maplibre-native'
@@ -42,8 +44,13 @@ build:  (bazel 'build' '//...')
 check:
     cargo check --workspace --all-targets
 
+# Run the Cargo tests as CI does (Linux and macOS), writing their coverage as LCOV for CI to upload to codecov.io
+ci-coverage:  env-info && (_coverage '--lcov' '--output-path' quote(coverage_lcov))
+    rm -rf {{quote(parent_directory(coverage_lcov))}}
+    mkdir -p {{quote(parent_directory(coverage_lcov))}}
+
 # Run the Bazel tests as CI does (Linux and macOS)
-ci-test:  env-info (bazel 'test' '--config=ci' '//...' '//tools/render-test:render_tests')
+ci-test:  env-info (bazel 'test' '--config=ci' '//...')
 
 # Run the checks of CI's lint job: formatting, clippy and the API docs, warnings as errors
 ci-lint:  env-info test-fmt clippy test-doc && assert-git-is-clean
@@ -61,6 +68,9 @@ clean:
 # Run cargo clippy to lint the code
 clippy *args:
     cargo clippy --workspace --all-targets {{args}}
+
+# Measure the Cargo tests' coverage and open the HTML report. Uses `cargo-llvm-cov`
+coverage:  (_coverage '--open')
 
 # Build and open code documentation
 docs *args='--open':
@@ -192,22 +202,23 @@ include-graph:
 # $LIBERTY_COMPARE_DIR/results/manifest.html (+ actual/diff PNGs).
 #
 # Environment:
-#   RENDER_TEST          Rust render-test binary (default: the one this recipe builds, bazel-bin/tools/render-test/render-test)
+#   RENDER_TEST          Rust render-test binary (default: the one this recipe builds, target/debug/render-test)
 #   LIBERTY_COMPARE_DIR  work directory (default ~/.cache/mln-liberty-compare)
 #   VK_DRIVER_FILES      Vulkan ICD (default: lavapipe on NixOS)
 [doc('Render the OpenFreeMap views with the Rust render-test runner and compare them with the C++ references')]
-liberty-compare filter='.':  _dev-shell (bazel 'build' '//tools/render-test:render-test')
+liberty-compare filter='.':  _dev-shell
     #!/usr/bin/env bash
     set -euo pipefail
     here=tools/liberty-compare
     work="${LIBERTY_COMPARE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/mln-liberty-compare}"
     icd="${VK_DRIVER_FILES:-/run/opengl-driver/share/vulkan/icd.d/lvp_icd.x86_64.json}"
-    binary="${RENDER_TEST:-bazel-bin/tools/render-test/render-test}"
+    cargo build -p mln-rs-render-test --bin render-test
+    binary="${RENDER_TEST:-target/debug/render-test}"
     if [ ! -f "$work/cache.db" ] || [ ! -d "$work/tests/render-tests" ]; then
         echo "no references in $work: run just liberty-references first" >&2
         exit 1
     fi
-    # A private copy, so a concurrent Bazel build can't replace it mid-run.
+    # A private copy, so a concurrent build can't replace it mid-run.
     mkdir -p "$work/bin" "$work/results"
     install -m 755 "$binary" "$work/bin/render-test"
     sed "s#@WORK_DIR@#$work#g" "$here/manifest.template.json" >"$work/manifest.json"
@@ -270,24 +281,25 @@ liberty-references filter='.':  _dev-shell
     EOF
     done
 
-# Package every crate from its packaged sources as the release does (RELEASING.md), and compile every Cargo test target
+# The test runners in tools/ are never released, and depend on unreleased crates by path, which packaging rejects.
+[doc('Package every crate from its packaged sources as the release does (RELEASING.md), and compile every Cargo test target')]
 package:
-    cargo package --workspace --locked
+    cargo package --workspace --locked --exclude mln-rs-render-test --exclude mln-rs-expression-test
     cargo test --workspace --locked --no-run
 
 # Run the release workflow on main: publish the crates at the version in Cargo.toml (RELEASING.md)
 release:
     gh workflow run release.yml --repo louwers/maplibre-native-next --ref main
 
-# Run all tests: every Bazel test (library tests, difftests, the tools' suites), the render test suite, and the Cargo tests
+# Run all tests: every Bazel test (library tests and difftests) and every Cargo test (library tests, render, query and expression tests)
 test:  test-bazel test-cargo
 
-# Run every Bazel test and the render test suite. Arguments go to `bazel test`, e.g. `just test-bazel --config=oracle-opt`
+# Run every Bazel test. Arguments go to `bazel test`, e.g. `just test-bazel --config=oracle-opt`
 [positional-arguments]
 test-bazel *args:  _dev-shell
-    {{dev_shell}} {{bazel}} test "$@" //... //tools/render-test:render_tests
+    {{dev_shell}} {{bazel}} test "$@" //...
 
-# Run the library tests with Cargo (the crates.io build). Arguments go to `cargo test`.
+# Run the library tests and the render, query and expression test suites with Cargo. Arguments go to `cargo test`.
 [positional-arguments]
 test-cargo *args:
     cargo test --workspace "$@"
@@ -332,6 +344,12 @@ vendor-shaders checkout=cpp:
     rustc --edition 2024 -O -o "$tool_dir/extract_wgsl" crates/mln_webgpu/tools/extract_wgsl.rs
     "$tool_dir/extract_wgsl" crates/mln_webgpu/src/shaders/wgsl_sources.rs "${headers[@]}"
     echo "vendored ${#headers[@]} headers from {{checkout}} ($(git -C {{quote(checkout)}} describe --always --dirty 2>/dev/null || echo "not a git checkout"))"
+
+# Measure the coverage of the Cargo tests (`just test-cargo`) from a clean start, then report it with the given arguments
+_coverage *report_args:  (cargo-install 'cargo-llvm-cov')
+    cargo llvm-cov clean --workspace
+    cargo llvm-cov --no-report --workspace
+    cargo llvm-cov report --workspace {{report_args}}
 
 # The C++ repo's dev shell flake, used from a copy in .nix-shell: `nix develop path:<repo>` would copy the whole C++ working tree into the
 # store on every call. Nothing to do outside NixOS.

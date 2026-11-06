@@ -1,6 +1,7 @@
 // Tests of the runner port. The C++ runner has no unit tests of its own;
 // these check the ported behaviour on the shared fixtures (through
-// runfiles) and on small generated suites with a mock TestRunnerImpl.
+// .cargo/runfiles, from the package directory `cargo test` runs them in) and
+// on small generated suites with a mock TestRunnerImpl.
 
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
@@ -16,9 +17,9 @@ use crate::parser::{parse_test_metadata, parse_test_operations};
 use crate::render_test::{Arguments, RunResult, parse_arguments, run_render_tests_with};
 use crate::runner::{ImplFactory, MapError, ResourceOptions, TestContext, TestRunner, TestRunnerImpl, UpdateResults};
 
-const OUR_MANIFEST: &str = "tools/render-test/manifests/linux-wgpu.json";
-const CPP_MANIFEST: &str = "../maplibre+/metrics/linux-opengl.json";
-const INTEGRATION: &str = "../maplibre+/metrics/integration";
+const OUR_MANIFEST: &str = "manifests/linux-wgpu.json";
+const CPP_MANIFEST: &str = "../../.cargo/runfiles/maplibre+/metrics/linux-opengl.json";
+const INTEGRATION: &str = "../../.cargo/runfiles/maplibre+/metrics/integration";
 
 const M1_FILTER: &str = "/render-tests/(background-color/(default|literal|function|colorSpace-hcl|colorSpace-lab|transition)|background-opacity/color|background-visibility/(none|visible))/style\\.json$";
 
@@ -27,10 +28,9 @@ fn style_paths(id: &str) -> crate::metadata::TestPaths {
     crate::metadata::TestPaths::new(format!("{dir}style.json"), vec![dir.clone()], vec![dir])
 }
 
-/// A fresh directory under `$TEST_TMPDIR`.
+/// A fresh directory in the system's temporary directory.
 fn tmp_dir(name: &str) -> PathBuf {
-    let base = std::env::var_os("TEST_TMPDIR").map_or_else(std::env::temp_dir, PathBuf::from);
-    let dir = base.join(name);
+    let dir = std::env::temp_dir().join("render-test").join(name);
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     dir
@@ -54,10 +54,10 @@ fn solid(size: Size, rgba: [u8; 4]) -> PremultipliedImage {
 #[test]
 fn parses_our_manifest() {
     let manifest = ManifestParser::parse_manifest(OUR_MANIFEST, String::new()).unwrap();
-    assert_eq!(manifest.get_manifest_path(), "tools/render-test/manifests");
-    assert_eq!(manifest.get_result_path(), "tools/render-test/manifests");
+    assert_eq!(manifest.get_manifest_path(), "manifests");
+    assert_eq!(manifest.get_result_path(), "manifests");
     assert_eq!(manifest.get_test_root_path(), INTEGRATION);
-    assert_eq!(manifest.get_cache_path(), "tools/render-test/manifests/../../../../maplibre+/metrics/cache-style.db");
+    assert_eq!(manifest.get_cache_path(), "manifests/../../../.cargo/runfiles/maplibre+/metrics/cache-style.db");
     assert!(manifest.get_probes().is_empty());
 
     // Ignore files in manifest order, members in document order.
@@ -92,15 +92,16 @@ fn parses_our_manifest() {
             format!("{INTEGRATION}/render-tests/background-color/default/"),
             // platform-macos first: the runner checks the paths from the last
             // one, so a platform-linux baseline wins where both exist.
-            "../maplibre+/metrics/expectations/platform-macos/render-tests/background-color/default/".to_string(),
-            "../maplibre+/metrics/expectations/platform-linux/render-tests/background-color/default/".to_string(),
+            "../../.cargo/runfiles/maplibre+/metrics/expectations/platform-macos/render-tests/background-color/default/".to_string(),
+            "../../.cargo/runfiles/maplibre+/metrics/expectations/platform-linux/render-tests/background-color/default/".to_string(),
         ]
     );
     assert_eq!(
         default.expected_metrics,
         vec![
             format!("{INTEGRATION}/render-tests/background-color/default/"),
-            "../maplibre+/metrics/linux-gcc8-release/render-tests/background-color/default/".to_string(),
+            "../../.cargo/runfiles/maplibre+/metrics/linux-gcc8-release/render-tests/background-color/default/"
+                .to_string(),
         ]
     );
 }
@@ -130,9 +131,9 @@ fn filters_tests_by_regex_search_on_the_path() {
 #[test]
 fn parses_the_cpp_linux_manifest() {
     let manifest = ManifestParser::parse_manifest(CPP_MANIFEST, "background-color".to_string()).unwrap();
-    assert_eq!(manifest.get_manifest_path(), "../maplibre+/metrics");
+    assert_eq!(manifest.get_manifest_path(), "../../.cargo/runfiles/maplibre+/metrics");
     assert_eq!(manifest.get_test_root_path(), INTEGRATION);
-    assert_eq!(manifest.get_cache_path(), "../maplibre+/metrics/cache-style.db");
+    assert_eq!(manifest.get_cache_path(), "../../.cargo/runfiles/maplibre+/metrics/cache-style.db");
     assert_eq!(manifest.get_probes().iter().collect::<Vec<_>>(), vec!["probeNetwork"]);
     assert_eq!(manifest.get_ignores().len(), 124 + 38);
     assert_eq!(manifest.get_test_paths().len(), 6);

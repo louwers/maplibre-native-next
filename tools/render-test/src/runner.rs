@@ -4,9 +4,8 @@
 // C++ `TestRunner::Impl` holds the observer, `HeadlessFrontend`,
 // `FileSource` and `Map` of one map configuration, and the operations reach
 // them through `TestContext::getFrontend()` / `getMap()`. Here that pair is
-// the `TestRunnerImpl` trait, so this crate does not depend on the map
-// crates: `//tools/render-test:render_test_map` implements it over
-// `mln_map::Map` + `mln_platform_default::HeadlessFrontend`, and
+// the `TestRunnerImpl` trait: map.rs implements it over `mln_map::Map` +
+// `mln_platform_default::HeadlessFrontend`, the tests over a mock map, and
 // `--self-check` replaces rendering with the test's expected image.
 
 use std::collections::HashMap;
@@ -1019,7 +1018,6 @@ impl TestRunner {
                 }
             }
         }
-        drop(ctx);
 
         if metadata.render_test {
             if !metadata.ignore_probing {
@@ -1454,7 +1452,7 @@ mod tests {
             (0.0001, "0.0001"),
             (0.00001, "1e-05"),
             (2.5e-7, "2.5e-07"),
-            (3.14159265, "3.14159"),
+            (1.23456789, "1.23457"),
             (100.0, "100"),
             (-42.25, "-42.25"),
             (999999.5, "1e+06"),

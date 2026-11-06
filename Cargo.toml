@@ -16,6 +16,8 @@ resolver = "3"
 members = [
     "crates/*",
     "third_party/bazel_crates",
+    "tools/expression-test",
+    "tools/render-test",
     "vendor/*",
     "vendor/earcut/test_fixtures",
 ]
@@ -97,6 +99,8 @@ mlt-core = { version = "0.22.1" }
 png = { version = "0.18.1" }
 pollster = { version = "1.0.1" }
 regex = { version = "1.13.1" }
+# tools/render-test's JSON (with serde_json).
+serde = { version = "1.0.229", features = ["derive"] }
 # The same engine as the C++ core's vendored SQLite, built from source like it.
 rusqlite = { version = "0.41.1", features = ["bundled"] }
 # preserve_order: rapidjson iterates object members in document order, and

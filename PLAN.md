@@ -24,7 +24,8 @@ port, not a redesign:
   configurations, unless a test outcome depends on it. Those already differ
   between the C++ builds on different platforms.
 - Breadth before depth: the near-term goals are render-test conformance
-  (headline metric: passes in the full `//tools/render-test:render_tests`)
+  (headline metric: passes in the full render suite, `cargo test -p
+  mln-rs-render-test --test render_tests`)
   and rendering OpenFreeMap's Liberty style completely (section 6). Stub
   specifics (exact BiDi, MLT, exotic options) until they block a test.
 
@@ -58,9 +59,11 @@ port, not a redesign:
 - Everything runs through the justfile (`just bazel`, `just test`, ...). On
   NixOS, `just bazel` runs inside the C++ repo's `#linux` flake shell plus
   bazelisk, with machine-local flags in `user.bazelrc`.
-- Test data comes from the C++ repo as Bazel data deps:
-  `@maplibre//metrics:render-test-files` and
-  `@maplibre//metrics:expression-test-files`. Nothing is copied.
+- Test data comes from the C++ repo: as Bazel data deps
+  (`@maplibre//metrics:render-test-files`, `:expression-test-files`) for
+  Bazel tests, through `.cargo/runfiles/maplibre+` (a link to
+  `../maplibre-native`) for Cargo tests, which include the render, query and
+  expression suites (`tools/`). Nothing is copied.
 
 Changes made in `../maplibre-native` so it works as a dependency (to upstream
 as one PR):
@@ -104,7 +107,7 @@ all). Cutting there gives this layering, bottom to top:
 | `mln_tile`, `mln_storage`, `mln_text`, `mln_layout`, `mln_sprite`, `mln_algorithm`, `mln_geometry` | the matching modules | phases 3-5 |
 | `mln_map` | `map/`, `annotation/`, `layermanager/`, `util/{camera,action_journal}` | top of the core |
 | `mln_platform_default` | `platform/default` (headless frontend and backend, file sources) | |
-| `//tools/render-test`, `//tools/expression-test` | `render-test/`, `expression-test/` | run the shared suites |
+| `tools/render-test`, `tools/expression-test` | `render-test/`, `expression-test/` | run the shared suites |
 | `//difftest/<area>` | | Rust vs. C++ differential tests |
 
 Where the residual cycle in the middle (style, renderer, tile, text, layout)
@@ -209,12 +212,12 @@ all on the M1 critical path:
 
 | Agent | Owns | First deliverable |
 |---|---|---|
-| `runner` | `//tools/render-test`, `//vendor/pixelmatch`, `mln_util::image` (PremultipliedImage, PNG I/O) | runner over the shared fixtures (manifest, metadata, operations, pixelmatch metric), with a reference-image self-check (finished) |
+| `runner` | `tools/render-test`, `//vendor/pixelmatch`, `mln_util::image` (PremultipliedImage, PNG I/O) | runner over the shared fixtures (manifest, metadata, operations, pixelmatch metric), with a reference-image self-check (finished) |
 | `style` | `mln_style_types`, `mln_style` (incl. `style/conversion/*` converters and `PropertyExpression`) | parse the M1 test styles into `Style::Impl` with `BackgroundLayer` properties, transitions and functions (finished) |
 | `shaping` (M5 groundwork, replaces `text`) | `mln_text` (shaping.cpp, BiDi, glyph_manager), `mln_util::i18n`, `//difftest/shaping` | line breaking and positioning identical to C++; BiDi matched against ICU (parked: stub the rest; `symbols` takes over mln_text) |
 | `glfw` (smoke test, parked) | `//platform/glfw`, `mln_webgpu::SurfaceBackend`, online/HTTP file source, `Style::load_url` | `mln-glfw` opens OpenFreeMap Liberty over HTTPS in a window (background, fill, line today) |
 | `dem-heatmap` (conformance wave) | raster-dem/hillshade, heatmap, color-relief | their render tests (79 blocked) (finished: heatmap 17/17, hillshade 27/27, color-relief 5/5) |
-| `query` (conformance wave) | query tests (`queryRenderedFeatures`, feature index), runner operations, //tools/render-test, the orchestrator | 124 query tests + ~65 operation-blocked tests |
+| `query` (conformance wave) | query tests (`queryRenderedFeatures`, feature index), runner operations, tools/render-test, the orchestrator | 124 query tests + ~65 operation-blocked tests |
 | `text-conformance` (conformance wave) | non-placement symbol failures (vertical text, variable anchors, icon-text-fit, line labels, formatted text, ...) | the text/icon/symbol tests that don't need placement |
 | `conformance` (OpenFreeMap / conformance wave) | raster (incl. image sources), fill-extrusion, PatternAtlas + pattern hooks | full-suite pass count up; Liberty's raster, buildings, dashes and patterns (finished: ~160 tests; port ignore list down to ~43) |
 | `symbols` (OpenFreeMap / conformance wave) | symbol layout, glyph and icon atlases, collision, placement, symbol drawables; stubs (e.g. LTR-only) where needed | `text-*`, `icon-*`, `symbol-*` render tests (61 groups); Liberty's 25 symbol layers |
@@ -229,7 +232,7 @@ all on the M1 critical path:
 | `storage` (second wave, replaces `style`) | `mln_storage`, `mln_sprite`, the sprite-loading path in `mln_style`, `//difftest/storage` | Resource/Response/FileSource, the database file source over `metrics/cache-style.db`, sprite loading; `background-opacity/color` passes (finished) |
 | `gfx` | `mln_gfx`, `mln_webgpu`, WGSL extraction | headless wgpu (lavapipe) offscreen render and readback, then the background shader on the drawable path (finished) |
 | `render` | `mln_util::{mat4,size,...}`, `mln_tile_id`, `mln_actor` (minimal), `mln_renderer`, `mln_map`, `mln_platform_default` | Map, Transform, HeadlessFrontend, RenderOrchestrator and RenderBackgroundLayer; integrates M1 (finished) |
-| `expression` | `mln_math`, existing `mln_util` files, `//vendor/{csscolorparser,rapidjson,maplibre-native-base}`, `mln_conversion`, `mln_expression`, `//tools/expression-test`, `//difftest/{util,expression}` | first `Convertible` + seed fixes, then the expressions M1 needs (literal, interpolate incl. HCL/LAB, step, zoom, coercions), then the corpus runner and difftests (finished) |
+| `expression` | `mln_math`, existing `mln_util` files, `//vendor/{csscolorparser,rapidjson,maplibre-native-base}`, `mln_conversion`, `mln_expression`, `tools/expression-test`, `//difftest/{util,expression}` | first `Convertible` + seed fixes, then the expressions M1 needs (literal, interpolate incl. HCL/LAB, step, zoom, coercions), then the corpus runner and difftests (finished) |
 
 Next wave (after M1): text with HarfRust (`mln_text` shaping difftests
 against `HBShaper`), MVT decoding (`mln_tile`), storage, codegen for all layer

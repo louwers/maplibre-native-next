@@ -83,7 +83,8 @@ everyone working in this repo).
   `data = ["@maplibre//metrics:render-test-files"]` (and
   `:expression-test-files`); find them at runtime through the runfiles
   directory (`RUNFILES_DIR`/`TEST_SRCDIR`, repository directory
-  `maplibre+`).
+  `maplibre+`). Under `cargo test`, `TEST_SRCDIR` is `.cargo/runfiles`,
+  whose `maplibre+` links to `../maplibre-native`.
 - GPU tests: `user.bazelrc` passes `LD_LIBRARY_PATH` (Vulkan loader) and
   `VK_DRIVER_FILES` (lavapipe) to tests.
 

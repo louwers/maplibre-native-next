@@ -49,7 +49,7 @@ Everything generated goes to `$LIBERTY_COMPARE_DIR` (default
    shell has none.) The binary runs inside this repo's `.nix-shell`
    (created by the justfile on NixOS), with lavapipe.
 2. The Rust runner: `just liberty-compare` builds it
-   (`//tools/render-test:render-test`).
+   (`cargo build -p mln-rs-render-test --bin render-test`).
 3. References (network: tiles.openfreemap.org):
 
    ```

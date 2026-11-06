@@ -1,12 +1,13 @@
 // Ports the style calls of render-test/runner.cpp (`resetContext`,
 // `map.getStyle().getDefaultCamera()`) and render-test/parser.cpp (the
 // operations' `map.getStyle()...` bodies) over mln_style::Style, so that
-// //tools/render-test:render_test_map only has to hand over the map's style.
+// the map (map.rs) only has to hand over the map's style.
 
 use mln_conversion::Convertible;
 use mln_map_types::CameraOptions;
 use mln_style::Style;
-use render_test::runner::MapError;
+
+use crate::runner::MapError;
 
 /// `map.getStyle().loadJSON(json)`. Errors reach the map observer, as in C++.
 pub fn load_json(style: &mut Style, json: &str) {
@@ -134,7 +135,7 @@ mod tests {
     use super::*;
 
     fn style_json(id: &str) -> String {
-        let root = std::env::var_os("RUNFILES_DIR").or_else(|| std::env::var_os("TEST_SRCDIR")).expect("runfiles");
+        let root = std::env::var_os("TEST_SRCDIR").expect("TEST_SRCDIR");
         let path =
             std::path::Path::new(&root).join("maplibre+/metrics/integration/render-tests").join(id).join("style.json");
         std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))

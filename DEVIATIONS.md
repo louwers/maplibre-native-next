@@ -10,7 +10,7 @@ account for it.
 - **Render-test outputs** (`render-test/runner.cpp`, `render_test.cpp`). C++
   writes `actual.png`/`diff.png` next to each test's style.json and the HTML
   report next to the manifest; the Rust runner writes them under `--output`
-  (default `$TEST_UNDECLARED_OUTPUTS_DIR`) as `<test id>/actual.png` etc.,
+  (required) as `<test id>/actual.png` etc.,
   because the C++ tree is read-only and baselines are never overwritten.
   For the same reason `--update` is rejected. `--shuffle` reproduces the
   libstdc++ (Linux) order, not libc++'s.

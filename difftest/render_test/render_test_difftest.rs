@@ -2,7 +2,7 @@
 // port (Manifest::doShuffle) vs. the C++ standard library.
 
 use proptest::prelude::*;
-use render_test::std_random::{Mt19937, SeedSeq, shuffle};
+use std_random::{Mt19937, SeedSeq, shuffle};
 
 unsafe extern "C" {
     fn ref_mt19937_seed_seq(seed: u32, out: *mut u32, n: usize);

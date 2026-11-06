@@ -1105,7 +1105,6 @@ dependencies = [
  "earcut",
  "glfw",
  "proptest",
- "serde",
 ]
 
 [[package]]
@@ -1154,6 +1153,21 @@ dependencies = [
  "mln-rs-rapidjson",
  "mln-rs-style-types",
  "mln-rs-tile",
+ "mln-rs-tile-id",
+ "mln-rs-util",
+ "serde_json",
+]
+
+[[package]]
+name = "mln-rs-expression-test"
+version = "0.0.8"
+dependencies = [
+ "mln-rs-conversion",
+ "mln-rs-csscolorparser",
+ "mln-rs-expression",
+ "mln-rs-feature",
+ "mln-rs-geometry",
+ "mln-rs-style",
  "mln-rs-tile-id",
  "mln-rs-util",
  "serde_json",
@@ -1300,6 +1314,31 @@ version = "0.0.8"
 [[package]]
 name = "mln-rs-rapidjson"
 version = "0.0.8"
+
+[[package]]
+name = "mln-rs-render-test"
+version = "0.0.8"
+dependencies = [
+ "mln-rs-actor",
+ "mln-rs-conversion",
+ "mln-rs-csscolorparser",
+ "mln-rs-feature",
+ "mln-rs-geojson",
+ "mln-rs-geometry",
+ "mln-rs-gfx",
+ "mln-rs-map",
+ "mln-rs-map-types",
+ "mln-rs-pixelmatch",
+ "mln-rs-platform-default",
+ "mln-rs-platform-default-image",
+ "mln-rs-renderer",
+ "mln-rs-storage",
+ "mln-rs-style",
+ "mln-rs-util",
+ "regex",
+ "serde",
+ "serde_json",
+]
 
 [[package]]
 name = "mln-rs-renderer"
