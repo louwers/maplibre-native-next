@@ -153,7 +153,8 @@ impl LayerTweaker for FillExtrusionLayerTweaker {
             let nearest_zoom_scale = state.zoom_scale(int_zoom as f64 - f64::from(tile_id.canonical.z));
             let tile_size_at_nearest_zoom = (TILE_SIZE_D * nearest_zoom_scale).floor();
             let pixel_x = (tile_size_at_nearest_zoom
-                * (f64::from(tile_id.canonical.x) + f64::from(tile_id.wrap) * zoom_scale)) as i32;
+                * (f64::from(tile_id.canonical.x) + f64::from(tile_id.wrap) * zoom_scale))
+                as i32;
             let pixel_y = (tile_size_at_nearest_zoom * f64::from(tile_id.canonical.y)) as i32;
             let num_tiles = 2f64.powi(i32::from(tile_id.canonical.z));
             let height_factor = (-num_tiles / TILE_SIZE_D / 8.0) as f32;

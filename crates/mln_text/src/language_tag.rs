@@ -127,11 +127,7 @@ impl Parser<'_> {
     fn extlang(&self, i: usize) -> Option<usize> {
         let mut i = self.repeat(i, 3, 3, alpha).and_then(|j| self.boundary(j))?;
         for _ in 0..2 {
-            match self
-                .lit(i, b'-')
-                .and_then(|j| self.repeat(j, 3, 3, alpha))
-                .and_then(|j| self.boundary(j))
-            {
+            match self.lit(i, b'-').and_then(|j| self.repeat(j, 3, 3, alpha)).and_then(|j| self.boundary(j)) {
                 Some(j) => i = j,
                 None => break,
             }
@@ -191,12 +187,34 @@ impl Parser<'_> {
     /// `grandfathered = regular | irregular`
     fn grandfathered(&self, i: usize) -> Option<usize> {
         const REGULAR: [&str; 9] = [
-            "art-lojban", "cel-gaulish", "no-bok", "no-nyn", "zh-guoyu", "zh-hakka", "zh-min", "zh-min-nan",
+            "art-lojban",
+            "cel-gaulish",
+            "no-bok",
+            "no-nyn",
+            "zh-guoyu",
+            "zh-hakka",
+            "zh-min",
+            "zh-min-nan",
             "zh-xiang",
         ];
         const IRREGULAR: [&str; 17] = [
-            "en-GB-oed", "i-ami", "i-bnn", "i-default", "i-enochian", "i-hak", "i-klingon", "i-lux", "i-mingo",
-            "i-navajo", "i-pwn", "i-tao", "i-tay", "i-tsu", "sgn-BE-FR", "sgn-BE-NL", "sgn-CH-DE",
+            "en-GB-oed",
+            "i-ami",
+            "i-bnn",
+            "i-default",
+            "i-enochian",
+            "i-hak",
+            "i-klingon",
+            "i-lux",
+            "i-mingo",
+            "i-navajo",
+            "i-pwn",
+            "i-tao",
+            "i-tay",
+            "i-tsu",
+            "sgn-BE-FR",
+            "sgn-BE-NL",
+            "sgn-CH-DE",
         ];
         REGULAR.iter().chain(IRREGULAR.iter()).find_map(|lit| self.lit_str(i, lit))
     }

@@ -281,10 +281,7 @@ impl<'l, 'a> Feature<'l, 'a> {
                 if px > max_coord || px < min_coord || py > max_coord || py < min_coord {
                     return Err(Error::Runtime("paths outside valid range of coordinate_type".to_owned()));
                 } else {
-                    paths
-                        .last_mut()
-                        .expect("paths is never empty")
-                        .push(Point::new(C::from_f32(px), C::from_f32(py)));
+                    paths.last_mut().expect("paths is never empty").push(Point::new(C::from_f32(px), C::from_f32(py)));
                 }
             } else if cmd == CommandType::CLOSE {
                 let back = paths.last_mut().expect("paths is never empty");

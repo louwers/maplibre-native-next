@@ -229,10 +229,7 @@ impl SurfaceState {
         });
 
         // Store the texture to keep it alive
-        *self.current.borrow_mut() = Some(CurrentTexture {
-            texture: surface_texture,
-            view: view.clone(),
-        });
+        *self.current.borrow_mut() = Some(CurrentTexture { texture: surface_texture, view: view.clone() });
 
         // Success - reset error counter
         self.consecutive_errors.set(0);
@@ -323,16 +320,16 @@ impl SurfaceState {
             return None;
         }
         let (width, height) = (texture.width(), texture.height());
-        let bytes_per_row = (width * 4).div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT) * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
+        let bytes_per_row =
+            (width * 4).div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT) * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
         let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("Surface readback"),
             size: u64::from(bytes_per_row) * u64::from(height),
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
         });
-        let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Surface readback"),
-        });
+        let mut encoder =
+            self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("Surface readback") });
         encoder.copy_texture_to_buffer(
             texture.as_image_copy(),
             wgpu::TexelCopyBufferInfo {
@@ -356,10 +353,8 @@ impl SurfaceState {
         if !matches!(rx.try_recv(), Ok(Ok(()))) {
             return None;
         }
-        let bgra = matches!(
-            self.swap_chain_format,
-            wgpu::TextureFormat::Bgra8Unorm | wgpu::TextureFormat::Bgra8UnormSrgb
-        );
+        let bgra =
+            matches!(self.swap_chain_format, wgpu::TextureFormat::Bgra8Unorm | wgpu::TextureFormat::Bgra8UnormSrgb);
         let mut image = PremultipliedImage::new(Size::new(width, height));
         {
             let mapped = buffer.get_mapped_range(..).ok()?;

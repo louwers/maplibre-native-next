@@ -39,10 +39,7 @@ pub fn create(window: &glfw::PWindow, cap_frame_rate: bool) -> Result<Box<dyn GL
 
 /// `glfwError`
 fn glfw_error(error: glfw::Error, description: String) {
-    Log::error(
-        Event::GraphicsBackend,
-        format!("GLFW error ({}): {description}", error.as_raw()),
-    );
+    Log::error(Event::GraphicsBackend, format!("GLFW error ({}): {description}", error.as_raw()));
 }
 
 fn platform_name(platform: glfw::Platform) -> &'static str {

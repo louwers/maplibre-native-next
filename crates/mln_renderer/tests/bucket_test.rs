@@ -11,17 +11,17 @@ use mln_renderer::bucket::Bucket;
 use mln_renderer::buckets::raster_bucket::RasterLayoutVertex;
 use mln_renderer::buckets::symbol_bucket::SymbolBucket;
 use mln_renderer::buckets::{CircleBucket, FillBucket, LineBucket, RasterBucket};
-use mln_renderer::tile_mask::TileMask;
-use mln_style::layers::symbol_layer_properties::SymbolLayoutProperties;
-use mln_style::property_value::PropertyValue;
-use mln_util::image::PremultipliedImage;
 use mln_renderer::layout::pattern_layout::PatternLayerMap;
+use mln_renderer::tile_mask::TileMask;
 use mln_style::layers::fill_layer_properties::FillLayoutProperties;
 use mln_style::layers::line_layer_properties::LineLayoutProperties;
+use mln_style::layers::symbol_layer_properties::SymbolLayoutProperties;
+use mln_style::property_value::PropertyValue;
 use mln_style_types::image::ImagePositions;
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature};
 use mln_tile_id::CanonicalTileID;
+use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature};
 use mln_util::geometry::FeatureType;
+use mln_util::image::PremultipliedImage;
 use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use mln_util::size::Size;
 use mln_webgpu::headless_backend::HeadlessBackend;
@@ -52,20 +52,12 @@ impl GeometryTileFeature for StubGeometryTileFeature {
 }
 
 fn feature(type_: FeatureType, geometry: &GeometryCollection) -> StubGeometryTileFeature {
-    StubGeometryTileFeature {
-        properties: PropertyMap::new(),
-        id: Identifier::Null,
-        type_,
-        geometry: geometry.clone(),
-    }
+    StubGeometryTileFeature { properties: PropertyMap::new(), id: Identifier::Null, type_, geometry: geometry.clone() }
 }
 
 fn collection(rings: &[&[(i16, i16)]]) -> GeometryCollection {
     GeometryCollection::from(
-        rings
-            .iter()
-            .map(|ring| ring.iter().map(|(x, y)| Point::new(*x, *y)).collect::<Vec<_>>())
-            .collect::<Vec<_>>(),
+        rings.iter().map(|ring| ring.iter().map(|(x, y)| Point::new(*x, *y)).collect::<Vec<_>>()).collect::<Vec<_>>(),
     )
 }
 
@@ -256,10 +248,7 @@ fn raster_bucket() {
 
 /// The C++ test's `operator==(SegmentBase, SegmentBase)` compares only these.
 fn segment_tuples(segments: &[SegmentBase]) -> Vec<(usize, usize, usize, usize)> {
-    segments
-        .iter()
-        .map(|s| (s.vertex_offset, s.index_offset, s.vertex_length, s.index_length))
-        .collect()
+    segments.iter().map(|s| (s.vertex_offset, s.index_offset, s.vertex_length, s.index_length)).collect()
 }
 
 fn mask(ids: &[(u8, u32, u32)]) -> TileMask {
@@ -399,7 +388,7 @@ fn raster_bucket_mask_complex() {
     assert_eq!(vec![(0, 0, 24, 36)], segment_tuples(&geometry.segments));
 }
 
-type Records =Arc<Mutex<Vec<(EventSeverity, Event, i64, String)>>>;
+type Records = Arc<Mutex<Vec<(EventSeverity, Event, i64, String)>>>;
 
 struct Recorder(Records);
 

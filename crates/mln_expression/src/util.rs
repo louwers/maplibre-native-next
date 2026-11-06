@@ -31,10 +31,5 @@ pub fn rgba(r: f64, g: f64, b: f64, a: f64) -> EvalResult<Color> {
     // C++ `Color(r, g, b, a)` asserts 0..1 per channel (only NaN can get
     // here out of range); the unchecked constructor keeps the release
     // behaviour.
-    Ok(Color::new_unchecked(
-        (r / 255.0 * a) as f32,
-        (g / 255.0 * a) as f32,
-        (b / 255.0 * a) as f32,
-        a as f32,
-    ))
+    Ok(Color::new_unchecked((r / 255.0 * a) as f32, (g / 255.0 * a) as f32, (b / 255.0 * a) as f32, a as f32))
 }

@@ -57,11 +57,7 @@ static ORACLE: std::sync::LazyLock<std::sync::Mutex<Oracle>> = std::sync::LazyLo
         .expect("start the C++ oracle");
     let stdin = child.stdin.take().unwrap();
     let stdout = std::io::BufReader::new(child.stdout.take().unwrap());
-    std::sync::Mutex::new(Oracle {
-        stdin,
-        stdout,
-        _child: child,
-    })
+    std::sync::Mutex::new(Oracle { stdin, stdout, _child: child })
 });
 
 fn oracle(request: &serde_json::Value) -> String {
@@ -109,12 +105,7 @@ fn render_test_styles() -> Vec<(String, serde_json::Value)> {
         .filter_map(|path| {
             let text = std::fs::read_to_string(&path).ok()?;
             let json: serde_json::Value = serde_json::from_str(&text).ok()?;
-            let name = path
-                .parent()?
-                .strip_prefix(&root)
-                .ok()?
-                .to_string_lossy()
-                .into_owned();
+            let name = path.parent()?.strip_prefix(&root).ok()?.to_string_lossy().into_owned();
             Some((name, json))
         })
         .collect()
@@ -149,10 +140,7 @@ fn dump_value(value: &Value) -> String {
 fn dump_object<'a>(entries: impl Iterator<Item = (&'a String, &'a Value)>) -> String {
     let mut entries: Vec<(&String, &Value)> = entries.collect();
     entries.sort_by(|a, b| a.0.as_bytes().cmp(b.0.as_bytes()));
-    let items: Vec<String> = entries
-        .into_iter()
-        .map(|(k, v)| format!("{}={}", str_(k), dump_value(v)))
-        .collect();
+    let items: Vec<String> = entries.into_iter().map(|(k, v)| format!("{}={}", str_(k), dump_value(v))).collect();
     format!("{{{}}}", items.join(","))
 }
 
@@ -203,15 +191,8 @@ fn rust_source(json: &serde_json::Value, id: &str) -> String {
     let Some(geojson) = as_geojson(&*source) else {
         return format!("T {}", source.get_type() as i32);
     };
-    let mut out = format!(
-        "G id={} {}",
-        str_(&source.get_id()),
-        dump_options(&geojson.get_options())
-    );
-    out += &format!(
-        " url={}",
-        geojson.get_url().map_or("none".to_owned(), |url| str_(&url))
-    );
+    let mut out = format!("G id={} {}", str_(&source.get_id()), dump_options(&geojson.get_options()));
+    out += &format!(" url={}", geojson.get_url().map_or("none".to_owned(), |url| str_(&url)));
     let has_data = geojson.impl_().get_data().and_then(|d| d.upgrade()).is_some();
     out += &format!(" data={}", if has_data { "yes" } else { "no" });
     out += &format!(" sync={}", i32::from(geojson.is_update_synchronous()));
@@ -248,10 +229,7 @@ impl Tile for FakeTile {
 }
 
 fn tile_string(id: &OverscaledTileID) -> String {
-    format!(
-        "{}/{}/{}/{}/{}",
-        id.overscaled_z, id.wrap, id.canonical.z, id.canonical.x, id.canonical.y
-    )
+    format!("{}/{}/{}/{}/{}", id.overscaled_z, id.wrap, id.canonical.z, id.canonical.x, id.canonical.y)
 }
 
 fn unwrapped_string(id: &UnwrappedTileID) -> String {
@@ -276,11 +254,8 @@ fn rust_tiles(source_json: &serde_json::Value, size: Size, camera: &Camera, cont
     };
     let impl_ = geojson.impl_();
 
-    let mut transform = Transform::new(
-        Rc::new(NullTransformObserver),
-        ConstrainMode::HeightOnly,
-        ViewportMode::Default,
-    );
+    let mut transform =
+        Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default);
     transform.resize(size).unwrap();
     let camera_options = CameraOptions {
         center: Some(LatLng::new(camera.lat, camera.lng).unwrap()),
@@ -316,9 +291,7 @@ fn rust_tiles(source_json: &serde_json::Value, size: Size, camera: &Camera, cont
     let mut pyramid = TilePyramid::new(parameters.thread_pool.clone());
     let create_tile = |id: &OverscaledTileID, observer: Rc<dyn TileObserver>| -> Option<Box<dyn Tile>> {
         out.borrow_mut().push_str(&format!(" C{}", tile_string(id)));
-        Some(Box::new(FakeTile {
-            base: TileBase::new(Kind::Geometry, *id, "source".to_owned(), Some(observer)),
-        }))
+        Some(Box::new(FakeTile { base: TileBase::new(Kind::Geometry, *id, "source".to_owned(), Some(observer)) }))
     };
     let layers: Vec<Immutable<dyn LayerProperties>> = Vec::new();
     pyramid.update(
@@ -353,9 +326,7 @@ fn rust_tiles(source_json: &serde_json::Value, size: Size, camera: &Camera, cont
         None,
         |id: &OverscaledTileID, observer: Rc<dyn TileObserver>| -> Option<Box<dyn Tile>> {
             created.borrow_mut().push_str(&format!(" C{}", tile_string(id)));
-            Some(Box::new(FakeTile {
-                base: TileBase::new(Kind::Geometry, *id, "source".to_owned(), Some(observer)),
-            }))
+            Some(Box::new(FakeTile { base: TileBase::new(Kind::Geometry, *id, "source".to_owned(), Some(observer)) }))
         },
     );
     out += &created.into_inner();
@@ -495,18 +466,18 @@ fn edge_case_sources() -> Vec<serde_json::Value> {
     ];
     // Non-point features in a clustered source: C++ throws
     // bad_variant_access out of the conversion.
-    cases.push(serde_json::json!({"type": "geojson", "cluster": true, "data": {"type": "FeatureCollection", "features": [
-        {"type": "Feature", "properties": {}, "geometry": {"type": "LineString", "coordinates": [[0, 0], [1, 1]]}}]}}));
+    cases.push(
+        serde_json::json!({"type": "geojson", "cluster": true, "data": {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {}, "geometry": {"type": "LineString", "coordinates": [[0, 0], [1, 1]]}}]}}),
+    );
     cases
 }
 
 #[test]
 fn source_conversion() {
     let _run_loop = RunLoop::new();
-    let mut inputs: Vec<(String, serde_json::Value)> = render_test_geojson_sources()
-        .into_iter()
-        .map(|(_, id, json, _)| (id, json))
-        .collect();
+    let mut inputs: Vec<(String, serde_json::Value)> =
+        render_test_geojson_sources().into_iter().map(|(_, id, json, _)| (id, json)).collect();
     // Every source of every style, of any type.
     for (_, style) in render_test_styles() {
         if let Some(sources) = style.get("sources").and_then(|s| s.as_object()) {
@@ -653,21 +624,19 @@ fn tile_pyramid_and_features() {
         let maxzoom = source.get("maxzoom").and_then(|v| v.as_f64()).map_or(18, |z| z as u8);
         tiles_for_features.retain(|t| t.z <= maxzoom);
 
-        let tiles_json: Vec<[u32; 3]> = tiles_for_features
-            .iter()
-            .map(|t| [u32::from(t.z), t.x, t.y])
-            .collect();
+        let tiles_json: Vec<[u32; 3]> = tiles_for_features.iter().map(|t| [u32::from(t.z), t.x, t.y]).collect();
         let cpp = oracle(&serde_json::json!({"cmd": "features", "source": source.to_string(), "tiles": tiles_json}));
         let rust = rust_features(&source, &tiles_for_features);
         feature_tiles += tiles_for_features.len();
         if cpp != rust {
             feature_mismatches += 1;
             if feature_mismatches <= 10 {
-                let first = cpp
-                    .split(" TILE ")
-                    .zip(rust.split(" TILE "))
-                    .find(|(a, b)| a != b);
-                eprintln!("features mismatch for {name} source {id}: first differing tile\n  C++:  {:?}\n  Rust: {:?}", first.map(|f| f.0), first.map(|f| f.1));
+                let first = cpp.split(" TILE ").zip(rust.split(" TILE ")).find(|(a, b)| a != b);
+                eprintln!(
+                    "features mismatch for {name} source {id}: first differing tile\n  C++:  {:?}\n  Rust: {:?}",
+                    first.map(|f| f.0),
+                    first.map(|f| f.1)
+                );
             }
         }
     }

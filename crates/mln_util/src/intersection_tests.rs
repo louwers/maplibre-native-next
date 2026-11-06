@@ -139,7 +139,11 @@ fn line_intersects_buffered_line(line_a: &[GeometryCoordinate], line_b: &[Geomet
     false
 }
 
-pub fn polygon_intersects_buffered_point(polygon: &[GeometryCoordinate], point: &GeometryCoordinate, radius: f32) -> bool {
+pub fn polygon_intersects_buffered_point(
+    polygon: &[GeometryCoordinate],
+    point: &GeometryCoordinate,
+    radius: f32,
+) -> bool {
     if polygon_contains_point(polygon, point) {
         return true;
     }
@@ -202,7 +206,10 @@ pub fn polygon_intersects_polygon(polygon_a: &[GeometryCoordinate], polygon_b: &
     line_intersects_line(polygon_a, polygon_b)
 }
 
-pub fn polygon_intersects_multi_polygon(polygon: &[GeometryCoordinate], multi_polygon: &[Vec<GeometryCoordinate>]) -> bool {
+pub fn polygon_intersects_multi_polygon(
+    polygon: &[GeometryCoordinate],
+    multi_polygon: &[Vec<GeometryCoordinate>],
+) -> bool {
     for ring in multi_polygon {
         if polygon_intersects_polygon(polygon, ring) {
             return true;

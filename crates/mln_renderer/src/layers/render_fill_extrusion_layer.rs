@@ -5,7 +5,9 @@
 // TODO(port): captureRenderedFeatures (UpdateParameters::captureRenderedFeatures).
 
 use super::fill_extrusion_layer_tweaker::FillExtrusionLayerTweaker;
-use super::{TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot, shared_vertices};
+use super::{
+    TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot, shared_vertices,
+};
 use crate::buckets::fill_extrusion_bucket::{FillExtrusionBucket, FillExtrusionLayoutVertex};
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::gfx::drawable_atlases_tweaker::DrawableAtlasesTweaker;
@@ -21,7 +23,8 @@ use mln_gfx::index_vector::IndexVectorBase;
 use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
 use mln_gfx::shaders::shader_defines::*;
 use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, DrawableBuilder, ShaderRegistry, UniqueDrawableBuilder,
+    AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, DrawableBuilder, ShaderRegistry,
+    UniqueDrawableBuilder,
 };
 use mln_map_types::TransformState;
 use mln_style::layer;
@@ -39,9 +42,7 @@ use std::sync::Arc;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &FillExtrusionLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), FillExtrusionLayerImpl::static_type_info()));
-    impl_
-        .downcast_ref::<FillExtrusionLayerImpl>()
-        .expect("RenderFillExtrusionLayer: not a fill-extrusion layer impl")
+    impl_.downcast_ref::<FillExtrusionLayerImpl>().expect("RenderFillExtrusionLayer: not a fill-extrusion layer impl")
 }
 
 pub struct RenderFillExtrusionLayer {
@@ -79,8 +80,7 @@ impl RenderLayer for RenderFillExtrusionLayer {
     }
 
     fn evaluate(&mut self, parameters: &PropertyEvaluationParameters) {
-        let previous_evaluated =
-            get_evaluated::<FillExtrusionLayerProperties>(&self.base.evaluated_properties).clone();
+        let previous_evaluated = get_evaluated::<FillExtrusionLayerProperties>(&self.base.evaluated_properties).clone();
         let mut properties = FillExtrusionLayerProperties::with_evaluated(
             static_immutable_cast::<FillExtrusionLayerImpl>(&self.base.base_impl),
             parameters.get_crossfade_parameters(),
@@ -160,8 +160,11 @@ impl RenderLayer for RenderFillExtrusionLayer {
 
         // Set up a layer group
         if self.base.layer_group.is_none() {
-            match context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned())
-            {
+            match context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => self.set_layer_group(Some(layer_group), changes),
                 None => return,
             }
@@ -199,7 +202,8 @@ impl RenderLayer for RenderFillExtrusionLayer {
                 // If the render pass has changed or the tile has dropped out
                 // of the cover set, remove it.
                 let tile_id = drawable.get_tile_id();
-                !drawable.has_render_pass(draw_pass) || tile_id.is_some_and(|id| !base.render_tile_ids.contains_key(&id))
+                !drawable.has_render_pass(draw_pass)
+                    || tile_id.is_some_and(|id| !base.render_tile_ids.contains_key(&id))
             });
             self.base.stats.drawables_removed += removed;
         }
@@ -286,10 +290,46 @@ impl RenderLayer for RenderFillExtrusionLayer {
                 let mut id = ID_FILL_EXTRUSION_BASE_VERTEX_ATTRIBUTE;
                 let b = binders;
                 let pau = &mut properties_as_uniforms;
-                read_data_driven_paint_property(&mut attrs, &b.fill_extrusion_base, buffer, &shared, &["a_base"], evaluated.get::<FillExtrusionBase>().is_constant(), pau, &mut id);
-                read_data_driven_paint_property(&mut attrs, &b.fill_extrusion_color, buffer, &shared, &["a_color"], evaluated.get::<FillExtrusionColor>().is_constant(), pau, &mut id);
-                read_data_driven_paint_property(&mut attrs, &b.fill_extrusion_height, buffer, &shared, &["a_height"], evaluated.get::<FillExtrusionHeight>().is_constant(), pau, &mut id);
-                read_data_driven_paint_property(&mut attrs, &b.fill_extrusion_pattern, buffer, &shared, &["a_pattern_to", "a_pattern_from"], evaluated.get::<FillExtrusionPattern>().is_constant(), pau, &mut id);
+                read_data_driven_paint_property(
+                    &mut attrs,
+                    &b.fill_extrusion_base,
+                    buffer,
+                    &shared,
+                    &["a_base"],
+                    evaluated.get::<FillExtrusionBase>().is_constant(),
+                    pau,
+                    &mut id,
+                );
+                read_data_driven_paint_property(
+                    &mut attrs,
+                    &b.fill_extrusion_color,
+                    buffer,
+                    &shared,
+                    &["a_color"],
+                    evaluated.get::<FillExtrusionColor>().is_constant(),
+                    pau,
+                    &mut id,
+                );
+                read_data_driven_paint_property(
+                    &mut attrs,
+                    &b.fill_extrusion_height,
+                    buffer,
+                    &shared,
+                    &["a_height"],
+                    evaluated.get::<FillExtrusionHeight>().is_constant(),
+                    pau,
+                    &mut id,
+                );
+                read_data_driven_paint_property(
+                    &mut attrs,
+                    &b.fill_extrusion_pattern,
+                    buffer,
+                    &shared,
+                    &["a_pattern_to", "a_pattern_from"],
+                    evaluated.get::<FillExtrusionPattern>().is_constant(),
+                    pau,
+                    &mut id,
+                );
             }
 
             let Some(shader) = shader_group.get_or_create_shader(context, &properties_as_uniforms, "a_pos") else {
@@ -356,11 +396,14 @@ impl RenderLayer for RenderFillExtrusionLayer {
             {
                 let stride = std::mem::size_of::<FillExtrusionLayoutVertex>() as u32;
                 let mut attrs = vertex_attrs.borrow_mut();
-                if let Some(attr) = attrs.set(ID_FILL_EXTRUSION_POS_VERTEX_ATTRIBUTE, -1, AttributeDataType::Invalid, 0) {
+                if let Some(attr) = attrs.set(ID_FILL_EXTRUSION_POS_VERTEX_ATTRIBUTE, -1, AttributeDataType::Invalid, 0)
+                {
                     // offsetof(FillExtrusionLayoutVertex, a1)
                     attr.set_shared_raw_data(Some(vertices.clone()), 0, 0, stride, AttributeDataType::Short2);
                 }
-                if let Some(attr) = attrs.set(ID_FILL_EXTRUSION_DECIMALS_ED_ATTRIBUTE, -1, AttributeDataType::Invalid, 0) {
+                if let Some(attr) =
+                    attrs.set(ID_FILL_EXTRUSION_DECIMALS_ED_ATTRIBUTE, -1, AttributeDataType::Invalid, 0)
+                {
                     // offsetof(FillExtrusionLayoutVertex, a2)
                     attr.set_shared_raw_data(Some(vertices.clone()), 4, 0, stride, AttributeDataType::UShort2);
                 }

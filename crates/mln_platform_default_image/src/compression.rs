@@ -10,11 +10,8 @@ use std::io::Write;
 /// decompresses to the same bytes, but not necessarily the same compressed
 /// bytes as zlib (see DEVIATIONS.md).
 pub fn compress(raw: &[u8]) -> Result<Vec<u8>, String> {
-    let mut encoder =
-        flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::new(6));
-    encoder
-        .write_all(raw)
-        .map_err(|_| "failed to deflate".to_string())?;
+    let mut encoder = flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::new(6));
+    encoder.write_all(raw).map_err(|_| "failed to deflate".to_string())?;
     encoder.finish().map_err(|_| "failed to deflate".to_string())
 }
 

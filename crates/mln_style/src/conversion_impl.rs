@@ -172,9 +172,7 @@ pub fn make_style_property<T: ValueFactory>(value: &PropertyValue<T>) -> StylePr
     match value {
         PropertyValue::Undefined => StyleProperty::default(),
         PropertyValue::Constant(t) => StyleProperty::new(make_value(t), T::constant_kind()),
-        PropertyValue::Expression(fn_) => {
-            StyleProperty::new(fn_.get_expression().serialize(), Kind::Expression)
-        }
+        PropertyValue::Expression(fn_) => StyleProperty::new(fn_.get_expression().serialize(), Kind::Expression),
     }
 }
 

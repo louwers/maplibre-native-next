@@ -83,7 +83,11 @@ fn freetype_faces_match() {
         let scalable = info.face_flags & FT_FACE_FLAG_SCALABLE != 0;
         let fixed = info.face_flags & FT_FACE_FLAG_FIXED_SIZES != 0;
         if (scalable, fixed) != (face.scalable, face.fixed_sizes) {
-            fail(format!("scalable/fixed sizes: C++ {:?} Rust {:?}", (scalable, fixed), (face.scalable, face.fixed_sizes)));
+            fail(format!(
+                "scalable/fixed sizes: C++ {:?} Rust {:?}",
+                (scalable, fixed),
+                (face.scalable, face.fixed_sizes)
+            ));
         }
 
         // Charmaps.
@@ -190,10 +194,7 @@ fn freetype_faces_match() {
         }
     }
 
-    report!(
-        "{} fonts, {valid} valid in both; {lookups} charmap lookups, {glyphs} advances compared",
-        fonts.len()
-    );
+    report!("{} fonts, {valid} valid in both; {lookups} charmap lookups, {glyphs} advances compared", fonts.len());
     report!("fonts where FreeType synthesizes a charmap (not ported): {synthesized:?}");
     for k in &known {
         report!("KNOWN (synthesized charmap not ported) {k}");

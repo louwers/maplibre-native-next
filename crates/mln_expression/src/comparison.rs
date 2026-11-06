@@ -4,8 +4,7 @@
 use crate::assertion::Assertion;
 use crate::collator::Collator;
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
@@ -112,19 +111,13 @@ impl BasicComparison {
     pub fn new(op: String, lhs: Box<dyn Expression>, rhs: Box<dyn Expression>) -> Self {
         debug_assert!(is_comparable_type(&op, lhs.get_type()) && is_comparable_type(&op, rhs.get_type()));
         debug_assert!(
-            lhs.get_type() == rhs.get_type()
-                || *lhs.get_type() == Type::Value
-                || *rhs.get_type() == Type::Value
+            lhs.get_type() == rhs.get_type() || *lhs.get_type() == Type::Value || *rhs.get_type() == Type::Value
         );
 
-        let needs_runtime_type_check = (op != "==" && op != "!=")
-            && (*lhs.get_type() == Type::Value || *rhs.get_type() == Type::Value);
+        let needs_runtime_type_check =
+            (op != "==" && op != "!=") && (*lhs.get_type() == Type::Value || *rhs.get_type() == Type::Value);
         BasicComparison {
-            base: ExpressionBase::new(
-                Kind::Comparison,
-                Type::Boolean,
-                lhs.dependencies() | rhs.dependencies(),
-            ),
+            base: ExpressionBase::new(Kind::Comparison, Type::Boolean, lhs.dependencies() | rhs.dependencies()),
             compare: get_basic_compare_function(&op),
             op,
             lhs,
@@ -195,15 +188,10 @@ pub struct CollatorComparison {
 }
 
 impl CollatorComparison {
-    pub fn new(
-        op: String,
-        lhs: Box<dyn Expression>,
-        rhs: Box<dyn Expression>,
-        collator: Box<dyn Expression>,
-    ) -> Self {
+    pub fn new(op: String, lhs: Box<dyn Expression>, rhs: Box<dyn Expression>, collator: Box<dyn Expression>) -> Self {
         debug_assert!(is_comparable_type(&op, lhs.get_type()) && is_comparable_type(&op, rhs.get_type()));
-        let needs_runtime_type_check = (op == "==" || op == "!=")
-            && (*lhs.get_type() == Type::Value || *rhs.get_type() == Type::Value);
+        let needs_runtime_type_check =
+            (op == "==" || op == "!=") && (*lhs.get_type() == Type::Value || *rhs.get_type() == Type::Value);
         CollatorComparison {
             base: ExpressionBase::new(
                 Kind::Comparison,
@@ -237,17 +225,13 @@ impl Expression for CollatorComparison {
             return lhs_result;
         };
 
-        if self.needs_runtime_type_check
-            && (type_of(lhs_value) != Type::String || type_of(rhs_value) != Type::String)
-        {
+        if self.needs_runtime_type_check && (type_of(lhs_value) != Type::String || type_of(rhs_value) != Type::String) {
             return Ok(Value::Bool(get_basic_compare_function(&self.op)(lhs_value, rhs_value)));
         }
 
         let collator_result = self.collator.evaluate(params)?;
 
-        let Value::Collator(c) = &collator_result else {
-            panic!("collator operand")
-        };
+        let Value::Collator(c) = &collator_result else { panic!("collator operand") };
         // TODO(port): util::LocaleException from the platform collator.
         Ok(Value::Bool((self.compare)(
             lhs_value.as_str().expect("string operand"),
@@ -297,11 +281,7 @@ pub fn parse_comparison(value: &Convertible<'_>, ctx: &mut ParsingContext) -> Pa
     let lhs_type = lhs.get_type().clone();
     if !is_comparable_type(&op, &lhs_type) {
         ctx.error_at(
-            format!(
-                r#""{}" comparisons are not supported for type '{}'."#,
-                op,
-                type_::to_string(&lhs_type)
-            ),
+            format!(r#""{}" comparisons are not supported for type '{}'."#, op, type_::to_string(&lhs_type)),
             1,
         );
         return None;
@@ -311,11 +291,7 @@ pub fn parse_comparison(value: &Convertible<'_>, ctx: &mut ParsingContext) -> Pa
     let rhs_type = rhs.get_type().clone();
     if !is_comparable_type(&op, &rhs_type) {
         ctx.error_at(
-            format!(
-                r#""{}" comparisons are not supported for type '{}'."#,
-                op,
-                type_::to_string(&rhs_type)
-            ),
+            format!(r#""{}" comparisons are not supported for type '{}'."#, op, type_::to_string(&rhs_type)),
             2,
         );
         return None;
@@ -342,11 +318,7 @@ pub fn parse_comparison(value: &Convertible<'_>, ctx: &mut ParsingContext) -> Pa
     }
 
     if length == 4 {
-        if lhs_type != Type::String
-            && rhs_type != Type::String
-            && lhs_type != Type::Value
-            && rhs_type != Type::Value
-        {
+        if lhs_type != Type::String && rhs_type != Type::String && lhs_type != Type::Value && rhs_type != Type::Value {
             ctx.error("Cannot use collator to compare non-string types.".to_owned());
             return None;
         }

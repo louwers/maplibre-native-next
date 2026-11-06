@@ -35,7 +35,12 @@ impl OutputCoordinate for f64 {
 }
 
 /// `push_ring_to_polygon`.
-fn push_ring_to_polygon<T2: OutputCoordinate>(poly: &mut Polygon<T2>, r: RingPtr, manager: &mut RingManager, reverse_output: bool) {
+fn push_ring_to_polygon<T2: OutputCoordinate>(
+    poly: &mut Polygon<T2>,
+    r: RingPtr,
+    manager: &mut RingManager,
+    reverse_output: bool,
+) {
     let mut lr: LinearRing<T2> = LinearRing::with_capacity(manager.size(r) + 1);
     let first_pt = manager.rings[r].points;
     let mut pt_it = first_pt;

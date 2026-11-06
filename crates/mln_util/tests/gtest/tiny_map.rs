@@ -55,10 +55,7 @@ fn test_copy<const THRESHOLD: usize>() {
     assert_eq!(map.size(), map2.size(), "threshold {THRESHOLD}");
     assert_eq!(map.size(), map3.size(), "threshold {THRESHOLD}");
     for k in [1, 2, 3] {
-        assert!(
-            map.find(&k).is_some() && map2.find(&k).is_some() && map3.find(&k).is_some(),
-            "threshold {THRESHOLD}"
-        );
+        assert!(map.find(&k).is_some() && map2.find(&k).is_some() && map3.find(&k).is_some(), "threshold {THRESHOLD}");
     }
 }
 
@@ -361,10 +358,7 @@ fn hash_map<K: Eq + Hash>(keys: Vec<K>, values: Vec<usize>) -> HashMap<K, usize>
 #[test]
 #[ignore = "TEST_REQUIRES_ACCURATE_TIMING (DISABLED_ on the C++ CI): a benchmark that only logs timings"]
 fn benchmark_ref() {
-    Log::info(
-        Event::General,
-        if cfg!(debug_assertions) { "Build Type: Debug" } else { "Build Type: Release" },
-    );
+    Log::info(Event::General, if cfg!(debug_assertions) { "Build Type: Debug" } else { "Build Type: Release" });
     // std::unordered_map with size_t keys
     benchmark("int:stl", 0, 20, LOOKUPS, 10, hash_map, make_gen_int_id());
     // std::unordered_map with string keys

@@ -7,9 +7,8 @@ use feature::{Identifier, Value};
 use std::path::PathBuf;
 
 fn open_tile(path: &str) -> Vec<u8> {
-    let base = std::env::var("RUNFILES_DIR")
-        .or_else(|_| std::env::var("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
+    let base =
+        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
     let full = PathBuf::from(base).join("maplibre+/vendor/vector-tile").join(path);
     std::fs::read(&full).unwrap_or_else(|e| panic!("could not open: '{}': {e}", full.display()))
 }
@@ -171,19 +170,13 @@ fn handle_layer_with_duplicate_keys() {
 fn errors() {
     let tile = Buffer::new(&[]).unwrap();
     assert!(tile.layer_names().is_empty());
-    assert_eq!(
-        tile.get_layer("x").unwrap_err(),
-        Error::Runtime("no layer by the name of 'x'".to_owned())
-    );
+    assert_eq!(tile.get_layer("x").unwrap_err(), Error::Runtime("no layer by the name of 'x'".to_owned()));
     // A layer without a name.
     assert_eq!(Buffer::new(&[0x1a, 0x00]).unwrap_err(), Error::Runtime("Layer missing name".to_owned()));
     // A layer with only a name.
     let data = [0x1a, 0x03, 0x0a, 0x01, b'a'];
     let tile = Buffer::new(&data).unwrap();
-    assert_eq!(
-        tile.get_layer("a").unwrap_err().what(),
-        "missing required field: version  extent "
-    );
+    assert_eq!(tile.get_layer("a").unwrap_err().what(), "missing required field: version  extent ");
     let layer = Layer::new(&[0x78, 0x02, 0x28, 0x80, 0x20, 0x0a, 0x01, b'a']).unwrap();
     assert_eq!(layer.get_version(), 2);
     assert_eq!(layer.get_extent(), 4096);

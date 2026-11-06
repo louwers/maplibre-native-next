@@ -2,12 +2,11 @@
 // src/mln/style/expression/format_expression.cpp.
 
 use crate::expression::{
-    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase,
-    Kind, downcast,
+    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::formatted::{
-    FontStack, Formatted, FormattedSection, K_FORMATTED_SECTION_FONT_SCALE,
-    K_FORMATTED_SECTION_TEXT_COLOR, K_FORMATTED_SECTION_TEXT_FONT,
+    FontStack, Formatted, FormattedSection, K_FORMATTED_SECTION_FONT_SCALE, K_FORMATTED_SECTION_TEXT_COLOR,
+    K_FORMATTED_SECTION_TEXT_FONT,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
@@ -31,12 +30,7 @@ pub struct FormatExpressionSection {
 
 impl FormatExpressionSection {
     pub fn new(content: Box<dyn Expression>) -> Self {
-        FormatExpressionSection {
-            content: Arc::from(content),
-            font_scale: None,
-            text_font: None,
-            text_color: None,
-        }
+        FormatExpressionSection { content: Arc::from(content), font_scale: None, text_font: None, text_color: None }
     }
 
     pub fn set_text_section_options(
@@ -78,10 +72,7 @@ fn opt_equal(l: &Option<Arc<dyn Expression>>, r: &Option<Arc<dyn Expression>>) -
 impl FormatExpression {
     pub fn new(sections: Vec<FormatExpressionSection>) -> Self {
         let deps = sections.iter().fold(Dependency::NONE, |a, s| a | s.deps());
-        FormatExpression {
-            base: ExpressionBase::new(Kind::FormatExpression, Type::Formatted, deps),
-            sections,
-        }
+        FormatExpression { base: ExpressionBase::new(Kind::FormatExpression, Type::Formatted, deps), sections }
     }
 
     pub fn get_sections(&self) -> &[FormatExpressionSection] {
@@ -177,9 +168,7 @@ impl Expression for FormatExpression {
             if let Some(text_font) = &section.text_font {
                 let text_font_result = text_font.evaluate(params)?;
                 let Some(text_font_value) = from_expression_value::<Vec<String>>(&text_font_result) else {
-                    return Err(EvaluationError::new(
-                        "Format text-font option must evaluate to an array of strings",
-                    ));
+                    return Err(EvaluationError::new("Format text-font option must evaluate to an array of strings"));
                 };
                 evaluated_text_font = Some(text_font_value);
             }

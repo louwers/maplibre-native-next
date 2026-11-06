@@ -2,8 +2,8 @@
 // src/mln/style/expression/coercion.cpp.
 
 use crate::expression::{
-    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase,
-    Kind, children_equal, collect_dependencies, default_serialize, downcast,
+    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
+    collect_dependencies, default_serialize, downcast,
 };
 use crate::formatted::Formatted;
 use crate::image::Image;
@@ -54,9 +54,7 @@ fn to_color(color_value: &Value) -> EvaluationResult {
         Value::Color(color) => Ok(Value::Color(*color)),
         Value::String(color_string) => match mln_util::Color::parse(color_string) {
             Some(result) => Ok(Value::Color(result)),
-            None => Err(EvaluationError::new(format!(
-                "Could not parse color from value '{color_string}'"
-            ))),
+            None => Err(EvaluationError::new(format!("Could not parse color from value '{color_string}'"))),
         },
         Value::Array(components) => {
             let len = components.len();
@@ -72,10 +70,7 @@ fn to_color(color_value: &Value) -> EvaluationResult {
                 )))
             }
         }
-        _ => Err(EvaluationError::new(format!(
-            "Could not parse color from value '{}'",
-            stringify(color_value)
-        ))),
+        _ => Err(EvaluationError::new(format!("Could not parse color from value '{}'", stringify(color_value)))),
     }
 }
 
@@ -97,10 +92,7 @@ fn to_padding(padding_value: &Value) -> EvaluationResult {
             let len = components.len();
             let is_numeric = components.iter().all(|item| matches!(item, Value::Number(_)));
             if (1..=4).contains(&len) && is_numeric {
-                let components_as_floats: Vec<f32> = components
-                    .iter()
-                    .map(|c| c.as_number().unwrap() as f32)
-                    .collect();
+                let components_as_floats: Vec<f32> = components.iter().map(|c| c.as_number().unwrap() as f32).collect();
                 Ok(Value::Padding(padding_from_span(&components_as_floats)))
             } else {
                 Err(EvaluationError::new(format!(
@@ -113,10 +105,7 @@ fn to_padding(padding_value: &Value) -> EvaluationResult {
             let v = *number as f32;
             Ok(Value::Padding(Padding::new(v, v, v, v)))
         }
-        _ => Err(EvaluationError::new(format!(
-            "Could not parse padding from value '{}'",
-            stringify(padding_value)
-        ))),
+        _ => Err(EvaluationError::new(format!("Could not parse padding from value '{}'", stringify(padding_value)))),
     }
 }
 
@@ -140,8 +129,7 @@ fn to_variable_anchor_offset(value: &Value) -> EvaluationResult {
                 let anchor_type_value = &components[i];
                 let offset_array = &components[i + 1];
 
-                let (Value::String(anchor_type_string), Value::Array(offset)) =
-                    (anchor_type_value, offset_array)
+                let (Value::String(anchor_type_string), Value::Array(offset)) = (anchor_type_value, offset_array)
                 else {
                     return Err(EvaluationError::new(format!(
                         "Invalid variableAnchorOffset value {}: expected a string value as the first and an array with two elements as the second element of each pair.",
@@ -173,14 +161,9 @@ fn to_variable_anchor_offset(value: &Value) -> EvaluationResult {
                 i += 2;
             }
 
-            Ok(Value::VariableAnchorOffsetCollection(VariableAnchorOffsetCollection::new(
-                anchor_offsets,
-            )))
+            Ok(Value::VariableAnchorOffsetCollection(VariableAnchorOffsetCollection::new(anchor_offsets)))
         }
-        _ => Err(EvaluationError::new(format!(
-            "Could not parse variableAnchorOffset from '{}'",
-            stringify(value)
-        ))),
+        _ => Err(EvaluationError::new(format!("Could not parse variableAnchorOffset from '{}'", stringify(value)))),
     }
 }
 
@@ -227,11 +210,7 @@ impl Coercion {
         // dependency).
         let coerce_single_value = get_coerce_function(&type_);
         Coercion {
-            base: ExpressionBase::new(
-                Kind::Coercion,
-                type_,
-                collect_dependencies(&inputs) | Dependency::NONE,
-            ),
+            base: ExpressionBase::new(Kind::Coercion, type_, collect_dependencies(&inputs) | Dependency::NONE),
             coerce_single_value,
             inputs,
         }
@@ -256,10 +235,7 @@ impl Coercion {
             _ => unreachable!("unknown coercion {op}"),
         };
 
-        if (type_ == Type::Boolean
-            || type_ == Type::String
-            || type_ == Type::Formatted
-            || type_ == Type::Image)
+        if (type_ == Type::Boolean || type_ == Type::String || type_ == Type::Formatted || type_ == Type::Image)
             && length != 2
         {
             ctx.error("Expected one argument.".to_owned());
@@ -315,10 +291,7 @@ impl Expression for Coercion {
                     MbglValue::Object(ValueObject::new()),
                 ])
             }
-            Type::Image => MbglValue::Array(vec![
-                MbglValue::String("image".to_owned()),
-                self.inputs[0].serialize(),
-            ]),
+            Type::Image => MbglValue::Array(vec![MbglValue::String("image".to_owned()), self.inputs[0].serialize()]),
             _ => default_serialize(self),
         }
     }

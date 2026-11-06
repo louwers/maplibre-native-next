@@ -27,9 +27,7 @@ impl QueryTest {
         // TODO(port): `StubFileSource()` uses the MapTiler tile server options.
         let file_source = Arc::new(StubFileSource::new(ResponseType::Asynchronous));
         let test = QueryTest(MapTest::create(run_loop, file_source, 1.0, MapMode::Static));
-        test.map()
-            .get_style_mut()
-            .load_json(&read_file("test/fixtures/api/query_style.json"));
+        test.map().get_style_mut().load_json(&read_file("test/fixtures/api/query_style.json"));
         test.map().get_style_mut().add_image(style_image(
             "test-icon",
             decode_image("test/fixtures/sprites/default_marker.png"),
@@ -50,23 +48,16 @@ impl QueryTest {
 
     /// `frontend.getRenderer()->queryRenderedFeatures(point, options)`.
     fn query_rendered_features(&self, point: &ScreenCoordinate, options: &RenderedQueryOptions) -> Vec<Feature> {
-        self.0
-            .frontend
-            .with_renderer(|renderer| renderer.query_rendered_features_at_point(point, options))
+        self.0.frontend.with_renderer(|renderer| renderer.query_rendered_features_at_point(point, options))
     }
 
     /// `frontend.getRenderer()->querySourceFeatures(sourceID, options)`.
     fn query_source_features(&self, source_id: &str, options: &SourceQueryOptions) -> Vec<Feature> {
-        self.0
-            .frontend
-            .with_renderer(|renderer| renderer.query_source_features(source_id, options))
+        self.0.frontend.with_renderer(|renderer| renderer.query_source_features(source_id, options))
     }
 
     fn set_global_state_property(&self, name: &str, value: &str) {
-        self.map()
-            .get_style_mut()
-            .set_global_state_property(name, &Value::String(value.to_owned()))
-            .unwrap();
+        self.map().get_style_mut().set_global_state_property(name, &Value::String(value.to_owned())).unwrap();
     }
 }
 
@@ -216,8 +207,7 @@ fn query_rendered_features_line_offset_endpoint() {
             }}}}}},"layers":[{{"id":"layer","type":"line","source":"source","paint":{{
                 "line-width":6,"line-offset":{offset:.6}}}}}]}}"#
         ));
-        test.map()
-            .jump_to(&CameraOptions::default().with_center(Some(ll(1.0, 1.003))).with_zoom(Some(16.5)));
+        test.map().jump_to(&CameraOptions::default().with_center(Some(ll(1.0, 1.003))).with_zoom(Some(16.5)));
         let rendered_result = test.render();
         let endpoint = test.map().pixel_for_lat_lng(&ll(1.0, 1.0035));
         // Stay inside the butt cap, away from antialiased edges.
@@ -235,8 +225,7 @@ fn query_rendered_features_line_offset_endpoint() {
             "offset {offset}"
         );
         assert!(
-            test.query_rendered_features(&outside, &rendered(layers(&["layer"]), None))
-                .is_empty(),
+            test.query_rendered_features(&outside, &rendered(layers(&["layer"]), None)).is_empty(),
             "offset {offset}"
         );
     }
@@ -259,15 +248,10 @@ fn query_source_feature_states() {
     let mut new_state = FeatureState::new();
     new_state.insert("hover".into(), Value::Bool(true));
     new_state.insert("radius".into(), Value::Uint(20));
-    test.0
-        .frontend
-        .with_renderer(|renderer| renderer.set_feature_state("source1", None, "feature1", &new_state));
+    test.0.frontend.with_renderer(|renderer| renderer.set_feature_state("source1", None, "feature1", &new_state));
 
     // C++ fills an out-parameter; the Rust getter returns the state.
-    let states = test
-        .0
-        .frontend
-        .with_renderer(|renderer| renderer.get_feature_state("source1", None, "feature1"));
+    let states = test.0.frontend.with_renderer(|renderer| renderer.get_feature_state("source1", None, "feature1"));
     assert_eq!(states.len(), 2);
     assert_eq!(states["hover"], Value::Bool(true));
     assert_eq!(states["radius"], Value::Uint(20));

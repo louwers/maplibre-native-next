@@ -11,13 +11,13 @@
 // (`deferredCreation`). Dropping the DynamicTexture on the render thread
 // frees the GPU texture (and with the last one, the map's device).
 
+use mln_actor::LocalObject;
+use mln_gfx::Context;
 use mln_gfx::texture2d::{SamplerState, Texture2DPtr};
 use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
-use mln_gfx::Context;
 use mln_style_types::image::RectU16;
 use mln_util::size::Size;
 use shelf_pack::{ShelfPack, ShelfPackOptions};
-use mln_actor::LocalObject;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};

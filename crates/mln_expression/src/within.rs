@@ -8,9 +8,7 @@
 // for). Rings and lines with fewer than two points walk no edges (C++ reads
 // out of bounds for an empty one).
 
-use crate::expression::{
-    Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
@@ -117,9 +115,7 @@ fn segment_intersect_segment(a: &Point<i64>, b: &Point<i64>, c: &Point<i64>, d: 
 
 fn line_intersect_polygon(p1: &Point<i64>, p2: &Point<i64>, polygon: &TilePolygon) -> bool {
     // loop through every edge of every ring
-    polygon
-        .iter()
-        .any(|ring| ring.windows(2).any(|edge| segment_intersect_segment(p1, p2, &edge[0], &edge[1])))
+    polygon.iter().any(|ring| ring.windows(2).any(|edge| segment_intersect_segment(p1, p2, &edge[0], &edge[1])))
 }
 
 /// Ray casting algorithm for detecting if point is in polygon.
@@ -164,8 +160,8 @@ fn lat_lon_to_tile_coordinates(point: &Point<f64>, canonical: &CanonicalTileID) 
     let size = EXTENT as f64 * 2f64.powi(canonical.z as i32);
 
     let x = (point.x + LONGITUDE_MAX) * size / DEGREES_MAX;
-    let y = (LONGITUDE_MAX - mln_math::rad2deg((point.y * PI / DEGREES_MAX + PI / 4.0).tan().ln())) * size
-        / DEGREES_MAX;
+    let y =
+        (LONGITUDE_MAX - mln_math::rad2deg((point.y * PI / DEGREES_MAX + PI / 4.0).tan().ln())) * size / DEGREES_MAX;
 
     // `util::clamp<int64_t>(static_cast<int64_t>(x), min, max)`; `as`
     // saturates where the C++ cast is UB.
@@ -429,10 +425,7 @@ impl Expression for Within {
         if geometry_type == FeatureType::Point || geometry_type == FeatureType::LineString {
             return Ok(Value::Bool(feature_within_polygons(feature, canonical, &self.geometries)));
         }
-        Log::warning(
-            Event::General,
-            "within expression currently only support Point/LineString geometry type.",
-        );
+        Log::warning(Event::General, "within expression currently only support Point/LineString geometry type.");
 
         Ok(Value::Bool(false))
     }

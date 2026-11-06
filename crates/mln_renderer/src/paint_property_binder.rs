@@ -25,21 +25,21 @@ use crate::layout::pattern_layout::PatternDependency;
 use crate::paint_property_statistics::{PaintPropertyStatistics, StatisticValue};
 use mln_expression::range::Range;
 use mln_gfx::gfx_types::AttributeDataType;
+use mln_gfx::shader_group::StringIDSetsPair;
 use mln_gfx::vertex_attribute::{VertexAttribute, VertexAttributeArray};
 use mln_gfx::vertex_vector::VertexVectorBasePtr;
-use mln_gfx::shader_group::StringIDSetsPair;
+use mln_style::CrossfadeParameters;
 use mln_style::expression::{EvaluationContext, Image, Value, ValueConverter};
 use mln_style::property_expression::PropertyExpression;
 use mln_style::renderer::cross_faded_property_evaluator::Faded;
 use mln_style::renderer::possibly_evaluated_property_value::{
     PossiblyEvaluatedFadedPropertyValue, PossiblyEvaluatedPropertyValue,
 };
-use mln_style::CrossfadeParameters;
 use mln_style_types::image::{ImagePosition, ImagePositions};
-use mln_tile_id::geometry_tile_data::{GeometryTileFeature, GeometryTileLayer};
 use mln_tile_id::CanonicalTileID;
-use mln_util::feature::feature_id_to_string;
+use mln_tile_id::geometry_tile_data::{GeometryTileFeature, GeometryTileLayer};
 use mln_util::Color;
+use mln_util::feature::feature_id_to_string;
 use std::collections::BTreeMap;
 use std::sync::Mutex;
 
@@ -138,10 +138,7 @@ impl BinderValue for Color {
     ///
     /// Also note that colors come in as floats 0..1, so we scale by 255.
     fn attribute_value(&self) -> [f32; 2] {
-        [
-            pack_uint8_pair(255.0 * self.r, 255.0 * self.g) as f32,
-            pack_uint8_pair(255.0 * self.b, 255.0 * self.a) as f32,
-        ]
+        [pack_uint8_pair(255.0 * self.r, 255.0 * self.g) as f32, pack_uint8_pair(255.0 * self.b, 255.0 * self.a) as f32]
     }
 }
 
@@ -155,11 +152,7 @@ pub enum PaintPropertyBinderKind<T> {
     /// `ConstantPaintPropertyBinder<T, A>`
     Constant { constant: T },
     /// `SourceFunctionPaintPropertyBinder<T, A>`
-    SourceFunction {
-        expression: PropertyExpression<T>,
-        default_value: T,
-        feature_map: FeatureVertexRangeMap,
-    },
+    SourceFunction { expression: PropertyExpression<T>, default_value: T, feature_map: FeatureVertexRangeMap },
     /// `CompositeFunctionPaintPropertyBinder<T, A>`
     CompositeFunction {
         expression: PropertyExpression<T>,
@@ -225,7 +218,8 @@ impl<T: BinderValue> PaintPropertyBinder<T> {
             return;
         }
         self.has_interleaved_buffer = true;
-        let new_vertex_offset = buffer.extend_vertex_format(Self::zoom_interpolated_size(), std::mem::align_of::<f32>());
+        let new_vertex_offset =
+            buffer.extend_vertex_format(Self::zoom_interpolated_size(), std::mem::align_of::<f32>());
         if self.vertex_offset == usize::MAX {
             self.vertex_offset = new_vertex_offset;
         }
@@ -421,8 +415,7 @@ impl<T: BinderValue> PaintPropertyBinder<T> {
         match &self.kind {
             PaintPropertyBinderKind::Constant { .. } => vec![0.0; 2 * n],
             PaintPropertyBinderKind::SourceFunction { .. } => {
-                let base: Vec<f32> =
-                    bytemuck::pod_collect_to_vec(buffer.get(index, self.vertex_offset, n * 4));
+                let base: Vec<f32> = bytemuck::pod_collect_to_vec(buffer.get(index, self.vertex_offset, n * 4));
                 let mut value = base.clone();
                 value.extend_from_slice(&base);
                 value
@@ -503,13 +496,15 @@ impl CrossFadedPaintPropertyBinder<Image> {
             PossiblyEvaluatedFadedPropertyValue::Constant(constant) => {
                 CrossFadedPaintPropertyBinderKind::Constant { constant: constant.clone() }
             }
-            PossiblyEvaluatedFadedPropertyValue::Expression(expression) => CrossFadedPaintPropertyBinderKind::Composite {
-                expression: expression.clone(),
-                default_value,
-                zoom_range: Range::new(zoom, zoom + 1.0),
-                zoom_in_vertex_vector: Vec::new(),
-                zoom_out_vertex_vector: Vec::new(),
-            },
+            PossiblyEvaluatedFadedPropertyValue::Expression(expression) => {
+                CrossFadedPaintPropertyBinderKind::Composite {
+                    expression: expression.clone(),
+                    default_value,
+                    zoom_range: Range::new(zoom, zoom + 1.0),
+                    zoom_in_vertex_vector: Vec::new(),
+                    zoom_out_vertex_vector: Vec::new(),
+                }
+            }
         };
         CrossFadedPaintPropertyBinder {
             kind,
@@ -686,7 +681,12 @@ pub trait PaintPropertyBinderBase {
         formatted_section: &Value,
     );
     /// `setPatternParameters(posA, posB, crossfade)`.
-    fn pattern_parameters(&self, pos_a: Option<&ImagePosition>, pos_b: Option<&ImagePosition>, crossfade: &CrossfadeParameters);
+    fn pattern_parameters(
+        &self,
+        pos_a: Option<&ImagePosition>,
+        pos_b: Option<&ImagePosition>,
+        crossfade: &CrossfadeParameters,
+    );
     /// `updateVertexVectors(states, layer, imagePositions)` (the base no-op
     /// for the constant and cross-faded binders).
     fn update_vectors(
@@ -699,7 +699,13 @@ pub trait PaintPropertyBinderBase {
     /// `getVertexCount()`.
     fn binder_vertex_count(&self, buffer: &InterleavedVertexBuffer) -> usize;
     /// `applyPaintProperty<Attribute>(attrIndex, attrib)`.
-    fn apply(&self, buffer: &InterleavedVertexBuffer, shared: &VertexVectorBasePtr, attr_index: usize, attrib: &mut VertexAttribute);
+    fn apply(
+        &self,
+        buffer: &InterleavedVertexBuffer,
+        shared: &VertexVectorBasePtr,
+        attr_index: usize,
+        attrib: &mut VertexAttribute,
+    );
 }
 
 impl<T: BinderValue> PaintPropertyBinderBase for PaintPropertyBinder<T> {
@@ -731,7 +737,13 @@ impl<T: BinderValue> PaintPropertyBinderBase for PaintPropertyBinder<T> {
     fn binder_vertex_count(&self, buffer: &InterleavedVertexBuffer) -> usize {
         self.get_vertex_count(buffer)
     }
-    fn apply(&self, buffer: &InterleavedVertexBuffer, shared: &VertexVectorBasePtr, attr_index: usize, attrib: &mut VertexAttribute) {
+    fn apply(
+        &self,
+        buffer: &InterleavedVertexBuffer,
+        shared: &VertexVectorBasePtr,
+        attr_index: usize,
+        attrib: &mut VertexAttribute,
+    ) {
         self.apply_paint_property(buffer, shared, attr_index, attrib);
     }
 }
@@ -753,13 +765,24 @@ impl PaintPropertyBinderBase for CrossFadedPaintPropertyBinder<Image> {
     ) {
         self.populate_vertex_vector(buffer, length, pattern_positions, pattern_dependencies);
     }
-    fn pattern_parameters(&self, pos_a: Option<&ImagePosition>, pos_b: Option<&ImagePosition>, crossfade: &CrossfadeParameters) {
+    fn pattern_parameters(
+        &self,
+        pos_a: Option<&ImagePosition>,
+        pos_b: Option<&ImagePosition>,
+        crossfade: &CrossfadeParameters,
+    ) {
         self.set_pattern_parameters(pos_a, pos_b, crossfade);
     }
     fn binder_vertex_count(&self, buffer: &InterleavedVertexBuffer) -> usize {
         self.get_vertex_count(buffer)
     }
-    fn apply(&self, buffer: &InterleavedVertexBuffer, shared: &VertexVectorBasePtr, attr_index: usize, attrib: &mut VertexAttribute) {
+    fn apply(
+        &self,
+        buffer: &InterleavedVertexBuffer,
+        shared: &VertexVectorBasePtr,
+        attr_index: usize,
+        attrib: &mut VertexAttribute,
+    ) {
         self.apply_paint_property(buffer, shared, attr_index, attrib);
     }
 }

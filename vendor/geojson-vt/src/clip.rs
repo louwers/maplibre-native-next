@@ -45,11 +45,7 @@ impl<const I: u8> Clipper<I> {
     pub fn line_string(&self, line: &VtLineString) -> VtGeometry {
         let mut parts = VtMultiLineString::new();
         self.clip_line(line, &mut parts);
-        if parts.len() == 1 {
-            VtGeometry::LineString(parts.swap_remove(0))
-        } else {
-            VtGeometry::MultiLineString(parts)
-        }
+        if parts.len() == 1 { VtGeometry::LineString(parts.swap_remove(0)) } else { VtGeometry::MultiLineString(parts) }
     }
 
     pub fn multi_line_string(&self, lines: &VtMultiLineString) -> VtGeometry {
@@ -57,11 +53,7 @@ impl<const I: u8> Clipper<I> {
         for line in lines {
             self.clip_line(line, &mut parts);
         }
-        if parts.len() == 1 {
-            VtGeometry::LineString(parts.swap_remove(0))
-        } else {
-            VtGeometry::MultiLineString(parts)
-        }
+        if parts.len() == 1 { VtGeometry::LineString(parts.swap_remove(0)) } else { VtGeometry::MultiLineString(parts) }
     }
 
     pub fn polygon(&self, polygon: &VtPolygon) -> VtGeometry {
@@ -101,10 +93,7 @@ impl<const I: u8> Clipper<I> {
     }
 
     fn new_slice(&self, line: &VtLineString) -> VtLineString {
-        let mut slice = VtLineString {
-            dist: line.dist,
-            ..Default::default()
-        };
+        let mut slice = VtLineString { dist: line.dist, ..Default::default() };
         if self.line_metrics {
             slice.seg_start = line.seg_start;
             slice.seg_end = line.seg_end;
@@ -243,10 +232,7 @@ impl<const I: u8> Clipper<I> {
     fn clip_ring(&self, ring: &VtLinearRing) -> VtLinearRing {
         let (k1, k2) = (self.k1, self.k2);
         let len = ring.len();
-        let mut slice = VtLinearRing {
-            points: Vec::new(),
-            area: ring.area,
-        };
+        let mut slice = VtLinearRing { points: Vec::new(), area: ring.area };
 
         if len < 2 {
             return slice;

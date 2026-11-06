@@ -152,10 +152,7 @@ impl Writer {
 
     pub fn start_object(&mut self) -> bool {
         self.prefix(Type::Object);
-        self.level_stack.push(Level {
-            value_count: 0,
-            in_array: false,
-        });
+        self.level_stack.push(Level { value_count: 0, in_array: false });
         self.os.push('{');
         true
     }
@@ -175,10 +172,7 @@ impl Writer {
 
     pub fn start_array(&mut self) -> bool {
         self.prefix(Type::Array);
-        self.level_stack.push(Level {
-            value_count: 0,
-            in_array: true,
-        });
+        self.level_stack.push(Level { value_count: 0, in_array: true });
         self.os.push('[');
         true
     }
@@ -275,10 +269,7 @@ mod tests {
         w.uint64(u64::MAX);
         w.end_object();
         assert!(w.is_complete());
-        assert_eq!(
-            w.get_string(),
-            "{\"a\":[1,,2.5,null,true],\"b\\n\\\"\\\\\\u0001\u{7f}é\":18446744073709551615}"
-        );
+        assert_eq!(w.get_string(), "{\"a\":[1,,2.5,null,true],\"b\\n\\\"\\\\\\u0001\u{7f}é\":18446744073709551615}");
     }
 
     #[test]

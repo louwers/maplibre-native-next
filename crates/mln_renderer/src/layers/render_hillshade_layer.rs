@@ -254,8 +254,11 @@ impl RenderLayer for RenderHillshadeLayer {
 
         // Set up a layer group
         if self.base.layer_group.is_none() {
-            match context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned())
-            {
+            match context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => self.set_layer_group(Some(layer_group), changes),
                 None => return,
             }
@@ -297,8 +300,9 @@ impl RenderLayer for RenderHillshadeLayer {
             let mut group = layer_group.borrow_mut();
             let tile_layer_group = group.as_tile_layer_group_mut().expect("hillshade layer group is a TileLayerGroup");
             let base = &self.base;
-            let removed = tile_layer_group
-                .remove_drawables_if(|drawable| drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id)));
+            let removed = tile_layer_group.remove_drawables_if(|drawable| {
+                drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id))
+            });
             self.base.stats.drawables_removed += removed;
         }
 
@@ -314,10 +318,8 @@ impl RenderLayer for RenderHillshadeLayer {
 
         // Drop the render targets of buckets that are no longer rendered
         // (C++ releases them with the bucket).
-        let live_buckets: HashSet<SimpleIdentity> = render_tiles
-            .iter()
-            .filter_map(|tile| tile.get_bucket(&*self.base.base_impl).map(|b| b.get_id()))
-            .collect();
+        let live_buckets: HashSet<SimpleIdentity> =
+            render_tiles.iter().filter_map(|tile| tile.get_bucket(&*self.base.base_impl).map(|b| b.get_id())).collect();
         self.bucket_render_targets.retain(|id, _| live_buckets.contains(id));
 
         for tile in render_tiles.iter() {
@@ -510,4 +512,3 @@ impl RenderLayer for RenderHillshadeLayer {
         }
     }
 }
-

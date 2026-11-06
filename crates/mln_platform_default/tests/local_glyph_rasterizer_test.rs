@@ -21,9 +21,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR")
-        .or_else(|_| std::env::var("RUNFILES_DIR"))
-        .expect("TEST_SRCDIR");
+    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+").join(relative)
 }
 
@@ -98,15 +96,9 @@ impl LocalGlyphRasterizerTest {
             &frontend,
             Rc::new(NullMapObserver),
             file_source,
-            MapOptions::new()
-                .with_map_mode(MapMode::Static)
-                .with_size(frontend.get_size()),
+            MapOptions::new().with_map_mode(MapMode::Static).with_size(frontend.get_size()),
         );
-        LocalGlyphRasterizerTest {
-            _run_loop: run_loop,
-            frontend,
-            map,
-        }
+        LocalGlyphRasterizerTest { _run_loop: run_loop, frontend, map }
     }
 
     fn check_rendering(&mut self, name: &str, image_match_pixels_threshold: f64, pixel_match_threshold: f64) {

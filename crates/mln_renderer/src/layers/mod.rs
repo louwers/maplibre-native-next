@@ -39,11 +39,11 @@ pub use render_symbol_layer::RenderSymbolLayer;
 use crate::bucket::{Bucket, BucketPtr};
 use crate::layer_tweaker::LayerTweakerPtr;
 use crate::render_tile::RenderTile;
-use mln_gfx::vertex_vector::{VertexVector, VertexVectorBasePtr};
 use mln_gfx::Drawable;
+use mln_gfx::vertex_vector::{VertexVector, VertexVectorBasePtr};
+use mln_style::CrossfadeParameters;
 use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
 use mln_style::layers::{BackgroundLayerProperties, BackgroundPaintProperties};
-use mln_style::CrossfadeParameters;
 use mln_util::immutable::Immutable;
 use std::any::Any;
 use std::rc::Rc;
@@ -194,7 +194,11 @@ pub trait TileDrawables: crate::render_layer::RenderLayer {
     /// `removeTile(RenderPass, const OverscaledTileID&)`: remove all
     /// drawables for the tile from the layer group; returns the number of
     /// drawables actually removed.
-    fn remove_tile(&mut self, render_pass: crate::render_pass::RenderPass, tile_id: &mln_tile_id::OverscaledTileID) -> usize {
+    fn remove_tile(
+        &mut self,
+        render_pass: crate::render_pass::RenderPass,
+        tile_id: &mln_tile_id::OverscaledTileID,
+    ) -> usize {
         let Some(layer_group) = self.base().layer_group.clone() else {
             return 0;
         };

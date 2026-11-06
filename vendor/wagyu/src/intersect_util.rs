@@ -8,8 +8,8 @@ use crate::edge::{Edge, get_current_x, slopes_equal};
 use crate::point::GPoint;
 use crate::ring::{R, RingManager};
 use crate::ring_util::{add_local_maximum_point, add_local_minimum_point, add_point, round_towards_max};
-use libstdcxx::stable_sort_by as stable_sort;
 use crate::util::values_are_equal;
+use libstdcxx::stable_sort_by as stable_sort;
 
 /// `intersect_node<int32_t>`.
 #[derive(Clone, Copy, Debug)]
@@ -246,10 +246,7 @@ fn bounds_adjacent(inode: &IntersectNode, next: Option<BoundPtr>) -> bool {
 
 /// `std::find_if(active_bounds, find_first_bound(inode))`.
 fn find_first_bound(active_bounds: &[BoundPtr], inode: &IntersectNode) -> usize {
-    active_bounds
-        .iter()
-        .position(|&x| x == inode.bound1 || x == inode.bound2)
-        .unwrap_or(active_bounds.len())
+    active_bounds.iter().position(|&x| x == inode.bound1 || x == inode.bound2).unwrap_or(active_bounds.len())
 }
 
 /// `process_intersect_list`.

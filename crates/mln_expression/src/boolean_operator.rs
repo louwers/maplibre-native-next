@@ -2,8 +2,8 @@
 // src/mln/style/expression/boolean_operator.cpp.
 
 use crate::expression::{
-    EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
-    collect_dependencies, downcast,
+    EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal, collect_dependencies,
+    downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
@@ -29,10 +29,7 @@ pub struct Any {
 
 impl Any {
     pub fn new(inputs: Vec<Box<dyn Expression>>) -> Self {
-        Any {
-            base: ExpressionBase::new(Kind::Any, Type::Boolean, collect_dependencies(&inputs)),
-            inputs,
-        }
+        Any { base: ExpressionBase::new(Kind::Any, Type::Boolean, collect_dependencies(&inputs)), inputs }
     }
 
     pub fn parse(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseResult {
@@ -85,10 +82,7 @@ pub struct All {
 
 impl All {
     pub fn new(inputs: Vec<Box<dyn Expression>>) -> Self {
-        All {
-            base: ExpressionBase::new(Kind::All, Type::Boolean, collect_dependencies(&inputs)),
-            inputs,
-        }
+        All { base: ExpressionBase::new(Kind::All, Type::Boolean, collect_dependencies(&inputs)), inputs }
     }
 
     pub fn parse(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseResult {

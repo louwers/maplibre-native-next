@@ -43,10 +43,7 @@ impl RenderGeoJSONSource {
     /// `RenderGeoJSONSource(Immutable<style::GeoJSONSource::Impl>, const TaggedScheduler&)`.
     pub fn new(impl_: Arc<geojson_source_impl::Impl>, thread_pool: &TaggedScheduler) -> Self {
         let impl_: Immutable<dyn source::Impl> = impl_;
-        RenderGeoJSONSource {
-            tile_source: RenderTileSource::new(impl_, thread_pool),
-            data: None,
-        }
+        RenderGeoJSONSource { tile_source: RenderTileSource::new(impl_, thread_pool), data: None }
     }
 
     /// `impl()`.
@@ -125,13 +122,7 @@ impl RenderSource for RenderGeoJSONSource {
             impl_.get_zoom_range(),
             None,
             |tile_id, observer| -> Option<Box<dyn Tile>> {
-                Some(Box::new(GeoJSONTile::new(
-                    *tile_id,
-                    source_id.clone(),
-                    parameters,
-                    data.clone(),
-                    Some(observer),
-                )))
+                Some(Box::new(GeoJSONTile::new(*tile_id, source_id.clone(), parameters, data.clone(), Some(observer))))
             },
         );
     }
@@ -174,8 +165,7 @@ impl RenderSource for RenderGeoJSONSource {
         global_state: Option<&mln_style::expression::GlobalStateMap>,
         proj_matrix: &mln_util::mat4::Mat4,
     ) -> crate::geometry::feature_index::QueryResults {
-        self.tile_source
-            .query_rendered_features(geometry, transform_state, layers, options, global_state, proj_matrix)
+        self.tile_source.query_rendered_features(geometry, transform_state, layers, options, global_state, proj_matrix)
     }
 
     fn query_source_features(
@@ -204,7 +194,12 @@ impl RenderSource for RenderGeoJSONSource {
         self.tile_source.get_feature_state(source_layer_id, feature_id)
     }
 
-    fn remove_feature_state(&mut self, source_layer_id: Option<&str>, feature_id: Option<&str>, state_key: Option<&str>) {
+    fn remove_feature_state(
+        &mut self,
+        source_layer_id: Option<&str>,
+        feature_id: Option<&str>,
+        state_key: Option<&str>,
+    ) {
         self.tile_source.remove_feature_state(source_layer_id, feature_id, state_key);
     }
 

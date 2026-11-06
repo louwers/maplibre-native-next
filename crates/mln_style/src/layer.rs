@@ -23,8 +23,8 @@ use crate::util::AsAny;
 use feature::{Value, ValueObject};
 use mln_conversion::{Convertible, Error};
 use mln_style_types::VisibilityType;
-use mln_util::immutable::Immutable;
 use mln_util::enum_::Enum;
+use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use std::sync::Arc;
 
@@ -137,12 +137,7 @@ pub trait Layer: AsAny + std::fmt::Debug {
     fn set_property_internal(&mut self, name: &str, value: &Convertible<'_>) -> Option<Error>;
 
     /// `virtual setProperty(name, value, scope)`.
-    fn set_property(
-        &mut self,
-        name: &str,
-        value: &Convertible<'_>,
-        scope: Option<PropertyScope>,
-    ) -> Option<Error> {
+    fn set_property(&mut self, name: &str, value: &Convertible<'_>, scope: Option<PropertyScope>) -> Option<Error> {
         set_property_base(self, name, value, scope)
     }
 
@@ -334,9 +329,7 @@ pub fn serialize_property(out: &mut Value, property: &StyleProperty, property_na
     match object.get_mut(property_type) {
         Some(Value::Object(existing)) => {
             // emplace: does not overwrite an existing key.
-            existing
-                .entry(property_name.to_owned())
-                .or_insert_with(|| property.get_value().clone());
+            existing.entry(property_name.to_owned()).or_insert_with(|| property.get_value().clone());
         }
         _ => {
             let mut inner = ValueObject::new();
@@ -418,9 +411,7 @@ fn set_visibility_value(layer: &mut (impl Layer + ?Sized), value: &Convertible<'
         };
         let allowed = Dependency::GLOBAL_STATE | Dependency::BIND | Dependency::VAR;
         if (parsed.dependencies() | allowed) != allowed {
-            return Some(Error::new(
-                r#"visibility expressions may only use the "global-state" expression"#,
-            ));
+            return Some(Error::new(r#"visibility expressions may only use the "global-state" expression"#));
         }
 
         // The layer may not belong to a style yet, so its global state is not

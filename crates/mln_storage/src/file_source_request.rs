@@ -41,14 +41,9 @@ impl FileSourceRequest {
     /// `FileSourceRequest(FileSource::Callback&&)`: the mailbox is on the
     /// current thread's scheduler.
     pub fn new(callback: Callback) -> Self {
-        let state = Rc::new(FileSourceRequestState {
-            response_callback: Rc::new(RefCell::new(callback)),
-        });
+        let state = Rc::new(FileSourceRequestState { response_callback: Rc::new(RefCell::new(callback)) });
         let mailbox = Mailbox::with_target(&scheduler::get_current(), state as Rc<dyn Any>);
-        FileSourceRequest {
-            cancel_callback: None,
-            mailbox,
-        }
+        FileSourceRequest { cancel_callback: None, mailbox }
     }
 
     /// `onCancel(std::function<void()>&&)`.

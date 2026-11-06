@@ -21,8 +21,7 @@ fn identity(n: usize) -> Vec<u32> {
 /// Keys with `0..range` values (many duplicates for small ranges), lengths
 /// up to 3000 (introsort's depth limit and heap fallback need long runs).
 fn keys() -> impl Strategy<Value = Vec<i32>> {
-    (1i32..=64, 0usize..=3000)
-        .prop_flat_map(|(range, len)| prop::collection::vec(0..range, len..=len))
+    (1i32..=64, 0usize..=3000).prop_flat_map(|(range, len)| prop::collection::vec(0..range, len..=len))
 }
 
 /// Mostly sorted / reversed keys, which drive introsort into its worst cases.
@@ -44,13 +43,13 @@ fn sort_matches_libstdcxx() {
     let mut cases = 0;
     for strategy in [keys().boxed(), patterned_keys().boxed()] {
         cases += run_cases(3000, &strategy, |keys| {
-                let mut expected = identity(keys.len());
-                unsafe { ref_std_sort(keys.as_ptr(), expected.as_mut_ptr(), keys.len()) };
-                let mut actual = identity(keys.len());
-                libstdcxx::sort_by(&mut actual, |a, b| keys[*a as usize] < keys[*b as usize]);
-                prop_assert_eq!(actual, expected);
-                Ok(())
-            });
+            let mut expected = identity(keys.len());
+            unsafe { ref_std_sort(keys.as_ptr(), expected.as_mut_ptr(), keys.len()) };
+            let mut actual = identity(keys.len());
+            libstdcxx::sort_by(&mut actual, |a, b| keys[*a as usize] < keys[*b as usize]);
+            prop_assert_eq!(actual, expected);
+            Ok(())
+        });
     }
     println!("std::sort: {cases} cases, 0 mismatches");
 }
@@ -60,37 +59,36 @@ fn stable_sort_matches_libstdcxx() {
     let mut cases = 0;
     for strategy in [keys().boxed(), patterned_keys().boxed()] {
         cases += run_cases(3000, &strategy, |keys| {
-                let mut expected = identity(keys.len());
-                unsafe { ref_std_stable_sort(keys.as_ptr(), expected.as_mut_ptr(), keys.len()) };
-                let mut actual = identity(keys.len());
-                libstdcxx::stable_sort_by(&mut actual, |a, b| keys[*a as usize] < keys[*b as usize]);
-                prop_assert_eq!(actual, expected);
-                Ok(())
-            });
+            let mut expected = identity(keys.len());
+            unsafe { ref_std_stable_sort(keys.as_ptr(), expected.as_mut_ptr(), keys.len()) };
+            let mut actual = identity(keys.len());
+            libstdcxx::stable_sort_by(&mut actual, |a, b| keys[*a as usize] < keys[*b as usize]);
+            prop_assert_eq!(actual, expected);
+            Ok(())
+        });
     }
     println!("std::stable_sort: {cases} cases, 0 mismatches");
 }
 
 #[test]
 fn stable_sort_almost_equal_matches_libstdcxx() {
-    let strategy = (0usize..=1500, 0.0f64..=3.0).prop_flat_map(|(len, tolerance)| {
-        (prop::collection::vec(-50.0f64..50.0, len..=len), Just(tolerance))
-    });
+    let strategy = (0usize..=1500, 0.0f64..=3.0)
+        .prop_flat_map(|(len, tolerance)| (prop::collection::vec(-50.0f64..50.0, len..=len), Just(tolerance)));
     let mut cases = 0;
     cases += run_cases(3000, &strategy, |(keys, tolerance)| {
-            let mut expected = identity(keys.len());
-            unsafe { ref_std_stable_sort_almost(keys.as_ptr(), expected.as_mut_ptr(), keys.len(), tolerance) };
-            let mut actual = identity(keys.len());
-            libstdcxx::stable_sort_by(&mut actual, |a, b| {
-                let (ka, kb) = (keys[*a as usize], keys[*b as usize]);
-                if (ka - kb).abs() <= tolerance {
-                    return false;
-                }
-                ka < kb
-            });
-            prop_assert_eq!(actual, expected);
-            Ok(())
+        let mut expected = identity(keys.len());
+        unsafe { ref_std_stable_sort_almost(keys.as_ptr(), expected.as_mut_ptr(), keys.len(), tolerance) };
+        let mut actual = identity(keys.len());
+        libstdcxx::stable_sort_by(&mut actual, |a, b| {
+            let (ka, kb) = (keys[*a as usize], keys[*b as usize]);
+            if (ka - kb).abs() <= tolerance {
+                return false;
+            }
+            ka < kb
         });
+        prop_assert_eq!(actual, expected);
+        Ok(())
+    });
     println!("std::stable_sort (almost equal): {cases} cases, 0 mismatches");
 }
 
@@ -98,18 +96,18 @@ fn stable_sort_almost_equal_matches_libstdcxx() {
 fn heap_matches_libstdcxx() {
     let mut cases = 0;
     cases += run_cases(3000, &keys(), |keys| {
-            let n = keys.len();
-            let mut expected = identity(n);
-            let mut expected_heap = vec![0u32; n];
-            unsafe { ref_std_make_sort_heap(keys.as_ptr(), expected.as_mut_ptr(), n, expected_heap.as_mut_ptr()) };
-            let mut actual = identity(n);
-            let comp = |a: &u32, b: &u32| keys[*a as usize] < keys[*b as usize];
-            libstdcxx::make_heap(&mut actual, comp);
-            prop_assert_eq!(&actual, &expected_heap);
-            libstdcxx::sort_heap(&mut actual, comp);
-            prop_assert_eq!(actual, expected);
-            Ok(())
-        });
+        let n = keys.len();
+        let mut expected = identity(n);
+        let mut expected_heap = vec![0u32; n];
+        unsafe { ref_std_make_sort_heap(keys.as_ptr(), expected.as_mut_ptr(), n, expected_heap.as_mut_ptr()) };
+        let mut actual = identity(n);
+        let comp = |a: &u32, b: &u32| keys[*a as usize] < keys[*b as usize];
+        libstdcxx::make_heap(&mut actual, comp);
+        prop_assert_eq!(&actual, &expected_heap);
+        libstdcxx::sort_heap(&mut actual, comp);
+        prop_assert_eq!(actual, expected);
+        Ok(())
+    });
     println!("std::make_heap/sort_heap: {cases} cases, 0 mismatches");
 }
 
@@ -121,27 +119,27 @@ fn priority_queue_matches_libstdcxx() {
     });
     let mut cases = 0;
     cases += run_cases(3000, &strategy, |(keys, pop_after)| {
-            let n = keys.len();
-            let flags: Vec<u8> = pop_after.iter().map(|b| *b as u8).collect();
-            let mut expected = vec![0u32; n];
-            let k = unsafe { ref_priority_queue(keys.as_ptr(), flags.as_ptr(), n, expected.as_mut_ptr()) };
-            prop_assert_eq!(k, n);
+        let n = keys.len();
+        let flags: Vec<u8> = pop_after.iter().map(|b| *b as u8).collect();
+        let mut expected = vec![0u32; n];
+        let k = unsafe { ref_priority_queue(keys.as_ptr(), flags.as_ptr(), n, expected.as_mut_ptr()) };
+        prop_assert_eq!(k, n);
 
-            let mut queue = libstdcxx::PriorityQueue::new(|a: &u32, b: &u32| keys[*a as usize] < keys[*b as usize]);
-            let mut actual = Vec::with_capacity(n);
-            for (i, pop) in pop_after.iter().enumerate() {
-                queue.push(i as u32);
-                if *pop {
-                    actual.push(*queue.top());
-                    queue.pop();
-                }
-            }
-            while !queue.is_empty() {
+        let mut queue = libstdcxx::PriorityQueue::new(|a: &u32, b: &u32| keys[*a as usize] < keys[*b as usize]);
+        let mut actual = Vec::with_capacity(n);
+        for (i, pop) in pop_after.iter().enumerate() {
+            queue.push(i as u32);
+            if *pop {
                 actual.push(*queue.top());
                 queue.pop();
             }
-            prop_assert_eq!(actual, expected);
-            Ok(())
-        });
+        }
+        while !queue.is_empty() {
+            actual.push(*queue.top());
+            queue.pop();
+        }
+        prop_assert_eq!(actual, expected);
+        Ok(())
+    });
     println!("std::priority_queue: {cases} cases, 0 mismatches");
 }

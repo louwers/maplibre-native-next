@@ -24,11 +24,7 @@ fn vec4_dot(a: &Vec4, b: &Vec4) -> f64 {
     a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]
 }
 
-fn project_points_to_axis<const N: usize>(
-    points: &[Vec3; N],
-    origin: &Vec3,
-    axis: &Vec3,
-) -> Point<f64> {
+fn project_points_to_axis<const N: usize>(points: &[Vec3; N], origin: &Vec3, axis: &Vec3) -> Point<f64> {
     let mut min = f64::MAX;
     let mut max = -f64::MAX;
 
@@ -153,10 +149,7 @@ impl Frustum {
         let y_bounds = project_points_to_axis(&points, &[0.0, 0.0, 0.0], &[0.0, 1.0, 0.0]);
         let z_bounds = project_points_to_axis(&points, &[0.0, 0.0, 0.0], &[0.0, 0.0, 1.0]);
 
-        let bounds = AABB::new(
-            [x_bounds.x, y_bounds.x, z_bounds.x],
-            [x_bounds.y, y_bounds.y, z_bounds.y],
-        );
+        let bounds = AABB::new([x_bounds.x, y_bounds.x, z_bounds.x], [x_bounds.y, y_bounds.y, z_bounds.y]);
 
         // Precompute a set of separating axis candidates for precise intersection
         // tests. Remaining axes not covered in basic intersection tests are: axis[]
@@ -178,31 +171,17 @@ impl Frustum {
             let axis0: Vec3 = [0.0, -edge[2], edge[1]];
             let axis1: Vec3 = [edge[2], 0.0, -edge[0]];
 
-            projections[i * 2] = Projection {
-                axis: axis0,
-                projection: project_points_to_axis(&points, &points[0], &axis0),
-            };
-            projections[i * 2 + 1] = Projection {
-                axis: axis1,
-                projection: project_points_to_axis(&points, &points[0], &axis1),
-            };
+            projections[i * 2] =
+                Projection { axis: axis0, projection: project_points_to_axis(&points, &points[0], &axis0) };
+            projections[i * 2 + 1] =
+                Projection { axis: axis1, projection: project_points_to_axis(&points, &points[0], &axis1) };
         }
 
-        Frustum {
-            bounds,
-            points,
-            planes,
-            projections,
-        }
+        Frustum { bounds, points, planes, projections }
     }
 
     /// C++ default: `flippedY = false`.
-    pub fn from_inv_proj_matrix(
-        inv_proj: &Mat4,
-        world_size: f64,
-        zoom: f64,
-        flipped_y: bool,
-    ) -> Frustum {
+    pub fn from_inv_proj_matrix(inv_proj: &Mat4, world_size: f64, zoom: f64, flipped_y: bool) -> Frustum {
         // Define frustum corner points in normalized clip space
         let mut corner_coords: [Vec4; 8] = [
             [-1.0, 1.0, -1.0, 1.0],
@@ -229,12 +208,12 @@ impl Frustum {
         }
 
         let mut frustum_plane_point_indices: [Vec3i; 6] = [
-            [NEAR_BL, NEAR_BR, FAR_BR], // bottom
-            [NEAR_TL, NEAR_BL, FAR_BL], // left
-            [NEAR_BR, NEAR_TR, FAR_TR], // right
-            [NEAR_TL, FAR_TL, FAR_TR],  // top
+            [NEAR_BL, NEAR_BR, FAR_BR],  // bottom
+            [NEAR_TL, NEAR_BL, FAR_BL],  // left
+            [NEAR_BR, NEAR_TR, FAR_TR],  // right
+            [NEAR_TL, FAR_TL, FAR_TR],   // top
             [NEAR_TL, NEAR_TR, NEAR_BR], // near
-            [FAR_BR, FAR_TR, FAR_TL],   // far
+            [FAR_BR, FAR_TR, FAR_TL],    // far
         ];
 
         if flipped_y {
@@ -310,11 +289,7 @@ impl Frustum {
             }
         }
 
-        if fully_inside {
-            IntersectionResult::Contains
-        } else {
-            IntersectionResult::Intersects
-        }
+        if fully_inside { IntersectionResult::Contains } else { IntersectionResult::Intersects }
     }
 
     /// Performs precise intersection test using separating axis theorem.

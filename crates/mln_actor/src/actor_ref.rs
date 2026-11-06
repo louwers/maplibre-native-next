@@ -20,10 +20,7 @@ pub struct ActorRef<O: 'static> {
 
 impl<O: 'static> Clone for ActorRef<O> {
     fn clone(&self) -> Self {
-        ActorRef {
-            weak_mailbox: self.weak_mailbox.clone(),
-            _object: PhantomData,
-        }
+        ActorRef { weak_mailbox: self.weak_mailbox.clone(), _object: PhantomData }
     }
 }
 
@@ -31,10 +28,7 @@ impl<O: 'static> ActorRef<O> {
     /// `ActorRef(Object& object, std::weak_ptr<Mailbox>)`: `mailbox`'s
     /// target is the object.
     pub fn new(mailbox: &Arc<Mailbox>) -> Self {
-        ActorRef {
-            weak_mailbox: Arc::downgrade(mailbox),
-            _object: PhantomData,
-        }
+        ActorRef { weak_mailbox: Arc::downgrade(mailbox), _object: PhantomData }
     }
 
     /// `invoke(fn, args...)`.

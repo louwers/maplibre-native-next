@@ -160,15 +160,11 @@ fn perform(transport: &transport::Transport, resource: &Resource) -> Response {
             parse_retry_headers(&retry_after, &x_rate_limit_reset),
         )));
     } else if (500..600).contains(&response_code) {
-        response.error = Some(Box::new(Error::new(
-            Reason::Server,
-            format!("HTTP status code {}", to_string_i64(response_code)),
-        )));
+        response.error =
+            Some(Box::new(Error::new(Reason::Server, format!("HTTP status code {}", to_string_i64(response_code)))));
     } else {
-        response.error = Some(Box::new(Error::new(
-            Reason::Other,
-            format!("HTTP status code {}", to_string_i64(response_code)),
-        )));
+        response.error =
+            Some(Box::new(Error::new(Reason::Other, format!("HTTP status code {}", to_string_i64(response_code)))));
     }
     response
 }
@@ -221,11 +217,7 @@ mod transport {
     impl<In: UreqTransport, A: Connector> Connector<In> for HappyEyeballsConnector<A> {
         type Out = Either<In, Box<dyn UreqTransport>>;
 
-        fn connect(
-            &self,
-            details: &ConnectionDetails,
-            chained: Option<In>,
-        ) -> Result<Option<Self::Out>, ureq::Error> {
+        fn connect(&self, details: &ConnectionDetails, chained: Option<In>) -> Result<Option<Self::Out>, ureq::Error> {
             if let Some(chained) = chained {
                 // A CONNECT proxy's tunnel.
                 return Ok(Some(Either::A(chained)));
@@ -236,10 +228,8 @@ mod transport {
                 return Ok(transport.map(|transport| Either::B(Box::new(transport) as Box<dyn UreqTransport>)));
             }
 
-            let (first, second): (Vec<SocketAddr>, Vec<SocketAddr>) = details
-                .addrs
-                .iter()
-                .partition(|addr| addr.is_ipv6() == details.addrs[0].is_ipv6());
+            let (first, second): (Vec<SocketAddr>, Vec<SocketAddr>) =
+                details.addrs.iter().partition(|addr| addr.is_ipv6() == details.addrs[0].is_ipv6());
             let addrs: Vec<SocketAddr> = (0..first.len().max(second.len()))
                 .flat_map(|i| first.get(i).into_iter().chain(second.get(i)).copied())
                 .collect();
@@ -292,33 +282,31 @@ mod transport {
         let run_connector = details.run_connector.clone();
         let register_shutdown = details.register_shutdown.clone();
         let per_address = per_address.clone();
-        std::thread::Builder::new()
-            .name("HTTPFileSource connect".to_owned())
-            .spawn(move || {
-                // TcpConnector doesn't resolve; a resolver is only required.
-                let resolver = DefaultResolver::default();
-                let mut addrs = resolver.empty();
-                addrs.push(addr);
-                let details = ConnectionDetails {
-                    uri: &uri,
-                    addrs,
-                    config: &config,
-                    request_level,
-                    resolver: &resolver,
-                    now,
-                    timeout,
-                    current_time,
-                    run_connector,
-                    register_shutdown,
-                };
-                let result = per_address
-                    .connect(&details, None)
-                    .and_then(|transport| transport.ok_or(ureq::Error::ConnectionFailed))
-                    .map(|transport| Box::new(transport) as Box<dyn UreqTransport>);
-                // After another attempt won, nobody listens: the
-                // connection closes here.
-                let _ = sender.send(result);
-            })?;
+        std::thread::Builder::new().name("HTTPFileSource connect".to_owned()).spawn(move || {
+            // TcpConnector doesn't resolve; a resolver is only required.
+            let resolver = DefaultResolver::default();
+            let mut addrs = resolver.empty();
+            addrs.push(addr);
+            let details = ConnectionDetails {
+                uri: &uri,
+                addrs,
+                config: &config,
+                request_level,
+                resolver: &resolver,
+                now,
+                timeout,
+                current_time,
+                run_connector,
+                register_shutdown,
+            };
+            let result = per_address
+                .connect(&details, None)
+                .and_then(|transport| transport.ok_or(ureq::Error::ConnectionFailed))
+                .map(|transport| Box::new(transport) as Box<dyn UreqTransport>);
+            // After another attempt won, nobody listens: the
+            // connection closes here.
+            let _ = sender.send(result);
+        })?;
         Ok(())
     }
 
@@ -348,19 +336,15 @@ mod transport {
 
         /// `new` with another per-address connector and resolver (tests).
         fn with_parts(per_address: impl Connector, resolver: impl Resolver) -> Self {
-            let config = ureq::Agent::config_builder()
-                .http_status_as_error(false)
-                .user_agent("MapLibreNative/1.0")
-                .build();
+            let config =
+                ureq::Agent::config_builder().http_status_as_error(false).user_agent("MapLibreNative/1.0").build();
             // ureq's DefaultConnector with HappyEyeballsConnector for its
             // TcpConnector (and without the SOCKS and native-tls steps,
             // whose features are off).
-            let connector = ()
-                .chain(ConnectProxyConnector::default())
-                .chain(HappyEyeballsConnector {
-                    per_address: Arc::new(per_address),
-                })
-                .chain(RustlsConnector::default());
+            let connector =
+                ().chain(ConnectProxyConnector::default())
+                    .chain(HappyEyeballsConnector { per_address: Arc::new(per_address) })
+                    .chain(RustlsConnector::default());
             let agent = ureq::Agent::with_parts(config, connector, resolver);
             Transport { agent }
         }
@@ -479,10 +463,7 @@ mod transport {
                 vec!["[2001:db8::1]:80".parse().unwrap(), "[2001:db8::2]:80".parse().unwrap()];
             let attempts = Arc::new(Mutex::new(Vec::new()));
             let transport = Transport::with_parts(
-                DroppingConnector {
-                    dropped: dropped.clone(),
-                    attempts: attempts.clone(),
-                },
+                DroppingConnector { dropped: dropped.clone(), attempts: attempts.clone() },
                 FixedResolver(vec![dropped[0], dropped[1], server]),
             );
 
@@ -610,7 +591,10 @@ mod transport {
                 }
             }
             self.attempt(resource).unwrap_or_else(|| {
-                Err(Box::new(Error::new(Reason::Connection, format!("the browser aborted the request for {}", resource.url))))
+                Err(Box::new(Error::new(
+                    Reason::Connection,
+                    format!("the browser aborted the request for {}", resource.url),
+                )))
             })
         }
 
@@ -741,16 +725,10 @@ impl HTTPFileSource {
     /// `request(const Resource&, Callback)`. The callback runs on the
     /// calling thread's RunLoop.
     pub fn request(&self, resource: &Resource, callback: Callback) -> Box<dyn AsyncRequest> {
-        let state = Rc::new(HTTPRequestState {
-            callback: RefCell::new(callback),
-        });
+        let state = Rc::new(HTTPRequestState { callback: RefCell::new(callback) });
         let mailbox = Mailbox::with_target(&scheduler::get_current(), state as Rc<dyn Any>);
         let cancelled = Arc::new(AtomicBool::new(false));
-        let job = Job {
-            resource: resource.clone(),
-            reply: ActorRef::new(&mailbox),
-            cancelled: cancelled.clone(),
-        };
+        let job = Job { resource: resource.clone(), reply: ActorRef::new(&mailbox), cancelled: cancelled.clone() };
         let _ = self.impl_.jobs.lock().unwrap().send(job);
         Box::new(HTTPRequest { mailbox, cancelled })
     }

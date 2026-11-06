@@ -9,11 +9,10 @@ use crate::json_writer::Writer;
 use crate::type_::{self, Type};
 use feature::{Value as MbglValue, ValueObject};
 use mln_style_types::{
-    AlignmentType, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType,
-    IconTextFitType, LightAnchorType, LineCapType, LineJoinType, Position, RasterResamplingType,
-    RotateAnchorType, Rotation, SymbolAnchorType, SymbolPlacementType, SymbolZOrderType,
-    TextJustifyType, TextTransformType, TextWritingModeType, TranslateAnchorType,
-    VariableAnchorOffsetCollection, VisibilityType,
+    AlignmentType, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType, IconTextFitType,
+    LightAnchorType, LineCapType, LineJoinType, Position, RasterResamplingType, RotateAnchorType, Rotation,
+    SymbolAnchorType, SymbolPlacementType, SymbolZOrderType, TextJustifyType, TextTransformType, TextWritingModeType,
+    TranslateAnchorType, VariableAnchorOffsetCollection, VisibilityType,
 };
 use mln_util::enum_::Enum;
 use mln_util::{Color, Padding};
@@ -201,7 +200,7 @@ pub fn type_of(value: &Value) -> Type {
 pub fn to_string(value: &Value) -> String {
     match value {
         Value::Null => String::new(),
-        Value::Color(c) => c.stringify(), // avoid quoting
+        Value::Color(c) => c.stringify(),                          // avoid quoting
         Value::VariableAnchorOffsetCollection(v) => v.to_string(), // avoid quoting
         Value::Formatted(f) => f.to_string(),
         Value::Image(i) => i.id().to_owned(),
@@ -225,9 +224,7 @@ fn write_json(writer: &mut Writer, value: &Value) {
         Value::String(s) => writer.string(s),
         Value::Color(c) => writer.string(&c.stringify()),
         Value::Padding(p) => stringify_padding(writer, p),
-        Value::VariableAnchorOffsetCollection(v) => {
-            stringify_variable_anchor_offset_collection(writer, v)
-        }
+        Value::VariableAnchorOffsetCollection(v) => stringify_variable_anchor_offset_collection(writer, v),
         Value::Collator(_) => {
             // Collators are excluded from constant folding and there's no
             // Literal parser for them so there shouldn't be any way to
@@ -260,11 +257,7 @@ fn write_json(writer: &mut Writer, value: &Value) {
 /// `static_cast<int>(double)` for an integral double as clang compiles it on
 /// x86-64 (`cvttsd2si`): out-of-range values become INT_MIN.
 fn static_cast_int(f: f64) -> i32 {
-    if f >= -2147483648.0 && f < 2147483648.0 {
-        f as i32
-    } else {
-        i32::MIN
-    }
+    if f >= -2147483648.0 && f < 2147483648.0 { f as i32 } else { i32::MIN }
 }
 
 /// `conversion::stringify(writer, const Padding&)` (via `toArray()`).
@@ -278,10 +271,7 @@ fn stringify_padding(writer: &mut Writer, p: &Padding) {
 }
 
 /// `conversion::stringify(writer, const VariableAnchorOffsetCollection&)`.
-fn stringify_variable_anchor_offset_collection(
-    writer: &mut Writer,
-    v: &VariableAnchorOffsetCollection,
-) {
+fn stringify_variable_anchor_offset_collection(writer: &mut Writer, v: &VariableAnchorOffsetCollection) {
     writer.start_array();
     for pair in v.iter() {
         writer.string(pair.anchor_type.to_string());
@@ -333,11 +323,7 @@ pub fn stringify(value: &Value) -> String {
 pub fn from_mbgl_value(value: &MbglValue) -> Value {
     match value {
         MbglValue::Array(v) => Value::Array(v.iter().map(from_mbgl_value).collect()),
-        MbglValue::Object(v) => Value::Object(
-            v.iter()
-                .map(|(k, v)| (k.clone(), from_mbgl_value(v)))
-                .collect(),
-        ),
+        MbglValue::Object(v) => Value::Object(v.iter().map(|(k, v)| (k.clone(), from_mbgl_value(v))).collect()),
         MbglValue::String(s) => Value::String(s.clone()),
         MbglValue::Bool(b) => Value::Bool(*b),
         MbglValue::Null => Value::Null,
@@ -380,22 +366,15 @@ pub fn to_mbgl_value(value: &Value) -> MbglValue {
                 }
 
                 if let Some(font_stack) = &section.font_stack {
-                    let font_stack: Vec<MbglValue> =
-                        font_stack.iter().map(|f| MbglValue::String(f.clone())).collect();
+                    let font_stack: Vec<MbglValue> = font_stack.iter().map(|f| MbglValue::String(f.clone())).collect();
                     options.insert(
                         "text-font".to_owned(),
-                        MbglValue::Array(vec![
-                            MbglValue::String("literal".to_owned()),
-                            MbglValue::Array(font_stack),
-                        ]),
+                        MbglValue::Array(vec![MbglValue::String("literal".to_owned()), MbglValue::Array(font_stack)]),
                     );
                 }
 
                 if let Some(text_color) = &section.text_color {
-                    options.insert(
-                        "text-color".to_owned(),
-                        to_mbgl_value(&Value::Color(*text_color)),
-                    );
+                    options.insert("text-color".to_owned(), to_mbgl_value(&Value::Color(*text_color)));
                 }
 
                 serialized.push(MbglValue::Object(options));
@@ -404,12 +383,7 @@ pub fn to_mbgl_value(value: &Value) -> MbglValue {
         }
         Value::Image(i) => i.to_value(),
         Value::Array(values) => MbglValue::Array(values.iter().map(to_mbgl_value).collect()),
-        Value::Object(values) => MbglValue::Object(
-            values
-                .iter()
-                .map(|(k, v)| (k.clone(), to_mbgl_value(v)))
-                .collect(),
-        ),
+        Value::Object(values) => MbglValue::Object(values.iter().map(|(k, v)| (k.clone(), to_mbgl_value(v))).collect()),
         Value::Null => MbglValue::Null,
         Value::Bool(b) => MbglValue::Bool(*b),
         Value::Number(d) => MbglValue::Double(*d),
@@ -449,10 +423,7 @@ pub fn value_type_to_expression_type<T: ValueConverter>() -> Type {
 
 /// `fromExpressionValues<T>`.
 pub fn from_expression_values<T: ValueConverter>(values: &[Option<Value>]) -> Vec<Option<T>> {
-    values
-        .iter()
-        .map(|value| value.as_ref().and_then(from_expression_value::<T>))
-        .collect()
+    values.iter().map(|value| value.as_ref().and_then(from_expression_value::<T>)).collect()
 }
 
 impl ValueConverter for Value {

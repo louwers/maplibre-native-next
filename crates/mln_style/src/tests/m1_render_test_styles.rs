@@ -7,6 +7,7 @@
 // the transition parameters are `TransitionOptions()` (no transitions), and
 // in MapMode::Continuous for the transition test.
 
+use super::util::FixtureLog;
 use crate::layer::static_immutable_cast;
 use crate::layers::BackgroundPaintProperties;
 use crate::layers::background_layer::Impl as BackgroundLayerImpl;
@@ -14,20 +15,18 @@ use crate::map::zoom_history::ZoomHistory;
 use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
 use crate::renderer::transition_parameters::TransitionParameters;
 use crate::style::Impl;
-use super::util::FixtureLog;
-use mln_util::logging::{Event, EventSeverity};
 use crate::transition_options::TransitionOptions;
 use mln_conversion::Convertible;
 use mln_style_types::VisibilityType;
 use mln_util::chrono::{Duration, TimePoint, milliseconds};
 use mln_util::immutable::Immutable;
+use mln_util::logging::{Event, EventSeverity};
 use mln_util::{Color, UnitBezier};
 use std::path::PathBuf;
 
 fn render_tests_dir() -> PathBuf {
-    let base = std::env::var("RUNFILES_DIR")
-        .or_else(|_| std::env::var("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
+    let base =
+        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+/metrics/integration/render-tests")
 }
 
@@ -37,9 +36,8 @@ fn load(test: &str) -> Impl {
     // C++ style tests use a StubFileSource; sprite requests fail here
     // (background-opacity/color has a sprite), which C++ also counts as
     // loaded.
-    let file_source = mln_storage::stub_file_source::StubFileSource::new(
-        mln_storage::stub_file_source::ResponseType::Synchronous,
-    );
+    let file_source =
+        mln_storage::stub_file_source::StubFileSource::new(mln_storage::stub_file_source::ResponseType::Synchronous);
     let failed = |_: &mln_storage::Resource| {
         let mut response = mln_storage::Response::new();
         response.error = Some(Box::new(mln_storage::response::Error::new(
@@ -53,7 +51,10 @@ fn load(test: &str) -> Impl {
     let mut style = Impl::with_file_source(
         Some(std::sync::Arc::new(file_source)),
         1.0,
-        mln_actor::TaggedScheduler::new(mln_actor::scheduler::get_background(), mln_util::identity::SimpleIdentity::new()),
+        mln_actor::TaggedScheduler::new(
+            mln_actor::scheduler::get_background(),
+            mln_util::identity::SimpleIdentity::new(),
+        ),
     );
     style.load_json(&json);
     assert!(style.loaded, "{test} did not load");
@@ -63,10 +64,7 @@ fn load(test: &str) -> Impl {
 
 fn background_impl(style: &Impl, id: &str) -> Immutable<BackgroundLayerImpl> {
     let impls = style.get_layer_impls();
-    let impl_ = impls
-        .iter()
-        .find(|impl_| impl_.id == id)
-        .unwrap_or_else(|| panic!("no layer {id}"));
+    let impl_ = impls.iter().find(|impl_| impl_.id == id).unwrap_or_else(|| panic!("no layer {id}"));
     assert!(std::ptr::eq(impl_.get_type_info(), BackgroundLayerImpl::static_type_info()));
     static_immutable_cast::<BackgroundLayerImpl>(impl_)
 }
@@ -80,10 +78,7 @@ fn transition_and_evaluate(
     zoom: f32,
     now: TimePoint,
     transition: TransitionOptions,
-) -> (
-    BackgroundPaintProperties::Unevaluated,
-    BackgroundPaintProperties::PossiblyEvaluated,
-) {
+) -> (BackgroundPaintProperties::Unevaluated, BackgroundPaintProperties::PossiblyEvaluated) {
     let unevaluated = impl_.paint.transitioned(&TransitionParameters { now, transition }, unevaluated);
     zoom_history.update(zoom, &now);
     let parameters = PropertyEvaluationParameters::with_zoom_history(*zoom_history, now, Duration::zero());
@@ -123,11 +118,7 @@ fn lerp_color_f32(a: Color, b: Color, t: f32) -> Color {
     Color::new_unchecked(lerp(a.r, b.r), lerp(a.g, b.g), lerp(a.b, b.b), lerp(a.a, b.a))
 }
 
-fn assert_background(
-    evaluated: &BackgroundPaintProperties::PossiblyEvaluated,
-    color: Color,
-    opacity: f32,
-) {
+fn assert_background(evaluated: &BackgroundPaintProperties::PossiblyEvaluated, color: Color, opacity: f32) {
     // Bit-exact, as the renderer consumes these values.
     assert_eq!(evaluated.background_color, color);
     assert_eq!(evaluated.background_opacity.to_bits(), opacity.to_bits());
@@ -264,11 +255,7 @@ fn background_opacity_overlay() {
     assert_eq!(1, style.get_source_impls().len());
     assert_eq!(
         0,
-        log.count(
-            EventSeverity::Warning,
-            Event::ParseStyle,
-            "Unsupported layer type! Null factory for type: raster"
-        )
+        log.count(EventSeverity::Warning, Event::ParseStyle, "Unsupported layer type! Null factory for type: raster")
     );
     let evaluated = evaluate_static(&style, "background_overlay");
     assert_background(&evaluated, Color::parse("green").unwrap(), 0.5);

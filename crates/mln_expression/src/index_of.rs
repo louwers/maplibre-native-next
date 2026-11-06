@@ -2,14 +2,11 @@
 // src/mln/style/expression/index_of.cpp.
 
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
-use crate::utf8_op_helpers::{
-    get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8,
-};
+use crate::utf8_op_helpers::{get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8};
 use crate::value::{Value, type_of};
 use mln_conversion::Convertible;
 use mln_util::string::to_string_double;
@@ -30,15 +27,15 @@ impl IndexOf {
         let deps = keyword.dependencies()
             | input.dependencies()
             | from_index.as_ref().map_or(Default::default(), |e| e.dependencies());
-        IndexOf {
-            base: ExpressionBase::new(Kind::IndexOf, Type::Number, deps),
-            keyword,
-            input,
-            from_index,
-        }
+        IndexOf { base: ExpressionBase::new(Kind::IndexOf, Type::Number, deps), keyword, input, from_index }
     }
 
-    fn evaluate_for_array_input(&self, array: &[Value], keyword_value: &Value, from_index_value: usize) -> EvaluationResult {
+    fn evaluate_for_array_input(
+        &self,
+        array: &[Value],
+        keyword_value: &Value,
+        from_index_value: usize,
+    ) -> EvaluationResult {
         for index in from_index_value..array.len() {
             if array[index] == *keyword_value {
                 return Ok(Value::Number(index as f64));
@@ -47,7 +44,12 @@ impl IndexOf {
         Ok(Value::Number(-1.0))
     }
 
-    fn evaluate_for_string_input(&self, string: &str, keyword_value: &Value, from_index_value: usize) -> EvaluationResult {
+    fn evaluate_for_string_input(
+        &self,
+        string: &str,
+        keyword_value: &Value,
+        from_index_value: usize,
+    ) -> EvaluationResult {
         let keyword_string = match keyword_value {
             Value::String(s) => s.clone(),
             Value::Bool(b) => if *b { "true" } else { "false" }.to_owned(),
@@ -61,9 +63,8 @@ impl IndexOf {
             }
         };
         let from_index_byte_offset = get_unicode_character_offset_on_validated_utf8(string, from_index_value);
-        let Some(byte_index) = string[from_index_byte_offset..]
-            .find(keyword_string.as_str())
-            .map(|i| i + from_index_byte_offset)
+        let Some(byte_index) =
+            string[from_index_byte_offset..].find(keyword_string.as_str()).map(|i| i + from_index_byte_offset)
         else {
             return Ok(Value::Number(-1.0));
         };
@@ -84,11 +85,7 @@ impl IndexOf {
         let keyword = ctx.parse(&value.array_member(1), 1, None, None);
         let input = ctx.parse(&value.array_member(2), 2, None, None);
 
-        let from_index = if length == 4 {
-            ctx.parse(&value.array_member(3), 3, None, None)
-        } else {
-            None
-        };
+        let from_index = if length == 4 { ctx.parse(&value.array_member(3), 3, None, None) } else { None };
 
         let (Some(keyword), Some(input)) = (keyword, input) else {
             return None;
@@ -109,10 +106,7 @@ impl Expression for IndexOf {
         let evaluated_keyword = evaluated_keyword?;
         let evaluated_input = evaluated_input?;
 
-        if !matches!(
-            evaluated_keyword,
-            Value::Number(_) | Value::String(_) | Value::Bool(_) | Value::Null
-        ) {
+        if !matches!(evaluated_keyword, Value::Number(_) | Value::String(_) | Value::Bool(_) | Value::Null) {
             return Err(EvaluationError::new(format!(
                 "Expected first argument to be of type boolean, string, number or null, but found {} instead.",
                 type_::to_string(&type_of(&evaluated_keyword))

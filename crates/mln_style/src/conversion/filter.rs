@@ -151,11 +151,7 @@ fn convert_legacy_has_filter(values: &Convertible<'_>, error: &mut Error) -> Par
     } else if property == "$id" {
         create_expression("filter-has-id", Some(Vec::new()), error)
     } else {
-        create_expression(
-            "filter-has",
-            Some(vec![Box::new(Literal::new(Value::String(property)))]),
-            error,
-        )
+        create_expression("filter-has", Some(vec![Box::new(Literal::new(Value::String(property)))]), error)
     }
 }
 

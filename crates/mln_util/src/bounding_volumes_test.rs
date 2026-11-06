@@ -120,14 +120,7 @@ fn create_frustum_from_projection_matrix() {
     assert_eq!(actual_planes, expected_planes);
 }
 
-fn create_test_frustum(
-    fovy: f64,
-    aspect_ratio: f64,
-    z_near: f64,
-    z_far: f64,
-    elevation: f64,
-    bearing: f64,
-) -> Frustum {
+fn create_test_frustum(fovy: f64, aspect_ratio: f64, z_near: f64, z_far: f64, elevation: f64, bearing: f64) -> Frustum {
     let mut proj: Mat4 = [0.0; 16];
     let mut inv_proj: Mat4 = [0.0; 16];
 
@@ -166,10 +159,8 @@ fn aabb_fully_inside_frustum() {
 fn aabb_intersects_frustum() {
     let frustum = create_test_frustum(PI / 2.0, 1.0, 0.1, 100.0, -5.0, 0.0);
 
-    let aabb_array: [AABB; 2] = [
-        AABB::new([-6.0, -6.0, 0.0], [6.0, 6.0, 0.0]),
-        AABB::new([-6.0, -6.0, 0.0], [-5.0, -5.0, 0.0]),
-    ];
+    let aabb_array: [AABB; 2] =
+        [AABB::new([-6.0, -6.0, 0.0], [6.0, 6.0, 0.0]), AABB::new([-6.0, -6.0, 0.0], [-5.0, -5.0, 0.0])];
 
     assert_eq!(frustum.intersects(&aabb_array[0]), IntersectionResult::Intersects);
     assert_eq!(frustum.intersects(&aabb_array[1]), IntersectionResult::Intersects);

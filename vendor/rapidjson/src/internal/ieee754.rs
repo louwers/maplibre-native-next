@@ -71,27 +71,15 @@ impl Double {
     }
 
     pub fn integer_significand(&self) -> u64 {
-        if self.is_normal() {
-            self.significand() | HIDDEN_BIT
-        } else {
-            self.significand()
-        }
+        if self.is_normal() { self.significand() | HIDDEN_BIT } else { self.significand() }
     }
 
     pub fn integer_exponent(&self) -> i32 {
-        (if self.is_normal() {
-            self.exponent()
-        } else {
-            DENORMAL_EXPONENT
-        }) - SIGNIFICAND_SIZE
+        (if self.is_normal() { self.exponent() } else { DENORMAL_EXPONENT }) - SIGNIFICAND_SIZE
     }
 
     pub fn to_bias(&self) -> u64 {
-        if (self.u & SIGN_MASK) != 0 {
-            (!self.u).wrapping_add(1)
-        } else {
-            self.u | SIGN_MASK
-        }
+        if (self.u & SIGN_MASK) != 0 { (!self.u).wrapping_add(1) } else { self.u | SIGN_MASK }
     }
 
     pub fn effective_significand_size(order: i32) -> i32 {

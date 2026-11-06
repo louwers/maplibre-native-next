@@ -7,11 +7,11 @@ use mln_actor::RunLoop;
 use mln_gfx::{ContextMode, SwapBehaviour};
 use mln_map::{BoundOptions, Map, MapLoadError, MapObserver, MapOptions, ProjectionMode, RenderMode};
 use mln_platform_default::HeadlessFrontend;
+use mln_storage::{ClientOptions, FileSource, FileSourceManager, FileSourceType};
 use mln_util::image::PremultipliedImage;
 use render_test::metadata::{MapMode, TestMetadata};
 use render_test::runner::{CameraOptions, ImplFactory, MapError, QueryGeometry, ResourceOptions, TestRunnerImpl};
 use render_test_style as style_ops;
-use mln_storage::{ClientOptions, FileSource, FileSourceManager, FileSourceType};
 use std::cell::Cell;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -105,12 +105,7 @@ impl Impl {
         if let Some(max_pitch) = metadata.max_pitch {
             map.set_bounds(&BoundOptions::default().with_max_pitch(f64::from(max_pitch)))?;
         }
-        Ok(Impl {
-            observer,
-            frontend,
-            file_source,
-            map,
-        })
+        Ok(Impl { observer, frontend, file_source, map })
     }
 }
 
@@ -223,12 +218,7 @@ impl TestRunnerImpl for Impl {
         Ok(())
     }
 
-    fn set_layer_property(
-        &mut self,
-        layer: &str,
-        name: &str,
-        value: &serde_json::Value,
-    ) -> Result<(), MapError> {
+    fn set_layer_property(&mut self, layer: &str, name: &str, value: &serde_json::Value) -> Result<(), MapError> {
         style_ops::set_layer_property(&mut self.map.get_style_mut(), layer, name, value)
     }
 
@@ -262,8 +252,7 @@ impl TestRunnerImpl for Impl {
         if self.frontend.render(&mut self.map).is_err() {
             return Ok(false);
         }
-        self.frontend
-            .with_renderer(|renderer| renderer.set_feature_state(source_id, source_layer, feature_id, state));
+        self.frontend.with_renderer(|renderer| renderer.set_feature_state(source_id, source_layer, feature_id, state));
         Ok(true)
     }
 
@@ -292,9 +281,8 @@ impl TestRunnerImpl for Impl {
         if self.frontend.render(&mut self.map).is_err() {
             return Ok(false);
         }
-        self.frontend.with_renderer(|renderer| {
-            renderer.remove_feature_state(source_id, source_layer, feature_id, state_key)
-        });
+        self.frontend
+            .with_renderer(|renderer| renderer.remove_feature_state(source_id, source_layer, feature_id, state_key));
         Ok(true)
     }
 

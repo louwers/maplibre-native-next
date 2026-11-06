@@ -4,10 +4,13 @@
 // TODO(port): captureRenderedFeatures (UpdateParameters::captureRenderedFeatures).
 
 use super::circle_layer_tweaker::CircleLayerTweaker;
-use super::{TileDrawables, refresh_if_bucket_updated, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot, shared_vertices};
+use super::{
+    TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot,
+    refresh_if_bucket_updated, shared_vertices,
+};
 use crate::buckets::circle_bucket::{CircleBinders, CircleBucket};
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::layer_tweaker::{layer_tweaker_slot, LayerTweakerPtr};
+use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
 use crate::paint_parameters::PaintParameters;
 use crate::paint_property_binder::read_data_driven_paint_property;
 use crate::render_layer::{RenderLayer, RenderLayerBase};
@@ -21,13 +24,13 @@ use mln_gfx::{AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType
 use mln_map_types::TransformState;
 use mln_style::layer;
 use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::circle_layer_impl::Impl as CircleLayerImpl;
 use mln_style::layers::circle_layer_properties::*;
 use mln_style::{PropertyEvaluationParameters, TransitionParameters};
+use mln_util::Color;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
-use mln_util::Color;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -52,13 +55,76 @@ fn read_circle_attributes(
     let buffer = &b.interleaved_vertex_buffer;
     let shared = shared_vertices(&buffer.shared_vertex_vector);
     let mut id = ID_CIRCLE_COLOR_VERTEX_ATTRIBUTE;
-    read_data_driven_paint_property(attrs, &b.circle_color, buffer, &shared, &["a_color"], evaluated.get::<CircleColor>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.circle_radius, buffer, &shared, &["a_radius"], evaluated.get::<CircleRadius>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.circle_blur, buffer, &shared, &["a_blur"], evaluated.get::<CircleBlur>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.circle_opacity, buffer, &shared, &["a_opacity"], evaluated.get::<CircleOpacity>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.circle_stroke_color, buffer, &shared, &["a_stroke_color"], evaluated.get::<CircleStrokeColor>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.circle_stroke_width, buffer, &shared, &["a_stroke_width"], evaluated.get::<CircleStrokeWidth>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.circle_stroke_opacity, buffer, &shared, &["a_stroke_opacity"], evaluated.get::<CircleStrokeOpacity>().is_constant(), pau, &mut id);
+    read_data_driven_paint_property(
+        attrs,
+        &b.circle_color,
+        buffer,
+        &shared,
+        &["a_color"],
+        evaluated.get::<CircleColor>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.circle_radius,
+        buffer,
+        &shared,
+        &["a_radius"],
+        evaluated.get::<CircleRadius>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.circle_blur,
+        buffer,
+        &shared,
+        &["a_blur"],
+        evaluated.get::<CircleBlur>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.circle_opacity,
+        buffer,
+        &shared,
+        &["a_opacity"],
+        evaluated.get::<CircleOpacity>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.circle_stroke_color,
+        buffer,
+        &shared,
+        &["a_stroke_color"],
+        evaluated.get::<CircleStrokeColor>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.circle_stroke_width,
+        buffer,
+        &shared,
+        &["a_stroke_width"],
+        evaluated.get::<CircleStrokeWidth>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.circle_stroke_opacity,
+        buffer,
+        &shared,
+        &["a_stroke_opacity"],
+        evaluated.get::<CircleStrokeOpacity>().is_constant(),
+        pau,
+        &mut id,
+    );
 }
 
 // query
@@ -203,11 +269,8 @@ impl RenderLayer for RenderCircleLayer {
         let geometry = feature.get_geometries();
         for ring in geometry.iter() {
             for point in ring {
-                let transformed_point = if align_with_map {
-                    *point
-                } else {
-                    project_point(point, pos_matrix, transform_state.get_size())
-                };
+                let transformed_point =
+                    if align_with_map { *point } else { project_point(point, pos_matrix, transform_state.get_size()) };
 
                 let mut adjusted_size = transformed_size;
                 let mut center: mln_util::vectors::Vec4 = [f64::from(point.x), f64::from(point.y), 0.0, 1.0];
@@ -253,7 +316,11 @@ impl RenderLayer for RenderCircleLayer {
 
         // Set up a layer group
         if self.base.layer_group.is_none() {
-            match context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned()) {
+            match context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => self.set_layer_group(Some(layer_group), changes),
                 None => return,
             }
@@ -288,8 +355,9 @@ impl RenderLayer for RenderCircleLayer {
             let mut group = layer_group.borrow_mut();
             let tile_layer_group = group.as_tile_layer_group_mut().expect("circle layer group is a TileLayerGroup");
             let base = &self.base;
-            let removed = tile_layer_group
-                .remove_drawables_if(|drawable| drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id)));
+            let removed = tile_layer_group.remove_drawables_if(|drawable| {
+                drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id))
+            });
             self.base.stats.drawables_removed += removed;
         }
 
@@ -355,7 +423,8 @@ impl RenderLayer for RenderCircleLayer {
                 &mut properties_as_uniforms,
             );
 
-            let Some(circle_shader) = circle_shader_group.get_or_create_shader(context, &properties_as_uniforms, "a_pos")
+            let Some(circle_shader) =
+                circle_shader_group.get_or_create_shader(context, &properties_as_uniforms, "a_pos")
             else {
                 continue;
             };

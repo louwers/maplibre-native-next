@@ -114,12 +114,7 @@ pub fn check_image(base: &str, actual: &PremultipliedImage, image_threshold: f64
 /// (height / 2) * stride + (width / 2) * channels`).
 pub fn center_pixel(image: &PremultipliedImage) -> [u8; 4] {
     let offset = (image.size.height as usize / 2) * image.stride() + (image.size.width as usize / 2) * 4;
-    [
-        image.data[offset],
-        image.data[offset + 1],
-        image.data[offset + 2],
-        image.data[offset + 3],
-    ]
+    [image.data[offset], image.data[offset + 1], image.data[offset + 2], image.data[offset + 3]]
 }
 
 // MARK: - ASSERT_DOUBLE_EQ
@@ -162,10 +157,7 @@ pub struct CallbackSlot<A> {
 
 impl<A> Default for CallbackSlot<A> {
     fn default() -> Self {
-        CallbackSlot {
-            callback: RefCell::new(None),
-            generation: Cell::new(0),
-        }
+        CallbackSlot { callback: RefCell::new(None), generation: Cell::new(0) }
     }
 }
 
@@ -320,10 +312,7 @@ impl FileSource for FakeFileSource {
             resource: resource.clone(),
             callback: Rc::new(RefCell::new(callback)),
         });
-        Box::new(FakeFileRequest {
-            id,
-            list: Rc::downgrade(&list),
-        })
+        Box::new(FakeFileRequest { id, list: Rc::downgrade(&list) })
     }
 
     fn can_request(&self, _resource: &Resource) -> bool {
@@ -388,13 +377,7 @@ impl FixtureLog {
 
     /// `unchecked()`: the records nobody counted.
     pub fn unchecked(&self) -> Vec<LogRecord> {
-        self.messages
-            .lock()
-            .unwrap()
-            .iter()
-            .filter(|(_, checked)| !checked)
-            .map(|(record, _)| record.clone())
-            .collect()
+        self.messages.lock().unwrap().iter().filter(|(_, checked)| !checked).map(|(record, _)| record.clone()).collect()
     }
 }
 
@@ -421,14 +404,10 @@ pub fn run_with_timeout(run_loop: &RunLoop, seconds: i64) {
     {
         let timed_out = timed_out.clone();
         let run_loop = run_loop.clone();
-        timer.start(
-            mln_util::chrono::Duration::from_secs(seconds),
-            mln_util::chrono::Duration::zero(),
-            move || {
-                timed_out.set(true);
-                run_loop.stop();
-            },
-        );
+        timer.start(mln_util::chrono::Duration::from_secs(seconds), mln_util::chrono::Duration::zero(), move || {
+            timed_out.set(true);
+            run_loop.stop();
+        });
     }
     run_loop.run();
     timer.stop();
@@ -479,18 +458,10 @@ impl<FS: FileSource + 'static> MapTest<FS> {
     pub fn create(run_loop: RunLoop, file_source: Arc<FS>, pixel_ratio: f32, mode: MapMode) -> Self {
         let observer = Rc::new(StubMapObserver::default());
         let frontend = HeadlessFrontend::with_pixel_ratio(pixel_ratio);
-        let options = MapOptions::new()
-            .with_map_mode(mode)
-            .with_size(frontend.get_size())
-            .with_pixel_ratio(pixel_ratio);
+        let options =
+            MapOptions::new().with_map_mode(mode).with_size(frontend.get_size()).with_pixel_ratio(pixel_ratio);
         let map = Map::with_file_source(&frontend, observer.clone(), file_source.clone(), options);
-        MapTest {
-            map: Rc::new(RefCell::new(map)),
-            frontend,
-            observer,
-            file_source,
-            run_loop,
-        }
+        MapTest { map: Rc::new(RefCell::new(map)), frontend, observer, file_source, run_loop }
     }
 
     /// `test.map`.

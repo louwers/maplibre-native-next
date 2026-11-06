@@ -19,10 +19,7 @@ fn warn_if_overscale_factor_caps_prefetch_delta(overscale: &Option<u8>, prefetch
         if *overscale < prefetch_delta {
             Log::warning(
                 Event::Style,
-                format!(
-                    "Parent tile overscale factor will cap prefetch delta to {}",
-                    i32::from(*overscale)
-                ),
+                format!("Parent tile overscale factor will cap prefetch delta to {}", i32::from(*overscale)),
             );
         }
     }
@@ -109,9 +106,5 @@ impl std::ops::Deref for dyn Impl {
 /// `staticImmutableCast<T>(impl)` for source impls. C++ static_casts; this
 /// panics on a type mismatch.
 pub fn static_immutable_cast<T: Impl>(impl_: &Immutable<dyn Impl>) -> Arc<T> {
-    impl_
-        .clone()
-        .into_any_arc()
-        .downcast::<T>()
-        .unwrap_or_else(|_| panic!("source impl type mismatch"))
+    impl_.clone().into_any_arc().downcast::<T>().unwrap_or_else(|_| panic!("source impl type mismatch"))
 }

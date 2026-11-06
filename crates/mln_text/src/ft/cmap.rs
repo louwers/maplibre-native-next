@@ -25,12 +25,12 @@ pub enum Encoding {
 /// `sfnt_find_encoding`.
 pub fn sfnt_find_encoding(platform_id: u16, encoding_id: u16) -> Encoding {
     match (platform_id, encoding_id) {
-        (2, _) => Encoding::Unicode,          // TT_PLATFORM_ISO
-        (0, _) => Encoding::Unicode,          // TT_PLATFORM_APPLE_UNICODE
-        (1, 0) => Encoding::AppleRoman,       // TT_MAC_ID_ROMAN
-        (3, 0) => Encoding::MsSymbol,         // TT_MS_ID_SYMBOL_CS
-        (3, 10) => Encoding::Unicode,         // TT_MS_ID_UCS_4
-        (3, 1) => Encoding::Unicode,          // TT_MS_ID_UNICODE_CS
+        (2, _) => Encoding::Unicode,    // TT_PLATFORM_ISO
+        (0, _) => Encoding::Unicode,    // TT_PLATFORM_APPLE_UNICODE
+        (1, 0) => Encoding::AppleRoman, // TT_MAC_ID_ROMAN
+        (3, 0) => Encoding::MsSymbol,   // TT_MS_ID_SYMBOL_CS
+        (3, 10) => Encoding::Unicode,   // TT_MS_ID_UCS_4
+        (3, 1) => Encoding::Unicode,    // TT_MS_ID_UNICODE_CS
         (3, 2) => Encoding::Sjis,
         (3, 3) => Encoding::Prc,
         (3, 4) => Encoding::Big5,
@@ -428,8 +428,7 @@ pub fn build_cmaps(data: &[u8], cmap: Option<(usize, usize)>) -> Vec<CharMap> {
 pub fn find_unicode_charmap(charmaps: &[CharMap]) -> Option<usize> {
     for (i, cm) in charmaps.iter().enumerate().rev() {
         if cm.encoding == Encoding::Unicode
-            && ((cm.platform_id == 3 && cm.encoding_id == 10)
-                || (cm.platform_id == 0 && cm.encoding_id == 4))
+            && ((cm.platform_id == 3 && cm.encoding_id == 10) || (cm.platform_id == 0 && cm.encoding_id == 4))
         {
             return Some(i);
         }
@@ -439,9 +438,7 @@ pub fn find_unicode_charmap(charmaps: &[CharMap]) -> Option<usize> {
 
 /// `find_variant_selector_charmap`.
 pub fn find_variant_selector_charmap(charmaps: &[CharMap]) -> Option<usize> {
-    charmaps
-        .iter()
-        .position(|cm| cm.platform_id == 0 && cm.encoding_id == 5 && cm.format == 14)
+    charmaps.iter().position(|cm| cm.platform_id == 0 && cm.encoding_id == 5 && cm.format == 14)
 }
 
 /// The face state a lookup needs: the file, the cmap table end and

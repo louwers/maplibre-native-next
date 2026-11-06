@@ -4,13 +4,13 @@
 
 use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, slot_bucket};
 use crate::buckets::circle_bucket::CircleBucket;
-use crate::layer_tweaker::{get_tile_matrix, LayerTweaker, LayerTweakerBase};
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
 use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::circle_layer_ubo::{CircleDrawableUBO, CircleEvaluatedPropsUBO};
 use mln_gfx::shaders::shader_defines::{ID_CIRCLE_DRAWABLE_UBO, ID_CIRCLE_EVALUATED_PROPS_UBO};
 use mln_gfx::{LayerGroupBase, UniformBufferPtr};
-use mln_style::layer_properties::{get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::circle_layer_properties::*;
 use mln_style::properties::Property;
 use mln_style_types::{AlignmentType, CirclePitchScaleType};
@@ -75,7 +75,8 @@ impl LayerTweaker for CircleLayerTweaker {
                 pitch_with_map: pitch_with_map as i32,
                 pad1: 0.0,
             };
-            context.emplace_or_update_uniform_buffer_pod(&mut self.evaluated_props_uniform_buffer, &evaluated_props_ubo);
+            context
+                .emplace_or_update_uniform_buffer_pod(&mut self.evaluated_props_uniform_buffer, &evaluated_props_ubo);
             self.base.properties_updated = false;
         }
         layer_group
@@ -127,8 +128,11 @@ impl LayerTweaker for CircleLayerTweaker {
             );
 
             let pixels_to_tile_units = tile_id.pixels_to_tile_units(1.0, zoom);
-            let extrude_scale =
-                if pitch_with_map { [pixels_to_tile_units, pixels_to_tile_units] } else { parameters.pixels_to_gl_units };
+            let extrude_scale = if pitch_with_map {
+                [pixels_to_tile_units, pixels_to_tile_units]
+            } else {
+                parameters.pixels_to_gl_units
+            };
 
             drawable_ubo_vector[i as usize] = CircleDrawableUBO {
                 matrix: cast_matrix(&matrix),
@@ -157,8 +161,6 @@ impl LayerTweaker for CircleLayerTweaker {
             }
         }
 
-        layer_group
-            .mutable_uniform_buffers()
-            .set(ID_CIRCLE_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
+        layer_group.mutable_uniform_buffers().set(ID_CIRCLE_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
     }
 }

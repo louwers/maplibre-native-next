@@ -271,11 +271,7 @@ fn line_slice() {
 #[test]
 fn line_slice_along() {
     let empty: LineString<f64> = vec![];
-    assert_err(
-        ruler().line_distance(&empty),
-        ruler().line_distance(&ruler().line_slice_along(0.0, 0.0, &empty)),
-        0.0,
-    );
+    assert_err(ruler().line_distance(&empty), ruler().line_distance(&ruler().line_slice_along(0.0, 0.0, &empty)), 0.0);
 
     let f = fixtures();
     for (i, line) in f.lines.iter().enumerate() {

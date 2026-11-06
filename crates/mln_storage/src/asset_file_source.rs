@@ -72,9 +72,7 @@ impl FileSource for AssetFileSource {
         let req = FileSourceRequest::new(callback);
         let req_ref = req.actor();
         let resource = resource.clone();
-        self.thread
-            .actor()
-            .invoke(move |t: &AssetFileSourceThread| t.request(&resource, &req_ref));
+        self.thread.actor().invoke(move |t: &AssetFileSourceThread| t.request(&resource, &req_ref));
         Box::new(req)
     }
 

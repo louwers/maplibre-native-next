@@ -3,9 +3,7 @@
 // `match` is a Rust keyword.)
 
 use crate::check_subtype::check_subtype;
-use crate::expression::{
-    Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
@@ -52,11 +50,7 @@ impl MatchLabel for i64 {
                 } else {
                     i64::MIN
                 };
-                if *numeric == rounded as f64 {
-                    Some(Some(rounded))
-                } else {
-                    Some(None)
-                }
+                if *numeric == rounded as f64 { Some(Some(rounded)) } else { Some(None) }
             }
             _ => None,
         }
@@ -84,21 +78,11 @@ pub struct Match<T: MatchLabel> {
 }
 
 impl<T: MatchLabel> Match<T> {
-    pub fn new(
-        type_: Type,
-        input: Box<dyn Expression>,
-        branches: Branches<T>,
-        otherwise: Box<dyn Expression>,
-    ) -> Self {
+    pub fn new(type_: Type, input: Box<dyn Expression>, branches: Branches<T>, otherwise: Box<dyn Expression>) -> Self {
         let deps = input.dependencies()
             | otherwise.dependencies()
             | branches.values().fold(Dependency::NONE, |a, e| a | e.dependencies());
-        Match {
-            base: ExpressionBase::new(Kind::Match, type_, deps),
-            input,
-            branches,
-            otherwise,
-        }
+        Match { base: ExpressionBase::new(Kind::Match, type_, deps), input, branches, otherwise }
     }
 }
 
@@ -134,11 +118,7 @@ impl<T: MatchLabel> Expression for Match<T> {
                 return self.input.equals(&*rhs.input)
                     && self.otherwise.equals(&*rhs.otherwise)
                     && self.branches.len() == rhs.branches.len()
-                    && self
-                        .branches
-                        .iter()
-                        .zip(&rhs.branches)
-                        .all(|(l, r)| l.0 == r.0 && l.1.equals(&**r.1));
+                    && self.branches.iter().zip(&rhs.branches).all(|(l, r)| l.0 == r.0 && l.1.equals(&**r.1));
             }
         }
         false
@@ -214,12 +194,7 @@ fn parse_input_value(
     let mut result: Option<InputType> = None;
     let mut type_: Option<Type> = None;
 
-    let not_safe = || {
-        format!(
-            "Branch labels must be integers no larger than {}.",
-            Value::max_safe_integer()
-        )
-    };
+    let not_safe = || format!("Branch labels must be integers no larger than {}.", Value::max_safe_integer());
 
     match input.to_value() {
         Some(MbglValue::Uint(n)) => {
@@ -306,10 +281,7 @@ pub fn parse_match(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseRe
     debug_assert!(value.is_array());
     let length = value.array_length();
     if length < 5 {
-        ctx.error(format!(
-            "Expected at least 4 arguments, but found only {}.",
-            length - 1
-        ));
+        ctx.error(format!("Expected at least 4 arguments, but found only {}.", length - 1));
         return None;
     }
 

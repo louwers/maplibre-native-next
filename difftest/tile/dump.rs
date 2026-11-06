@@ -158,9 +158,8 @@ pub fn reference_convert_geometry(type_: u8, rings: &[Vec<(i16, i16)>], z: u8, x
     let (coords, lens) = flatten(rings);
     let mut len = 0;
     // SAFETY: arrays of the advertised sizes.
-    let p = unsafe {
-        mln_tile_ref_convert_geometry(type_, coords.as_ptr(), lens.as_ptr(), lens.len(), z, x, y, &mut len)
-    };
+    let p =
+        unsafe { mln_tile_ref_convert_geometry(type_, coords.as_ptr(), lens.as_ptr(), lens.len(), z, x, y, &mut len) };
     take(p, len)
 }
 
@@ -275,7 +274,12 @@ impl Observer for Capture {
 
 const EXTRA_KEYS: [&str; 5] = ["name", "type", "class", "zzz-missing", ""];
 
-fn dump_feature(out: &mut String, layer: &mln_tile::VectorMVTTileLayer<'_>, raw: Option<&vector_tile::Layer<'_>>, i: usize) {
+fn dump_feature(
+    out: &mut String,
+    layer: &mln_tile::VectorMVTTileLayer<'_>,
+    raw: Option<&vector_tile::Layer<'_>>,
+    i: usize,
+) {
     let _ = writeln!(out, "f {i}");
     let feature = match layer.try_get_feature(i) {
         Ok(f) => f,
@@ -467,8 +471,9 @@ pub fn normalize_lossy(dump: &str) -> (String, bool) {
                 }
             };
             let hexdigits = &rest[1..];
-            let bytes: Vec<u8> =
-                (0..hexdigits.len() / 2).map(|i| u8::from_str_radix(&hexdigits[2 * i..2 * i + 2], 16).unwrap()).collect();
+            let bytes: Vec<u8> = (0..hexdigits.len() / 2)
+                .map(|i| u8::from_str_radix(&hexdigits[2 * i..2 * i + 2], 16).unwrap())
+                .collect();
             let lossy = String::from_utf8_lossy(&bytes);
             if lossy.as_bytes() != bytes.as_slice() {
                 changed = true;

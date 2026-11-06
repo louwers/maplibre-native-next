@@ -135,11 +135,8 @@ impl Log {
 
         // C++ never hands Debug records to the observer.
         if severity != EventSeverity::Debug {
-            let handled = THREAD_OBSERVER.with(|o| {
-                o.borrow()
-                    .as_ref()
-                    .map(|observer| observer.on_record(severity, event, code, msg))
-            });
+            let handled = THREAD_OBSERVER
+                .with(|o| o.borrow().as_ref().map(|observer| observer.on_record(severity, event, code, msg)));
             let handled = match handled {
                 Some(handled) => handled,
                 None => match &*OBSERVER.read().unwrap_or_else(|e| e.into_inner()) {

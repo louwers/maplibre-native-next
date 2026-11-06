@@ -31,20 +31,15 @@ fn tile_options() -> impl Strategy<Value = TileOptions> {
 }
 
 fn options() -> impl Strategy<Value = Options> {
-    (
-        tile_options(),
-        0u8..=16,
-        0u8..=6,
-        prop::sample::select(vec![0u32, 5, 50, 100000]),
-        any::<bool>(),
-    )
-        .prop_map(|(tile, max_zoom, index_max_zoom, index_max_points, generate_id)| Options {
+    (tile_options(), 0u8..=16, 0u8..=6, prop::sample::select(vec![0u32, 5, 50, 100000]), any::<bool>()).prop_map(
+        |(tile, max_zoom, index_max_zoom, index_max_points, generate_id)| Options {
             tile,
             max_zoom,
             index_max_zoom,
             index_max_points,
             generate_id,
-        })
+        },
+    )
 }
 
 fn options_json(o: &Options) -> Json {
@@ -79,11 +74,7 @@ fn queries() -> impl Strategy<Value = Vec<(u8, i64, i64, u8, u8)>> {
     prop::collection::vec((0u8..=17, -2i64..=2, -2i64..=2, 0u8..8, 0u8..8), 0..=12)
 }
 
-fn resolve_queries(
-    raw: &[(u8, i64, i64, u8, u8)],
-    (cx, cy, _): (f64, f64, f64),
-    max_zoom: u8,
-) -> Vec<(u8, u32, u32)> {
+fn resolve_queries(raw: &[(u8, i64, i64, u8, u8)], (cx, cy, _): (f64, f64, f64), max_zoom: u8) -> Vec<(u8, u32, u32)> {
     raw.iter()
         .map(|&(z, dx, dy, xk, yk)| {
             // Mostly valid zooms; z = 17 asks for maxZoom + 1 (an error).

@@ -36,21 +36,18 @@ impl RasterTileWorker {
     pub fn parse(&mut self, data: Option<Data>, correlation_id: u64) {
         let Some(data) = data else {
             // No data; empty tile.
-            self.parent
-                .invoke(move |tile: &RasterTileInner| tile.on_parsed(None, correlation_id));
+            self.parent.invoke(move |tile: &RasterTileInner| tile.on_parsed(None, correlation_id));
             return;
         };
 
         match mln_platform_default_image::decode_image(&data) {
             Ok(image) => {
                 let bucket = Arc::new(RasterBucket::new(image));
-                self.parent
-                    .invoke(move |tile: &RasterTileInner| tile.on_parsed(Some(bucket), correlation_id));
+                self.parent.invoke(move |tile: &RasterTileInner| tile.on_parsed(Some(bucket), correlation_id));
             }
             Err(error) => {
                 let error = RuntimeError::ptr(error);
-                self.parent
-                    .invoke(move |tile: &RasterTileInner| tile.on_error(error, correlation_id));
+                self.parent.invoke(move |tile: &RasterTileInner| tile.on_error(error, correlation_id));
             }
         }
     }
@@ -134,8 +131,7 @@ impl LoaderTile for RasterTileInner {
             }
             self.base.pending.set(true);
             let correlation_id = self.correlation_id.get();
-            self.worker
-                .invoke(move |worker: &mut RasterTileWorker| worker.parse(data, correlation_id));
+            self.worker.invoke(move |worker: &mut RasterTileWorker| worker.parse(data, correlation_id));
         }
     }
 }
@@ -170,11 +166,7 @@ impl RasterTile {
         mailbox.open(&scheduler::get_current(), inner.clone() as Rc<dyn Any>);
         let weak: std::rc::Weak<RasterTileInner> = Rc::downgrade(&inner);
         let loader = TileLoader::new(weak, VectorTileEncoding::Mvt, &id, parameters, tileset);
-        RasterTile {
-            inner,
-            loader: Some(loader),
-            _worker: worker,
-        }
+        RasterTile { inner, loader: Some(loader), _worker: worker }
     }
 
     pub fn inner(&self) -> &Rc<RasterTileInner> {

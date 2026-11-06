@@ -39,7 +39,11 @@ impl Instance {
     /// [`crate::wrap_host_objects`]).
     pub(crate) fn from_host(raw: InstanceHandle) -> Self {
         Instance {
-            inner: Rc::new(InstanceInner { raw, backends: wgpu::Backends::BROWSER_WEBGPU, devices: RefCell::default() }),
+            inner: Rc::new(InstanceInner {
+                raw,
+                backends: wgpu::Backends::BROWSER_WEBGPU,
+                devices: RefCell::default(),
+            }),
         }
     }
 

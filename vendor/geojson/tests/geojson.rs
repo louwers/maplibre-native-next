@@ -6,8 +6,8 @@
 // core does not compile (not ported).
 
 use geojson::{
-    Feature, GeoJSON, Geometry, Identifier, Value, convert, convert_geometry, parse, stringify,
-    stringify_geometry, to_json, to_json_geometry,
+    Feature, GeoJSON, Geometry, Identifier, Value, convert, convert_geometry, parse, stringify, stringify_geometry,
+    to_json, to_json_geometry,
 };
 use std::path::PathBuf;
 
@@ -15,9 +15,7 @@ fn fixture(name: &str) -> PathBuf {
     let root = std::env::var_os("RUNFILES_DIR")
         .or_else(|| std::env::var_os("TEST_SRCDIR"))
         .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    PathBuf::from(root)
-        .join("maplibre+/vendor/maplibre-native-base/deps/geojson.hpp/test/fixtures")
-        .join(name)
+    PathBuf::from(root).join("maplibre+/vendor/maplibre-native-base/deps/geojson.hpp/test/fixtures").join(name)
 }
 
 fn read_file(name: &str) -> String {
@@ -35,11 +33,7 @@ fn read_geojson(name: &str, use_convert: bool) -> Result<GeoJSON, geojson::Error
 }
 
 fn write_geojson(data: &GeoJSON, use_convert: bool) -> String {
-    if use_convert {
-        serde_json::to_string(&to_json(data)).unwrap()
-    } else {
-        stringify(data)
-    }
+    if use_convert { serde_json::to_string(&to_json(data)).unwrap() } else { stringify(data) }
 }
 
 fn geometry(data: &GeoJSON) -> &Geometry<f64> {

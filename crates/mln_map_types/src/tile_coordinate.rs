@@ -23,10 +23,7 @@ impl TileCoordinate {
     pub fn from_lat_lng(zoom: f64, lat_lng: &LatLng) -> TileCoordinate {
         let scale = 2.0f64.powf(zoom);
         let p = Projection::project(lat_lng, scale);
-        TileCoordinate {
-            p: Point::new(p.x / constants::TILE_SIZE, p.y / constants::TILE_SIZE),
-            z: zoom,
-        }
+        TileCoordinate { p: Point::new(p.x / constants::TILE_SIZE, p.y / constants::TILE_SIZE), z: zoom }
     }
 
     pub fn from_screen_coordinate(
@@ -39,10 +36,7 @@ impl TileCoordinate {
 
     pub fn zoom_to(&self, zoom: f64) -> TileCoordinate {
         let scale_diff = 2.0f64.powf(zoom - self.z);
-        TileCoordinate {
-            p: Point::new(self.p.x * scale_diff, self.p.y * scale_diff),
-            z: zoom,
-        }
+        TileCoordinate { p: Point::new(self.p.x * scale_diff, self.p.y * scale_diff), z: zoom }
     }
 
     pub fn to_geometry_coordinate(tile_id: &UnwrappedTileID, point: &TileCoordinatePoint) -> GeometryCoordinate {
@@ -54,9 +48,7 @@ impl TileCoordinate {
             v.clamp(i16::MIN as i64, i16::MAX as i64) as i16
         };
         Point::new(
-            clamp(
-                (zoomed.p.x - tile_id.canonical.x as f64 - tile_id.wrap as f64 * scale) * constants::EXTENT as f64,
-            ),
+            clamp((zoomed.p.x - tile_id.canonical.x as f64 - tile_id.wrap as f64 * scale) * constants::EXTENT as f64),
             clamp((zoomed.p.y - tile_id.canonical.y as f64) * constants::EXTENT as f64),
         )
     }

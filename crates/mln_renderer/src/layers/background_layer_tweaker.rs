@@ -2,22 +2,24 @@
 // src/mln/renderer/layers/background_layer_tweaker.cpp (MLN_UBO_CONSOLIDATION
 // branches: the port's backend is WebGPU).
 
-use crate::layer_tweaker::{get_tile_matrix, LayerTweaker, LayerTweakerBase};
+use super::{background_crossfade, background_layer_properties};
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
 use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::background_layer_ubo::{
     BackgroundDrawableUBO, BackgroundDrawableUnionUBO, BackgroundPatternDrawableUBO, BackgroundPatternPropsUBO,
     BackgroundPropsUBO,
 };
-use mln_gfx::shaders::shader_defines::{ID_BACKGROUND_DRAWABLE_UBO, ID_BACKGROUND_IMAGE_TEXTURE, ID_BACKGROUND_PROPS_UBO};
+use mln_gfx::shaders::shader_defines::{
+    ID_BACKGROUND_DRAWABLE_UBO, ID_BACKGROUND_IMAGE_TEXTURE, ID_BACKGROUND_PROPS_UBO,
+};
 use mln_gfx::texture2d::SamplerState;
 use mln_gfx::types::{TextureFilterType, TextureWrapType};
-use mln_util::constants::TILE_SIZE_D;
 use mln_gfx::{LayerGroupBase, UniformBufferPtr};
 use mln_style::layer_properties::LayerProperties;
-use super::{background_crossfade, background_layer_properties};
 use mln_style::layers::{BackgroundColor, BackgroundOpacity, BackgroundPattern};
 use mln_style_types::TranslateAnchorType;
+use mln_util::constants::TILE_SIZE_D;
 use mln_util::immutable::Immutable;
 
 pub struct BackgroundLayerTweaker {
@@ -27,10 +29,7 @@ pub struct BackgroundLayerTweaker {
 
 impl BackgroundLayerTweaker {
     pub fn new(id: String, properties: Immutable<dyn LayerProperties>) -> Self {
-        BackgroundLayerTweaker {
-            base: LayerTweakerBase::new(id, properties),
-            drawable_uniform_buffer: None,
-        }
+        BackgroundLayerTweaker { base: LayerTweakerBase::new(id, properties), drawable_uniform_buffer: None }
     }
 }
 
@@ -95,9 +94,7 @@ impl LayerTweaker for BackgroundLayerTweaker {
                 mix: crossfade.t,
                 opacity: *evaluated.get::<BackgroundOpacity>(),
             };
-            layer_group
-                .mutable_uniform_buffers()
-                .create_or_update_pod(ID_BACKGROUND_PROPS_UBO, &props_ubo, context);
+            layer_group.mutable_uniform_buffers().create_or_update_pod(ID_BACKGROUND_PROPS_UBO, &props_ubo, context);
         } else {
             let props_ubo = BackgroundPropsUBO {
                 color: evaluated.get::<BackgroundColor>().to_float_array(),
@@ -106,9 +103,7 @@ impl LayerTweaker for BackgroundLayerTweaker {
                 pad2: 0.0,
                 pad3: 0.0,
             };
-            layer_group
-                .mutable_uniform_buffers()
-                .create_or_update_pod(ID_BACKGROUND_PROPS_UBO, &props_ubo, context);
+            layer_group.mutable_uniform_buffers().create_or_update_pod(ID_BACKGROUND_PROPS_UBO, &props_ubo, context);
         }
 
         let mut i: u32 = 0;
@@ -197,8 +192,6 @@ impl LayerTweaker for BackgroundLayerTweaker {
             }
         }
 
-        layer_group
-            .mutable_uniform_buffers()
-            .set(ID_BACKGROUND_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
+        layer_group.mutable_uniform_buffers().set(ID_BACKGROUND_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
     }
 }

@@ -15,10 +15,7 @@ fn render_style(style: &str, size: Size, pixel_ratio: f32) -> PremultipliedImage
     let mut map = Map::new(
         &frontend,
         Rc::new(NullMapObserver),
-        MapOptions::new()
-            .with_map_mode(MapMode::Static)
-            .with_size(size)
-            .with_pixel_ratio(pixel_ratio),
+        MapOptions::new().with_map_mode(MapMode::Static).with_size(size).with_pixel_ratio(pixel_ratio),
     );
     map.get_style_mut().load_json(style);
     frontend.render(&mut map).expect("render").image
@@ -26,11 +23,7 @@ fn render_style(style: &str, size: Size, pixel_ratio: f32) -> PremultipliedImage
 
 #[test]
 fn render_still_returns_image_of_physical_size() {
-    let image = render_style(
-        r#"{"version": 8, "sources": {}, "layers": []}"#,
-        Size::new(64, 32),
-        2.0,
-    );
+    let image = render_style(r#"{"version": 8, "sources": {}, "layers": []}"#, Size::new(64, 32), 2.0);
     assert_eq!(image.size, Size::new(128, 64));
     // No layers: the clear color is the default (transparent) Color.
     assert_eq!(pixel(&image, 10, 10), [0, 0, 0, 0]);

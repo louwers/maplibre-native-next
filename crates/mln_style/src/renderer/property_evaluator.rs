@@ -28,10 +28,7 @@ pub struct PropertyEvaluator<'a, T> {
 
 impl<'a, T> PropertyEvaluator<'a, T> {
     pub fn new(parameters: &'a PropertyEvaluationParameters, default_value: T) -> Self {
-        PropertyEvaluator {
-            parameters,
-            default_value,
-        }
+        PropertyEvaluator { parameters, default_value }
     }
 }
 
@@ -48,8 +45,7 @@ impl<T: Clone + ValueConverter> Evaluator<T> for PropertyEvaluator<'_, T> {
 
     fn expression(&self, fn_: &PropertyExpression<T>) -> T {
         fn_.evaluate(
-            &EvaluationContext::new(self.parameters.z)
-                .with_global_state(self.parameters.global_state.as_deref()),
+            &EvaluationContext::new(self.parameters.z).with_global_state(self.parameters.global_state.as_deref()),
             self.default_value.clone(),
         )
     }

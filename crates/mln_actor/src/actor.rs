@@ -158,9 +158,7 @@ pub struct PoolActorRef<O: Send + 'static> {
 
 impl<O: Send + 'static> Clone for PoolActorRef<O> {
     fn clone(&self) -> Self {
-        PoolActorRef {
-            mailbox: self.mailbox.clone(),
-        }
+        PoolActorRef { mailbox: self.mailbox.clone() }
     }
 }
 
@@ -207,36 +205,26 @@ impl<O: Send + 'static> Actor<O> {
     fn create(scheduler: SchedulerPtr, tag: Option<SimpleIdentity>, make: impl FnOnce(PoolActorRef<O>) -> O) -> Self {
         let mailbox = Arc::new_cyclic(|weak_self: &Weak<PoolMailbox<O>>| PoolMailbox {
             object: Mutex::new(None),
-            queue: Mutex::new(Queue {
-                messages: VecDeque::new(),
-                closed: false,
-            }),
+            queue: Mutex::new(Queue { messages: VecDeque::new(), closed: false }),
             abandoned: AtomicBool::new(false),
             receiving_thread: Mutex::new(None),
             scheduler: Arc::downgrade(&scheduler),
             scheduler_tag: tag,
             weak_self: weak_self.clone(),
         });
-        let object = make(PoolActorRef {
-            mailbox: Arc::downgrade(&mailbox),
-        });
+        let object = make(PoolActorRef { mailbox: Arc::downgrade(&mailbox) });
         *mailbox.object.lock().unwrap() = Some(object);
         // Messages sent from `make` were queued before the object existed.
         let pending = !mailbox.queue.lock().unwrap().messages.is_empty();
         if pending {
             mailbox.schedule_to_receive();
         }
-        Actor {
-            _retainer: scheduler,
-            mailbox,
-        }
+        Actor { _retainer: scheduler, mailbox }
     }
 
     /// `self()`.
     pub fn self_ref(&self) -> PoolActorRef<O> {
-        PoolActorRef {
-            mailbox: Arc::downgrade(&self.mailbox),
-        }
+        PoolActorRef { mailbox: Arc::downgrade(&self.mailbox) }
     }
 
     /// The mailbox's `abandon()`.
@@ -290,11 +278,7 @@ mod tests {
             left: u32,
             done: mpsc::Sender<()>,
         }
-        let actor = Actor::new(pool, |self_ref| Ping {
-            self_ref,
-            left: 10,
-            done: tx,
-        });
+        let actor = Actor::new(pool, |self_ref| Ping { self_ref, left: 10, done: tx });
         fn ping(p: &mut Ping) {
             if p.left == 0 {
                 p.done.send(()).unwrap();

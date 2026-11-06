@@ -19,7 +19,7 @@ pub struct ColorReliefTilePropsUBO {
     /* 16 */ pub dimension: [f32; 2], // Texture dimensions
     /* 24 */ pub color_ramp_size: i32, // Number of color stops
     /* 28 */ pub pad_tile0: f32, // Padding for alignment
-    /* 32 */
+                        /* 32 */
 }
 const _: () = assert!(std::mem::size_of::<ColorReliefTilePropsUBO>() == 32);
 

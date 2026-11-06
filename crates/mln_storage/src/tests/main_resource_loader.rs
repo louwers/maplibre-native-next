@@ -582,12 +582,8 @@ fn set_resource_transform() {
         .expect("online file source");
 
     // Translates the URL "localhost://test to http://127.0.0.1:3000/test
-    let transform = Mailbox::with_target(
-        &scheduler::get_current(),
-        Rc::new(TransformActor {
-            test_url: server.url("/test"),
-        }),
-    );
+    let transform =
+        Mailbox::with_target(&scheduler::get_current(), Rc::new(TransformActor { test_url: server.url("/test") }));
 
     let actor_ref = ActorRef::<TransformActor>::new(&transform);
     onlinefs.set_resource_transform(ResourceTransform::new(Some(Arc::new(
@@ -644,10 +640,7 @@ fn set_resource_cache_path() {
     let _resource_loader = main_resource_loader();
     let fs = database_file_source();
     // `std::static_pointer_cast<DatabaseFileSource>(fs)`.
-    let dbfs = fs
-        .as_any()
-        .and_then(|fs| fs.downcast_ref::<DatabaseFileSource>())
-        .expect("DatabaseFileSource");
+    let dbfs = fs.as_any().and_then(|fs| fs.downcast_ref::<DatabaseFileSource>()).expect("DatabaseFileSource");
     let stop = run_loop.handle();
     // C++: "./new_offline.db".
     dbfs.set_database_path(&temp_path("new_offline.db"), Some(Box::new(move || stop.stop())));
@@ -812,8 +805,7 @@ fn cached_resource_low_priority() {
 
     let req3_cached_response_received = Rc::new(Cell::new(false));
     let req3 = req();
-    let (r, counter, received) =
-        (req3.clone(), online_response_counter.clone(), req3_cached_response_received.clone());
+    let (r, counter, received) = (req3.clone(), online_response_counter.clone(), req3_cached_response_received.clone());
     *req3.borrow_mut() = Some(fs.request(
         &resource1,
         Box::new(move |res: Response| {
@@ -832,12 +824,8 @@ fn cached_resource_low_priority() {
 
     let req4_cached_response_received = Rc::new(Cell::new(false));
     let req4 = req();
-    let (r, counter, received, stop) = (
-        req4.clone(),
-        online_response_counter.clone(),
-        req4_cached_response_received.clone(),
-        run_loop.clone(),
-    );
+    let (r, counter, received, stop) =
+        (req4.clone(), online_response_counter.clone(), req4_cached_response_received.clone(), run_loop.clone());
     *req4.borrow_mut() = Some(fs.request(
         &resource2,
         Box::new(move |res: Response| {
@@ -927,20 +915,14 @@ fn resource_options() {
     let _serial = serial();
     let fs = MainResourceLoader::new(
         &ResourceOptions::default().with_tile_server_options(
-            TileServerOptions::new()
-                .with_base_url("originalBaseURL")
-                .with_uri_scheme_alias("originalAlias"),
+            TileServerOptions::new().with_base_url("originalBaseURL").with_uri_scheme_alias("originalAlias"),
         ),
         &ClientOptions::default(),
     );
 
-    fs.set_resource_options(
-        ResourceOptions::default().with_tile_server_options(
-            TileServerOptions::new()
-                .with_base_url("updatedBaseURL")
-                .with_uri_scheme_alias("updatedAlias"),
-        ),
-    );
+    fs.set_resource_options(ResourceOptions::default().with_tile_server_options(
+        TileServerOptions::new().with_base_url("updatedBaseURL").with_uri_scheme_alias("updatedAlias"),
+    ));
 
     let updated_options = fs.get_resource_options().tile_server_options();
 

@@ -13,11 +13,7 @@ fn triangle_area(a: [f64; 2], b: [f64; 2], c: [f64; 2]) -> f64 {
 fn triangles_area(vertices: &[[f64; 2]], indices: &[u32]) -> f64 {
     let mut area = 0.0;
     for t in indices.chunks(3) {
-        area += triangle_area(
-            vertices[t[0] as usize],
-            vertices[t[1] as usize],
-            vertices[t[2] as usize],
-        );
+        area += triangle_area(vertices[t[0] as usize], vertices[t[1] as usize], vertices[t[2] as usize]);
     }
     area
 }

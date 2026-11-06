@@ -30,9 +30,7 @@ use mln_gfx::texture2d::{SamplerState, Texture2DPtr};
 use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
 use mln_gfx::vertex_attribute::VertexAttributeArrayPtr;
 use mln_gfx::vertex_vector::VertexVectorBasePtr;
-use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, ShaderProgramBasePtr, ShaderRegistry,
-};
+use mln_gfx::{AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, ShaderProgramBasePtr, ShaderRegistry};
 use mln_map_types::TransformState;
 use mln_style::expression::{
     Dependency, EvaluationContext, GlobalStateMap, Interpolate, downcast, from_expression_value,
@@ -341,8 +339,11 @@ impl RenderLayer for RenderColorReliefLayer {
 
         // Set up layer group
         if self.base.layer_group.is_none() {
-            match context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned())
-            {
+            match context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => self.set_layer_group(Some(layer_group), changes),
                 None => return,
             }
@@ -376,10 +377,12 @@ impl RenderLayer for RenderColorReliefLayer {
 
         {
             let mut group = layer_group.borrow_mut();
-            let tile_layer_group = group.as_tile_layer_group_mut().expect("color-relief layer group is a TileLayerGroup");
+            let tile_layer_group =
+                group.as_tile_layer_group_mut().expect("color-relief layer group is a TileLayerGroup");
             let base = &self.base;
-            let removed = tile_layer_group
-                .remove_drawables_if(|drawable| drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id)));
+            let removed = tile_layer_group.remove_drawables_if(|drawable| {
+                drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id))
+            });
             self.base.stats.drawables_removed += removed;
         }
 
@@ -411,7 +414,8 @@ impl RenderLayer for RenderColorReliefLayer {
             }
             self.elevation_stops_texture = Some(ramp_changed_texture);
 
-            let color_stops_texture = self.color_stops_texture.get_or_insert_with(|| context.create_texture_2d()).clone();
+            let color_stops_texture =
+                self.color_stops_texture.get_or_insert_with(|| context.create_texture_2d()).clone();
             {
                 let mut t = color_stops_texture.borrow_mut();
                 t.set_image(Some(Rc::new(self.color_stops.clone())));
@@ -434,10 +438,8 @@ impl RenderLayer for RenderColorReliefLayer {
         };
 
         // Drop the DEM textures of buckets that are no longer rendered.
-        let live_buckets: HashSet<SimpleIdentity> = render_tiles
-            .iter()
-            .filter_map(|tile| tile.get_bucket(&*self.base.base_impl).map(|b| b.get_id()))
-            .collect();
+        let live_buckets: HashSet<SimpleIdentity> =
+            render_tiles.iter().filter_map(|tile| tile.get_bucket(&*self.base.base_impl).map(|b| b.get_id())).collect();
         self.dem_textures.retain(|id, _| live_buckets.contains(id));
 
         for tile in render_tiles.iter() {

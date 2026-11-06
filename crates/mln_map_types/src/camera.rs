@@ -2,9 +2,9 @@
 // FreeCameraOptions; the FreeCameraOptions methods are in util/camera.cpp,
 // see util_camera.rs).
 
+use mln_util::UnitBezier;
 use mln_util::chrono::Duration;
 use mln_util::geo::{EdgeInsets, LatLng, ScreenCoordinate};
-use mln_util::UnitBezier;
 use mln_util::vectors::{Vec3, Vec4};
 
 /// Various options for describing the viewpoint of a map. All fields are
@@ -105,10 +105,7 @@ pub struct AnimationOptions {
 impl AnimationOptions {
     /// `AnimationOptions(Duration d)`.
     pub fn new(d: Duration) -> Self {
-        AnimationOptions {
-            duration: Some(d),
-            ..Default::default()
-        }
+        AnimationOptions { duration: Some(d), ..Default::default() }
     }
 }
 

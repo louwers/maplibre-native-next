@@ -25,6 +25,7 @@ macro_rules! report {
 }
 
 #[path = "hb_ucd15_full_gc.rs"]
+#[rustfmt::skip]
 mod hb_ucd15_full_gc;
 
 /// Hand-written corpus (UTF-8 here, shaped as UTF-16).
@@ -197,9 +198,8 @@ fn bits(s: &Shaped) -> Vec<(u32, [u32; 3])> {
 }
 
 fn show(text: &[u16]) -> String {
-    let s: String = char::decode_utf16(text.iter().copied())
-        .map(|c| c.unwrap_or(char::REPLACEMENT_CHARACTER))
-        .collect();
+    let s: String =
+        char::decode_utf16(text.iter().copied()).map(|c| c.unwrap_or(char::REPLACEMENT_CHARACTER)).collect();
     let cps: Vec<String> = text.iter().map(|u| format!("{u:04X}")).collect();
     format!("{s:?} [{}]", cps.join(" "))
 }
@@ -277,7 +277,8 @@ fn minimize(text: &[u16], mismatches: impl Fn(&[u16]) -> bool) -> Vec<u16> {
     let mut units: Vec<Vec<u16>> = Vec::new();
     let mut i = 0;
     while i < text.len() {
-        let n = if (0xD800..0xDC00).contains(&text[i]) && text.get(i + 1).is_some_and(|l| (0xDC00..0xE000).contains(l)) {
+        let n = if (0xD800..0xDC00).contains(&text[i]) && text.get(i + 1).is_some_and(|l| (0xDC00..0xE000).contains(l))
+        {
             2
         } else {
             1
@@ -353,11 +354,8 @@ fn shaping_matches_harfbuzz() {
                 && RefFace::new(&font.data).is_some_and(|f| {
                     (0..f.info().num_charmaps as usize).any(|i| f.charmap(i)[3] == -1 && f.charmap(i)[0] != 7)
                 });
-            let cause = if synthesized {
-                Cause::SynthesizedCharmapNotPorted
-            } else {
-                classify(&min, &mc, &mr, dotted_circle)
-            };
+            let cause =
+                if synthesized { Cause::SynthesizedCharmapNotPorted } else { classify(&min, &mc, &mr, dotted_circle) };
             let entry = by_cause
                 .entry(cause)
                 .or_default()

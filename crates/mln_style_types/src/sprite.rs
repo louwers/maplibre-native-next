@@ -12,9 +12,6 @@ pub struct Sprite {
 
 impl Sprite {
     pub fn new(id: impl Into<String>, sprite_url: impl Into<String>) -> Self {
-        Sprite {
-            id: id.into(),
-            sprite_url: sprite_url.into(),
-        }
+        Sprite { id: id.into(), sprite_url: sprite_url.into() }
     }
 }

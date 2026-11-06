@@ -41,10 +41,7 @@ pub struct HeadlessFrontend {
 
 /// `{static_cast<uint32_t>(size.width * pixelRatio), static_cast<uint32_t>(size.height * pixelRatio)}`.
 fn physical_size(size: Size, pixel_ratio: f32) -> Size {
-    Size::new(
-        (size.width as f32 * pixel_ratio) as u32,
-        (size.height as f32 * pixel_ratio) as u32,
-    )
+    Size::new((size.width as f32 * pixel_ratio) as u32, (size.height as f32 * pixel_ratio) as u32)
 }
 
 impl HeadlessFrontend {
@@ -65,11 +62,7 @@ impl HeadlessFrontend {
         context_mode: ContextMode,
         invalidate_on_update: bool,
     ) -> Self {
-        let backend = Rc::new(HeadlessBackend::new(
-            physical_size(size, pixel_ratio),
-            swap_behavior,
-            context_mode,
-        ));
+        let backend = Rc::new(HeadlessBackend::new(physical_size(size, pixel_ratio), swap_behavior, context_mode));
         let renderer_backend: Rc<dyn RendererBackend> = backend.clone();
         let shared = Rc::new(Shared {
             size: Cell::new(size),
@@ -106,9 +99,7 @@ impl HeadlessFrontend {
     pub fn set_size(&mut self, size: Size) {
         if self.shared.size.get() != size {
             self.shared.size.set(size);
-            self.shared
-                .backend
-                .set_size(physical_size(size, self.shared.pixel_ratio));
+            self.shared.backend.set_size(physical_size(size, self.shared.pixel_ratio));
         }
     }
 
@@ -127,9 +118,9 @@ impl HeadlessFrontend {
     pub fn get_camera_options(&self) -> CameraOptions {
         match self.shared.update_parameters.borrow().as_ref() {
             // RendererState::getCameraOptions(updateParameters, padding = {})
-            Some(parameters) => parameters
-                .transform_state
-                .get_camera_options(Some(mln_util::geo::EdgeInsets::default())),
+            Some(parameters) => {
+                parameters.transform_state.get_camera_options(Some(mln_util::geo::EdgeInsets::default()))
+            }
             None => CameraOptions::default(),
         }
     }
@@ -237,11 +228,7 @@ impl HeadlessFrontend {
     }
 
     pub fn get_transform_state(&self) -> Option<TransformState> {
-        self.shared
-            .update_parameters
-            .borrow()
-            .as_ref()
-            .map(|p| p.transform_state.clone())
+        self.shared.update_parameters.borrow().as_ref().map(|p| p.transform_state.clone())
     }
 }
 

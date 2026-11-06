@@ -428,8 +428,26 @@ impl RenderLayer for RenderHeatmapLayer {
                 let mut id = ID_HEATMAP_WEIGHT_VERTEX_ATTRIBUTE;
                 let b = paint_property_binders;
                 let pau = &mut properties_as_uniforms;
-                read_data_driven_paint_property(&mut attrs, &b.heatmap_weight, buffer, &shared, &["a_weight"], evaluated.get::<HeatmapWeight>().is_constant(), pau, &mut id);
-                read_data_driven_paint_property(&mut attrs, &b.heatmap_radius, buffer, &shared, &["a_radius"], evaluated.get::<HeatmapRadius>().is_constant(), pau, &mut id);
+                read_data_driven_paint_property(
+                    &mut attrs,
+                    &b.heatmap_weight,
+                    buffer,
+                    &shared,
+                    &["a_weight"],
+                    evaluated.get::<HeatmapWeight>().is_constant(),
+                    pau,
+                    &mut id,
+                );
+                read_data_driven_paint_property(
+                    &mut attrs,
+                    &b.heatmap_radius,
+                    buffer,
+                    &shared,
+                    &["a_radius"],
+                    evaluated.get::<HeatmapRadius>().is_constant(),
+                    pau,
+                    &mut id,
+                );
             }
 
             if heatmap_shader.is_none() {
@@ -439,9 +457,12 @@ impl RenderLayer for RenderHeatmapLayer {
                 }
             }
 
-            if let Some(attr) =
-                heatmap_vertex_attrs.borrow_mut().set(ID_HEATMAP_POS_VERTEX_ATTRIBUTE, -1, AttributeDataType::Invalid, 0)
-            {
+            if let Some(attr) = heatmap_vertex_attrs.borrow_mut().set(
+                ID_HEATMAP_POS_VERTEX_ATTRIBUTE,
+                -1,
+                AttributeDataType::Invalid,
+                0,
+            ) {
                 attr.set_shared_raw_data(
                     Some(shared_vertices(&bucket.vertices)),
                     0, // offsetof(HeatmapLayoutVertex, a1)
@@ -481,10 +502,15 @@ impl RenderLayer for RenderHeatmapLayer {
 
         // Set up texture layer group
         if self.base.layer_group.is_none() {
-            match context.create_layer_group(self.base.layer_index, /*initial_capacity=*/ 1, self.get_id().to_owned()) {
+            match context.create_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 1,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => {
                     if let Some(texture_tweaker) = &self.texture_tweaker {
-                        changes.push(ChangeRequest::AddLayerTweaker(layer_group.clone(), Rc::downgrade(texture_tweaker)));
+                        changes
+                            .push(ChangeRequest::AddLayerTweaker(layer_group.clone(), Rc::downgrade(texture_tweaker)));
                     }
                     self.set_layer_group(Some(layer_group), changes);
                 }

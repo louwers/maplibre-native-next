@@ -396,7 +396,8 @@ fn evaluate_break(
     let mut best_break_badness = calculate_badness(break_x, target_width, penalty, is_last_break);
     for (k, potential_break) in potential_breaks.iter().enumerate() {
         let line_width = break_x - potential_break.x;
-        let break_badness = calculate_badness(line_width, target_width, penalty, is_last_break) + potential_break.badness;
+        let break_badness =
+            calculate_badness(line_width, target_width, penalty, is_last_break) + potential_break.badness;
         if break_badness <= best_break_badness {
             best_prior_break = Some(k);
             best_break_badness = break_badness;
@@ -470,7 +471,11 @@ pub fn determine_line_breaks(
                     current_x,
                     target_width,
                     &potential_breaks,
-                    calculate_penalty(code_point, logical_input.get_char_code_at(next_index), penalizable_ideographic_break),
+                    calculate_penalty(
+                        code_point,
+                        logical_input.get_char_code_at(next_index),
+                        penalizable_ideographic_break,
+                    ),
                     false,
                 );
                 potential_breaks.push(b);
@@ -530,8 +535,9 @@ fn determine_line_verticals(line: &TaggedString) -> Vec<bool> {
         *vertical = is_text(line, i) && i18n::has_upright_vertical_orientation(line.get_char_code_at(i));
     }
 
-    let is_run_character =
-        |verticals: &[bool], i: usize| is_text(line, i) && !verticals[i] && !i18n::is_whitespace(line.get_char_code_at(i));
+    let is_run_character = |verticals: &[bool], i: usize| {
+        is_text(line, i) && !verticals[i] && !i18n::is_whitespace(line.get_char_code_at(i))
+    };
     let mut start = 0;
     while start < line.length() {
         if !is_run_character(&verticals, start) {
@@ -545,7 +551,8 @@ fn determine_line_verticals(line: &TaggedString) -> Vec<bool> {
         if run_is_upright(line, start, end) {
             for (i, vertical) in verticals.iter_mut().enumerate().take(end).skip(start) {
                 let chr = line.get_char_code_at(i);
-                *vertical = (i18n::is_uppercase(chr) || i18n::is_digit(chr)) && !i18n::is_char_in_complex_shaping_script(chr);
+                *vertical =
+                    (i18n::is_uppercase(chr) || i18n::is_digit(chr)) && !i18n::is_char_in_complex_shaping_script(chr);
             }
         }
         start = end - 1;
@@ -616,8 +623,7 @@ fn shape_lines(
                 // std::cmp_greater_equal(i, startIndex) && i - startIndex <
                 // adjusts->size() (size_t arithmetic)
                 let offset = (i as u64).wrapping_sub(section.start_index as i64 as u64);
-                if (section.start_index < 0 || i as u64 >= section.start_index as u64)
-                    && offset < adjusts.len() as u64
+                if (section.start_index < 0 || i as u64 >= section.start_index as u64) && offset < adjusts.len() as u64
                 {
                     adjust = Some(&adjusts[offset as usize]);
                 }
@@ -642,7 +648,8 @@ fn shape_lines(
                 writing_mode != WritingModeType::Horizontal
                     && code_point.type_ == GlyphIDType::FontPBF
                     && (if allow_vertical_placement {
-                        !i18n::is_whitespace(code_point.code) && !i18n::is_char_in_complex_shaping_script(code_point.code)
+                        !i18n::is_whitespace(code_point.code)
+                            && !i18n::is_char_in_complex_shaping_script(code_point.code)
                     } else {
                         i18n::has_upright_vertical_orientation(code_point.code)
                     })
@@ -833,7 +840,14 @@ pub fn get_shaping(
             } else {
                 let untagged_lines = bidi.process_text(
                     formatted_string.raw_text(),
-                    determine_line_breaks(formatted_string, spacing, max_width, glyph_map, image_positions, layout_text_size),
+                    determine_line_breaks(
+                        formatted_string,
+                        spacing,
+                        max_width,
+                        glyph_map,
+                        image_positions,
+                        layout_text_size,
+                    ),
                 )?;
                 for line in untagged_lines {
                     reordered_lines.push(TaggedString::new(line, formatted_string.section_at(0).clone()));
@@ -851,34 +865,36 @@ pub fn get_shaping(
 
             let mut pend_strings: Vec<StyledText> = Vec::new();
 
-            let process_aline =
-                |line: StyledText, formatted_sections: &mut Vec<SectionOptions>, reordered_lines: &mut Vec<TaggedString>| {
-                    let cut_lens = line.0.len() as i32;
-                    reordered_lines.push(TaggedString::from_styled_text(line, formatted_sections.clone()));
+            let process_aline = |line: StyledText,
+                                 formatted_sections: &mut Vec<SectionOptions>,
+                                 reordered_lines: &mut Vec<TaggedString>| {
+                let cut_lens = line.0.len() as i32;
+                reordered_lines.push(TaggedString::from_styled_text(line, formatted_sections.clone()));
 
-                    for sec in formatted_sections.iter_mut() {
-                        sec.start_index = sec.start_index.wrapping_sub(cut_lens);
-                    }
-                };
-
-            let apply_line_and_pending_strings = |line: StyledText,
-                                                  pend_strings: &mut Vec<StyledText>,
-                                                  formatted_sections: &mut Vec<SectionOptions>,
-                                                  reordered_lines: &mut Vec<TaggedString>| {
-                if pend_strings.is_empty() {
-                    process_aline(line, formatted_sections, reordered_lines);
-                } else {
-                    let mut combine: StyledText = (Vec::new(), Vec::new());
-                    for pend_string in pend_strings.iter() {
-                        combine.0.extend_from_slice(&pend_string.0);
-                        combine.1.extend_from_slice(&pend_string.1);
-                    }
-                    pend_strings.clear();
-                    combine.0.extend_from_slice(&line.0);
-                    combine.1.extend_from_slice(&line.1);
-                    process_aline(combine, formatted_sections, reordered_lines);
+                for sec in formatted_sections.iter_mut() {
+                    sec.start_index = sec.start_index.wrapping_sub(cut_lens);
                 }
             };
+
+            let apply_line_and_pending_strings =
+                |line: StyledText,
+                 pend_strings: &mut Vec<StyledText>,
+                 formatted_sections: &mut Vec<SectionOptions>,
+                 reordered_lines: &mut Vec<TaggedString>| {
+                    if pend_strings.is_empty() {
+                        process_aline(line, formatted_sections, reordered_lines);
+                    } else {
+                        let mut combine: StyledText = (Vec::new(), Vec::new());
+                        for pend_string in pend_strings.iter() {
+                            combine.0.extend_from_slice(&pend_string.0);
+                            combine.1.extend_from_slice(&pend_string.1);
+                        }
+                        pend_strings.clear();
+                        combine.0.extend_from_slice(&line.0);
+                        combine.1.extend_from_slice(&line.1);
+                        process_aline(combine, formatted_sections, reordered_lines);
+                    }
+                };
 
             let mut apply_sub_string = |sub_string: &StyledText,
                                         section_type: GlyphIDType,
@@ -891,7 +907,10 @@ pub fn get_shaping(
                         let processed_lines = bidi.process_styled_text(
                             sub_string,
                             determine_line_breaks(
-                                &TaggedString::from_styled_text(sub_string.clone(), formatted_string.get_sections().to_vec()),
+                                &TaggedString::from_styled_text(
+                                    sub_string.clone(),
+                                    formatted_string.get_sections().to_vec(),
+                                ),
                                 spacing,
                                 max_width,
                                 glyph_map,
@@ -915,7 +934,12 @@ pub fn get_shaping(
                             if line_count > 1 {
                                 for _ in 0..line_count - 1 {
                                     let line = processed_lines.next().unwrap();
-                                    apply_line_and_pending_strings(line, pend_strings, formatted_sections, reordered_lines);
+                                    apply_line_and_pending_strings(
+                                        line,
+                                        pend_strings,
+                                        formatted_sections,
+                                        reordered_lines,
+                                    );
                                 }
                             }
                             if line_count != 0 {
@@ -953,7 +977,13 @@ pub fn get_shaping(
                 sub_string.1.push(sec);
             }
 
-            apply_sub_string(&sub_string, section_type, &mut pend_strings, &mut formatted_sections, &mut reordered_lines)?;
+            apply_sub_string(
+                &sub_string,
+                section_type,
+                &mut pend_strings,
+                &mut formatted_sections,
+                &mut reordered_lines,
+            )?;
 
             if !pend_strings.is_empty() {
                 let mut combine: StyledText = (Vec::new(), Vec::new());

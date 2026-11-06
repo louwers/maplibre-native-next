@@ -40,16 +40,7 @@ impl Bin {
 
     /// `Bin(id, w, h, maxw, maxh, x, y)`; `maxw`/`maxh` of -1 mean `w`/`h`.
     pub fn with_all(id: i32, w: i32, h: i32, maxw: i32, maxh: i32, x: i32, y: i32) -> Self {
-        let mut bin = Bin {
-            id,
-            w,
-            h,
-            maxw,
-            maxh,
-            x,
-            y,
-            refcount_: 0,
-        };
+        let mut bin = Bin { id, w, h, maxw, maxh, x, y, refcount_: 0 };
         if bin.maxw == -1 {
             bin.maxw = bin.w;
         }
@@ -84,14 +75,7 @@ pub struct Shelf {
 
 impl Shelf {
     pub fn new(y1: i32, w1: i32, h1: i32) -> Self {
-        Shelf {
-            x_: 0,
-            y_: y1,
-            w_: w1,
-            h_: h1,
-            wfree_: w1,
-            bins_: VecDeque::new(),
-        }
+        Shelf { x_: 0, y_: y1, w_: w1, h_: h1, wfree_: w1, bins_: VecDeque::new() }
     }
 
     /// `alloc(id, w, h)`: the index of the new bin in this shelf.

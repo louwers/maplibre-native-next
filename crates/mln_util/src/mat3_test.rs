@@ -11,11 +11,7 @@ fn float_eq(a: f32, b: f32) -> bool {
     }
     fn biased(f: f32) -> u32 {
         let bits = f.to_bits();
-        if bits & 0x8000_0000 != 0 {
-            (!bits).wrapping_add(1)
-        } else {
-            0x8000_0000 | bits
-        }
+        if bits & 0x8000_0000 != 0 { (!bits).wrapping_add(1) } else { 0x8000_0000 | bits }
     }
     let (ba, bb) = (biased(a), biased(b));
     (if ba >= bb { ba - bb } else { bb - ba }) <= 4
@@ -89,10 +85,7 @@ fn transform_mat3f_rotation_preserves_length() {
 
         // EXPECT_NEAR(..., 1e-5f): gtest compares in double.
         let (l_in, l_out) = (length_xy(&input) as f64, length_xy(&out) as f64);
-        assert!(
-            (l_in - l_out).abs() <= 1e-5f32 as f64,
-            "at {degrees} degrees: {l_in} vs {l_out}"
-        );
+        assert!((l_in - l_out).abs() <= 1e-5f32 as f64, "at {degrees} degrees: {l_in} vs {l_out}");
         expect_float_eq!(input[2], out[2], "at {} degrees", degrees);
     }
 }

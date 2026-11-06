@@ -2,10 +2,10 @@
 // point; see COORDINATION.md).
 
 use crate::expression::{EvaluationContext, ValueConverter};
-use mln_util::interpolate::Interpolate;
 use crate::property_expression::PropertyExpression;
 use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
 use crate::renderer::property_evaluator::Evaluator;
+use mln_util::interpolate::Interpolate;
 
 /// `Faded<T>`.
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -29,24 +29,15 @@ pub struct CrossFadedPropertyEvaluator<'a, T> {
 
 impl<'a, T: Clone> CrossFadedPropertyEvaluator<'a, T> {
     pub fn new(parameters: &'a PropertyEvaluationParameters, default_value: T) -> Self {
-        CrossFadedPropertyEvaluator {
-            parameters,
-            default_value,
-        }
+        CrossFadedPropertyEvaluator { parameters, default_value }
     }
 
     fn calculate(&self, min: &T, mid: &T, max: &T) -> Faded<T> {
         let z = self.parameters.z;
         if z > self.parameters.zoom_history.last_integer_zoom {
-            Faded {
-                from: min.clone(),
-                to: mid.clone(),
-            }
+            Faded { from: min.clone(), to: mid.clone() }
         } else {
-            Faded {
-                from: max.clone(),
-                to: mid.clone(),
-            }
+            Faded { from: max.clone(), to: mid.clone() }
         }
     }
 }
@@ -67,15 +58,9 @@ impl<T: Clone + Default + ValueConverter> Evaluator<T> for CrossFadedPropertyEva
         // C++ evaluates with the default `finalDefaultValue = T()`.
         let z = self.parameters.z;
         self.calculate(
-            &expression.evaluate(
-                &EvaluationContext::new(z - 1.0).with_global_state(global_state),
-                T::default(),
-            ),
+            &expression.evaluate(&EvaluationContext::new(z - 1.0).with_global_state(global_state), T::default()),
             &expression.evaluate(&EvaluationContext::new(z).with_global_state(global_state), T::default()),
-            &expression.evaluate(
-                &EvaluationContext::new(z + 1.0).with_global_state(global_state),
-                T::default(),
-            ),
+            &expression.evaluate(&EvaluationContext::new(z + 1.0).with_global_state(global_state), T::default()),
         )
     }
 }

@@ -36,15 +36,9 @@ pub fn generate(spec_text: &str) -> Result<Vec<GeneratedFile>, String> {
             path: format!("layers/{name}_layer_properties.rs"),
             content: emit_properties::emit(&layer),
         });
-        files.push(GeneratedFile {
-            path: format!("layers/{name}_layer.rs"),
-            content: emit_layer::emit(&layer),
-        });
+        files.push(GeneratedFile { path: format!("layers/{name}_layer.rs"), content: emit_layer::emit(&layer) });
     }
-    files.push(GeneratedFile {
-        path: "light.rs".into(),
-        content: emit_light::emit(&spec::light_properties(&spec)?),
-    });
+    files.push(GeneratedFile { path: "light.rs".into(), content: emit_light::emit(&spec::light_properties(&spec)?) });
     Ok(files)
 }
 

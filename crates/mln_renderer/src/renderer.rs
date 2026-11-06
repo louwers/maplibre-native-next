@@ -21,9 +21,7 @@ impl Renderer {
     /// std::optional<std::string>& localFontFamily = std::nullopt)`.
     // TODO(port): localFontFamily (glyph rasterization, M5).
     pub fn new(backend: Rc<dyn RendererBackend>, pixel_ratio: f32) -> Self {
-        Renderer {
-            impl_: Some(Box::new(RendererImpl::new(backend, pixel_ratio))),
-        }
+        Renderer { impl_: Some(Box::new(RendererImpl::new(backend, pixel_ratio))) }
     }
 
     fn impl_ref(&self) -> &RendererImpl {
@@ -139,9 +137,7 @@ impl Renderer {
         feature_id: Option<&str>,
         state_key: Option<&str>,
     ) {
-        self.impl_mut()
-            .orchestrator
-            .remove_feature_state(source_id, source_layer_id, feature_id, state_key);
+        self.impl_mut().orchestrator.remove_feature_state(source_id, source_layer_id, feature_id, state_key);
     }
 
     pub fn collect_placed_symbol_data(&mut self, enable: bool) {

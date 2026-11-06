@@ -29,9 +29,7 @@ impl Error {
     /// `std::vector::at(n)` on a vector of `size` elements: libstdc++'s
     /// `_M_range_check` message.
     pub fn vector_range_check(n: usize, size: usize) -> Error {
-        Error::OutOfRange(format!(
-            "vector::_M_range_check: __n (which is {n}) >= this->size() (which is {size})"
-        ))
+        Error::OutOfRange(format!("vector::_M_range_check: __n (which is {n}) >= this->size() (which is {size})"))
     }
 
     pub fn is_runtime_error(&self) -> bool {

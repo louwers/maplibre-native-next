@@ -18,10 +18,7 @@ pub struct TinyUnorderedMap<K: Eq + Hash, V, const LINEAR_THRESHOLD: usize> {
 
 impl<K: Eq + Hash, V, const LINEAR_THRESHOLD: usize> Default for TinyUnorderedMap<K, V, LINEAR_THRESHOLD> {
     fn default() -> Self {
-        TinyUnorderedMap {
-            linear: Vec::new(),
-            map: HashMap::new(),
-        }
+        TinyUnorderedMap { linear: Vec::new(), map: HashMap::new() }
     }
 }
 

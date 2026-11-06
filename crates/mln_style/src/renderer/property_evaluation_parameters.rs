@@ -53,11 +53,7 @@ impl PropertyEvaluationParameters {
     }
 
     /// `PropertyEvaluationParameters(ZoomHistory, TimePoint, Duration)`.
-    pub fn with_zoom_history(
-        zoom_history: ZoomHistory,
-        now: TimePoint,
-        default_fade_duration: Duration,
-    ) -> Self {
+    pub fn with_zoom_history(zoom_history: ZoomHistory, now: TimePoint, default_fade_duration: Duration) -> Self {
         PropertyEvaluationParameters {
             z: zoom_history.last_zoom,
             now,
@@ -83,17 +79,9 @@ impl PropertyEvaluationParameters {
         };
 
         if self.z > self.zoom_history.last_integer_zoom {
-            CrossfadeParameters {
-                from_scale: 2.0,
-                to_scale: 1.0,
-                t: fraction + (1.0 - fraction) * t,
-            }
+            CrossfadeParameters { from_scale: 2.0, to_scale: 1.0, t: fraction + (1.0 - fraction) * t }
         } else {
-            CrossfadeParameters {
-                from_scale: 0.5,
-                to_scale: 1.0,
-                t: 1.0 - (1.0 - t) * fraction,
-            }
+            CrossfadeParameters { from_scale: 0.5, to_scale: 1.0, t: 1.0 - (1.0 - t) * fraction }
         }
     }
 }

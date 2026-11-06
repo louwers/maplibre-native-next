@@ -46,9 +46,7 @@ pub struct FileSourceManager {
 
 impl FileSourceManager {
     fn new() -> Self {
-        FileSourceManager {
-            impl_: Mutex::new(Impl::default()),
-        }
+        FileSourceManager { impl_: Mutex::new(Impl::default()) }
     }
 
     /// `FileSourceManager::get()`: the `DefaultFileSourceManagerImpl`.
@@ -153,11 +151,7 @@ impl FileSourceManager {
                 .find(|info| info.type_ == type_ && info.id == id)
                 .and_then(|info| info.file_source.upgrade());
             if existing.is_none() {
-                impl_.file_sources.push(FileSourceInfo {
-                    type_,
-                    id,
-                    file_source: Arc::downgrade(&file_source),
-                });
+                impl_.file_sources.push(FileSourceInfo { type_, id, file_source: Arc::downgrade(&file_source) });
             }
             existing
         };

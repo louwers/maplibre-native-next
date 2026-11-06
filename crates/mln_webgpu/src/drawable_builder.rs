@@ -2,7 +2,7 @@
 
 use crate::drawable::Drawable;
 use mln_gfx::draw_mode::DrawMode;
-use mln_gfx::drawable::{Drawable as _, DrawSegment, UniqueDrawSegment, UniqueDrawable};
+use mln_gfx::drawable::{DrawSegment, Drawable as _, UniqueDrawSegment, UniqueDrawable};
 use mln_gfx::drawable_builder::{self, DrawableBuilderBase};
 use mln_gfx::gfx_types::AttributeDataType;
 use mln_gfx::index_vector::IndexVectorBase;

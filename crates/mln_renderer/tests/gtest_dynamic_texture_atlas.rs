@@ -16,8 +16,18 @@ use std::sync::Arc;
 fn make_image(id: &str, sdf: bool) -> Immutable<ImageImpl> {
     let size = Size::new(16, 16);
     Arc::new(
-        ImageImpl::new(id.to_owned(), PremultipliedImage::new(size), 1.0, sdf, Vec::new(), Vec::new(), None, None, None)
-            .expect("image"),
+        ImageImpl::new(
+            id.to_owned(),
+            PremultipliedImage::new(size),
+            1.0,
+            sdf,
+            Vec::new(),
+            Vec::new(),
+            None,
+            None,
+            None,
+        )
+        .expect("image"),
     )
 }
 
@@ -34,16 +44,12 @@ struct DynamicTextureAtlasTest {
 
 impl DynamicTextureAtlasTest {
     fn new() -> Self {
-        DynamicTextureAtlasTest {
-            atlas: DynamicTextureAtlas::new(),
-            atlases: Vec::new(),
-        }
+        DynamicTextureAtlasTest { atlas: DynamicTextureAtlas::new(), atlases: Vec::new() }
     }
 
     fn upload_pattern(&mut self, image: &Immutable<ImageImpl>) -> &ImageAtlas {
-        let image_atlas = self
-            .atlas
-            .upload_icons_and_patterns(&ImageMap::new(), &image_map(image), &ImageVersionMap::new());
+        let image_atlas =
+            self.atlas.upload_icons_and_patterns(&ImageMap::new(), &image_map(image), &ImageVersionMap::new());
         self.atlases.push(image_atlas);
         self.atlases.last().unwrap()
     }
@@ -91,17 +97,13 @@ fn icon_and_pattern_usage_do_not_share_allocation() {
     let mut test = DynamicTextureAtlasTest::new();
     let image = make_image("image", false);
 
-    let image_atlas = test
-        .atlas
-        .upload_icons_and_patterns(&image_map(&image), &image_map(&image), &ImageVersionMap::new());
+    let image_atlas =
+        test.atlas.upload_icons_and_patterns(&image_map(&image), &image_map(&image), &ImageVersionMap::new());
     test.atlases.push(image_atlas);
     let image_atlas = test.atlases.last().unwrap();
 
     assert_eq!(2, image_atlas.texture_handles.len());
-    assert_ne!(
-        image_atlas.texture_handles[0].get_rectangle(),
-        image_atlas.texture_handles[1].get_rectangle()
-    );
+    assert_ne!(image_atlas.texture_handles[0].get_rectangle(), image_atlas.texture_handles[1].get_rectangle());
 }
 
 // gtest: DynamicTextureAtlasTest.ReleasedRevisionGetsFreshAllocation
@@ -109,9 +111,7 @@ fn icon_and_pattern_usage_do_not_share_allocation() {
 fn released_revision_gets_fresh_allocation() {
     let mut test = DynamicTextureAtlasTest::new();
     let image = make_image("pattern", false);
-    let released = test
-        .atlas
-        .upload_icons_and_patterns(&ImageMap::new(), &image_map(&image), &ImageVersionMap::new());
+    let released = test.atlas.upload_icons_and_patterns(&ImageMap::new(), &image_map(&image), &ImageVersionMap::new());
     let released_id = released.texture_handles[0].get_id();
     test.atlas.remove_textures(&released.texture_handles, &released.dynamic_texture);
 

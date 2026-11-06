@@ -70,10 +70,7 @@ impl MemoryTest {
             frontend,
             Rc::new(NullMapObserver),
             self.file_source.clone(),
-            MapOptions::new()
-                .with_map_mode(MapMode::Static)
-                .with_size(frontend.get_size())
-                .with_pixel_ratio(ratio),
+            MapOptions::new().with_map_mode(MapMode::Static).with_size(frontend.get_size()).with_pixel_ratio(ratio),
         )
     }
 }
@@ -153,10 +150,7 @@ fn footprint() {
             map.jump_to(&CameraOptions::default().with_zoom(Some(16.0)));
             map.get_style_mut().load_url(style);
             frontend.render(&mut map).expect("render");
-            FrontendAndMap {
-                _map: map,
-                _frontend: frontend,
-            }
+            FrontendAndMap { _map: map, _frontend: frontend }
         }
     }
 

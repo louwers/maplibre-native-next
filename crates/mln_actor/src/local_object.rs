@@ -35,18 +35,12 @@ pub(crate) fn insert(id: u64, object: Rc<dyn Any>) {
 
 /// The object registered under `id` on the current thread.
 pub(crate) fn get(id: u64) -> Option<Rc<dyn Any>> {
-    OBJECTS
-        .try_with(|objects| objects.borrow().get(&id).cloned())
-        .ok()
-        .flatten()
+    OBJECTS.try_with(|objects| objects.borrow().get(&id).cloned()).ok().flatten()
 }
 
 /// Unregisters `id` on the current thread and returns its object.
 pub(crate) fn remove(id: u64) -> Option<Rc<dyn Any>> {
-    OBJECTS
-        .try_with(|objects| objects.borrow_mut().remove(&id))
-        .ok()
-        .flatten()
+    OBJECTS.try_with(|objects| objects.borrow_mut().remove(&id)).ok().flatten()
 }
 
 /// A `Send + Sync` handle to a value that lives on the thread that created
@@ -67,11 +61,7 @@ impl<T: 'static> LocalObject<T> {
     pub fn from_rc(value: Rc<T>) -> Self {
         let id = next_id();
         insert(id, value);
-        LocalObject {
-            id,
-            thread: thread::current().id(),
-            _type: PhantomData,
-        }
+        LocalObject { id, thread: thread::current().id(), _type: PhantomData }
     }
 
     /// Whether the calling thread is the one that owns the value.

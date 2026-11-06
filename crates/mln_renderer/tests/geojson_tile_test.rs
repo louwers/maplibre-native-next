@@ -33,11 +33,7 @@ impl GeoJSONTileTest {
     fn new() -> Self {
         GeoJSONTileTest {
             run_loop: RunLoop::new(),
-            transform: Transform::new(
-                Rc::new(NullTransformObserver),
-                ConstrainMode::HeightOnly,
-                ViewportMode::Default,
-            ),
+            transform: Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default),
             thread_pool: TaggedScheduler::new(scheduler::get_background(), SimpleIdentity::new()),
         }
     }
@@ -99,9 +95,7 @@ fn point_data() -> Arc<dyn GeoJSONData> {
 
 fn circle_layer_properties() -> Immutable<dyn LayerProperties> {
     let layer = CircleLayer::new("circle", "source");
-    Arc::new(CircleLayerProperties::new(static_immutable_cast::<CircleLayerImpl>(
-        &layer.base_impl(),
-    )))
+    Arc::new(CircleLayerProperties::new(static_immutable_cast::<CircleLayerImpl>(&layer.base_impl())))
 }
 
 /// `StubTileObserver` (test/src/mln/test/stub_tile_observer.hpp).

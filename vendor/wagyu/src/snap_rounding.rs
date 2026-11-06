@@ -9,8 +9,8 @@ use crate::point::{GPoint, NIL};
 use crate::ring::{R, RingManager};
 use crate::ring_util::{add_to_hot_pixels, sort_hot_pixels};
 use crate::scanbeam::{insert_sorted_scanbeam, pop_from_scanbeam, setup_scanbeam};
-use libstdcxx::stable_sort_by as stable_sort;
 use crate::util::wround;
+use libstdcxx::stable_sort_by as stable_sort;
 
 /// `process_hot_pixel_intersections`.
 fn process_hot_pixel_intersections(
@@ -104,8 +104,7 @@ fn process_hot_pixel_edges_at_top_of_scanbeam(
         }
         let mut bnd_curr = bnd;
         let mut shifted = false;
-        while b[current_bound].current_edge != b[current_bound].edges.len() && b[current_bound].cur().top.y == top_y
-        {
+        while b[current_bound].current_edge != b[current_bound].edges.len() && b[current_bound].cur().top.y == top_y {
             let top = b[current_bound].cur().top;
             add_to_hot_pixels(top, manager);
             if is_horizontal(b[current_bound].cur())

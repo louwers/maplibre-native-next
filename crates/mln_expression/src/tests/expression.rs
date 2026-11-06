@@ -11,9 +11,7 @@ use std::path::PathBuf;
 /// A path relative to the C++ repository, read in place from the runfiles
 /// tree (`maplibre+`).
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR")
-        .or_else(|_| std::env::var("RUNFILES_DIR"))
-        .expect("TEST_SRCDIR");
+    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+").join(relative)
 }
 

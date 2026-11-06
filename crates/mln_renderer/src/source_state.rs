@@ -65,12 +65,8 @@ impl SourceFeatureState {
         for (source_layer, layer_state_changes) in &state_changes {
             let mut layer_states = FeatureStates::new();
             for (feature_id, feature_state_changes) in layer_state_changes {
-                let current = self
-                    .current_states
-                    .entry(source_layer.clone())
-                    .or_default()
-                    .entry(feature_id.clone())
-                    .or_default();
+                let current =
+                    self.current_states.entry(source_layer.clone()).or_default().entry(feature_id.clone()).or_default();
                 for (state_key, state_val) in feature_state_changes {
                     current.insert(state_key.clone(), state_val.clone());
                 }
@@ -149,16 +145,22 @@ impl SourceFeatureState {
                 }
             }
             (None, Some(feature_id)) => {
-                let update_in_queue =
-                    self.state_changes.get(&source_layer).is_some_and(|layer_states| layer_states.contains_key(feature_id));
+                let update_in_queue = self
+                    .state_changes
+                    .get(&source_layer)
+                    .is_some_and(|layer_states| layer_states.contains_key(feature_id));
                 if update_in_queue {
                     let keys: Vec<String> = self.state_changes[&source_layer][feature_id].keys().cloned().collect();
-                    let deleted = self.deleted_states.entry(source_layer).or_default().entry(feature_id.to_owned()).or_default();
+                    let deleted =
+                        self.deleted_states.entry(source_layer).or_default().entry(feature_id.to_owned()).or_default();
                     for key in keys {
                         deleted.insert(key, Default::default());
                     }
                 } else {
-                    self.deleted_states.entry(source_layer).or_default().insert(feature_id.to_owned(), FeatureState::new());
+                    self.deleted_states
+                        .entry(source_layer)
+                        .or_default()
+                        .insert(feature_id.to_owned(), FeatureState::new());
                 }
             }
             _ => {

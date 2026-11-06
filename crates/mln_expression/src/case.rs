@@ -1,9 +1,7 @@
 // Ports include/mln/style/expression/case.hpp and
 // src/mln/style/expression/case.cpp.
 
-use crate::expression::{
-    Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
@@ -19,25 +17,16 @@ pub struct Case {
 
 impl Case {
     pub fn new(type_: Type, branches: Vec<Branch>, otherwise: Box<dyn Expression>) -> Self {
-        let deps = branches
-            .iter()
-            .fold(Dependency::NONE, |a, b| a | b.0.dependencies() | b.1.dependencies())
+        let deps = branches.iter().fold(Dependency::NONE, |a, b| a | b.0.dependencies() | b.1.dependencies())
             | otherwise.dependencies();
-        Case {
-            base: ExpressionBase::new(Kind::Case, type_, deps),
-            branches,
-            otherwise,
-        }
+        Case { base: ExpressionBase::new(Kind::Case, type_, deps), branches, otherwise }
     }
 
     pub fn parse(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseResult {
         debug_assert!(value.is_array());
         let length = value.array_length();
         if length < 4 {
-            ctx.error(format!(
-                "Expected at least 3 arguments, but found only {}.",
-                length - 1
-            ));
+            ctx.error(format!("Expected at least 3 arguments, but found only {}.", length - 1));
             return None;
         }
 
@@ -105,11 +94,7 @@ impl Expression for Case {
             let rhs = downcast::<Case>(e).expect("Case");
             return self.otherwise.equals(&*rhs.otherwise)
                 && self.branches.len() == rhs.branches.len()
-                && self
-                    .branches
-                    .iter()
-                    .zip(&rhs.branches)
-                    .all(|(l, r)| l.0.equals(&*r.0) && l.1.equals(&*r.1));
+                && self.branches.iter().zip(&rhs.branches).all(|(l, r)| l.0.equals(&*r.0) && l.1.equals(&*r.1));
         }
         false
     }

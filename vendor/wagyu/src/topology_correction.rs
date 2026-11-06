@@ -16,8 +16,8 @@ use crate::ring::{
     remove_ring_and_points, reverse_ring, ring_depth, ring_is_hole, ring1_replaces_ring2,
 };
 use crate::ring_util::{poly2_contains_poly1, update_points_ring};
-use libstdcxx::stable_sort_by as stable_sort;
 use crate::util::value_is_zero;
+use libstdcxx::stable_sort_by as stable_sort;
 use std::collections::{HashMap, HashSet, VecDeque};
 
 /// `point_ptr_pair<int32_t>`.

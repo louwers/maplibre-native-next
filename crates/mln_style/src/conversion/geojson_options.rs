@@ -143,14 +143,11 @@ impl Converter for GeoJSONOptions {
                     dsl::create_expression_from_str(&ss)
                 };
                 let Some(reduce) = reduce else {
-                    error.message =
-                        "Failed to convert GeoJSON source clusterProperties reduce expression".to_owned();
+                    error.message = "Failed to convert GeoJSON source clusterProperties reduce expression".to_owned();
                     return None;
                 };
                 // `emplace` keeps an existing key.
-                result
-                    .entry(k.to_owned())
-                    .or_insert((Arc::from(map), Arc::from(reduce)));
+                result.entry(k.to_owned()).or_insert((Arc::from(map), Arc::from(reduce)));
                 None
             });
             if !error.message.is_empty() {

@@ -3,11 +3,10 @@
 use super::util::{FixtureLog, parse_json, read_file};
 use crate::image;
 use crate::layer::Layer;
-use crate::layers::line_layer_properties::LineColor;
 use crate::layers::line_layer::{Impl as LineLayerImpl, LineLayer};
-use crate::sources::tile_source::{UrlOrTileset, VectorSource};
-use mln_util::logging::{Event, EventSeverity};
+use crate::layers::line_layer_properties::LineColor;
 use crate::observer::{Observer, SourceObserver};
+use crate::sources::tile_source::{UrlOrTileset, VectorSource};
 use crate::style::{Impl, Style};
 use crate::transition_options::TransitionOptions;
 use feature::Value;
@@ -16,6 +15,7 @@ use mln_style_types::VisibilityType;
 use mln_util::LatLng;
 use mln_util::chrono::milliseconds;
 use mln_util::image::PremultipliedImage;
+use mln_util::logging::{Event, EventSeverity};
 use mln_util::size::Size;
 use std::cell::Cell;
 use std::rc::Rc;
@@ -25,13 +25,15 @@ use std::sync::Arc;
 /// `auto fileSource = std::make_shared<StubFileSource>();`, as the C++ style
 /// tests construct it.
 fn stub_style() -> Impl {
-    let file_source = mln_storage::stub_file_source::StubFileSource::new(
-        mln_storage::stub_file_source::ResponseType::Asynchronous,
-    );
+    let file_source =
+        mln_storage::stub_file_source::StubFileSource::new(mln_storage::stub_file_source::ResponseType::Asynchronous);
     Impl::with_file_source(
         Some(Arc::new(file_source)),
         1.0,
-        mln_actor::TaggedScheduler::new(mln_actor::scheduler::get_background(), mln_util::identity::SimpleIdentity::new()),
+        mln_actor::TaggedScheduler::new(
+            mln_actor::scheduler::get_background(),
+            mln_util::identity::SimpleIdentity::new(),
+        ),
     )
 }
 
@@ -392,10 +394,7 @@ fn visibility_expression_set_at_runtime() {
     // A visibility expression set after the style has loaded must be
     // evaluated against the current global state right away.
     let json = parse_json(r#"["case", ["to-boolean", ["global-state", "showBackground"]], "visible", "none"]"#);
-    let error = style
-        .get_layer_mut("background")
-        .unwrap()
-        .set_property("visibility", &Convertible::from(&json), None);
+    let error = style.get_layer_mut("background").unwrap().set_property("visibility", &Convertible::from(&json), None);
     assert!(error.is_none());
     assert_eq!(VisibilityType::None, style.get_layer("background").unwrap().get_visibility());
 
@@ -404,10 +403,7 @@ fn visibility_expression_set_at_runtime() {
     assert_eq!(VisibilityType::Visible, style.get_layer("background").unwrap().get_visibility());
 
     let json = parse_json(r#"["case", ["to-boolean", ["global-state", "showBackground"]], "none", "visible"]"#);
-    let error = style
-        .get_layer_mut("background")
-        .unwrap()
-        .set_property("visibility", &Convertible::from(&json), None);
+    let error = style.get_layer_mut("background").unwrap().set_property("visibility", &Convertible::from(&json), None);
     assert!(error.is_none());
     assert_eq!(VisibilityType::None, style.get_layer("background").unwrap().get_visibility());
     assert!(log.is_empty(), "{:?}", log.messages());
@@ -444,10 +440,7 @@ fn visibility_expression_rejects_other_dependencies() {
 
     // Visibility expressions may only depend on the global state.
     let json = parse_json(r#"["case", [">", ["zoom"], 10], "visible", "none"]"#);
-    let error = style
-        .get_layer_mut("background")
-        .unwrap()
-        .set_property("visibility", &Convertible::from(&json), None);
+    let error = style.get_layer_mut("background").unwrap().set_property("visibility", &Convertible::from(&json), None);
     assert!(error.is_some());
     assert_eq!(VisibilityType::Visible, style.get_layer("background").unwrap().get_visibility());
 }
@@ -494,24 +487,23 @@ fn remove_source_in_use() {
     assert!(removed.is_none());
     assert!(style.get_source("sourceId").is_some());
 
-    assert_eq!(
-        1,
-        log.count(EventSeverity::Warning, Event::General, "Source 'sourceId' is in use, cannot remove")
-    );
+    assert_eq!(1, log.count(EventSeverity::Warning, Event::General, "Source 'sourceId' is in use, cannot remove"));
 }
 
 // gtest: Style.PublicLoadStateDoesNotWaitForResources
 #[test]
 fn public_load_state_does_not_wait_for_resources() {
-    let file_source = mln_storage::stub_file_source::StubFileSource::new(
-        mln_storage::stub_file_source::ResponseType::Asynchronous,
-    );
+    let file_source =
+        mln_storage::stub_file_source::StubFileSource::new(mln_storage::stub_file_source::ResponseType::Asynchronous);
     // TODO(port): StubFileSource::ResponseType::Manual (never answers here,
     // as no run loop runs).
     let mut style = Style::with_file_source(
         Some(Arc::new(file_source)),
         1.0,
-        mln_actor::TaggedScheduler::new(mln_actor::scheduler::get_background(), mln_util::identity::SimpleIdentity::new()),
+        mln_actor::TaggedScheduler::new(
+            mln_actor::scheduler::get_background(),
+            mln_util::identity::SimpleIdentity::new(),
+        ),
     );
 
     assert!(!style.is_loaded());
@@ -580,14 +572,16 @@ fn stub_with_style_response(
     responder: impl Fn(&mln_storage::Resource) -> Option<mln_storage::Response> + 'static,
 ) -> (Impl, Rc<ResponseObserver>, mln_actor::RunLoop) {
     let run_loop = mln_actor::RunLoop::new();
-    let file_source = mln_storage::stub_file_source::StubFileSource::new(
-        mln_storage::stub_file_source::ResponseType::Asynchronous,
-    );
+    let file_source =
+        mln_storage::stub_file_source::StubFileSource::new(mln_storage::stub_file_source::ResponseType::Asynchronous);
     file_source.set_response(mln_storage::Kind::Style, responder);
     let mut style = Impl::with_file_source(
         Some(Arc::new(file_source)),
         1.0,
-        mln_actor::TaggedScheduler::new(mln_actor::scheduler::get_background(), mln_util::identity::SimpleIdentity::new()),
+        mln_actor::TaggedScheduler::new(
+            mln_actor::scheduler::get_background(),
+            mln_util::identity::SimpleIdentity::new(),
+        ),
     );
     let observer = Rc::new(ResponseObserver::default());
     style.set_observer(Some(observer.clone()));
@@ -644,12 +638,14 @@ fn load_json_cancels_pending_load_url() {
     style.load_url("http://some-url");
 
     // Before the URL request completes, load JSON directly
-    style.load_json(r#"{
+    style.load_json(
+        r#"{
         "version": 8,
         "name": "Test Style",
         "sources": {},
         "layers": []
-    }"#);
+    }"#,
+    );
 
     // The style should now be loaded with our JSON content
     assert_eq!("Test Style", style.get_name());

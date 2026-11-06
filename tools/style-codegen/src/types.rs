@@ -175,11 +175,7 @@ fn evaluated_type_of(q: &TypeQuery<'_>) -> EvaluatedType {
             if name.ends_with("bearing") && period_is_360 && q.units == Some("degrees") {
                 return EvaluatedType::Rotation;
             }
-            if name.ends_with("location") {
-                EvaluatedType::Double
-            } else {
-                EvaluatedType::Float
-            }
+            if name.ends_with("location") { EvaluatedType::Double } else { EvaluatedType::Float }
         }
         "numberArray" => EvaluatedType::Vector(Box::new(EvaluatedType::Float)),
         "colorArray" => EvaluatedType::Vector(Box::new(EvaluatedType::Color)),
@@ -279,11 +275,7 @@ pub fn attribute_uniform_type(property: &Property, layer_type: &str) -> String {
         // first occurrence only.
         None => vec![property.name.replacen(&format!("{layer_type}-"), "", 1).replace('-', "_")],
     };
-    names
-        .iter()
-        .map(|name| format!("attributes::{name}, uniforms::{name}"))
-        .collect::<Vec<_>>()
-        .join(", ")
+    names.iter().map(|name| format!("attributes::{name}, uniforms::{name}")).collect::<Vec<_>>().join(", ")
 }
 
 /// `property['property-type']` is data-driven for `convert<>` and the layout
@@ -318,11 +310,9 @@ pub fn paint_property_type_cpp(property: &Property, layer_type: &str) -> String 
                 format!("DataDrivenPaintProperty<{}, {}>", t(), attribute_uniform_type(property, layer_type))
             }
         }
-        Some("cross-faded-data-driven") => format!(
-            "CrossFadedDataDrivenPaintProperty<{}, {}>",
-            t(),
-            attribute_uniform_type(property, layer_type)
-        ),
+        Some("cross-faded-data-driven") => {
+            format!("CrossFadedDataDrivenPaintProperty<{}, {}>", t(), attribute_uniform_type(property, layer_type))
+        }
         Some("cross-faded") => format!("CrossFadedPaintProperty<{}>", t()),
         _ => format!("PaintProperty<{}>", t()),
     }

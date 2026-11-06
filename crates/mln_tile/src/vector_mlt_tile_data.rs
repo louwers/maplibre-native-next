@@ -262,7 +262,10 @@ impl VectorMLTTileData {
 impl Clone for VectorMLTTileData {
     /// The C++ copy constructor: shares the data and the decoded tile.
     fn clone(&self) -> Self {
-        VectorMLTTileData { state: Mutex::new(self.state.lock().unwrap().clone()), fast_pfor_enabled: self.fast_pfor_enabled }
+        VectorMLTTileData {
+            state: Mutex::new(self.state.lock().unwrap().clone()),
+            fast_pfor_enabled: self.fast_pfor_enabled,
+        }
     }
 }
 

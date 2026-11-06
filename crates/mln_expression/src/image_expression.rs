@@ -1,9 +1,7 @@
 // Ports include/mln/style/expression/image_expression.hpp and
 // src/mln/style/expression/image_expression.cpp.
 
-use crate::expression::{
-    Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::image::Image;
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
@@ -20,11 +18,7 @@ pub struct ImageExpression {
 impl ImageExpression {
     pub fn new(image_id: Box<dyn Expression>) -> Self {
         ImageExpression {
-            base: ExpressionBase::new(
-                Kind::ImageExpression,
-                Type::Image,
-                image_id.dependencies() | Dependency::IMAGE,
-            ),
+            base: ExpressionBase::new(Kind::ImageExpression, Type::Image, image_id.dependencies() | Dependency::IMAGE),
             image_id: Arc::from(image_id),
         }
     }
@@ -55,9 +49,7 @@ impl Expression for ImageExpression {
         // `toString(Value)` always produces a string.
         let evaluated_image_id = to_string(&image_id_result);
 
-        let available = ctx
-            .available_images
-            .is_some_and(|images| images.contains(&evaluated_image_id));
+        let available = ctx.available_images.is_some_and(|images| images.contains(&evaluated_image_id));
         Ok(Value::Image(Image::with_available(evaluated_image_id, available)))
     }
 

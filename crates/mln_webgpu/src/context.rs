@@ -19,17 +19,17 @@ use crate::layer_group::LayerGroup;
 use crate::offscreen_texture::OffscreenTexture;
 use crate::render_pass::RenderPass;
 use crate::renderer_backend::BackendImpl;
-use crate::texture2d::Texture2D;
-use crate::tile_layer_group::TileLayerGroup;
 use crate::shaders::shader_program::{BindingType, VertexLayout, as_webgpu_shader};
 use crate::shaders::shader_source::shader_source;
+use crate::texture2d::Texture2D;
+use crate::tile_layer_group::TileLayerGroup;
 use crate::uniform_buffer::UniformBuffer;
 use mln_gfx::color_mode::ColorMode;
 use mln_gfx::context::{Context as GfxContext, ContextBase};
 use mln_gfx::depth_mode::DepthMode;
 use mln_gfx::drawable_builder::UniqueDrawableBuilder;
-use mln_gfx::renderer::layer_group::LayerGroupBasePtr;
 use mln_gfx::gfx_types::{AttributeDataType, DrawModeType};
+use mln_gfx::renderer::layer_group::LayerGroupBasePtr;
 use mln_gfx::rendering_stats::RenderingStats;
 use mln_gfx::shader_group::StringIDSetsPair;
 use mln_gfx::shader_registry::ShaderRegistry;
@@ -39,8 +39,8 @@ use mln_gfx::shaders::shader_source::BuiltIn;
 use mln_gfx::stencil_mode::{StencilMode, Test};
 use mln_gfx::texture2d::Texture2DPtr;
 use mln_gfx::types::{DepthFunctionType, DepthMaskType, StencilOpType, TextureChannelDataType};
-use mln_gfx::util_hash::hash;
 use mln_gfx::uniform_buffer::{UniformBufferArray, UniformBufferPtr, UniqueUniformBufferArray};
+use mln_gfx::util_hash::hash;
 use mln_gfx::vertex_attribute::{VertexAttributeArray, VertexAttributeArrayPtr};
 use mln_gfx::vertex_buffer::UniqueVertexBufferResource;
 use mln_util::size::Size;
@@ -249,11 +249,8 @@ impl Context {
         };
         // sizeof(gfx::Vertex<PositionOnlyLayoutAttributes>): one short2
         let array_stride = std::mem::size_of::<[i16; 2]>() as u64;
-        let vertex_layout = VertexLayout {
-            array_stride,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: vec![vertex_attribute],
-        };
+        let vertex_layout =
+            VertexLayout { array_stride, step_mode: wgpu::VertexStepMode::Vertex, attributes: vec![vertex_attribute] };
         if self.clip_mask_pipeline_hash.get().is_none() {
             self.clip_mask_pipeline_hash.set(Some(hash(&[
                 color_mode.hash(),

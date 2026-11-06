@@ -53,10 +53,7 @@ fn substr(s: &str, segment: (usize, usize)) -> &str {
 
 /// `std::regex_replace(urlTemplate, tokenPattern, "(.+)", match_any)`.
 fn replace_tokens(template: &str, token_pattern: &str) -> String {
-    Regex::new(token_pattern)
-        .expect("token pattern")
-        .replace_all(template, "(.+)")
-        .into_owned()
+    Regex::new(token_pattern).expect("token pattern").replace_all(template, "(.+)").into_owned()
 }
 
 /// `createTokenMap(urlTemplate, url)`.
@@ -80,10 +77,8 @@ fn create_token_map(url_template: &str, url: &str) -> BTreeMap<String, String> {
     // --- extract token values
     // /tiles{path}/tiles.json in tiles/satellite/tiles.json
     // e.g. path = /satellite
-    let template_pattern = replace_tokens(
-        url_template,
-        r"\{domain\}|\{path\}|\{directory\}|\{filename\}|\{extension\}",
-    );
+    let template_pattern =
+        replace_tokens(url_template, r"\{domain\}|\{path\}|\{directory\}|\{filename\}|\{extension\}");
     if let Ok(r2) = Regex::new(&template_pattern) {
         let mut idx = 0;
         for m in r2.captures_iter(path) {
@@ -169,10 +164,7 @@ pub fn canonicalize_tile_url(
 
     let version_prefix_len = tile_server_options.tile_version_prefix().as_ref().map_or(0, String::len);
 
-    result += substr(
-        s,
-        (path.directory.0 + version_prefix_len, path.directory.1.wrapping_sub(version_prefix_len)),
-    );
+    result += substr(s, (path.directory.0 + version_prefix_len, path.directory.1.wrapping_sub(version_prefix_len)));
     result += substr(s, path.filename);
     if type_ == SourceType::Raster || type_ == SourceType::RasterDEM {
         result += if tile_size == TILE_SIZE_I { "@2x" } else { "{ratio}" };
@@ -307,13 +299,15 @@ mod tests {
             "maptiler://fonts/{fontstack}/{range}.pbf",
             canonicalize_glyph_url(&options, "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=abc")
         );
-        assert_eq!(
-            "http://127.0.0.1:3000/sprite",
-            canonicalize_sprite_url(&options, "http://127.0.0.1:3000/sprite")
-        );
+        assert_eq!("http://127.0.0.1:3000/sprite", canonicalize_sprite_url(&options, "http://127.0.0.1:3000/sprite"));
         assert_eq!(
             "maptiler://tiles/tiles/v3/{z}/{x}/{y}.pbf",
-            canonicalize_tile_url(&options, "https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=abc", SourceType::Vector, 512)
+            canonicalize_tile_url(
+                &options,
+                "https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=abc",
+                SourceType::Vector,
+                512
+            )
         );
         assert_eq!(3, nth_occurrence_from_end("api.maptiler.com", ".", 2));
     }

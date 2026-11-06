@@ -166,11 +166,7 @@ impl<N: Number, I: Index> Default for KDBush<N, I> {
 impl<N: Number, I: Index> KDBush<N, I> {
     /// `KDBush(nodeSize)`
     pub fn new(node_size: u8) -> Self {
-        KDBush {
-            ids: Vec::new(),
-            points: Vec::new(),
-            node_size,
-        }
+        KDBush { ids: Vec::new(), points: Vec::new(), node_size }
     }
 
     /// `KDBush(points, nodeSize)`
@@ -218,15 +214,7 @@ impl<N: Number, I: Index> KDBush<N, I> {
 
     /// `within(qx, qy, r, visitor)`
     pub fn within(&self, qx: N, qy: N, r: N, visitor: &mut impl FnMut(I)) {
-        self.within_impl(
-            qx,
-            qy,
-            r,
-            visitor,
-            I::ZERO,
-            I::from_usize(self.ids.len()).wrapping_sub(I::ONE),
-            0,
-        );
+        self.within_impl(qx, qy, r, visitor, I::ZERO, I::from_usize(self.ids.len()).wrapping_sub(I::ONE), 0);
     }
 
     fn point(&self, i: I) -> (N, N) {

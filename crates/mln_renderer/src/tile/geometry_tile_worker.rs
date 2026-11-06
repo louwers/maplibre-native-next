@@ -16,35 +16,35 @@
 // TODO(port): the ErrorScope for symbol errors, `setObserver`, font faces
 // (HarfBuzz shaping results for complex scripts).
 
+use crate::bucket::BucketPtr;
 use crate::bucket_parameters::BucketParameters;
-use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlasPtr, GlyphAtlas, ImageAtlas};
-use crate::text::glyph_manager::HBShapeResults;
-use mln_text::glyph::{GlyphDependencies, GlyphIDType, GlyphMap};
-use mln_text::tagged_string::font_stack_hash;
 use crate::geometry::feature_index::FeatureIndex;
+use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlasPtr, GlyphAtlas, ImageAtlas};
 use crate::group_by_layout::group_layers;
 use crate::layermanager;
 use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
-use crate::bucket::BucketPtr;
 use crate::layout::pattern_layout::PatternLayerMap;
 use crate::render_layer::LayerRenderData;
-use mln_style::expression::EvaluationContext;
+use crate::text::glyph_manager::HBShapeResults;
 use crate::tile::geometry_tile::{GeometryTileInner, LayoutResult};
-use mln_actor::{ActorRef, LocalObject};
 use mln_actor::actor::PoolActorRef;
-use std::cell::RefCell;
-use std::rc::Weak;
+use mln_actor::{ActorRef, LocalObject};
 use mln_map_types::MapMode;
+use mln_style::expression::EvaluationContext;
 use mln_style::expression::GlobalStateMap;
 use mln_style::layer::layer_type_info;
 use mln_style::layer_properties::LayerProperties;
 use mln_style_types::image::{ImageDependencies, ImageMap, ImagePositions};
+use mln_text::glyph::{GlyphDependencies, GlyphIDType, GlyphMap};
+use mln_text::tagged_string::font_stack_hash;
 use mln_tile_id::OverscaledTileID;
 use mln_tile_id::geometry_tile_data::GeometryTileData;
 use mln_util::exception::{ExceptionPtr, RuntimeError};
 use mln_util::immutable::Immutable;
+use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap};
 use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::rc::Weak;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -212,8 +212,7 @@ impl GeometryTileWorker {
             Err(payload) => panic_to_exception(payload),
         };
         let correlation_id = self.correlation_id;
-        self.parent
-            .invoke(move |tile: &GeometryTileInner| tile.on_error(error, correlation_id));
+        self.parent.invoke(move |tile: &GeometryTileInner| tile.on_error(error, correlation_id));
     }
 
     /*
@@ -463,11 +462,7 @@ impl GeometryTileWorker {
             let font_glyphs = self.glyph_map.get(&font_stack_hash(font_stack));
             for glyph_id in glyph_ids {
                 if font_glyphs.is_none_or(|glyphs| !glyphs.contains_key(glyph_id)) {
-                    self.pending_glyph_dependencies
-                        .glyphs
-                        .entry(font_stack.clone())
-                        .or_default()
-                        .insert(*glyph_id);
+                    self.pending_glyph_dependencies.glyphs.entry(font_stack.clone()).or_default().insert(*glyph_id);
                 }
             }
         }
@@ -486,8 +481,7 @@ impl GeometryTileWorker {
         }
         if !self.pending_glyph_dependencies.glyphs.is_empty() {
             let dependencies = self.pending_glyph_dependencies.clone();
-            self.parent
-                .invoke(move |tile: &GeometryTileInner| tile.get_glyphs(dependencies));
+            self.parent.invoke(move |tile: &GeometryTileInner| tile.get_glyphs(dependencies));
         }
     }
 
@@ -516,8 +510,7 @@ impl GeometryTileWorker {
         if !self.pending_image_dependencies.is_empty() {
             self.image_correlation_id += 1;
             let pair = (self.pending_image_dependencies.clone(), self.image_correlation_id);
-            self.parent
-                .invoke(move |tile: &GeometryTileInner| tile.get_images(pair));
+            self.parent.invoke(move |tile: &GeometryTileInner| tile.get_images(pair));
         }
     }
 
@@ -656,10 +649,7 @@ impl GeometryTileWorker {
                     // `emplace` keeps an existing entry.
                     self.render_data
                         .entry(layer.base_impl.id.clone())
-                        .or_insert_with(|| LayerRenderData {
-                            bucket: bucket.clone(),
-                            layer_properties: layer.clone(),
-                        });
+                        .or_insert_with(|| LayerRenderData { bucket: bucket.clone(), layer_properties: layer.clone() });
                 }
             }
         }
@@ -749,8 +739,7 @@ impl GeometryTileWorker {
             self.dynamic_texture_atlas.clone(),
         );
         let correlation_id = self.correlation_id;
-        self.parent
-            .invoke(move |tile: &GeometryTileInner| tile.on_layout(layout_result, correlation_id));
+        self.parent.invoke(move |tile: &GeometryTileInner| tile.on_layout(layout_result, correlation_id));
         Ok(())
     }
 

@@ -6,27 +6,28 @@
 
 use crate::bucket::Bucket;
 use crate::bucket_parameters::BucketParameters;
-use crate::layers::{
-    RenderBackgroundLayer, RenderCircleLayer, RenderFillExtrusionLayer, RenderFillLayer, RenderLineLayer, RenderRasterLayer,
-};
 use crate::buckets::fill_extrusion_bucket::FillExtrusionLayoutSpec;
-use mln_style::layers::fill_extrusion_layer_impl::Impl as FillExtrusionLayerImpl;
-use mln_style::layers::symbol_layer_impl::Impl as SymbolLayerImpl;
-use mln_style::layers::raster_layer_impl::Impl as RasterLayerImpl;
-use crate::layout::circle_layout::CircleLayout;
-use crate::layout::pattern_layout::{
-    fill_layout_is_sorted, line_layout_is_sorted, FillLayoutSpec, LineLayoutSpec, PatternLayout,
+use crate::layers::{
+    RenderBackgroundLayer, RenderCircleLayer, RenderFillExtrusionLayer, RenderFillLayer, RenderLineLayer,
+    RenderRasterLayer,
 };
-use mln_style::layers::circle_layer_impl::Impl as CircleLayerImpl;
-use mln_style::layers::fill_layer_impl::Impl as FillLayerImpl;
-use mln_style::layers::line_layer_impl::Impl as LineLayerImpl;
+use crate::layout::circle_layout::CircleLayout;
 use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
+use crate::layout::pattern_layout::{
+    FillLayoutSpec, LineLayoutSpec, PatternLayout, fill_layout_is_sorted, line_layout_is_sorted,
+};
 use crate::render_layer::RenderLayerPtr;
 use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
 use mln_style::layer::layer_type_info;
+use mln_style::layer::static_immutable_cast;
 use mln_style::layer_properties::LayerProperties;
 use mln_style::layers::background_layer_impl::Impl as BackgroundLayerImpl;
+use mln_style::layers::circle_layer_impl::Impl as CircleLayerImpl;
+use mln_style::layers::fill_extrusion_layer_impl::Impl as FillExtrusionLayerImpl;
+use mln_style::layers::fill_layer_impl::Impl as FillLayerImpl;
+use mln_style::layers::line_layer_impl::Impl as LineLayerImpl;
+use mln_style::layers::raster_layer_impl::Impl as RasterLayerImpl;
+use mln_style::layers::symbol_layer_impl::Impl as SymbolLayerImpl;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use std::cell::RefCell;
@@ -36,9 +37,8 @@ use std::rc::Rc;
 pub fn create_render_layer(impl_: &Immutable<dyn layer::Impl>) -> Option<RenderLayerPtr> {
     let type_info = impl_.get_type_info();
     if std::ptr::eq(type_info, BackgroundLayerImpl::static_type_info()) {
-        let layer: RenderLayerPtr = Rc::new(RefCell::new(RenderBackgroundLayer::new(static_immutable_cast::<
-            BackgroundLayerImpl,
-        >(impl_))));
+        let layer: RenderLayerPtr =
+            Rc::new(RefCell::new(RenderBackgroundLayer::new(static_immutable_cast::<BackgroundLayerImpl>(impl_))));
         return Some(layer);
     }
     if std::ptr::eq(type_info, CircleLayerImpl::static_type_info()) {
@@ -71,9 +71,10 @@ pub fn create_render_layer(impl_: &Immutable<dyn layer::Impl>) -> Option<RenderL
     }
     // dem-heatmap: HeatmapLayerFactory::createRenderLayer
     if std::ptr::eq(type_info, mln_style::layers::heatmap_layer_impl::Impl::static_type_info()) {
-        let layer: RenderLayerPtr = Rc::new(RefCell::new(crate::layers::render_heatmap_layer::RenderHeatmapLayer::new(
-            static_immutable_cast::<mln_style::layers::heatmap_layer_impl::Impl>(impl_),
-        )));
+        let layer: RenderLayerPtr =
+            Rc::new(RefCell::new(crate::layers::render_heatmap_layer::RenderHeatmapLayer::new(
+                static_immutable_cast::<mln_style::layers::heatmap_layer_impl::Impl>(impl_),
+            )));
         return Some(layer);
     }
     // dem-heatmap: ColorReliefLayerFactory::createRenderLayer
@@ -86,9 +87,10 @@ pub fn create_render_layer(impl_: &Immutable<dyn layer::Impl>) -> Option<RenderL
     }
     // dem-heatmap: HillshadeLayerFactory::createRenderLayer
     if std::ptr::eq(type_info, mln_style::layers::hillshade_layer_impl::Impl::static_type_info()) {
-        let layer: RenderLayerPtr = Rc::new(RefCell::new(crate::layers::render_hillshade_layer::RenderHillshadeLayer::new(
-            static_immutable_cast::<mln_style::layers::hillshade_layer_impl::Impl>(impl_),
-        )));
+        let layer: RenderLayerPtr =
+            Rc::new(RefCell::new(crate::layers::render_hillshade_layer::RenderHillshadeLayer::new(
+                static_immutable_cast::<mln_style::layers::hillshade_layer_impl::Impl>(impl_),
+            )));
         return Some(layer);
     }
     if std::ptr::eq(type_info, SymbolLayerImpl::static_type_info()) {
@@ -99,10 +101,7 @@ pub fn create_render_layer(impl_: &Immutable<dyn layer::Impl>) -> Option<RenderL
         return Some(layer);
     }
     // TODO(port): the other layer types (each arrives with its RenderLayer).
-    Log::error(
-        Event::Render,
-        format!("TODO(port): no render layer for layer type '{}'", type_info.type_),
-    );
+    Log::error(Event::Render, format!("TODO(port): no render layer for layer type '{}'", type_info.type_));
     None
 }
 
@@ -118,10 +117,7 @@ pub fn create_bucket(
     if std::ptr::eq(parameters.layer_type, mln_style::layers::heatmap_layer_impl::Impl::static_type_info()) {
         return Some(Box::new(crate::buckets::heatmap_bucket::HeatmapBucket::new(parameters, layers)));
     }
-    Log::error(
-        Event::Render,
-        format!("TODO(port): no bucket for layer type '{}'", parameters.layer_type.type_),
-    );
+    Log::error(Event::Render, format!("TODO(port): no bucket for layer type '{}'", parameters.layer_type.type_));
     None
 }
 
@@ -172,10 +168,7 @@ pub fn create_layout(
     let _ = tile_layer;
     Log::error(
         Event::Render,
-        format!(
-            "TODO(port): no layout for layer type '{}'",
-            parameters.bucket_parameters.layer_type.type_
-        ),
+        format!("TODO(port): no layout for layer type '{}'", parameters.bucket_parameters.layer_type.type_),
     );
     None
 }

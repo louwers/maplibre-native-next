@@ -216,11 +216,7 @@ fn scan_row(y: u32, active_bounds: &mut Bounds) -> Vec<TileSpan> {
     let y1 = y.wrapping_add(1);
     for b in active_bounds.iter_mut() {
         // Quirk kept: xmax starts at 0, not INT_MIN.
-        let mut xp = TileSpan {
-            xmin: i32::MAX,
-            xmax: 0,
-            winding: b.winding,
-        };
+        let mut xp = TileSpan { xmin: i32::MAX, xmax: 0, winding: b.winding };
         let mut x;
         let num_edges = b.points.len() - 1;
         while b.current_point < num_edges {

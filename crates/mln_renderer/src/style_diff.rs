@@ -27,11 +27,7 @@ pub struct StyleDifference<T: ?Sized> {
 
 impl<T: ?Sized> Default for StyleDifference<T> {
     fn default() -> Self {
-        StyleDifference {
-            added: BTreeMap::new(),
-            removed: BTreeMap::new(),
-            changed: BTreeMap::new(),
-        }
+        StyleDifference { added: BTreeMap::new(), removed: BTreeMap::new(), changed: BTreeMap::new() }
     }
 }
 
@@ -63,10 +59,10 @@ fn diff<T: ?Sized>(
             b_it += 1;
         } else {
             if !Arc::ptr_eq(&a[a_it], &b[b_it]) {
-                result.changed.entry(id(&b[b_it])).or_insert_with(|| StyleChange {
-                    before: a[a_it].clone(),
-                    after: b[b_it].clone(),
-                });
+                result
+                    .changed
+                    .entry(id(&b[b_it]))
+                    .or_insert_with(|| StyleChange { before: a[a_it].clone(), after: b[b_it].clone() });
             }
             a_it += 1;
             b_it += 1;
@@ -81,7 +77,10 @@ pub type ImageDifference = StyleDifference<image::Impl>;
 pub type SourceDifference = StyleDifference<dyn source::Impl>;
 pub type LayerDifference = StyleDifference<dyn layer::Impl>;
 
-pub fn diff_images(a: &Immutable<Vec<Immutable<image::Impl>>>, b: &Immutable<Vec<Immutable<image::Impl>>>) -> ImageDifference {
+pub fn diff_images(
+    a: &Immutable<Vec<Immutable<image::Impl>>>,
+    b: &Immutable<Vec<Immutable<image::Impl>>>,
+) -> ImageDifference {
     diff(a, b, |i| i.id.clone(), |lhs, rhs| lhs.id == rhs.id)
 }
 
@@ -95,12 +94,7 @@ pub fn diff_sources(a: &ImmutableVector<dyn source::Impl>, b: &ImmutableVector<d
 }
 
 pub fn diff_layers(a: &ImmutableVector<dyn layer::Impl>, b: &ImmutableVector<dyn layer::Impl>) -> LayerDifference {
-    diff(
-        a,
-        b,
-        |l| l.id.clone(),
-        |lhs, rhs| lhs.id == rhs.id && std::ptr::eq(lhs.get_type_info(), rhs.get_type_info()),
-    )
+    diff(a, b, |l| l.id.clone(), |lhs, rhs| lhs.id == rhs.id && std::ptr::eq(lhs.get_type_info(), rhs.get_type_info()))
 }
 
 pub fn has_layout_difference(layer_diff: &LayerDifference, layer_id: &str) -> bool {

@@ -38,10 +38,7 @@ impl VectorTile {
         let tile = GeometryTile::new(id, source_id, parameters, observer);
         let weak: std::rc::Weak<crate::tile::geometry_tile::GeometryTileInner> = Rc::downgrade(tile.inner());
         let loader = TileLoader::new(weak, encoding, &id, parameters, tileset);
-        VectorTile {
-            tile,
-            loader: Some(loader),
-        }
+        VectorTile { tile, loader: Some(loader) }
     }
 
     pub fn geometry_tile(&self) -> &GeometryTile {

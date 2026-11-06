@@ -16,15 +16,15 @@
 // mln_text's HBShaper (HarfRust).
 
 use mln_storage::{AsyncRequest, FileSource, Resource, Response};
+use mln_text::glyph::FontFaces;
 use mln_text::glyph::{
-    get_glyph_range, Glyph, GlyphDependencies, GlyphID, GlyphIDType, GlyphIDs, GlyphMap, GlyphRange, Glyphs,
-    HBShapeRequests,
+    Glyph, GlyphDependencies, GlyphID, GlyphIDType, GlyphIDs, GlyphMap, GlyphRange, Glyphs, HBShapeRequests,
+    get_glyph_range,
 };
 use mln_text::glyph_pbf::parse_glyph_pbf;
 use mln_text::local_glyph_rasterizer::{DefaultLocalGlyphRasterizer, LocalGlyphRasterizer};
-use mln_text::glyph::FontFaces;
-use mln_text::{FreeTypeLibrary, HBShapeAdjust, HBShaper};
 use mln_text::tagged_string::font_stack_hash;
+use mln_text::{FreeTypeLibrary, HBShapeAdjust, HBShaper};
 use mln_util::exception::{ExceptionPtr, RuntimeError};
 use mln_util::font_stack::FontStack;
 use mln_util::immutable::Immutable;
@@ -294,7 +294,8 @@ impl GlyphManager {
             let requestors = std::mem::take(&mut request.requestors);
             // Release this range's references first, so a requestor's
             // dependencies are unique once all its ranges are parsed.
-            let mut pending: Vec<(Weak<dyn GlyphRequestor>, Rc<GlyphDependencies>)> = requestors.into_values().collect();
+            let mut pending: Vec<(Weak<dyn GlyphRequestor>, Rc<GlyphDependencies>)> =
+                requestors.into_values().collect();
             let mut i = 0;
             while i < pending.len() {
                 if Rc::strong_count(&pending[i].1) == 1 {
@@ -408,11 +409,7 @@ impl GlyphManager {
         if !shaper.valid() {
             return false;
         }
-        self.hb_shapers
-            .borrow_mut()
-            .entry(font_stack.clone())
-            .or_default()
-            .insert(type_, Rc::new(shaper));
+        self.hb_shapers.borrow_mut().entry(font_stack.clone()).or_default().insert(type_, Rc::new(shaper));
         true
     }
 
@@ -444,10 +441,7 @@ impl GlyphManager {
 
     /// The glyph ids a requestor asked for (helper for tests).
     pub fn has_glyph(&self, font_stack: &FontStack, glyph_id: GlyphID) -> bool {
-        self.entries
-            .borrow()
-            .get(font_stack)
-            .is_some_and(|entry| entry.glyphs.contains_key(&glyph_id))
+        self.entries.borrow().get(font_stack).is_some_and(|entry| entry.glyphs.contains_key(&glyph_id))
     }
 }
 

@@ -2,7 +2,9 @@
 // src/mln/style/layers/layer.cpp.ejs: emits crates/mln_style/src/layers/<type>_layer.rs.
 
 use crate::spec::{LayerSpec, Property};
-use crate::types::{EvaluatedType, camelize, evaluated_type, is_color_ramp, is_data_driven, property_value_type, snake};
+use crate::types::{
+    EvaluatedType, camelize, evaluated_type, is_color_ramp, is_data_driven, property_value_type, snake,
+};
 use crate::writer::{MAX_WIDTH, Writer, if_condition, imports_for, layer_file_name};
 
 /// `layerCapabilities` of layer.cpp.ejs: (Source, Pass3D, Layout,
@@ -173,11 +175,9 @@ pub fn emit(layer: &LayerSpec) -> String {
     let mut imports = imports_for(layer.layout_properties.iter().chain(&layer.paint_properties), true);
     let any_color_ramp = paint.iter().any(|p| is_color_ramp(p));
     let any_plain = paint.iter().chain(&layout).any(|p| !is_color_ramp(p));
-    let any_double3 = paint
-        .iter()
-        .chain(&layout)
-        .any(|p| conversion(p).starts_with("convert_property_value_double3"));
-    let any_convert_property_value = paint.iter().chain(&layout).any(|p| conversion(p).starts_with("convert_property_value::"));
+    let any_double3 = paint.iter().chain(&layout).any(|p| conversion(p).starts_with("convert_property_value_double3"));
+    let any_convert_property_value =
+        paint.iter().chain(&layout).any(|p| conversion(p).starts_with("convert_property_value::"));
     let mut conversion_items = vec!["Converter"];
     if any_color_ramp {
         conversion_items.push("convert_color_ramp_property_value");
@@ -201,7 +201,8 @@ pub fn emit(layer: &LayerSpec) -> String {
         "crate::layer::{self, ImplBase, Layer, LayerTypeInfo, layer_type_info, serialize_base, serialize_property}"
             .into(),
     );
-    let mut tags: Vec<String> = layer.paint_properties.iter().chain(&layer.layout_properties).map(|p| camelize(&p.name)).collect();
+    let mut tags: Vec<String> =
+        layer.paint_properties.iter().chain(&layer.layout_properties).map(|p| camelize(&p.name)).collect();
     tags.push(format!("{t}PaintProperties"));
     imports.push(format!("crate::layers::{file}_layer_properties::{{{}}}", tags.join(", ")));
     if any_plain {
@@ -432,7 +433,8 @@ pub fn emit(layer: &LayerSpec) -> String {
     w.line("        };");
     w.blank();
     for (key, members) in conversion_groups(paint.iter().copied().chain(layout.iter().copied())) {
-        let terms: Vec<String> = members.iter().map(|p| format!("property == Property::{}", camelize(&p.name))).collect();
+        let terms: Vec<String> =
+            members.iter().map(|p| format!("property == Property::{}", camelize(&p.name))).collect();
         for line in if_condition("        ", &terms) {
             w.line(&line);
         }

@@ -15,7 +15,7 @@ use mln_style::layer_properties::LayerProperties;
 use mln_style_types::TranslateAnchorType;
 use mln_tile_id::UnwrappedTileID;
 use mln_util::immutable::Immutable;
-use mln_util::mat4::{matrix, Mat4};
+use mln_util::mat4::{Mat4, matrix};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -31,11 +31,7 @@ pub struct LayerTweakerBase {
 
 impl LayerTweakerBase {
     pub fn new(id: String, properties: Immutable<dyn LayerProperties>) -> Self {
-        LayerTweakerBase {
-            id,
-            evaluated_properties: properties,
-            properties_updated: true,
-        }
+        LayerTweakerBase { id, evaluated_properties: properties, properties_updated: true }
     }
 }
 
@@ -61,10 +57,7 @@ pub trait LayerTweaker {
     /// in mln_gfx (`Rc<dyn Any>`); renderer layers store a `LayerTweakerPtr`
     /// in it (see `layer_tweaker_slot`).
     fn check_tweak_drawable(&self, drawable: &dyn Drawable) -> bool {
-        match drawable
-            .get_layer_tweaker()
-            .and_then(|slot| slot.downcast_ref::<LayerTweakerPtr>())
-        {
+        match drawable.get_layer_tweaker().and_then(|slot| slot.downcast_ref::<LayerTweakerPtr>()) {
             None => true,
             Some(tweaker) => std::ptr::addr_eq(tweaker.as_ptr(), self as *const Self),
         }
@@ -142,14 +135,7 @@ pub fn get_tile_matrix_for(
         near_clipped,
         aligned,
     );
-    translate_vtx_matrix(
-        tile_id,
-        &tile_matrix,
-        translation,
-        anchor,
-        transform_state,
-        in_viewport_pixel_units,
-    )
+    translate_vtx_matrix(tile_id, &tile_matrix, translation, anchor, transform_state, in_viewport_pixel_units)
 }
 
 /// `multiplyWithProjectionMatrix(mat4&, const TransformParameters&, ...)`.
@@ -214,11 +200,7 @@ pub fn translate_vtx_matrix(
     let mut vtx_matrix: Mat4 = [0.0; 16];
 
     let angle: f32 = if in_viewport_pixel_units {
-        if anchor == TranslateAnchorType::Map {
-            state.get_bearing() as f32
-        } else {
-            0.0
-        }
+        if anchor == TranslateAnchorType::Map { state.get_bearing() as f32 } else { 0.0 }
     } else if anchor == TranslateAnchorType::Viewport {
         (-state.get_bearing()) as f32
     } else {
@@ -228,10 +210,8 @@ pub fn translate_vtx_matrix(
     // util::rotate(Point<float>, float): computed in float.
     let cos = angle.cos();
     let sin = angle.sin();
-    let translate = Point::new(
-        cos * translation[0] - sin * translation[1],
-        sin * translation[0] + cos * translation[1],
-    );
+    let translate =
+        Point::new(cos * translation[0] - sin * translation[1], sin * translation[0] + cos * translation[1]);
 
     if in_viewport_pixel_units {
         matrix::translate(&mut vtx_matrix, tile_matrix, translate.x as f64, translate.y as f64, 0.0);

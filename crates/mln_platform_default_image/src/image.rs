@@ -6,10 +6,7 @@ use mln_util::image::PremultipliedImage;
 pub fn decode_image(data: &[u8]) -> Result<PremultipliedImage, String> {
     let read_uint = |offset: usize| -> u32 {
         let ptr = &data[offset..offset + 4];
-        (u32::from(ptr[0]) << 24)
-            | (u32::from(ptr[1]) << 16)
-            | (u32::from(ptr[2]) << 8)
-            | u32::from(ptr[3])
+        (u32::from(ptr[0]) << 24) | (u32::from(ptr[1]) << 16) | (u32::from(ptr[2]) << 8) | u32::from(ptr[3])
     };
 
     let size = data.len();
@@ -58,9 +55,7 @@ mod fixture_tests {
     use super::*;
 
     fn read_file(path: &str) -> Vec<u8> {
-        let root = std::env::var_os("RUNFILES_DIR")
-            .or_else(|| std::env::var_os("TEST_SRCDIR"))
-            .expect("runfiles");
+        let root = std::env::var_os("RUNFILES_DIR").or_else(|| std::env::var_os("TEST_SRCDIR")).expect("runfiles");
         let path = std::path::Path::new(&root).join("maplibre+").join(path);
         std::fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
     }

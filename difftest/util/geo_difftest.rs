@@ -6,11 +6,7 @@ use reference_ffi as cpp;
 use reference_ffi::{BoundsQuery, BoundsSpec, same_f64, special_f64};
 
 fn config(cases: u32) -> ProptestConfig {
-    ProptestConfig {
-        cases,
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    }
+    ProptestConfig { cases, failure_persistence: None, ..ProptestConfig::default() }
 }
 
 fn check_latlng(lat: f64, lon: f64) {
@@ -142,12 +138,32 @@ fn query(s: &BoundsSpec, area_s: &BoundsSpec, p_lat: f64, p_lon: f64, with_cente
 
 fn same_query(a: &BoundsQuery, b: &BoundsQuery) -> bool {
     let fa = [
-        a.sw_lat, a.sw_lon, a.ne_lat, a.ne_lon, a.se_lat, a.se_lon, a.nw_lat, a.nw_lon, a.center_lat, a.center_lon,
-        a.constrained_lat, a.constrained_lon,
+        a.sw_lat,
+        a.sw_lon,
+        a.ne_lat,
+        a.ne_lon,
+        a.se_lat,
+        a.se_lon,
+        a.nw_lat,
+        a.nw_lon,
+        a.center_lat,
+        a.center_lon,
+        a.constrained_lat,
+        a.constrained_lon,
     ];
     let fb = [
-        b.sw_lat, b.sw_lon, b.ne_lat, b.ne_lon, b.se_lat, b.se_lon, b.nw_lat, b.nw_lon, b.center_lat, b.center_lon,
-        b.constrained_lat, b.constrained_lon,
+        b.sw_lat,
+        b.sw_lon,
+        b.ne_lat,
+        b.ne_lon,
+        b.se_lat,
+        b.se_lon,
+        b.nw_lat,
+        b.nw_lon,
+        b.center_lat,
+        b.center_lon,
+        b.constrained_lat,
+        b.constrained_lon,
     ];
     (0..fa.len()).all(|i| same_f64(fa[i], fb[i]))
         && (a.valid, a.is_empty, a.crosses, a.contains_point, a.contains_point_wrapped)
@@ -239,7 +255,10 @@ fn bounds_edge_cases() {
                 for &p_lon in &lons {
                     let r = query(s, area, p_lat, p_lon, true);
                     let c = cpp::bounds_query(s, area, p_lat, p_lon, true);
-                    assert!(same_query(&r, &c), "bounds {s:?} area {area:?} p ({p_lat}, {p_lon}):\nrust {r:?}\nc++  {c:?}");
+                    assert!(
+                        same_query(&r, &c),
+                        "bounds {s:?} area {area:?} p ({p_lat}, {p_lon}):\nrust {r:?}\nc++  {c:?}"
+                    );
                     n += 1;
                 }
             }

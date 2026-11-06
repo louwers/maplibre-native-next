@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Formats every Rust file of the repository with rustfmt (rustfmt.toml):
+# the Cargo workspace and the crates only Bazel builds (difftests, tools,
+# platform/glfw). `scripts/fmt --check` only reports what it would change;
+# CI's lint job runs that.
+#
+# Generated files (the first lines say "Do not edit" or "@generated") stay as
+# their generators write them: they are not passed to rustfmt, and their
+# `mod` declarations carry #[rustfmt::skip], so formatting the module that
+# declares them leaves them alone too (as `cargo fmt` does).
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+files=()
+while IFS= read -r -d '' file; do
+    head -n 5 "$file" | grep -q -e 'Do not edit' -e '@generated' || files+=("$file")
+done < <(git ls-files -z '*.rs')
+
+rustfmt "$@" "${files[@]}"

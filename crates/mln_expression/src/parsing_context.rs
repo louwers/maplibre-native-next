@@ -20,8 +20,8 @@ use crate::in_::In;
 use crate::index_of::IndexOf;
 use crate::interpolate::parse_interpolate;
 use crate::is_constant::{is_feature_constant, is_global_property_constant, is_zoom_constant};
-use crate::let_::{Let, Var};
 use crate::length::Length;
+use crate::let_::{Let, Var};
 use crate::literal::Literal;
 use crate::match_::parse_match;
 use crate::number_format::NumberFormat;
@@ -103,23 +103,12 @@ pub struct ParsingContext {
 
 impl Default for ParsingContext {
     fn default() -> Self {
-        ParsingContext {
-            key: String::new(),
-            expected: None,
-            scope: None,
-            errors: Rc::new(RefCell::new(Vec::new())),
-        }
+        ParsingContext { key: String::new(), expected: None, scope: None, errors: Rc::new(RefCell::new(Vec::new())) }
     }
 }
 
-const REQUIRED_PROPS: [&str; 6] = [
-    "zoom",
-    "heatmap-density",
-    "line-progress",
-    "accumulated",
-    "elevation",
-    "global-state",
-];
+const REQUIRED_PROPS: [&str; 6] =
+    ["zoom", "heatmap-density", "line-progress", "accumulated", "elevation", "global-state"];
 
 fn is_constant(expression: &dyn Expression) -> bool {
     let kind = expression.get_kind();
@@ -152,9 +141,7 @@ fn is_constant(expression: &dyn Expression) -> bool {
         }
     });
 
-    children_constant
-        && is_feature_constant(expression)
-        && is_global_property_constant(expression, &REQUIRED_PROPS)
+    children_constant && is_feature_constant(expression) && is_global_property_constant(expression, &REQUIRED_PROPS)
 }
 
 type ParseFunction = fn(&Convertible<'_>, &mut ParsingContext) -> ParseResult;
@@ -208,18 +195,12 @@ impl ParsingContext {
 
     /// `ParsingContext(std::string key)`.
     pub fn with_key(key: impl Into<String>) -> Self {
-        ParsingContext {
-            key: key.into(),
-            ..Default::default()
-        }
+        ParsingContext { key: key.into(), ..Default::default() }
     }
 
     /// `explicit ParsingContext(type::Type expected)`.
     pub fn with_expected(expected: Type) -> Self {
-        ParsingContext {
-            expected: Some(expected),
-            ..Default::default()
-        }
+        ParsingContext { expected: Some(expected), ..Default::default() }
     }
 
     fn child(
@@ -228,12 +209,7 @@ impl ParsingContext {
         expected: Option<Type>,
         scope: Option<Rc<Scope>>,
     ) -> Self {
-        ParsingContext {
-            key,
-            expected,
-            scope,
-            errors,
-        }
+        ParsingContext { key, expected, scope, errors }
     }
 
     pub fn get_key(&self) -> String {
@@ -280,20 +256,14 @@ impl ParsingContext {
     /// used in a layout or paint property. This entails checking additional
     /// constraints that exist in that context but not, e.g., for filters.
     pub fn parse_layer_property_expression(&mut self, value: &Convertible<'_>) -> ParseResult {
-        let type_annotation_option = if self.expected.as_ref() == Some(&Type::String) {
-            Some(TypeAnnotationOption::Coerce)
-        } else {
-            None
-        };
+        let type_annotation_option =
+            if self.expected.as_ref() == Some(&Type::String) { Some(TypeAnnotationOption::Coerce) } else { None };
         let parsed = self.parse_value(value, type_annotation_option);
 
         // If the expression is zoom-dependent, validate that we can resolve a
         // zoom curve or treat it as an error
         if let Some(p) = &parsed {
-            debug_assert_eq!(
-                !p.has(crate::expression::Dependency::ZOOM),
-                is_zoom_constant(&**p)
-            );
+            debug_assert_eq!(!p.has(crate::expression::Dependency::ZOOM), is_zoom_constant(&**p));
             if p.has(crate::expression::Dependency::ZOOM) {
                 match find_zoom_curve(&**p) {
                     Some(ZoomCurve::Error(err)) => {
@@ -365,24 +335,17 @@ impl ParsingContext {
     }
 
     pub fn error(&mut self, message: String) {
-        self.errors.borrow_mut().push(ParsingError {
-            message,
-            key: self.key.clone(),
-        });
+        self.errors.borrow_mut().push(ParsingError { message, key: self.key.clone() });
     }
 
     pub fn error_at(&mut self, message: String, child: usize) {
-        self.errors.borrow_mut().push(ParsingError {
-            message,
-            key: format!("{}[{}]", self.key, child),
-        });
+        self.errors.borrow_mut().push(ParsingError { message, key: format!("{}[{}]", self.key, child) });
     }
 
     pub fn error_at2(&mut self, message: String, child: usize, grandchild: usize) {
-        self.errors.borrow_mut().push(ParsingError {
-            message,
-            key: format!("{}[{}][{}]", self.key, child, grandchild),
-        });
+        self.errors
+            .borrow_mut()
+            .push(ParsingError { message, key: format!("{}[{}][{}]", self.key, child, grandchild) });
     }
 
     pub fn append_errors(&mut self, ctx: ParsingContext) {
@@ -461,37 +424,17 @@ impl ParsingContext {
                 || expected.is_array())
                 && actual == Type::Value
             {
-                expr = annotate(
-                    expr,
-                    expected,
-                    type_annotation_option.unwrap_or(TypeAnnotationOption::Assert),
-                );
-            } else if (expected == Type::Color
-                || expected == Type::Formatted
-                || expected == Type::Image)
+                expr = annotate(expr, expected, type_annotation_option.unwrap_or(TypeAnnotationOption::Assert));
+            } else if (expected == Type::Color || expected == Type::Formatted || expected == Type::Image)
                 && (actual == Type::Value || actual == Type::String)
             {
-                expr = annotate(
-                    expr,
-                    expected,
-                    type_annotation_option.unwrap_or(TypeAnnotationOption::Coerce),
-                );
+                expr = annotate(expr, expected, type_annotation_option.unwrap_or(TypeAnnotationOption::Coerce));
             } else if expected == Type::Padding
                 && (actual == Type::Value || actual == Type::Number || actual.is_array())
             {
-                expr = annotate(
-                    expr,
-                    expected,
-                    type_annotation_option.unwrap_or(TypeAnnotationOption::Coerce),
-                );
-            } else if expected == Type::VariableAnchorOffsetCollection
-                && (actual == Type::Value || actual.is_array())
-            {
-                expr = annotate(
-                    expr,
-                    expected,
-                    type_annotation_option.unwrap_or(TypeAnnotationOption::Coerce),
-                );
+                expr = annotate(expr, expected, type_annotation_option.unwrap_or(TypeAnnotationOption::Coerce));
+            } else if expected == Type::VariableAnchorOffsetCollection && (actual == Type::Value || actual.is_array()) {
+                expr = annotate(expr, expected, type_annotation_option.unwrap_or(TypeAnnotationOption::Coerce));
             } else {
                 let t = expr.get_type().clone();
                 self.check_type(&t);

@@ -184,10 +184,7 @@ fn any_expression() {
     assert!(!filter(r#"["any"]"#, &[]));
     assert!(filter(r#"["any", ["==", ["get", "foo"], 1]]"#, &[("foo", Value::Int(1))]));
     assert!(!filter(r#"["any", ["==", ["get", "foo"], 0]]"#, &[("foo", Value::Int(1))]));
-    assert!(filter(
-        r#"["any", ["==", ["get", "foo"], 0], ["==", ["get", "foo"], 1]]"#,
-        &[("foo", Value::Int(1))]
-    ));
+    assert!(filter(r#"["any", ["==", ["get", "foo"], 0], ["==", ["get", "foo"], 1]]"#, &[("foo", Value::Int(1))]));
 }
 
 // gtest: Filter.All
@@ -204,10 +201,7 @@ fn all() {
 fn all_expression() {
     assert!(filter(r#"["all", ["==", ["get", "foo"], 1]]"#, &[("foo", Value::Int(1))]));
     assert!(!filter(r#"["all", ["==", ["get", "foo"], 0]]"#, &[("foo", Value::Int(1))]));
-    assert!(!filter(
-        r#"["all", ["==", ["get", "foo"], 0], ["==", ["get", "foo"], 1]]"#,
-        &[("foo", Value::Int(1))]
-    ));
+    assert!(!filter(r#"["all", ["==", ["get", "foo"], 0], ["==", ["get", "foo"], 1]]"#, &[("foo", Value::Int(1))]));
 }
 
 // gtest: Filter.None
@@ -396,10 +390,8 @@ fn serialize() {
 #[test]
 fn expression_legacy_mix() {
     let mut error = Error::default();
-    let filter = convert_json(
-        r#"["any", ["all", ["==", ["geometry-type"], "LineString"]], ["==", "x", 1]]"#,
-        &mut error,
-    );
+    let filter =
+        convert_json(r#"["any", ["all", ["==", ["geometry-type"], "LineString"]], ["==", "x", 1]]"#, &mut error);
     assert!(filter.is_none());
     assert!(!error.message.is_empty());
 }

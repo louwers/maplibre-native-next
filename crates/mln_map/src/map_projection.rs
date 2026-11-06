@@ -20,9 +20,7 @@ impl MapProjection {
 
     /// `MapProjection(const TransformState&)`.
     pub fn from_state(state: TransformState) -> Self {
-        MapProjection {
-            transform: Transform::from_state(state),
-        }
+        MapProjection { transform: Transform::from_state(state) }
     }
 
     pub fn pixel_for_lat_lng(&self, lat_lng: &LatLng) -> ScreenCoordinate {

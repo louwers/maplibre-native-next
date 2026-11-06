@@ -18,13 +18,12 @@ use crate::layout::clip_lines::clip_lines;
 use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
 use crate::layout::merge_lines::merge_lines;
 use crate::layout::symbol_feature::SymbolFeature;
-use crate::layout::symbol_instance::{
-    ShapedTextOrientations, SymbolContent, SymbolInstance, SymbolInstanceSharedData,
-};
+use crate::layout::symbol_instance::{ShapedTextOrientations, SymbolContent, SymbolInstance, SymbolInstanceSharedData};
 use crate::render_layer::LayerRenderData;
 use crate::text::get_anchors::{get_anchors, get_center_anchor};
 use crate::text::glyph_manager::HBShapeResults;
 use crate::text::quads::{SymbolQuad, SymbolQuads};
+use geometry::{LinearRing, Point, Polygon};
 use mln_expression::Value;
 use mln_expression::formatted::K_FORMATTED_SECTION_TEXT_COLOR;
 use mln_map_types::MapMode;
@@ -51,7 +50,6 @@ use mln_util::geometry::FeatureType;
 use mln_util::i18n;
 use mln_util::immutable::Immutable;
 use mln_util::range::Range;
-use geometry::{LinearRing, Point, Polygon};
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
@@ -356,9 +354,7 @@ impl SymbolLayout {
         }
 
         for layer in layers {
-            this.layer_paint_properties
-                .entry(layer.base_impl.id.clone())
-                .or_insert_with(|| layer.clone());
+            this.layer_paint_properties.entry(layer.base_impl.id.clone()).or_insert_with(|| layer.clone());
         }
 
         // Determine glyph dependencies
@@ -492,9 +488,8 @@ impl SymbolLayout {
                     if section.image_id.is_some() {
                         continue;
                     }
-                    let section_font_stack = section_table
-                        .get(&section_index)
-                        .and_then(|&i| formatted.sections[i].font_stack.clone());
+                    let section_font_stack =
+                        section_table.get(&section_index).and_then(|&i| formatted.sections[i].font_stack.clone());
                     let font_stack = section_font_stack.unwrap_or_else(|| base_font_stack.clone());
                     let dependencies = layout_parameters.glyph_dependencies.glyphs.entry(font_stack).or_default();
                     if section.type_ != GlyphIDType::FontPBF {
@@ -602,7 +597,8 @@ impl SymbolLayout {
                     }
                     SymbolAnchorType::Center | SymbolAnchorType::Left | SymbolAnchorType::Right => {}
                 }
-                anchor_offsets.push(AnchorOffsetPair { anchor_type: anchor_offset.anchor_type, offset: variable_text_offset });
+                anchor_offsets
+                    .push(AnchorOffsetPair { anchor_type: anchor_offset.anchor_type, offset: variable_text_offset });
             }
             return Some(VariableAnchorOffsetCollection::new(anchor_offsets));
         }
@@ -724,8 +720,7 @@ impl SymbolLayout {
             }
         }
 
-        let key: Vec<u16> =
-            feature.formatted_text.as_ref().map(|t| t.raw_text().to_vec()).unwrap_or_default();
+        let key: Vec<u16> = feature.formatted_text.as_ref().map(|t| t.raw_text().to_vec()).unwrap_or_default();
 
         let allow_vertical_placement = self.allow_vertical_placement;
         let create_symbol_instance_shared_data = |line: GeometryCoordinates| {
@@ -748,57 +743,58 @@ impl SymbolLayout {
         let mode = self.mode;
         let overscaling = self.overscaling;
         let sort_features_by_key = self.sort_features_by_key;
-        let add_symbol_instance = |this: &mut SymbolLayout, anchor: Anchor, shared_data: Arc<SymbolInstanceSharedData>| {
-            let anchor_inside_tile = anchor.point.x >= 0.0
-                && anchor.point.x < EXTENT as f32
-                && anchor.point.y >= 0.0
-                && anchor.point.y < EXTENT as f32;
+        let add_symbol_instance =
+            |this: &mut SymbolLayout, anchor: Anchor, shared_data: Arc<SymbolInstanceSharedData>| {
+                let anchor_inside_tile = anchor.point.x >= 0.0
+                    && anchor.point.x < EXTENT as f32
+                    && anchor.point.y >= 0.0
+                    && anchor.point.y < EXTENT as f32;
 
-            if mode == MapMode::Tile || anchor_inside_tile {
-                // For static/continuous rendering, only add symbols anchored
-                // within this tile: neighboring symbols will be added as part
-                // of the neighboring tiles. In tiled rendering mode, add all
-                // symbols in the buffers so that we can: (1) render symbols
-                // that overlap into this tile (2) approximate collision
-                // detection effects from neighboring symbols
-                this.symbol_instances.push(SymbolInstance::new(
-                    anchor,
-                    shared_data,
-                    shaped_text_orientations,
-                    &shaped_icon,
-                    &vertically_shaped_icon,
-                    text_box_scale,
-                    text_padding,
-                    text_placement,
-                    text_offset,
-                    icon_box_scale,
-                    icon_padding,
-                    icon_offset,
-                    &indexed_feature,
-                    layout_feature_index,
-                    feature.index,
-                    key.clone(),
-                    overscaling,
-                    icon_rotation,
-                    text_rotation,
-                    &variable_anchor_offsets,
-                    allow_vertical_placement,
-                    icon_type,
-                ));
+                if mode == MapMode::Tile || anchor_inside_tile {
+                    // For static/continuous rendering, only add symbols anchored
+                    // within this tile: neighboring symbols will be added as part
+                    // of the neighboring tiles. In tiled rendering mode, add all
+                    // symbols in the buffers so that we can: (1) render symbols
+                    // that overlap into this tile (2) approximate collision
+                    // detection effects from neighboring symbols
+                    this.symbol_instances.push(SymbolInstance::new(
+                        anchor,
+                        shared_data,
+                        shaped_text_orientations,
+                        &shaped_icon,
+                        &vertically_shaped_icon,
+                        text_box_scale,
+                        text_padding,
+                        text_placement,
+                        text_offset,
+                        icon_box_scale,
+                        icon_padding,
+                        icon_offset,
+                        &indexed_feature,
+                        layout_feature_index,
+                        feature.index,
+                        key.clone(),
+                        overscaling,
+                        icon_rotation,
+                        text_rotation,
+                        &variable_anchor_offsets,
+                        allow_vertical_placement,
+                        icon_type,
+                    ));
 
-                if sort_features_by_key {
-                    let len = this.symbol_instances.len();
-                    match this.sort_key_ranges.last_mut() {
-                        Some(last) if last.sort_key == feature.sort_key => last.end = len,
-                        _ => this.sort_key_ranges.push(SortKeyRange {
-                            sort_key: feature.sort_key,
-                            start: len - 1,
-                            end: len,
-                        }),
+                    if sort_features_by_key {
+                        let len = this.symbol_instances.len();
+                        match this.sort_key_ranges.last_mut() {
+                            Some(last) if last.sort_key == feature.sort_key => last.end = len,
+                            _ => this.sort_key_ranges.push(SortKeyRange {
+                                sort_key: feature.sort_key,
+                                start: len - 1,
+                                end: len,
+                            }),
+                        }
                     }
                 }
-            }
-        };
+            };
 
         let feature_type = feature.get_type();
         let text_shaping = if shaped_text_orientations.vertical.is_some() {
@@ -807,8 +803,7 @@ impl SymbolLayout {
             get_default_horizontal_shaping(shaped_text_orientations)
         };
         let (text_left, text_right) = (text_shaping.left, text_shaping.right);
-        let (icon_left, icon_right) =
-            shaped_icon.as_ref().map_or((0.0, 0.0), |icon| (icon.left(), icon.right()));
+        let (icon_left, icon_right) = shaped_icon.as_ref().map_or((0.0, 0.0), |icon| (icon.left(), icon.right()));
 
         let placement = *layout.get::<SymbolPlacement>();
         if placement == SymbolPlacementType::Line {
@@ -861,8 +856,7 @@ impl SymbolLayout {
             for polygon in mln_tile::geometry_tile_data::classify_rings(&feature.geometry) {
                 let mut poly: Polygon<f64> = Polygon::new();
                 for ring in polygon.iter() {
-                    let r: LinearRing<f64> =
-                        ring.iter().map(|p| Point::new(f64::from(p.x), f64::from(p.y))).collect();
+                    let r: LinearRing<f64> = ring.iter().map(|p| Point::new(f64::from(p.x), f64::from(p.y))).collect();
                     poly.push(r);
                 }
 
@@ -996,8 +990,7 @@ impl SymbolLayout {
             symbol_instance.placed_icon_index
         };
 
-        let feature_id =
-            if self.retain_features_by_id { feature_id_to_string(&feature.get_id()) } else { None };
+        let feature_id = if self.retain_features_by_id { feature_id_to_string(&feature.get_id()) } else { None };
 
         state.text.placed_symbols.push(PlacedSymbol::new(
             symbol_instance.get_anchor().point,
@@ -1097,7 +1090,15 @@ impl SymbolLayout {
         let glyph_offset_y = symbol.glyph_offset.y;
         // coordinates (2 triangles)
         buffer.attribute_data.push(SymbolBucket::layout_attributes(
-            anchor, tl, glyph_offset_y, tex.x, tex.y, size_data, symbol.is_sdf, pixel_offset_tl, min_font_scale,
+            anchor,
+            tl,
+            glyph_offset_y,
+            tex.x,
+            tex.y,
+            size_data,
+            symbol.is_sdf,
+            pixel_offset_tl,
+            min_font_scale,
         ));
         buffer.attribute_data.push(SymbolBucket::layout_attributes(
             anchor,
@@ -1184,7 +1185,8 @@ impl SymbolLayout {
 
         let instances = std::mem::take(&mut state.symbol_instances);
         for symbol_instance in &instances {
-            let mut populate_collision_box = |feature: &crate::text::collision_feature::CollisionFeature, is_text: bool| {
+            let mut populate_collision_box = |feature: &crate::text::collision_feature::CollisionFeature,
+                                              is_text: bool| {
                 let collision_buffer: &mut CollisionBuffer = if feature.along_line {
                     if is_text {
                         state.text_collision_circle.get_or_insert_with(Default::default)
@@ -1393,7 +1395,8 @@ impl Layout for SymbolLayout {
             let mut shaped_icon: Option<PositionedIcon> = None;
             let mut text_offset = [0.0_f32, 0.0_f32];
             let layout_text_size = layout.evaluate_canonical::<TextSize>(zoom + 1.0, feature, &canonical);
-            let layout_text_size_at_bucket_zoom_level = layout.evaluate_canonical::<TextSize>(zoom, feature, &canonical);
+            let layout_text_size_at_bucket_zoom_level =
+                layout.evaluate_canonical::<TextSize>(zoom, feature, &canonical);
             let layout_icon_size = layout.evaluate_canonical::<IconSize>(zoom + 1.0, feature, &canonical);
 
             // if feature has text, shape the text
@@ -1579,9 +1582,7 @@ impl Layout for SymbolLayout {
                     if image.sdf {
                         icon_type = SymbolContent::IconSDF;
                     }
-                    if image.pixel_ratio != self.pixel_ratio
-                        || layout.get::<IconRotate>().constant_or(&1.0) != 0.0
-                    {
+                    if image.pixel_ratio != self.pixel_ratio || layout.get::<IconRotate>().constant_or(&1.0) != 0.0 {
                         self.icons_need_linear = true;
                     }
                 }
@@ -1712,7 +1713,8 @@ impl Layout for SymbolLayout {
                         symbol_instance.placed_vertical_icon_index = vertical_index;
                     }
 
-                    let length = if sdf { state.sdf_icon.attribute_data.len() } else { state.icon.attribute_data.len() };
+                    let length =
+                        if sdf { state.sdf_icon.attribute_data.len() } else { state.icon.attribute_data.len() };
                     for binders in bucket_ref.paint_properties.values() {
                         let mut binders = binders.write().unwrap_or_else(|e| e.into_inner());
                         binders.icon_binders.populate_vertex_vectors(

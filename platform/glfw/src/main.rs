@@ -100,7 +100,9 @@ fn parse_args() -> Result<Args, String> {
         let mut value = |name: &str| -> Result<String, String> {
             inline.clone().or_else(|| it.next()).ok_or_else(|| format!("Flag '{name}' requires an argument"))
         };
-        let number = |s: String, name: &str| s.parse::<f64>().map_err(|_| format!("Argument '{name}' received invalid value type '{s}'"));
+        let number = |s: String, name: &str| {
+            s.parse::<f64>().map_err(|_| format!("Argument '{name}' received invalid value type '{s}'"))
+        };
         match name.as_str() {
             "h" | "help" => {
                 print!("{USAGE}");
@@ -266,10 +268,7 @@ fn main() {
         let online_file_source = online_file_source.clone();
         view.set_online_status_callback(move || {
             let Some(online_file_source) = &online_file_source else {
-                Log::warning(
-                    Event::Setup,
-                    "Cannot change online status. Network resource provider is not available.",
-                );
+                Log::warning(Event::Setup, "Cannot change online status. Network resource provider is not available.");
                 return;
             };
             online.set(!online.get());

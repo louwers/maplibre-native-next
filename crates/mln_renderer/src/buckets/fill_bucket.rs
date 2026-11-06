@@ -8,22 +8,22 @@ use crate::gfx::fill_generator::generate_fill_and_outline_buffers;
 use crate::layout::pattern_layout::PatternLayerMap;
 use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
 use crate::render_layer::RenderLayer;
-use mln_gfx::shaders::segment::SegmentBase;
 use mln_gfx::UploadPass;
+use mln_gfx::shaders::segment::SegmentBase;
 use mln_style::expression::{Image, Value};
-use mln_style::layer_properties::{get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::fill_layer_properties::*;
 use mln_style_types::image::ImagePositions;
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinate, GeometryTileFeature};
 use mln_tile_id::CanonicalTileID;
+use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinate, GeometryTileFeature};
+use mln_util::Color;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use mln_util::Color;
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::sync::atomic::Ordering;
-use std::sync::RwLock;
 use std::sync::Arc;
+use std::sync::RwLock;
+use std::sync::atomic::Ordering;
 
 crate::paint_property_binders!(
     /// `FillBinders = PaintPropertyBinders<FillPaintProperties::DataDrivenProperties>`.
@@ -80,9 +80,9 @@ impl FillBucket {
     ) -> Self {
         let mut paint_property_binders = BTreeMap::new();
         for (id, properties) in layer_paint_properties {
-            paint_property_binders
-                .entry(id.clone())
-                .or_insert_with(|| RwLock::new(FillBinders::new(get_evaluated::<FillLayerProperties>(properties), zoom)));
+            paint_property_binders.entry(id.clone()).or_insert_with(|| {
+                RwLock::new(FillBinders::new(get_evaluated::<FillLayerProperties>(properties), zoom))
+            });
         }
         FillBucket {
             base: BucketBase::default(),

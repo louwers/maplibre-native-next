@@ -81,11 +81,7 @@ fn parse_ignores(ignores_paths: &[String]) -> Vec<(String, String)> {
 /// file for testing; `test_id`: test case id that used for composing
 /// expectation path; `expectated_paths`: absolute paths that contain possible
 /// expected.png/metrics.json files for result checking.
-fn get_test_expectations(
-    default_expectation_path: &str,
-    test_id: &str,
-    expectated_paths: &[String],
-) -> Vec<String> {
+fn get_test_expectations(default_expectation_path: &str, test_id: &str, expectated_paths: &[String]) -> Vec<String> {
     let mut expectations = vec![default_expectation_path.to_string()];
     for expected_path in expectated_paths {
         expectations.push(filesystem::join(expected_path, test_id));
@@ -107,10 +103,7 @@ fn get_valid_path(manifest_path: &str, path: &str) -> String {
     if filesystem::exists(&result) {
         return filesystem::lexically_normal(&result);
     }
-    log::warning(
-        Event::General,
-        &format!("Invalid path is provided inside the manifest file: {path}"),
-    );
+    log::warning(Event::General, &format!("Invalid path is provided inside the manifest file: {path}"));
     String::new()
 }
 
@@ -129,18 +122,12 @@ impl ManifestParser {
         };
 
         let Ok(document) = read_json(file_path) else {
-            log::error(
-                Event::General,
-                &format!("Provided manifest file: {file_path} is not a valid json"),
-            );
+            log::error(Event::General, &format!("Provided manifest file: {file_path} is not a valid json"));
             return None;
         };
 
         let invalid = |what: &str| {
-            log::warning(
-                Event::General,
-                &format!("Invalid {what} is provided inside the manifest file: {file_path}"),
-            );
+            log::warning(Event::General, &format!("Invalid {what} is provided inside the manifest file: {file_path}"));
         };
 
         if let Some(result_path_value) = document.get("result_path") {
@@ -148,8 +135,7 @@ impl ManifestParser {
                 invalid("result_path");
                 return None;
             };
-            manifest.result_path =
-                filesystem::join(&get_valid_path(&manifest.manifest_path, result_path), "");
+            manifest.result_path = filesystem::join(&get_valid_path(&manifest.manifest_path, result_path), "");
             if manifest.result_path.is_empty() {
                 return None;
             }
@@ -159,8 +145,7 @@ impl ManifestParser {
                 invalid("cache_path");
                 return None;
             };
-            manifest.cache_path =
-                filesystem::join(&get_valid_path(&manifest.manifest_path, "."), cache_path);
+            manifest.cache_path = filesystem::join(&get_valid_path(&manifest.manifest_path, "."), cache_path);
             if manifest.cache_path.is_empty() {
                 return None;
             }
@@ -203,9 +188,7 @@ impl ManifestParser {
             let Some(values) = expectation_path_value.as_array() else {
                 log::warning(
                     Event::General,
-                    &format!(
-                        "Provided expectation_paths inside the manifest file: %s is not a valid array{file_path}"
-                    ),
+                    &format!("Provided expectation_paths inside the manifest file: %s is not a valid array{file_path}"),
                 );
                 return None;
             };
@@ -225,9 +208,7 @@ impl ManifestParser {
             let Some(values) = ignore_path_value.as_array() else {
                 log::warning(
                     Event::General,
-                    &format!(
-                        "Provided ignore_paths inside the manifest file: {file_path} is not a valid array"
-                    ),
+                    &format!("Provided ignore_paths inside the manifest file: {file_path} is not a valid array"),
                 );
                 return None;
             };
@@ -248,9 +229,7 @@ impl ManifestParser {
             let Some(values) = probes_value.as_array() else {
                 log::warning(
                     Event::General,
-                    &format!(
-                        "Provided probes inside the manifest file: {file_path}is not a valid array"
-                    ),
+                    &format!("Provided probes inside the manifest file: {file_path}is not a valid array"),
                 );
                 return None;
             };
@@ -288,10 +267,7 @@ impl ManifestParser {
 
         // C++ would iterate "" (and throw) without a base_test_path.
         if manifest.test_root_path.is_empty() {
-            log::error(
-                Event::General,
-                &format!("No base_test_path is provided inside the manifest file: {file_path}"),
-            );
+            log::error(Event::General, &format!("No base_test_path is provided inside the manifest file: {file_path}"));
             return None;
         }
 

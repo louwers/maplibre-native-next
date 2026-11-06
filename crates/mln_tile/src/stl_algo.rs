@@ -173,13 +173,7 @@ fn make_heap<T: Default, F: FnMut(&T, &T) -> bool>(v: &mut [T], first: usize, la
 }
 
 /// `std::__pop_heap`.
-fn pop_heap<T: Default, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    first: usize,
-    last: usize,
-    result: usize,
-    comp: &mut F,
-) {
+fn pop_heap<T: Default, F: FnMut(&T, &T) -> bool>(v: &mut [T], first: usize, last: usize, result: usize, comp: &mut F) {
     let value = std::mem::take(&mut v[result]);
     v[result] = std::mem::take(&mut v[first]);
     adjust_heap(v, first, 0, last - first, value, comp);

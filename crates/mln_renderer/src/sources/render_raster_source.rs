@@ -34,10 +34,7 @@ pub struct RenderRasterSource {
 impl RenderRasterSource {
     pub fn new(impl_: Arc<tile_source::Impl>, thread_pool: &TaggedScheduler) -> Self {
         let impl_: Immutable<dyn source::Impl> = impl_;
-        RenderRasterSource {
-            tile_source: RenderTileSource::new(impl_, thread_pool),
-            cached_tileset: None,
-        }
+        RenderRasterSource { tile_source: RenderTileSource::new(impl_, thread_pool), cached_tileset: None }
     }
 
     fn impl_(&self) -> Arc<tile_source::Impl> {
@@ -66,21 +63,11 @@ impl RenderRasterSource {
             tileset.zoom_range,
             tileset.bounds,
             |tile_id, observer| -> Option<Box<dyn Tile>> {
-                Some(Box::new(RasterTile::new(
-                    *tile_id,
-                    source_id.clone(),
-                    parameters,
-                    tileset,
-                    Some(observer),
-                )))
+                Some(Box::new(RasterTile::new(*tile_id, source_id.clone(), parameters, tileset, Some(observer))))
             },
         );
-        let renderables: Vec<(UnwrappedTileID, &dyn Tile)> = self
-            .tile_source
-            .tile_pyramid
-            .get_rendered_tiles()
-            .map(|(id, tile)| (*id, tile))
-            .collect();
+        let renderables: Vec<(UnwrappedTileID, &dyn Tile)> =
+            self.tile_source.tile_pyramid.get_rendered_tiles().map(|(id, tile)| (*id, tile)).collect();
         update_tile_masks(&renderables);
     }
 }
@@ -176,8 +163,6 @@ impl RenderSource for RenderRasterSource {
 
     /// `RenderTileSetSource::getMaxZoom()`.
     fn get_max_zoom(&self) -> u8 {
-        self.cached_tileset
-            .as_ref()
-            .map_or(constants::TERRAIN_RGB_MAXZOOM, |tileset| tileset.zoom_range.max)
+        self.cached_tileset.as_ref().map_or(constants::TERRAIN_RGB_MAXZOOM, |tileset| tileset.zoom_range.max)
     }
 }

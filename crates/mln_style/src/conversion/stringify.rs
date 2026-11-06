@@ -12,9 +12,8 @@ use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
 use feature::{Identifier, Value};
 use mln_style_types::{
-    AlignmentType, IconTextFitType, LineCapType, LineJoinType, SymbolAnchorType, SymbolPlacementType,
-    SymbolZOrderType, TextJustifyType, TextTransformType, TextWritingModeType, VariableAnchorOffsetCollection,
-    VisibilityType,
+    AlignmentType, IconTextFitType, LineCapType, LineJoinType, SymbolAnchorType, SymbolPlacementType, SymbolZOrderType,
+    TextJustifyType, TextTransformType, TextWritingModeType, VariableAnchorOffsetCollection, VisibilityType,
 };
 use mln_util::enum_::Enum;
 use mln_util::geometry::FeatureType;

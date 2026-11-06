@@ -13,9 +13,10 @@
 use crate::query::RenderedQueryOptions;
 use crate::render_layer::RenderLayer;
 use crate::source_state::SourceFeatureState;
+use geometry::Point;
 use mln_map_types::TransformState;
-use mln_style::expression::{EvaluationContext, GlobalStateMap};
 use mln_style::expression::expression::FeatureState;
+use mln_style::expression::{EvaluationContext, GlobalStateMap};
 use mln_style::layer::layer_type_info;
 use mln_style_types::TranslateAnchorType;
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinate, GeometryCoordinates, GeometryTileData};
@@ -24,7 +25,6 @@ use mln_util::constants;
 use mln_util::feature::{Feature, feature_id_to_string};
 use mln_util::grid_index::{BBox, GridIndex};
 use mln_util::mat4::Mat4;
-use geometry::Point;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::Arc;
 

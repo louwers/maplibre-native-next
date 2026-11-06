@@ -61,8 +61,7 @@ impl Inner {
     /// The body of the two request callbacks in `load`.
     fn on_response(self: &Rc<Self>, sprite: &Sprite, part: Part, res: Response) {
         if let Some(error) = &res.error {
-            self.observer()
-                .on_sprite_error(Some(sprite.clone()), RuntimeError::ptr(error.message.clone()));
+            self.observer().on_sprite_error(Some(sprite.clone()), RuntimeError::ptr(error.message.clone()));
             return;
         } else if res.not_modified {
             return;
@@ -104,10 +103,7 @@ impl Inner {
             move || -> ParseResult {
                 match parse_sprite(&parse_sprite_copy.id, &image, &json) {
                     Ok(images) => ParseResult { images, error: None },
-                    Err(error) => ParseResult {
-                        images: Vec::new(),
-                        error: Some(error),
-                    },
+                    Err(error) => ParseResult { images: Vec::new(), error: Some(error) },
                 }
             },
             /* resultClosure */

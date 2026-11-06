@@ -336,10 +336,7 @@ static GLYPH_TYPES: Mutex<GlyphTypes> =
 
 /// `util::hash_combine` with libstdc++'s identity `std::hash<uint32_t>`.
 fn hash_combine(seed: &mut usize, v: u32) {
-    *seed ^= (v as usize)
-        .wrapping_add(0x9e3779b9)
-        .wrapping_add(*seed << 6)
-        .wrapping_add(*seed >> 2);
+    *seed ^= (v as usize).wrapping_add(0x9e3779b9).wrapping_add(*seed << 6).wrapping_add(*seed >> 2);
 }
 
 /// `genNewGlyphIDType(url, fontStack, pairs)`: one type per (url, font

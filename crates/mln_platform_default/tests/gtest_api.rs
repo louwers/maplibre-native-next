@@ -68,16 +68,12 @@ fn recycle_map_update_images() {
         &frontend,
         Rc::new(NullMapObserver),
         Arc::new(StubFileSource::new(ResponseType::Asynchronous)),
-        MapOptions::new()
-            .with_map_mode(MapMode::Static)
-            .with_size(frontend.get_size()),
+        MapOptions::new().with_map_mode(MapMode::Static).with_size(frontend.get_size()),
     );
 
     let load_style = |map: &mut Map, marker_name: &str, marker_path: &str| {
         let source = GeoJSONSource::with_default_options("geometry");
-        source
-            .set_geojson(&GeoJSON::Geometry(Geometry::Point(Point::new(0.0, 0.0))))
-            .unwrap();
+        source.set_geojson(&GeoJSON::Geometry(Geometry::Point(Point::new(0.0, 0.0)))).unwrap();
 
         let mut layer = SymbolLayer::new("geometry", "geometry");
         layer.set_icon_image(&PropertyValue::Constant(mln_style::expression::Image::new(marker_name)));
@@ -85,8 +81,7 @@ fn recycle_map_update_images() {
         map.get_style_mut().load_json(&read_file("test/fixtures/api/empty.json"));
         map.get_style_mut().add_source(Box::new(source)).unwrap();
         map.get_style_mut().add_layer(Box::new(layer), None).unwrap();
-        map.get_style_mut()
-            .add_image(style_image(marker_name, decode_image(marker_path), 1.0));
+        map.get_style_mut().add_image(style_image(marker_name, decode_image(marker_path), 1.0));
     };
 
     // default marker

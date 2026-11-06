@@ -3,8 +3,8 @@
 
 use crate::check_subtype::check_subtype;
 use crate::expression::{
-    EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
-    collect_dependencies, downcast,
+    EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal, collect_dependencies,
+    downcast,
 };
 use crate::image::Image;
 use crate::parsing_context::{ParseResult, ParsingContext, TypeAnnotationOption};
@@ -21,10 +21,7 @@ pub struct Coalesce {
 
 impl Coalesce {
     pub fn new(type_: Type, args: Args) -> Self {
-        Coalesce {
-            base: ExpressionBase::new(Kind::Coalesce, type_, collect_dependencies(&args)),
-            args,
-        }
+        Coalesce { base: ExpressionBase::new(Kind::Coalesce, type_, collect_dependencies(&args)), args }
     }
 
     pub fn get_length(&self) -> usize {
@@ -53,12 +50,7 @@ impl Coalesce {
 
         let mut args = Args::with_capacity(length - 1);
         for i in 1..length {
-            let parsed = ctx.parse(
-                &value.array_member(i),
-                i,
-                output_type.clone(),
-                Some(TypeAnnotationOption::Omit),
-            )?;
+            let parsed = ctx.parse(&value.array_member(i), i, output_type.clone(), Some(TypeAnnotationOption::Omit))?;
             if output_type.is_none() {
                 output_type = Some(parsed.get_type().clone());
             }
@@ -75,10 +67,7 @@ impl Coalesce {
             .as_ref()
             .is_some_and(|expected| args.iter().any(|arg| check_subtype(expected, arg.get_type()).is_some()));
 
-        Some(Box::new(Coalesce::new(
-            if needs_annotation { Type::Value } else { output_type },
-            args,
-        )))
+        Some(Box::new(Coalesce::new(if needs_annotation { Type::Value } else { output_type }, args)))
     }
 }
 

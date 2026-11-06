@@ -16,8 +16,21 @@ mod ffi {
             cap: usize,
         ) -> usize;
         pub fn ref_hbshaper_free(shaper: *mut core::ffi::c_void);
-        pub fn ref_hbshaper_rasterize(shaper: *mut core::ffi::c_void, gid: u16, type_: u16, out: *mut u8, cap: usize) -> i64;
-        pub fn ref_transform_raster_to_sdf(width: u32, height: u32, data: *const u8, radius: f64, cutoff: f64, out: *mut u8);
+        pub fn ref_hbshaper_rasterize(
+            shaper: *mut core::ffi::c_void,
+            gid: u16,
+            type_: u16,
+            out: *mut u8,
+            cap: usize,
+        ) -> i64;
+        pub fn ref_transform_raster_to_sdf(
+            width: u32,
+            height: u32,
+            data: *const u8,
+            radius: f64,
+            cutoff: f64,
+            out: *mut u8,
+        );
 
         pub fn ref_ftface_new(data: *const u8, len: usize) -> *mut core::ffi::c_void;
         pub fn ref_ftface_free(face: *mut core::ffi::c_void);
@@ -37,7 +50,14 @@ mod ffi {
             cap: usize,
         ) -> usize;
 
-        pub fn ref_parse_glyph_pbf(first: u32, second: u32, data: *const u8, len: usize, out: *mut u8, cap: usize) -> i64;
+        pub fn ref_parse_glyph_pbf(
+            first: u32,
+            second: u32,
+            data: *const u8,
+            len: usize,
+            out: *mut u8,
+            cap: usize,
+        ) -> i64;
 
         pub fn ref_db_rows(
             path: *const core::ffi::c_char,
@@ -234,7 +254,14 @@ impl RefFace {
         loop {
             let mut out = vec![0i32; cap * 6];
             let n = unsafe {
-                ffi::ref_hbft_shape_raw(self.0, text.as_ptr(), text.len(), u32::from_be_bytes(script), out.as_mut_ptr(), cap)
+                ffi::ref_hbft_shape_raw(
+                    self.0,
+                    text.as_ptr(),
+                    text.len(),
+                    u32::from_be_bytes(script),
+                    out.as_mut_ptr(),
+                    cap,
+                )
             };
             if n <= cap {
                 return (0..n).map(|i| out[6 * i..6 * i + 6].try_into().unwrap()).collect();
@@ -342,7 +369,13 @@ pub fn test_fonts() -> Vec<TestFont> {
 /// whose url is LIKE `pattern`: (url, data), decompressed as
 /// `util::decompress` does (zlib, or gzip).
 pub fn db_rows(db: &str, pattern: &str) -> Vec<(String, Vec<u8>)> {
-    unsafe extern "C" fn row(ctx: *mut core::ffi::c_void, url: *const core::ffi::c_char, data: *const u8, len: usize, compressed: i32) {
+    unsafe extern "C" fn row(
+        ctx: *mut core::ffi::c_void,
+        url: *const core::ffi::c_char,
+        data: *const u8,
+        len: usize,
+        compressed: i32,
+    ) {
         let rows = unsafe { &mut *(ctx as *mut Vec<(String, Vec<u8>, bool)>) };
         let url = unsafe { std::ffi::CStr::from_ptr(url) }.to_string_lossy().into_owned();
         let data = if len == 0 { Vec::new() } else { unsafe { std::slice::from_raw_parts(data, len) }.to_vec() };
@@ -351,7 +384,9 @@ pub fn db_rows(db: &str, pattern: &str) -> Vec<(String, Vec<u8>)> {
     let path = std::ffi::CString::new(maplibre_root().join(db).to_str().unwrap()).unwrap();
     let pattern = std::ffi::CString::new(pattern).unwrap();
     let mut rows: Vec<(String, Vec<u8>, bool)> = Vec::new();
-    let rc = unsafe { ffi::ref_db_rows(path.as_ptr(), pattern.as_ptr(), &mut rows as *mut _ as *mut core::ffi::c_void, row) };
+    let rc = unsafe {
+        ffi::ref_db_rows(path.as_ptr(), pattern.as_ptr(), &mut rows as *mut _ as *mut core::ffi::c_void, row)
+    };
     assert_eq!(rc, 0, "{db}: SQLite error {rc}");
     rows.into_iter()
         .map(|(url, data, compressed)| {

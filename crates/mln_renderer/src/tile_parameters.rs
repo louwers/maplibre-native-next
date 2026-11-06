@@ -1,12 +1,12 @@
 // Ports src/mln/renderer/tile_parameters.hpp.
 
+use crate::gfx::dynamic_texture_atlas::DynamicTextureAtlasPtr;
+use crate::image_manager::ImageManager;
+use crate::text::glyph_manager::GlyphManager;
 use mln_actor::TaggedScheduler;
 use mln_map_types::{MapDebugOptions, MapMode, TileLodMode, TransformState};
 use mln_storage::FileSource;
 use mln_style::expression::GlobalStateMap;
-use crate::gfx::dynamic_texture_atlas::DynamicTextureAtlasPtr;
-use crate::image_manager::ImageManager;
-use crate::text::glyph_manager::GlyphManager;
 use std::rc::Rc;
 use std::sync::Arc;
 

@@ -16,10 +16,7 @@ pub struct AnchorOffsetPair {
 
 impl AnchorOffsetPair {
     pub fn new(anchor_type: SymbolAnchorType, offset: [f32; 2]) -> Self {
-        AnchorOffsetPair {
-            anchor_type,
-            offset,
-        }
+        AnchorOffsetPair { anchor_type, offset }
     }
 }
 
@@ -30,9 +27,7 @@ pub struct VariableAnchorOffsetCollection {
 
 impl VariableAnchorOffsetCollection {
     pub fn new(values: Vec<AnchorOffsetPair>) -> Self {
-        VariableAnchorOffsetCollection {
-            anchor_offsets: values,
-        }
+        VariableAnchorOffsetCollection { anchor_offsets: values }
     }
 
     pub fn get_offset_by_anchor(&self, anchor_type: &SymbolAnchorType) -> [f32; 2] {
@@ -64,10 +59,7 @@ impl VariableAnchorOffsetCollection {
         let mut serialized = Vec::new();
         for entry in &self.anchor_offsets {
             serialized.push(Value::String(entry.anchor_type.to_string().to_owned()));
-            let offset = vec![
-                Value::Double(entry.offset[0] as f64),
-                Value::Double(entry.offset[1] as f64),
-            ];
+            let offset = vec![Value::Double(entry.offset[0] as f64), Value::Double(entry.offset[1] as f64)];
             serialized.push(Value::Array(offset));
         }
         Value::Array(serialized)
@@ -109,10 +101,7 @@ impl VariableAnchorOffsetCollection {
                 ));
             }
             let lerp = |x: f32, y: f32| x * (1.0_f32 - t) + y * t;
-            let offset = [
-                lerp(a_pair.offset[0], b_pair.offset[0]),
-                lerp(a_pair.offset[1], b_pair.offset[1]),
-            ];
+            let offset = [lerp(a_pair.offset[0], b_pair.offset[0]), lerp(a_pair.offset[1], b_pair.offset[1])];
             offset_map.push(AnchorOffsetPair::new(a_pair.anchor_type, offset));
         }
 

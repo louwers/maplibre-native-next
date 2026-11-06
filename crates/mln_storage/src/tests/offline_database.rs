@@ -125,12 +125,7 @@ fn removing() -> Message {
 }
 
 fn message(severity: EventSeverity, code: i64, msg: &str) -> Message {
-    Message {
-        severity,
-        event: Event::Database,
-        code,
-        msg: msg.to_owned(),
-    }
+    Message { severity, event: Event::Database, code, msg: msg.to_owned() }
 }
 
 fn hull(a: (f64, f64), b: (f64, f64)) -> LatLngBounds {
@@ -238,10 +233,8 @@ fn invalid() {
     // changes between SQLite versions.
     assert_eq!(
         1,
-        log.count(
-            &error(result_code::NOT_A_DB, "Can't open database: file is encrypted or is not a database"),
-            true
-        ) + log.count(&error(result_code::NOT_A_DB, "Can't open database: file is not a database"), true)
+        log.count(&error(result_code::NOT_A_DB, "Can't open database: file is encrypted or is not a database"), true)
+            + log.count(&error(result_code::NOT_A_DB, "Can't open database: file is not a database"), true)
     );
     assert_eq!(1, log.count(&removing(), false));
 
@@ -359,13 +352,7 @@ fn example_tile() -> Resource {
     Resource::with_tile_data(
         Kind::Tile,
         "http://example.com/",
-        Some(TileData {
-            url_template: "http://example.com/".to_owned(),
-            pixel_ratio: 1,
-            x: 0,
-            y: 0,
-            z: 0,
-        }),
+        Some(TileData { url_template: "http://example.com/".to_owned(), pixel_ratio: 1, x: 0, y: 0, z: 0 }),
         LoadingMethod::All,
     )
 }
@@ -855,14 +842,8 @@ fn mapbox_tile_limit_exceeded() {
     assert_eq!(db.get_offline_mapbox_tile_count(), limit);
 
     // Full.
-    assert_eq!(
-        Err(MapboxTileLimitExceededException),
-        insert_region_tile(&mut db, region1.get_id(), 200)
-    );
-    assert_eq!(
-        Err(MapboxTileLimitExceededException),
-        insert_region_tile(&mut db, region2.get_id(), 201)
-    );
+    assert_eq!(Err(MapboxTileLimitExceededException), insert_region_tile(&mut db, region1.get_id(), 200));
+    assert_eq!(Err(MapboxTileLimitExceededException), insert_region_tile(&mut db, region2.get_id(), 201));
 
     // These tiles are already on respective regions.
     insert_region_tile(&mut db, region1.get_id(), 0).unwrap();
@@ -895,10 +876,7 @@ fn mapbox_tile_limit_exceeded() {
     }
 
     // Full again.
-    assert_eq!(
-        Err(MapboxTileLimitExceededException),
-        insert_region_tile(&mut db, region1.get_id(), 202)
-    );
+    assert_eq!(Err(MapboxTileLimitExceededException), insert_region_tile(&mut db, region1.get_id(), 202));
 
     db.delete_region(region1);
 
@@ -1191,8 +1169,7 @@ fn put_region_resource_does_not_evict() {
     response.data = Some(random_string(1024));
 
     for i in 1..=100u32 {
-        db.put_region_resource(region.get_id(), &style(&format!("http://example.com/{i}")), &response)
-            .unwrap();
+        db.put_region_resource(region.get_id(), &style(&format!("http://example.com/{i}")), &response).unwrap();
     }
 
     assert!(db.get(&style("http://example.com/1")).is_some());
@@ -1214,10 +1191,7 @@ fn put_fails_when_eviction_insuffices() {
 
     assert!(!db.put(&style("http://example.com/big"), &big).0);
 
-    assert_eq!(
-        1,
-        log.count(&message(EventSeverity::Info, -1, "Unable to make space for entry"), false)
-    );
+    assert_eq!(1, log.count(&message(EventSeverity::Info, -1, "Unable to make space for entry"), false));
     check_log_empty(&log);
 
     assert!(db.get(&style("http://example.com/big")).is_none());
@@ -1243,9 +1217,7 @@ fn get_region_completed_status() {
     let mut response = Response::new();
     response.data = data("data");
 
-    let style_size = db
-        .put_region_resource(region.get_id(), &style("http://example.com/"), &response)
-        .unwrap();
+    let style_size = db.put_region_resource(region.get_id(), &style("http://example.com/"), &response).unwrap();
 
     let status2 = db.get_region_completed_status(region.get_id()).expect("status");
     assert_eq!(1, status2.completed_resource_count);
@@ -1253,9 +1225,8 @@ fn get_region_completed_status() {
     assert_eq!(0, status2.completed_tile_count);
     assert_eq!(0, status2.completed_tile_size);
 
-    let tile_size = db
-        .put_region_resource(region.get_id(), &tile("http://example.com/", 1.0, 0, 0, 0), &response)
-        .unwrap();
+    let tile_size =
+        db.put_region_resource(region.get_id(), &tile("http://example.com/", 1.0, 0, 0, 0), &response).unwrap();
 
     let status3 = db.get_region_completed_status(region.get_id()).expect("status");
     assert_eq!(2, status3.completed_resource_count);
@@ -1283,8 +1254,7 @@ fn has_region_resource() {
     response.data = Some(random_string(1024));
 
     for i in 1..=100u32 {
-        db.put_region_resource(region.get_id(), &style(&format!("http://example.com/{i}")), &response)
-            .unwrap();
+        db.put_region_resource(region.get_id(), &style(&format!("http://example.com/{i}")), &response).unwrap();
     }
 
     assert!(db.has_region_resource(&style("http://example.com/1")).is_some());
@@ -1302,9 +1272,7 @@ fn has_region_resource_tile() {
     db.set_maximum_ambient_cache_size(1024 * 100);
 
     let definition = tile_pyramid("", LatLngBounds::world(), 0.0, f64::INFINITY, 1.0, false);
-    let region = db
-        .create_region(&definition.clone().into(), &OfflineRegionMetadata::new())
-        .expect("region");
+    let region = db.create_region(&definition.clone().into(), &OfflineRegionMetadata::new()).expect("region");
 
     let resource = example_tile();
     let mut response = Response::new();
@@ -1316,9 +1284,7 @@ fn has_region_resource_tile() {
     assert!(db.has_region_resource(&resource).is_some());
     assert_eq!(Some(5), db.has_region_resource(&resource));
 
-    let another_region = db
-        .create_region(&definition.into(), &OfflineRegionMetadata::new())
-        .expect("region");
+    let another_region = db.create_region(&definition.into(), &OfflineRegionMetadata::new()).expect("region");
     assert!(region.get_id() < another_region.get_id());
     assert!(db.has_region_resource(&resource).is_some());
     assert_eq!(Some(5), db.has_region_resource(&resource));
@@ -1539,18 +1505,8 @@ const TILES_COLUMNS: [&str; 13] = [
     "accessed",
     "must_revalidate",
 ];
-const RESOURCES_COLUMNS: [&str; 10] = [
-    "id",
-    "url",
-    "kind",
-    "expires",
-    "modified",
-    "etag",
-    "data",
-    "compressed",
-    "accessed",
-    "must_revalidate",
-];
+const RESOURCES_COLUMNS: [&str; 10] =
+    ["id", "url", "kind", "expires", "modified", "etag", "data", "compressed", "accessed", "must_revalidate"];
 
 // gtest: OfflineDatabase.MigrateFromV5Schema
 #[test]
@@ -1918,10 +1874,7 @@ fn merge_database_with_invalid_path() {
     let result = db.merge_database(&filename_sideload);
     assert!(result.is_err());
 
-    assert_eq!(
-        1,
-        log.count(&message(EventSeverity::Error, -1, "Merge database has incorrect user_version"), false)
-    );
+    assert_eq!(1, log.count(&message(EventSeverity::Error, -1, "Merge database has incorrect user_version"), false));
     check_log_empty(&log);
 }
 
@@ -1944,9 +1897,7 @@ fn merge_database_with_invalid_db() {
         log.count(
             &error(
                 result_code::CORRUPT,
-                &format!(
-                    "Can't attach database ({filename_sideload}) for merge: database disk image is malformed"
-                )
+                &format!("Can't attach database ({filename_sideload}) for merge: database disk image is malformed")
             ),
             false
         )
@@ -2049,11 +2000,7 @@ fn update_database_read_only_mode() {
     assert_eq!(
         1,
         log.count(
-            &message(
-                EventSeverity::Error,
-                -1,
-                "Can't clear ambient cache: Cannot modify database in read-only mode"
-            ),
+            &message(EventSeverity::Error, -1, "Can't clear ambient cache: Cannot modify database in read-only mode"),
             false
         )
     );
@@ -2066,9 +2013,15 @@ fn update_database_read_only_mode() {
 #[test]
 fn geometry_region_round_trip() {
     let mut db = OfflineDatabase::new(":memory:", &fixture::tile_server_options());
-    let definition =
-        OfflineGeometryRegionDefinition::new("maptiler://style", Geometry::Point(Point::new(-122.5744, 37.6609)), 0.0, 2.0, 1.0, false)
-            .unwrap();
+    let definition = OfflineGeometryRegionDefinition::new(
+        "maptiler://style",
+        Geometry::Point(Point::new(-122.5744, 37.6609)),
+        0.0,
+        2.0,
+        1.0,
+        false,
+    )
+    .unwrap();
     let region = db.create_region(&definition.clone().into(), &OfflineRegionMetadata::new()).unwrap();
     let regions = db.list_regions().unwrap();
     assert_eq!(1, regions.len());

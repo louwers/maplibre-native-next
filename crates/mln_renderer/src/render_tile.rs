@@ -80,11 +80,7 @@ impl RenderTile {
         let mut vtx_matrix: Mat4 = [0.0; 16];
 
         let angle = if in_viewport_pixel_units {
-            if anchor == TranslateAnchorType::Map {
-                state.get_bearing() as f32
-            } else {
-                0.0f32
-            }
+            if anchor == TranslateAnchorType::Map { state.get_bearing() as f32 } else { 0.0f32 }
         } else if anchor == TranslateAnchorType::Viewport {
             (-state.get_bearing()) as f32
         } else {
@@ -94,13 +90,7 @@ impl RenderTile {
         let translate = rotate(Point::new(translation[0], translation[1]), angle);
 
         if in_viewport_pixel_units {
-            matrix::translate(
-                &mut vtx_matrix,
-                tile_matrix,
-                f64::from(translate.x),
-                f64::from(translate.y),
-                0.0,
-            );
+            matrix::translate(&mut vtx_matrix, tile_matrix, f64::from(translate.x), f64::from(translate.y), 0.0);
         } else {
             matrix::translate(
                 &mut vtx_matrix,

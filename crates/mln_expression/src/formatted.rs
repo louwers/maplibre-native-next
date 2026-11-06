@@ -38,20 +38,11 @@ impl FormattedSection {
         font_stack: Option<FontStack>,
         text_color: Option<Color>,
     ) -> Self {
-        FormattedSection {
-            text,
-            image: None,
-            font_scale,
-            font_stack,
-            text_color,
-        }
+        FormattedSection { text, image: None, font_scale, font_stack, text_color }
     }
 
     pub fn from_image(image: Image) -> Self {
-        FormattedSection {
-            image: Some(image),
-            ..Default::default()
-        }
+        FormattedSection { image: Some(image), ..Default::default() }
     }
 }
 
@@ -83,14 +74,7 @@ impl PartialEq for Formatted {
 impl Formatted {
     /// `Formatted(const char* plainU8String)`.
     pub fn from_plain(plain_u8_string: &str) -> Self {
-        Formatted {
-            sections: vec![FormattedSection::new(
-                plain_u8_string.to_owned(),
-                None,
-                None,
-                None,
-            )],
-        }
+        Formatted { sections: vec![FormattedSection::new(plain_u8_string.to_owned(), None, None, None)] }
     }
 
     pub fn new(sections: Vec<FormattedSection>) -> Self {
@@ -111,28 +95,16 @@ impl Formatted {
         for section in &self.sections {
             let mut serialized_section = ValueObject::new();
             serialized_section.insert("text".to_owned(), MbglValue::String(section.text.clone()));
-            serialized_section.insert(
-                "scale".to_owned(),
-                section.font_scale.map_or(MbglValue::Null, MbglValue::Double),
-            );
+            serialized_section
+                .insert("scale".to_owned(), section.font_scale.map_or(MbglValue::Null, MbglValue::Double));
             serialized_section.insert(
                 "fontStack".to_owned(),
-                section
-                    .font_stack
-                    .as_ref()
-                    .map_or(MbglValue::Null, |f| MbglValue::String(font_stack_to_string(f))),
+                section.font_stack.as_ref().map_or(MbglValue::Null, |f| MbglValue::String(font_stack_to_string(f))),
             );
-            serialized_section.insert(
-                "textColor".to_owned(),
-                section
-                    .text_color
-                    .as_ref()
-                    .map_or(MbglValue::Null, Color::to_object),
-            );
-            serialized_section.insert(
-                "image".to_owned(),
-                section.image.as_ref().map_or(MbglValue::Null, Image::to_value),
-            );
+            serialized_section
+                .insert("textColor".to_owned(), section.text_color.as_ref().map_or(MbglValue::Null, Color::to_object));
+            serialized_section
+                .insert("image".to_owned(), section.image.as_ref().map_or(MbglValue::Null, Image::to_value));
             section_values.push(MbglValue::Object(serialized_section));
         }
         result.insert("sections".to_owned(), MbglValue::Array(section_values));
@@ -175,9 +147,7 @@ pub fn convert_formatted(value: &Convertible<'_>, error: &mut Error) -> Option<F
             let section = value.array_member(i);
             let section_length = section.array_length();
             if section_length < 1 {
-                error.message =
-                    "Section has to contain a text and std::optional parameters or an image."
-                        .to_owned();
+                error.message = "Section has to contain a text and std::optional parameters or an image.".to_owned();
                 return None;
             }
 
@@ -195,8 +165,7 @@ pub fn convert_formatted(value: &Convertible<'_>, error: &mut Error) -> Option<F
                 }
 
                 let Some(image_arg) = first_element.array_member(1).to_string() else {
-                    error.message =
-                        "Serialized image section argument has to be of a String type.".to_owned();
+                    error.message = "Serialized image section argument has to be of a String type.".to_owned();
                     return None;
                 };
 

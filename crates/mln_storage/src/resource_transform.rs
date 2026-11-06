@@ -21,9 +21,7 @@ pub struct ResourceTransform {
 impl ResourceTransform {
     /// `ResourceTransform(TransformCallback = {})`.
     pub fn new(callback: Option<TransformCallback>) -> Self {
-        ResourceTransform {
-            transform_callback: callback,
-        }
+        ResourceTransform { transform_callback: callback }
     }
 
     /// `transform(Resource::Kind, const std::string& url, FinishedCallback)`.

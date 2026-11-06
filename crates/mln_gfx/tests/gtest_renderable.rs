@@ -9,9 +9,7 @@ struct TestRenderable {
 
 impl TestRenderable {
     fn new(size: Size) -> Self {
-        TestRenderable {
-            base: RenderableBase::new(size, None),
-        }
+        TestRenderable { base: RenderableBase::new(size, None) }
     }
 
     fn resize(&self, size: Size) {

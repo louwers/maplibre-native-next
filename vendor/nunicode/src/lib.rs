@@ -11,8 +11,8 @@
 
 pub mod casemap;
 pub mod ducet;
-mod tables;
 pub mod strcoll;
+mod tables;
 pub mod udb;
 pub mod utf8;
 

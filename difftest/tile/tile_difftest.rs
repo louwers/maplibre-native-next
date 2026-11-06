@@ -25,9 +25,8 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 fn runfiles() -> PathBuf {
-    let base = std::env::var("RUNFILES_DIR")
-        .or_else(|_| std::env::var("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
+    let base =
+        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+")
 }
 
@@ -76,11 +75,9 @@ fn sqlite_blobs(path: &Path) -> Vec<(String, Vec<u8>)> {
         return Vec::new();
     };
     let mut blobs = Vec::new();
-    for (table, data, compressed) in [
-        ("tiles", "data", "compressed"),
-        ("resources", "data", "compressed"),
-        ("tiles", "tile_data", "0"),
-    ] {
+    for (table, data, compressed) in
+        [("tiles", "data", "compressed"), ("resources", "data", "compressed"), ("tiles", "tile_data", "0")]
+    {
         let sql = format!("SELECT {data}, {compressed} FROM {table}");
         let Ok(mut stmt) = conn.prepare(&sql) else { continue };
         let Ok(rows) = stmt.query_map([], |row| Ok((row.get::<_, Option<Vec<u8>>>(0)?, row.get::<_, i64>(1)?))) else {
@@ -243,7 +240,7 @@ fn gen_value(rng: &mut Rng) -> Vec<u8> {
             _ => {
                 let tag = 8 + rng.below(20) as u32;
                 unknown_field(rng, &mut v, tag)
-            },
+            }
         }
     }
     if rng.chance(3) {
@@ -277,11 +274,7 @@ fn gen_geometry(rng: &mut Rng, geom_type: u64) -> Vec<u8> {
         if cmd == 1 || cmd == 2 {
             let params = if count > 50 { rng.below(10) } else { u64::from(count) * 2 };
             for _ in 0..params {
-                let d = if big {
-                    rng.next() as i32 as i64 >> rng.below(16)
-                } else {
-                    rng.below(400) as i64 - 200
-                };
+                let d = if big { rng.next() as i32 as i64 >> rng.below(16) } else { rng.below(400) as i64 - 200 };
                 varint(&mut g, zigzag(d) & 0xffff_ffff);
             }
         }
@@ -330,7 +323,7 @@ fn gen_feature(rng: &mut Rng, nkeys: u64, nvalues: u64) -> Vec<u8> {
             _ => {
                 let tag = 5 + rng.below(10) as u32;
                 unknown_field(rng, &mut f, tag)
-            },
+            }
         }
     }
     if rng.chance(3) {
@@ -366,9 +359,9 @@ fn gen_layer(rng: &mut Rng, names: &[&str]) -> Vec<u8> {
     }
     if rng.chance(10) {
         {
-                let tag = 6 + rng.below(8) as u32;
-                unknown_field(rng, &mut l, tag)
-            }
+            let tag = 6 + rng.below(8) as u32;
+            unknown_field(rng, &mut l, tag)
+        }
     }
     if rng.chance(5) {
         // A second name field (the last one counts).
@@ -385,7 +378,7 @@ fn gen_tile(rng: &mut Rng) -> Vec<u8> {
             0 => {
                 let tag = [1, 2, 4, 5, 19, 20000][rng.below(6) as usize];
                 unknown_field(rng, &mut t, tag)
-            },
+            }
             _ => {
                 let l = gen_layer(rng, &names);
                 ld(&mut t, 3, &l)
@@ -397,8 +390,8 @@ fn gen_tile(rng: &mut Rng) -> Vec<u8> {
             // Bad key varints / tags (exceptions in next()).
             t.extend_from_slice(&[0xff; 11]);
         }
-        1 => t.push(0x00),                // tag 0
-        2 => t.push((1 << 3) | 3),        // wire type 3
+        1 => t.push(0x00),               // tag 0
+        2 => t.push((1 << 3) | 3),       // wire type 3
         3 => varint(&mut t, 19500 << 3), // reserved tag
         4 => {
             t.pop();
@@ -696,8 +689,9 @@ fn inner_truncations(data: &[u8], rng: &mut Rng) -> Vec<Vec<u8>> {
                 } else {
                     // Cut the packed tags or geometry of a feature.
                     let Some(ff) = split_fields(field) else { continue };
-                    let packed: Vec<usize> =
-                        (0..ff.len()).filter(|&i| (ff[i].tag == 2 || ff[i].tag == 4) && ff[i].payload.is_some()).collect();
+                    let packed: Vec<usize> = (0..ff.len())
+                        .filter(|&i| (ff[i].tag == 2 || ff[i].tag == 4) && ff[i].payload.is_some())
+                        .collect();
                     if packed.is_empty() {
                         continue;
                     }

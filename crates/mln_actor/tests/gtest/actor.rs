@@ -212,10 +212,7 @@ fn self_destruction_doesnt_crash_waiting_receiving_threads() {
             });
 
             // Wait for the message to be queued
-            queued_ok_in.store(
-                wait_for(&message_queued_future, Duration::from_secs(1)).is_some(),
-                Ordering::SeqCst,
-            );
+            queued_ok_in.store(wait_for(&message_queued_future, Duration::from_secs(1)).is_some(), Ordering::SeqCst);
 
             // Destroy the Actor/Mailbox in the same thread
             let actor = slot.lock().unwrap().take();
@@ -251,11 +248,8 @@ fn ordered_mailbox() {
     }
 
     let (ended_promise, ended_future) = mpsc::channel();
-    let test = Actor::new(scheduler::get_background(), move |_| TestActor {
-        last: 0,
-        promise: ended_promise,
-        in_order: true,
-    });
+    let test =
+        Actor::new(scheduler::get_background(), move |_| TestActor { last: 0, promise: ended_promise, in_order: true });
 
     for i in 1..=10 {
         test.self_ref().invoke(move |a: &mut TestActor| a.receive(i));
@@ -286,11 +280,8 @@ fn non_concurrent_mailbox() {
     }
 
     let (ended_promise, ended_future) = mpsc::channel();
-    let test = Actor::new(scheduler::get_background(), move |_| TestActor {
-        last: 0,
-        promise: ended_promise,
-        in_order: true,
-    });
+    let test =
+        Actor::new(scheduler::get_background(), move |_| TestActor { last: 0, promise: ended_promise, in_order: true });
 
     for i in 1..=10 {
         test.self_ref().invoke(move |a: &mut TestActor| a.receive(i));
@@ -402,9 +393,8 @@ fn two_phase_construction() {
         let parent = &parent;
         let thread = s.spawn(move || {
             let run_loop = RunLoop::new();
-            let _test = EstablishedActor::new(&scheduler::get_current(), parent, move |_| TestActor {
-                destroyed: captured,
-            });
+            let _test =
+                EstablishedActor::new(&scheduler::get_current(), parent, move |_| TestActor { destroyed: captured });
             run_loop.run();
         });
 

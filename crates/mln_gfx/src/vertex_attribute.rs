@@ -310,7 +310,13 @@ impl VertexAttributeArray {
 
     /// `set(id, index = -1, type = Invalid, count = 0)`: replaces the
     /// attribute with a new one.
-    pub fn set(&mut self, id: usize, index: i32, type_: AttributeDataType, count: usize) -> Option<&mut VertexAttribute> {
+    pub fn set(
+        &mut self,
+        id: usize,
+        index: i32,
+        type_: AttributeDataType,
+        count: usize,
+    ) -> Option<&mut VertexAttribute> {
         debug_assert!(id < self.attrs.len());
         if id >= self.attrs.len() {
             return None;

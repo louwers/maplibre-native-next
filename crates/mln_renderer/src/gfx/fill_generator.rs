@@ -68,7 +68,12 @@ fn add_fill_indices(
     triangle_segment.index_length += n_indices;
 }
 
-fn add_outline_indices(base: usize, n_vertices: usize, line_segments: &mut Vec<SegmentBase>, line_indexes: &mut Vec<u16>) {
+fn add_outline_indices(
+    base: usize,
+    n_vertices: usize,
+    line_segments: &mut Vec<SegmentBase>,
+    line_indexes: &mut Vec<u16>,
+) {
     if n_vertices == 0 {
         return;
     }

@@ -3,7 +3,7 @@
 
 use super::layer_factory::{LayerFactory, get_source};
 use crate::layer::{Layer, LayerTypeInfo};
-use crate::layers::line_layer::{LineLayer, Impl};
+use crate::layers::line_layer::{Impl, LineLayer};
 use mln_conversion::Convertible;
 
 pub struct LineLayerFactory;

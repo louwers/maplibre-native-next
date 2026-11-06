@@ -23,12 +23,12 @@ use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameter
 use crate::renderer::property_evaluator::Evaluator;
 use crate::renderer::transition_parameters::TransitionParameters;
 use crate::transition_options::TransitionOptions;
-use mln_util::chrono::{Duration, TimePoint};
-use mln_util::constants::DEFAULT_TRANSITION_EASE;
-use mln_util::interpolate::Interpolate;
 use mln_expression::expression::FeatureState;
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::GeometryTileFeature;
+use mln_util::chrono::{Duration, TimePoint};
+use mln_util::constants::DEFAULT_TRANSITION_EASE;
+use mln_util::interpolate::Interpolate;
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::fmt::Debug;
@@ -88,12 +88,7 @@ pub struct Transitioning<V> {
 impl<V: PropertyValueLike> Transitioning<V> {
     /// `explicit Transitioning(Value)`.
     pub fn new(value: V) -> Self {
-        Transitioning {
-            prior: RefCell::new(None),
-            begin: TimePoint::default(),
-            end: TimePoint::default(),
-            value,
-        }
+        Transitioning { prior: RefCell::new(None), begin: TimePoint::default(), end: TimePoint::default(), value }
     }
 
     /// `Transitioning(Value, Transitioning<Value> prior, const TransitionOptions&, TimePoint now)`.
@@ -101,11 +96,7 @@ impl<V: PropertyValueLike> Transitioning<V> {
         let begin = now + transition.delay.unwrap_or(Duration::zero());
         let end = begin + transition.duration.unwrap_or(Duration::zero());
         Transitioning {
-            prior: RefCell::new(if transition.is_defined() {
-                Some(Box::new(prior))
-            } else {
-                None
-            }),
+            prior: RefCell::new(if transition.is_defined() { Some(Box::new(prior)) } else { None }),
             begin,
             end,
             value,
@@ -210,10 +201,7 @@ pub trait Property: 'static {
     fn default_value() -> Self::Type;
 
     /// `Evaluator(parameters, P::defaultValue())`.
-    fn evaluator(
-        parameters: &PropertyEvaluationParameters,
-        default_value: Self::Type,
-    ) -> Self::EvaluatorType<'_>;
+    fn evaluator(parameters: &PropertyEvaluationParameters, default_value: Self::Type) -> Self::EvaluatorType<'_>;
 
     /// `PossiblyEvaluatedType::isConstant()` (true for plain values), for
     /// `ConstantsMask`.

@@ -20,9 +20,7 @@ pub fn path_from_utf8(path: &[u8]) -> Result<PathBuf, String> {
     }
     #[cfg(not(unix))]
     {
-        String::from_utf8(path.to_vec())
-            .map(PathBuf::from)
-            .map_err(|_| "Invalid UTF-8 in path".to_owned())
+        String::from_utf8(path.to_vec()).map(PathBuf::from).map_err(|_| "Invalid UTF-8 in path".to_owned())
     }
 }
 
@@ -58,11 +56,7 @@ pub fn read_file(path: &std::path::Path, data_range: Option<(u64, u64)>) -> Opti
 }
 
 /// `requestLocalFile(path, req, dataRange)`.
-pub fn request_local_file(
-    path: &[u8],
-    req: &ActorRef<FileSourceRequestState>,
-    data_range: Option<(u64, u64)>,
-) {
+pub fn request_local_file(path: &[u8], req: &ActorRef<FileSourceRequestState>, data_range: Option<(u64, u64)>) {
     let mut response = Response::new();
     let path_display = String::from_utf8_lossy(path).into_owned();
     let path = match path_from_utf8(path) {

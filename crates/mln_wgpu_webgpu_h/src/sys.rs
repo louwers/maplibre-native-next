@@ -39,6 +39,7 @@ pub(crate) fn unavailable(name: &str) -> ! {
     panic!("mln_wgpu_webgpu_h: {name} is only available on Emscripten (--use-port=emdawnwebgpu)")
 }
 
+#[rustfmt::skip]
 mod generated;
 pub use generated::*;
 

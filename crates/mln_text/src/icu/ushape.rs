@@ -441,9 +441,8 @@ fn shape_unicode(dest: &mut [u16], source_length: i32) -> i32 {
             /* get the proper shape according to link ability of neighbors
             and of character; depends on the order of the shapes (isolated,
             initial, middle, final) in the compatibility area */
-            let mut shape = SHAPE_TABLE[(next_link & (LINKR + LINKL)) as usize]
-                [(last_link & (LINKR + LINKL)) as usize][(curr_link & (LINKR + LINKL)) as usize]
-                as u32;
+            let mut shape = SHAPE_TABLE[(next_link & (LINKR + LINKL)) as usize][(last_link & (LINKR + LINKL)) as usize]
+                [(curr_link & (LINKR + LINKL)) as usize] as u32;
 
             if (curr_link & (LINKR + LINKL)) == 1 {
                 shape &= 1;

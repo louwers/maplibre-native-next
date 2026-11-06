@@ -33,6 +33,7 @@ pub mod layer_properties;
 pub mod layermanager;
 pub mod layers;
 pub mod layout_property;
+#[rustfmt::skip]
 pub mod light;
 pub mod light_impl;
 pub mod map;

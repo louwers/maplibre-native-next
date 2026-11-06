@@ -228,9 +228,7 @@ impl layer::Impl for Impl {
 
     fn has_layout_difference(&self, other: &dyn layer::Impl) -> bool {
         debug_assert!(std::ptr::eq(other.get_type_info(), layer::Impl::get_type_info(self)));
-        let impl_ = other
-            .downcast_ref::<Impl>()
-            .expect("SymbolLayer::Impl::hasLayoutDifference: not a symbol layer");
+        let impl_ = other.downcast_ref::<Impl>().expect("SymbolLayer::Impl::hasLayoutDifference: not a symbol layer");
         self.filter != impl_.filter
             || self.visibility != impl_.visibility
             || self.layout != impl_.layout
@@ -256,10 +254,8 @@ impl layer::Impl for Impl {
 
         match self.layout.get::<TextFont>() {
             PropertyValue::Undefined => {
-                font_stack.insert(vec![
-                    LAST_RESORT_ALPHABETIC_FONT.to_owned(),
-                    LAST_RESORT_PAN_UNICODE_FONT.to_owned(),
-                ]);
+                font_stack
+                    .insert(vec![LAST_RESORT_ALPHABETIC_FONT.to_owned(), LAST_RESORT_PAN_UNICODE_FONT.to_owned()]);
             }
             PropertyValue::Constant(constant) => {
                 font_stack.insert(constant.clone());

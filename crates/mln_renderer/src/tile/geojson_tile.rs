@@ -66,10 +66,7 @@ impl GeoJSONTile {
                 let (Some(tile), Some(current)) = (weak_tile.upgrade(), weak_data.upgrade()) else {
                     return;
                 };
-                let same_data = current
-                    .borrow()
-                    .as_ref()
-                    .is_some_and(|current| data_address(current) == captured_data);
+                let same_data = current.borrow().as_ref().is_some_and(|current| data_address(current) == captured_data);
                 if same_data {
                     tile.set_data(Some(Arc::new(GeoJSONTileData::new(features))));
                 }

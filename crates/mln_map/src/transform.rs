@@ -107,7 +107,11 @@ pub struct Transform {
 }
 
 impl Transform {
-    pub fn new(observer: Rc<dyn TransformObserver>, constrain_mode: ConstrainMode, viewport_mode: ViewportMode) -> Self {
+    pub fn new(
+        observer: Rc<dyn TransformObserver>,
+        constrain_mode: ConstrainMode,
+        viewport_mode: ViewportMode,
+    ) -> Self {
         Transform {
             observer,
             state: TransformState::new(constrain_mode, viewport_mode),
@@ -270,11 +274,7 @@ impl Transform {
         // Constrain camera options.
         zoom = mln_math::clamp_f64(zoom, self.state.get_min_zoom(), self.state.get_max_zoom());
         pitch = mln_math::clamp_f64(pitch, self.state.get_min_pitch(), self.state.get_max_pitch());
-        fov = mln_math::clamp_f64(
-            fov,
-            self.state.get_min_field_of_view(),
-            self.state.get_max_field_of_view(),
-        );
+        fov = mln_math::clamp_f64(fov, self.state.get_min_field_of_view(), self.state.get_max_field_of_view());
 
         // Minimize rotation by taking the shorter path around the circle.
         bearing = normalize_angle(bearing, self.state.get_bearing());
@@ -296,8 +296,7 @@ impl Transform {
 
         let frame: FrameFn = Rc::new(move |state: &mut TransformState, t: f64| {
             let frame_point = interpolate(&start_point, &end_point, t);
-            let frame_lat_lng =
-                unproject(&frame_point, state.zoom_scale(start_zoom), WrapMode::Unwrapped);
+            let frame_lat_lng = unproject(&frame_point, state.zoom_scale(start_zoom), WrapMode::Unwrapped);
             let frame_zoom = interpolate(&start_zoom, &zoom, t);
             state.set_lat_lng_zoom(&frame_lat_lng, frame_zoom);
             state.set_center_altitude(interpolate(&start_center_alt, &center_alt, t));
@@ -338,7 +337,12 @@ impl Transform {
     ///
     /// Where applicable, local variable documentation begins with the
     /// associated variable or function in van Wijk (2003).
-    pub fn fly_to(&mut self, input_camera: &CameraOptions, animation: &AnimationOptions, linear_zoom_interpolation: bool) {
+    pub fn fly_to(
+        &mut self,
+        input_camera: &CameraOptions,
+        animation: &AnimationOptions,
+        linear_zoom_interpolation: bool,
+    ) {
         let mut camera = *input_camera;
 
         let mut zoom = camera.zoom.unwrap_or(self.get_zoom());
@@ -388,11 +392,7 @@ impl Transform {
         // Constrain camera options.
         zoom = mln_math::clamp_f64(zoom, self.state.get_min_zoom(), self.state.get_max_zoom());
         pitch = mln_math::clamp_f64(pitch, self.state.get_min_pitch(), self.state.get_max_pitch());
-        fov = mln_math::clamp_f64(
-            fov,
-            self.state.get_min_field_of_view(),
-            self.state.get_max_field_of_view(),
-        );
+        fov = mln_math::clamp_f64(fov, self.state.get_min_field_of_view(), self.state.get_max_field_of_view());
 
         // Minimize rotation by taking the shorter path around the circle.
         bearing = normalize_angle(bearing, self.state.get_bearing());
@@ -430,10 +430,8 @@ impl Transform {
         let mut rho = 1.42;
         if animation.min_zoom.is_some() || linear_zoom_interpolation {
             // util::min(a, b, c) = min(a, min(b, c)), fmin on doubles
-            let mut min_zoom = mln_math::min_f64(
-                animation.min_zoom.unwrap_or(start_zoom),
-                mln_math::min_f64(start_zoom, zoom),
-            );
+            let mut min_zoom =
+                mln_math::min_f64(animation.min_zoom.unwrap_or(start_zoom), mln_math::min_f64(start_zoom, zoom));
             min_zoom = mln_math::clamp_f64(min_zoom, self.state.get_min_zoom(), self.state.get_max_zoom());
             // w<sub>m</sub>: Maximum visible span, measured in pixels with
             // respect to the initial scale.
@@ -476,18 +474,10 @@ impl Transform {
         // the ground plane, measured in pixels from the world image origin at
         // the initial scale.
         let u = move |s: f64| -> f64 {
-            if is_close {
-                0.0
-            } else {
-                w0 * (r0.cosh() * (r0 + rho * s).tanh() - r0.sinh()) / rho2 / u1
-            }
+            if is_close { 0.0 } else { w0 * (r0.cosh() * (r0 + rho * s).tanh() - r0.sinh()) / rho2 / u1 }
         };
         // S: Total length of the flight path, measured in ρ-screenfuls.
-        let total_s = if is_close {
-            (w1 / w0).ln().abs() / rho
-        } else {
-            (r1 - r0) / rho
-        };
+        let total_s = if is_close { (w1 / w0).ln().abs() / rho } else { (r1 - r0) / rho };
 
         let duration = if let Some(duration) = animation.duration {
             duration
@@ -582,8 +572,8 @@ impl Transform {
         let pitch = self.state.get_pitch();
         let offset_length = offset.x.hypot(offset.y);
         if pitch > 0.0 && offset_length > 0.0 {
-            let camera_to_center = 0.5 * self.state.get_size().height as f64
-                / (self.state.get_field_of_view() as f64 / 2.0).tan();
+            let camera_to_center =
+                0.5 * self.state.get_size().height as f64 / (self.state.get_field_of_view() as f64 / 2.0).tan();
             let pixels_to_horizon = (camera_to_center / pitch.tan()).abs();
             // must be < 1 to keep the offset short of the horizon
             let horizon_factor = 0.75;
@@ -1020,13 +1010,9 @@ fn get_max_pitch_for_edge_insets(state: &TransformState, insets: &EdgeInsets) ->
     debug_assert!(height != 0);
     let field_of_view = state.get_field_of_view() as f64;
     // Half of fov is the field of view above perspective center.
-    let tangent_of_fov_above_center_angle =
-        (0.5 + center_offset_y / height as f64) * 2.0 * (field_of_view / 2.0).tan();
+    let tangent_of_fov_above_center_angle = (0.5 + center_offset_y / height as f64) * 2.0 * (field_of_view / 2.0).tan();
     let fov_above_center = tangent_of_fov_above_center_angle.atan();
-    std_max(
-        state.get_min_pitch(),
-        state.get_max_pitch() + field_of_view / 2.0 - fov_above_center,
-    )
+    std_max(state.get_min_pitch(), state.get_max_pitch() + field_of_view / 2.0 - fov_above_center)
 }
 
 #[cfg(test)]

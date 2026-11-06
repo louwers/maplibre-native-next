@@ -6,6 +6,7 @@
 //! the options bidi.cpp passes are ported.
 
 pub mod ubidi_props;
+#[rustfmt::skip]
 mod ubidi_props_data;
 pub mod ushape;
 

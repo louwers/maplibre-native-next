@@ -10,15 +10,15 @@ use crate::buckets::circle_bucket::CircleBucket;
 use crate::geometry::feature_index::FeatureIndex;
 use crate::layout::layout::{Layout, SourceLayer};
 use crate::render_layer::LayerRenderData;
-use mln_style_types::image::ImagePositions;
 use mln_map_types::MapMode;
+use mln_style::PropertyEvaluationParameters;
 use mln_style::expression::{EvaluationContext, Value};
 use mln_style::layer_properties::LayerProperties;
 use mln_style::layers::circle_layer_properties::{CircleLayerProperties, CircleSortKey};
 use mln_style::properties::Property;
-use mln_style::PropertyEvaluationParameters;
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
+use mln_style_types::image::ImagePositions;
 use mln_tile_id::CanonicalTileID;
+use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
 use mln_util::constants::EXTENT;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
@@ -201,9 +201,7 @@ impl CircleLayout {
                 // boundaries. Include all points in Still mode. You need to
                 // include points from neighbouring tiles so that they are
                 // not clipped at tile boundaries.
-                if mode == MapMode::Continuous
-                    && (x < 0 || x as i32 >= EXTENT || y < 0 || y as i32 >= EXTENT)
-                {
+                if mode == MapMode::Continuous && (x < 0 || x as i32 >= EXTENT || y < 0 || y as i32 >= EXTENT) {
                     continue;
                 }
 
@@ -214,7 +212,8 @@ impl CircleLayout {
                 if needs_segment {
                     // Move to a new segments because the old one can't hold
                     // the geometry.
-                    let mut segment = mln_gfx::shaders::segment::SegmentBase::new(bucket.vertices.len(), bucket.triangles.len());
+                    let mut segment =
+                        mln_gfx::shaders::segment::SegmentBase::new(bucket.vertices.len(), bucket.triangles.len());
                     segment.sort_key = sort_key;
                     bucket.segments.push(segment);
                 }

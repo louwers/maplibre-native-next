@@ -7,18 +7,18 @@
 use crate::bucket::{Bucket, BucketBase};
 use crate::paint_property_binder::PaintPropertyBinder;
 use crate::render_layer::RenderLayer;
-use mln_gfx::shaders::segment::SegmentBase;
 use mln_gfx::UploadPass;
+use mln_gfx::shaders::segment::SegmentBase;
 use mln_map_types::MapMode;
-use mln_style::layer_properties::{get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::circle_layer_properties::*;
 use mln_style::properties::Property;
-use mln_util::immutable::Immutable;
 use mln_style_types::image::ImagePositions;
 use mln_util::Color;
+use mln_util::immutable::Immutable;
 use std::collections::BTreeMap;
-use std::sync::atomic::Ordering;
 use std::sync::RwLock;
+use std::sync::atomic::Ordering;
 
 crate::paint_property_binders!(
     /// `CircleBinders = PaintPropertyBinders<CirclePaintProperties::DataDrivenProperties>`.
@@ -61,9 +61,9 @@ impl CircleBucket {
     ) -> Self {
         let mut paint_property_binders = BTreeMap::new();
         for (id, properties) in layer_paint_properties {
-            paint_property_binders
-                .entry(id.clone())
-                .or_insert_with(|| RwLock::new(CircleBinders::new(get_evaluated::<CircleLayerProperties>(properties), zoom)));
+            paint_property_binders.entry(id.clone()).or_insert_with(|| {
+                RwLock::new(CircleBinders::new(get_evaluated::<CircleLayerProperties>(properties), zoom))
+            });
         }
         CircleBucket {
             base: BucketBase::default(),

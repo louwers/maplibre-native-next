@@ -81,10 +81,7 @@ impl LatLng {
 
     /// `LatLng(const UnwrappedTileID&)`.
     pub fn from_unwrapped_tile(z: u8, x: u32, y: u32, wrap: i16) -> Self {
-        LatLng::new_unchecked(
-            lat_(z, y as i64),
-            lon_(z, x as i64) + wrap as f64 * constants::DEGREES_MAX,
-        )
+        LatLng::new_unchecked(lat_(z, y as i64), lon_(z, x as i64) + wrap as f64 * constants::DEGREES_MAX)
     }
 
     pub fn latitude(&self) -> f64 {
@@ -140,19 +137,12 @@ pub struct LatLngBounds {
 impl LatLngBounds {
     /// `LatLngBounds(LatLng sw, LatLng ne)` (private in C++).
     const fn from_corners(sw: LatLng, ne: LatLng) -> Self {
-        LatLngBounds {
-            sw,
-            ne,
-            bounded: true,
-        }
+        LatLngBounds { sw, ne, bounded: true }
     }
 
     /// Return a bounds covering the entire (unwrapped) world.
     pub fn world() -> Self {
-        LatLngBounds::from_corners(
-            LatLng::new_unchecked(-90.0, -180.0),
-            LatLng::new_unchecked(90.0, 180.0),
-        )
+        LatLngBounds::from_corners(LatLng::new_unchecked(-90.0, -180.0), LatLng::new_unchecked(90.0, 180.0))
     }
 
     /// Return the bounds consisting of the single point.
@@ -231,11 +221,8 @@ impl LatLngBounds {
     /// C++ constructs the LatLng in a `noexcept` function, so a longitude sum
     /// that overflows to infinity terminates; this panics.
     pub fn center(&self) -> LatLng {
-        LatLng::new(
-            (self.sw.latitude() + self.ne.latitude()) / 2.0,
-            (self.sw.longitude() + self.ne.longitude()) / 2.0,
-        )
-        .expect("LatLngBounds::center")
+        LatLng::new((self.sw.latitude() + self.ne.latitude()) / 2.0, (self.sw.longitude() + self.ne.longitude()) / 2.0)
+            .expect("LatLngBounds::center")
     }
 
     pub fn constrain(&self, p: &LatLng) -> LatLng {
@@ -326,9 +313,7 @@ impl LatLngBounds {
             let wrapped = LatLngBounds::from_corners(self.sw.wrapped(), self.ne.wrapped());
             let other = LatLngBounds::from_corners(area.sw.wrapped(), area.ne.wrapped());
             if self.crosses_antimeridian() {
-                return area.crosses_antimeridian()
-                    || other.east() > wrapped.west()
-                    || other.west() < wrapped.east();
+                return area.crosses_antimeridian() || other.east() > wrapped.west() || other.west() < wrapped.east();
             } else if other.crosses_antimeridian() {
                 return other.east() > wrapped.west() || other.west() < wrapped.east();
             } else {
@@ -352,10 +337,8 @@ impl LatLngBounds {
             // LatLng(0.0, longitude).wrapped(): longitude is finite here
             // (it compared above), except for NaN/inf inputs, which the C++
             // constructor rejects by throwing in a noexcept function.
-            let longitude = LatLng::new(0.0, longitude)
-                .expect("LatLngBounds::contains_longitude")
-                .wrapped()
-                .longitude();
+            let longitude =
+                LatLng::new(0.0, longitude).expect("LatLngBounds::contains_longitude").wrapped().longitude();
             if self.crosses_antimeridian() {
                 return (longitude >= -constants::LONGITUDE_MAX && longitude <= wrapped.east())
                     || (longitude >= wrapped.west() && longitude <= constants::LONGITUDE_MAX);
@@ -421,12 +404,7 @@ impl EdgeInsets {
         if right.is_nan() {
             return Err("right must not be NaN".to_owned());
         }
-        Ok(EdgeInsets {
-            top,
-            left,
-            bottom,
-            right,
-        })
+        Ok(EdgeInsets { top, left, bottom, right })
     }
 
     pub fn top(&self) -> f64 {
@@ -467,13 +445,8 @@ impl std::ops::Add for EdgeInsets {
     type Output = EdgeInsets;
     // C++ goes through the throwing constructor (NaN from inf + -inf).
     fn add(self, o: EdgeInsets) -> EdgeInsets {
-        EdgeInsets::new(
-            self.top + o.top,
-            self.left + o.left,
-            self.bottom + o.bottom,
-            self.right + o.right,
-        )
-        .expect("EdgeInsets::operator+")
+        EdgeInsets::new(self.top + o.top, self.left + o.left, self.bottom + o.bottom, self.right + o.right)
+            .expect("EdgeInsets::operator+")
     }
 }
 

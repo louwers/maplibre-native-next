@@ -11,21 +11,13 @@
 /// `cvttsd2si` with a 32-bit destination.
 #[inline]
 pub fn cvttsd2si32(v: f64) -> i32 {
-    if v.is_nan() || v >= 2147483648.0 || v <= -2147483649.0 {
-        i32::MIN
-    } else {
-        v as i32
-    }
+    if v.is_nan() || v >= 2147483648.0 || v <= -2147483649.0 { i32::MIN } else { v as i32 }
 }
 
 /// `cvttsd2si` with a 64-bit destination.
 #[inline]
 pub fn cvttsd2si64(v: f64) -> i64 {
-    if v.is_nan() || v >= 9223372036854775808.0 || v < -9223372036854775808.0 {
-        i64::MIN
-    } else {
-        v as i64
-    }
+    if v.is_nan() || v >= 9223372036854775808.0 || v < -9223372036854775808.0 { i64::MIN } else { v as i64 }
 }
 
 /// `static_cast<int32_t>(double)`

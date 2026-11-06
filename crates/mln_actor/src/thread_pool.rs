@@ -222,9 +222,7 @@ impl Default for ThreadPool {
 
 impl ThreadPool {
     pub fn new() -> Self {
-        ThreadPool {
-            scheduler: ThreadedScheduler::new(1 + 3),
-        }
+        ThreadPool { scheduler: ThreadedScheduler::new(1 + 3) }
     }
 }
 
@@ -259,9 +257,7 @@ impl Default for SequencedScheduler {
 
 impl SequencedScheduler {
     pub fn new() -> Self {
-        SequencedScheduler {
-            scheduler: ThreadedScheduler::new(1),
-        }
+        SequencedScheduler { scheduler: ThreadedScheduler::new(1) }
     }
 }
 

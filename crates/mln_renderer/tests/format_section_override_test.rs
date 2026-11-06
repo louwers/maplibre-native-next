@@ -38,9 +38,7 @@ struct StubGeometryTileFeature {
 
 impl StubGeometryTileFeature {
     fn new(entries: &[(&str, MbglValue)]) -> Self {
-        StubGeometryTileFeature {
-            properties: entries.iter().map(|(k, v)| ((*k).to_owned(), v.clone())).collect(),
-        }
+        StubGeometryTileFeature { properties: entries.iter().map(|(k, v)| ((*k).to_owned(), v.clone())).collect() }
     }
 }
 
@@ -165,9 +163,7 @@ const FORMATTED_CASES: [FormattedCase; 6] = [
 /// `Formatted("")` with a section that overrides text-color.
 fn overridden_formatted() -> Formatted {
     let mut formatted = Formatted::from_plain("");
-    formatted
-        .sections
-        .push(FormattedSection::new("section text".to_owned(), None, None, Some(Color::green())));
+    formatted.sections.push(FormattedSection::new("section text".to_owned(), None, None, Some(Color::green())));
     formatted
 }
 
@@ -208,12 +204,7 @@ impl FormattedCase {
                 let mut branches: BTreeMap<String, Arc<dyn Expression>> = BTreeMap::new();
                 branches.insert("1st".to_owned(), Arc::from(formatted_expr1));
                 branches.insert("2nd".to_owned(), Arc::from(formatted_expr2));
-                Box::new(Match::<String>::new(
-                    Type::Formatted,
-                    literal_str("input"),
-                    branches,
-                    format_str("otherwise"),
-                ))
+                Box::new(Match::<String>::new(Type::Formatted, literal_str("input"), branches, format_str("otherwise")))
             }
             _ => return None,
         };
@@ -255,20 +246,14 @@ fn symbol_layer_overrides() {
 
         let mut current = SymbolPaintProperties::Transitionable::default();
         let mut updated = SymbolPaintProperties::Transitionable::default();
-        *current.get_mut::<TextColor>() = Transitionable {
-            value: PropertyValue::Constant(Color::green()),
-            options: TransitionOptions::default(),
-        };
-        *updated.get_mut::<TextColor>() = Transitionable {
-            value: PropertyValue::Constant(Color::green()),
-            options: TransitionOptions::default(),
-        };
+        *current.get_mut::<TextColor>() =
+            Transitionable { value: PropertyValue::Constant(Color::green()), options: TransitionOptions::default() };
+        *updated.get_mut::<TextColor>() =
+            Transitionable { value: PropertyValue::Constant(Color::green()), options: TransitionOptions::default() };
         assert!(!MockOverrides::has_paint_property_difference(&current, &updated));
 
-        *current.get_mut::<TextColor>() = Transitionable {
-            value: PropertyValue::Constant(Color::red()),
-            options: TransitionOptions::default(),
-        };
+        *current.get_mut::<TextColor>() =
+            Transitionable { value: PropertyValue::Constant(Color::red()), options: TransitionOptions::default() };
         assert!(MockOverrides::has_paint_property_difference(&current, &updated));
     }
 

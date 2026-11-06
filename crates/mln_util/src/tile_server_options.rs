@@ -13,11 +13,7 @@ pub struct DefaultStyle {
 
 impl DefaultStyle {
     pub fn new(url: impl Into<String>, name: impl Into<String>, current_version: i32) -> Self {
-        DefaultStyle {
-            url: url.into(),
-            name: name.into(),
-            current_version,
-        }
+        DefaultStyle { url: url.into(), name: name.into(), current_version }
     }
 
     pub fn get_url(&self) -> &str {
@@ -71,7 +67,12 @@ pub struct TileServerOptions {
 
 macro_rules! template_accessors {
     ($with:ident, $template:ident, $domain:ident, $prefix:ident) => {
-        pub fn $with(mut self, template: impl Into<String>, domain_name: impl Into<String>, version_prefix: Option<String>) -> Self {
+        pub fn $with(
+            mut self,
+            template: impl Into<String>,
+            domain_name: impl Into<String>,
+            version_prefix: Option<String>,
+        ) -> Self {
             self.$template = template.into();
             self.$domain = domain_name.into();
             self.$prefix = version_prefix;

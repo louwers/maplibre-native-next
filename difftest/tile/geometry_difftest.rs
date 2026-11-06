@@ -343,7 +343,10 @@ fn edge_cases() {
     }
     let nan = vec![vec![(f64::NAN, 0.0), (0.0, f64::NAN), (f64::INFINITY, -f64::INFINITY), (1e300, -1e300)]];
     for kind in 0..6 {
-        assert_eq!(rust_convert_geometry_to_tile(kind, &nan, 3, 2, 1), reference_convert_geometry_to_tile(kind, &nan, 3, 2, 1));
+        assert_eq!(
+            rust_convert_geometry_to_tile(kind, &nan, 3, 2, 1),
+            reference_convert_geometry_to_tile(kind, &nan, 3, 2, 1)
+        );
     }
 }
 

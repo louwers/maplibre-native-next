@@ -383,20 +383,21 @@ impl Drawable {
         let draw_call_count = DRAW_CALL_COUNT.with(Cell::get);
         let global_buffers = render_pass.get_global_uniform_buffers();
         let textures = &self.base.textures;
-        let find_texture_for_binding = |binding: u32, sampler_binding: bool| -> Option<Rc<RefCell<dyn mln_gfx::texture2d::Texture2D>>> {
-            for (tex_index, texture) in textures.iter().enumerate() {
-                let Some(texture) = texture else { continue };
-                if let Some(location) = shader.get_sampler_location_of(tex_index) {
-                    let location = location as u32;
-                    if (sampler_binding && location == binding)
-                        || (!sampler_binding && (location == binding || location + 1 == binding))
-                    {
-                        return Some(texture.clone());
+        let find_texture_for_binding =
+            |binding: u32, sampler_binding: bool| -> Option<Rc<RefCell<dyn mln_gfx::texture2d::Texture2D>>> {
+                for (tex_index, texture) in textures.iter().enumerate() {
+                    let Some(texture) = texture else { continue };
+                    if let Some(location) = shader.get_sampler_location_of(tex_index) {
+                        let location = location as u32;
+                        if (sampler_binding && location == binding)
+                            || (!sampler_binding && (location == binding || location + 1 == binding))
+                        {
+                            return Some(texture.clone());
+                        }
                     }
                 }
-            }
-            None
-        };
+                None
+            };
 
         let group_order = shader.get_bind_group_order().to_vec();
         for (slot, &group) in group_order.iter().enumerate() {
@@ -442,10 +443,8 @@ impl Drawable {
                             valid_bindings = false;
                             break;
                         };
-                        let gpu_buffer = buffer
-                            .as_any()
-                            .downcast_ref::<UniformBuffer>()
-                            .and_then(|b| b.get_buffer().cloned());
+                        let gpu_buffer =
+                            buffer.as_any().downcast_ref::<UniformBuffer>().and_then(|b| b.get_buffer().cloned());
                         let Some(gpu_buffer) = gpu_buffer else {
                             if draw_call_count <= 200 {
                                 eprintln!(
@@ -456,7 +455,8 @@ impl Drawable {
                             valid_bindings = false;
                             break;
                         };
-                        resources.push((binding_info.binding, EntryResource::Buffer(gpu_buffer, buffer.get_size() as u64)));
+                        resources
+                            .push((binding_info.binding, EntryResource::Buffer(gpu_buffer, buffer.get_size() as u64)));
                     }
                     BindingType::Sampler => {
                         let Some(texture) = find_texture_for_binding(binding_info.binding, true) else {
@@ -501,10 +501,7 @@ impl Drawable {
             }
 
             if !valid_bindings || resources.is_empty() {
-                eprintln!(
-                    "WebGPU: invalid bindings for drawable '{}' (group={group}, slot={slot})",
-                    self.base.name
-                );
+                eprintln!("WebGPU: invalid bindings for drawable '{}' (group={group}, slot={slot})", self.base.name);
                 return false;
             }
 
@@ -524,11 +521,8 @@ impl Drawable {
                 })
                 .collect();
             let label = format!("{} bind-group {group}", self.base.name);
-            let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-                label: Some(&label),
-                layout,
-                entries: &entries,
-            });
+            let bind_group =
+                device.create_bind_group(&wgpu::BindGroupDescriptor { label: Some(&label), layout, entries: &entries });
             self.impl_.bind_groups.push(BindGroupRecord { slot: slot as u32, group, handle: bind_group });
         }
         true
@@ -741,8 +735,7 @@ impl drawable::Drawable for Drawable {
                 .collect();
             // Use the actual color mode from the drawable (like Metal does)
             let color_mode = self.base.color_mode;
-            let draw_mode_type =
-                self.impl_.segments.first().map_or(DrawModeType::Triangles, |s| s.get_mode().type_);
+            let draw_mode_type = self.impl_.segments.first().map_or(DrawModeType::Triangles, |s| s.get_mode().type_);
             // Compute pipeline state hash for caching
             let pipeline_hash =
                 hash_pipeline_state(&vertex_layouts, &color_mode, &depth_mode, &stencil_mode, draw_mode_type);
@@ -811,8 +804,7 @@ impl drawable::Drawable for Drawable {
             let indexes = indexes.borrow();
             if indexes.elements() > 0
                 && !indexes.get_dirty()
-                && let Some(index_buffer) =
-                    indexes.get_buffer().and_then(|b| b.as_any().downcast_ref::<IndexBuffer>())
+                && let Some(index_buffer) = indexes.get_buffer().and_then(|b| b.as_any().downcast_ref::<IndexBuffer>())
                 && let Some(resource) = index_buffer.buffer.get_resource::<IndexBufferResource>()
             {
                 let buffer_resource = resource.get_buffer();

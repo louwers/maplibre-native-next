@@ -30,19 +30,12 @@ impl VectorTileTest {
     fn new() -> Self {
         VectorTileTest {
             _run_loop: RunLoop::new(),
-            transform: Transform::new(
-                Rc::new(NullTransformObserver),
-                ConstrainMode::HeightOnly,
-                ViewportMode::Default,
-            ),
+            transform: Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default),
             thread_pool: TaggedScheduler::new(scheduler::get_background(), SimpleIdentity::new()),
             // C++ uses a FakeFileSource whose requests never answer; the
             // asynchronous stub answers only when the run loop runs.
             file_source: Arc::new(StubFileSource::new(ResponseType::Asynchronous)),
-            tileset: Tileset {
-                tiles: vec!["https://example.com".to_owned()],
-                ..Default::default()
-            },
+            tileset: Tileset { tiles: vec!["https://example.com".to_owned()], ..Default::default() },
         }
     }
 

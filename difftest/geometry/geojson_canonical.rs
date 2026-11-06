@@ -2,9 +2,9 @@
 // FFI wrappers around the reference, and proptest strategies for GeoJSON
 // inputs. Shared by geojson_difftest.rs and geojson_vt_difftest.rs.
 
+use feature::{Feature, Identifier, PropertyMap, Value};
 use geojson::GeoJSON;
 use geojson_vt::Tile;
-use feature::{Feature, Identifier, PropertyMap, Value};
 use geometry::{Geometry, Point};
 use proptest::prelude::*;
 use serde_json::{Value as Json, json};
@@ -169,11 +169,7 @@ pub fn tile(t: &Tile) -> Json {
 /// Abbreviates a long JSON text for failure messages.
 pub fn abbreviate(j: &Json) -> String {
     let s = j.to_string();
-    if s.len() > 3000 {
-        format!("{}...({} bytes)", &s[..3000], s.len())
-    } else {
-        s
-    }
+    if s.len() > 3000 { format!("{}...({} bytes)", &s[..3000], s.len()) } else { s }
 }
 
 // --- strategies ---
@@ -243,8 +239,7 @@ pub fn property_value() -> impl Strategy<Value = Json> {
     scalar.prop_recursive(2, 8, 3, |inner| {
         prop_oneof![
             prop::collection::vec(inner.clone(), 0..3).prop_map(Json::Array),
-            prop::collection::btree_map("[a-c]", inner, 0..3)
-                .prop_map(|m| Json::Object(m.into_iter().collect())),
+            prop::collection::btree_map("[a-c]", inner, 0..3).prop_map(|m| Json::Object(m.into_iter().collect())),
         ]
     })
 }

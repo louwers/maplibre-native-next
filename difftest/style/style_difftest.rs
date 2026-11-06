@@ -90,13 +90,8 @@ fn rust_evaluate_background(json: &str, layer_id: &str, now: TimePoint) -> Optio
     let impl_ = static_immutable_cast::<BackgroundLayerImpl>(impl_);
 
     let unevaluated = impl_.paint.untransitioned();
-    let unevaluated = impl_.paint.transitioned(
-        &TransitionParameters {
-            now,
-            transition: TransitionOptions::default(),
-        },
-        unevaluated,
-    );
+    let unevaluated =
+        impl_.paint.transitioned(&TransitionParameters { now, transition: TransitionOptions::default() }, unevaluated);
     let mut zoom_history = ZoomHistory::default();
     zoom_history.update(zoom as f32, &now);
     let parameters = PropertyEvaluationParameters::with_zoom_history(zoom_history, now, Duration::zero());
@@ -128,9 +123,8 @@ fn same_background(a: &RefBackground, b: &RefBackground, compare_layer_count: bo
 }
 
 fn render_tests_dir() -> PathBuf {
-    let base = std::env::var("RUNFILES_DIR")
-        .or_else(|_| std::env::var("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
+    let base =
+        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+/metrics/integration/render-tests")
 }
 
@@ -158,19 +152,12 @@ fn m1_render_test_styles() {
         // background-opacity/overlay: C++ also parses the raster layer, the
         // port skips it (no raster layer type yet), so layer counts differ there.
         let compare_layer_count = test != "background-opacity/overlay";
-        assert!(
-            same_background(&cpp, &rust, compare_layer_count),
-            "{test}:\n  C++  {cpp:?}\n  Rust {rust:?}"
-        );
+        assert!(same_background(&cpp, &rust, compare_layer_count), "{test}:\n  C++  {cpp:?}\n  Rust {rust:?}");
     }
 }
 
 fn config(cases: u32) -> ProptestConfig {
-    ProptestConfig {
-        cases,
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    }
+    ProptestConfig { cases, failure_persistence: None, ..ProptestConfig::default() }
 }
 
 const COLORS: &[&str] = &[
@@ -203,8 +190,7 @@ fn color_function_strategy() -> impl Strategy<Value = String> {
         prop::option::of(color_strategy()),
     )
         .prop_map(|(stops, type_, base, default)| {
-            let stops: Vec<String> =
-                stops.iter().map(|(z, c)| format!(r#"[{}, "{}"]"#, *z as f64 / 2.0, c)).collect();
+            let stops: Vec<String> = stops.iter().map(|(z, c)| format!(r#"[{}, "{}"]"#, *z as f64 / 2.0, c)).collect();
             let default = default.map(|d| format!(r#""default":"{d}","#)).unwrap_or_default();
             format!(r#"{{{type_}{base}{default}"stops":[{}]}}"#, stops.join(","))
         })
@@ -214,10 +200,8 @@ fn opacity_strategy() -> impl Strategy<Value = String> {
     prop_oneof![
         (0u32..=100).prop_map(|o| format!("{}", o as f64 / 100.0)),
         (prop::collection::vec((0u32..48, 0u32..=100), 1..4)).prop_map(|stops| {
-            let stops: Vec<String> = stops
-                .iter()
-                .map(|(z, o)| format!("[{}, {}]", *z as f64 / 2.0, *o as f64 / 100.0))
-                .collect();
+            let stops: Vec<String> =
+                stops.iter().map(|(z, o)| format!("[{}, {}]", *z as f64 / 2.0, *o as f64 / 100.0)).collect();
             format!(r#"{{"stops":[{}]}}"#, stops.join(","))
         }),
     ]

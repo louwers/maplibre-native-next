@@ -34,10 +34,7 @@ impl<O: 'static> AspiringActor<O> {
     }
 
     pub(crate) fn with_mailbox(mailbox: Arc<Mailbox>) -> Self {
-        AspiringActor {
-            mailbox,
-            _object: std::marker::PhantomData,
-        }
+        AspiringActor { mailbox, _object: std::marker::PhantomData }
     }
 
     /// `self()`.
@@ -59,10 +56,7 @@ impl<O: 'static> EstablishedActor<O> {
     pub fn new(scheduler: &SchedulerPtr, parent: &AspiringActor<O>, make: impl FnOnce(ActorRef<O>) -> O) -> Self {
         let object = Rc::new(make(parent.self_ref()));
         parent.mailbox.open(scheduler, object.clone() as Rc<dyn Any>);
-        EstablishedActor {
-            mailbox: parent.mailbox.clone(),
-            object: Some(object),
-        }
+        EstablishedActor { mailbox: parent.mailbox.clone(), object: Some(object) }
     }
 
     pub fn object(&self) -> &O {

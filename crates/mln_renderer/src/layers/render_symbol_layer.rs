@@ -13,25 +13,27 @@
 
 use super::collision_layer_tweaker::{CollisionDrawableData, CollisionLayerTweaker};
 use super::symbol_layer_tweaker::SymbolLayerTweaker;
-use crate::buckets::symbol_bucket::{CollisionBoxDynamicVertex, CollisionBoxLayoutVertex, CollisionBuffer};
-use crate::render_layer::{activate_layer_group, change_layer_index};
-use mln_gfx::LayerGroupBasePtr;
 use super::{TileDrawables, drawable_binders_slot, drawable_render_tile_slot, shared_vertices};
 use crate::buckets::symbol_bucket::{Buffer, PaintProperties, SymbolBucket};
+use crate::buckets::symbol_bucket::{CollisionBoxDynamicVertex, CollisionBoxLayoutVertex, CollisionBuffer};
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::gfx::drawable_atlases_tweaker::DrawableAtlasesTweaker;
 use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
 use crate::paint_parameters::PaintParameters;
 use crate::paint_property_binder::read_data_driven_paint_property;
 use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
+use crate::render_layer::{activate_layer_group, change_layer_index};
 use crate::render_pass::RenderPass;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
+use mln_gfx::LayerGroupBasePtr;
 use mln_gfx::index_vector::IndexVectorBase;
 use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
 use mln_gfx::shaders::shader_defines::*;
 use mln_gfx::vertex_attribute::VertexAttributeArray;
-use mln_gfx::{AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableTweakerPtr, ShaderRegistry};
+use mln_gfx::{
+    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableTweakerPtr, ShaderRegistry,
+};
 use mln_map_types::TransformState;
 use mln_style::layer;
 use mln_style::layer::static_immutable_cast;
@@ -179,20 +181,110 @@ fn set_binder_attributes(
         let b = &paint_props.text_binders;
         let ib = &b.interleaved_vertex_buffer;
         let shared = shared_vertices(&ib.shared_vertex_vector);
-        read_data_driven_paint_property(attribs, &b.text_opacity, ib, &shared, &["a_opacity"], evaluated.get::<TextOpacity>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.text_color, ib, &shared, &["a_fill_color"], evaluated.get::<TextColor>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.text_halo_color, ib, &shared, &["a_halo_color"], evaluated.get::<TextHaloColor>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.text_halo_width, ib, &shared, &["a_halo_width"], evaluated.get::<TextHaloWidth>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.text_halo_blur, ib, &shared, &["a_halo_blur"], evaluated.get::<TextHaloBlur>().is_constant(), pau, &mut id);
+        read_data_driven_paint_property(
+            attribs,
+            &b.text_opacity,
+            ib,
+            &shared,
+            &["a_opacity"],
+            evaluated.get::<TextOpacity>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.text_color,
+            ib,
+            &shared,
+            &["a_fill_color"],
+            evaluated.get::<TextColor>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.text_halo_color,
+            ib,
+            &shared,
+            &["a_halo_color"],
+            evaluated.get::<TextHaloColor>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.text_halo_width,
+            ib,
+            &shared,
+            &["a_halo_width"],
+            evaluated.get::<TextHaloWidth>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.text_halo_blur,
+            ib,
+            &shared,
+            &["a_halo_blur"],
+            evaluated.get::<TextHaloBlur>().is_constant(),
+            pau,
+            &mut id,
+        );
     } else {
         let b = &paint_props.icon_binders;
         let ib = &b.interleaved_vertex_buffer;
         let shared = shared_vertices(&ib.shared_vertex_vector);
-        read_data_driven_paint_property(attribs, &b.icon_opacity, ib, &shared, &["a_opacity"], evaluated.get::<IconOpacity>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.icon_color, ib, &shared, &["a_fill_color"], evaluated.get::<IconColor>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.icon_halo_color, ib, &shared, &["a_halo_color"], evaluated.get::<IconHaloColor>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.icon_halo_width, ib, &shared, &["a_halo_width"], evaluated.get::<IconHaloWidth>().is_constant(), pau, &mut id);
-        read_data_driven_paint_property(attribs, &b.icon_halo_blur, ib, &shared, &["a_halo_blur"], evaluated.get::<IconHaloBlur>().is_constant(), pau, &mut id);
+        read_data_driven_paint_property(
+            attribs,
+            &b.icon_opacity,
+            ib,
+            &shared,
+            &["a_opacity"],
+            evaluated.get::<IconOpacity>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.icon_color,
+            ib,
+            &shared,
+            &["a_fill_color"],
+            evaluated.get::<IconColor>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.icon_halo_color,
+            ib,
+            &shared,
+            &["a_halo_color"],
+            evaluated.get::<IconHaloColor>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.icon_halo_width,
+            ib,
+            &shared,
+            &["a_halo_width"],
+            evaluated.get::<IconHaloWidth>().is_constant(),
+            pau,
+            &mut id,
+        );
+        read_data_driven_paint_property(
+            attribs,
+            &b.icon_halo_blur,
+            ib,
+            &shared,
+            &["a_halo_blur"],
+            evaluated.get::<IconHaloBlur>().is_constant(),
+            pau,
+            &mut id,
+        );
     }
 }
 
@@ -216,7 +308,6 @@ fn set_layout_attributes(buffer: &Buffer, attribs: &mut VertexAttributeArray) {
     if let Some(attr) = attribs.set(ID_SYMBOL_PIXEL_OFFSET_ATTRIBUTE, -1, AttributeDataType::Invalid, 0) {
         attr.set_shared_raw_data(Some(layout_data), 16, 0, layout_size, AttributeDataType::Short4);
     }
-
 }
 
 /// `updateTileAttributes`: the dynamic layout vertices (placement).
@@ -613,15 +704,14 @@ impl RenderLayer for RenderSymbolLayer {
         let has_text_opacity = evaluated.get::<TextColor>().constant_or(&TextColor::default_value()).a > 0.0
             || evaluated.get::<TextHaloColor>().constant_or(&TextHaloColor::default_value()).a > 0.0;
 
-        self.base.passes = if (evaluated.get::<IconOpacity>().constant_or(&1.0) > 0.0
-            && has_icon_opacity
-            && self.icon_size > 0.0)
-            || (evaluated.get::<TextOpacity>().constant_or(&1.0) > 0.0 && has_text_opacity && self.text_size > 0.0)
-        {
-            RenderPass::Translucent
-        } else {
-            RenderPass::None
-        };
+        self.base.passes =
+            if (evaluated.get::<IconOpacity>().constant_or(&1.0) > 0.0 && has_icon_opacity && self.icon_size > 0.0)
+                || (evaluated.get::<TextOpacity>().constant_or(&1.0) > 0.0 && has_text_opacity && self.text_size > 0.0)
+            {
+                RenderPass::Translucent
+            } else {
+                RenderPass::None
+            };
         properties.base.render_passes = self.base.passes.underlying_type();
         self.base.evaluated_properties = Arc::new(properties);
 
@@ -773,9 +863,11 @@ impl RenderLayer for RenderSymbolLayer {
 
         // Set up a layer group
         if self.base.layer_group.is_none() {
-            if let Some(layer_group) =
-                context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned())
-            {
+            if let Some(layer_group) = context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 self.set_layer_group(Some(layer_group), changes);
             }
         }
@@ -1101,13 +1193,13 @@ impl RenderLayer for RenderSymbolLayer {
                     builder.set_render_pass(passes);
                     builder.set_cull_face_mode(&CullFaceMode::disabled());
                     builder.set_depth_type(DepthMaskType::ReadOnly);
-                    builder.set_color_mode(
-                        &if (passes.underlying_type() & RenderPass::Translucent.underlying_type()) != 0 {
-                            ColorMode::alpha_blended()
-                        } else {
-                            ColorMode::unblended()
-                        },
-                    );
+                    builder.set_color_mode(&if (passes.underlying_type() & RenderPass::Translucent.underlying_type())
+                        != 0
+                    {
+                        ColorMode::alpha_blended()
+                    } else {
+                        ColorMode::unblended()
+                    });
                     builder
                 });
 

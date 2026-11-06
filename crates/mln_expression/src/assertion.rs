@@ -3,8 +3,8 @@
 
 use crate::check_subtype::check_subtype;
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    children_equal, collect_dependencies, downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
+    collect_dependencies, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
@@ -31,10 +31,7 @@ fn assertion_type(name: &str) -> Option<Type> {
 impl Assertion {
     pub fn new(type_: Type, inputs: Vec<Box<dyn Expression>>) -> Self {
         assert!(!inputs.is_empty());
-        Assertion {
-            base: ExpressionBase::new(Kind::Assertion, type_, collect_dependencies(&inputs)),
-            inputs,
-        }
+        Assertion { base: ExpressionBase::new(Kind::Assertion, type_, collect_dependencies(&inputs)), inputs }
     }
 
     pub fn parse(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseResult {
@@ -58,8 +55,7 @@ impl Assertion {
                     Some(t) if t != Type::Object => item_type = t,
                     _ => {
                         ctx.error_at(
-                            r#"The item type argument of "array" must be one of string, number, boolean"#
-                                .to_owned(),
+                            r#"The item type argument of "array" must be one of string, number, boolean"#.to_owned(),
                             1,
                         );
                         return None;
@@ -75,11 +71,7 @@ impl Assertion {
                 let m = value.array_member(2);
                 let num = m.to_number();
                 if !m.is_undefined() && num.is_none_or(|v| v < 0.0 || v != v.floor()) {
-                    ctx.error_at(
-                        r#"The length argument to "array" must be a positive integer literal."#
-                            .to_owned(),
-                        2,
-                    );
+                    ctx.error_at(r#"The length argument to "array" must be a positive integer literal."#.to_owned(), 2);
                     return None;
                 }
                 if let Some(num) = num {
@@ -170,10 +162,6 @@ impl Expression for Assertion {
     }
 
     fn get_operator(&self) -> String {
-        if self.get_type().is_array() {
-            "array".to_owned()
-        } else {
-            type_::to_string(self.get_type())
-        }
+        if self.get_type().is_array() { "array".to_owned() } else { type_::to_string(self.get_type()) }
     }
 }

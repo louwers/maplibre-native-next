@@ -15,9 +15,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 fn render_tests_dir() -> PathBuf {
-    let base = std::env::var("RUNFILES_DIR")
-        .or_else(|_| std::env::var("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
+    let base =
+        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+/metrics/integration/render-tests")
 }
 
@@ -39,10 +38,7 @@ fn run(test: &str) -> (f64, f64) {
     let mut map = Map::new(
         &frontend,
         Rc::new(NullMapObserver),
-        MapOptions::new()
-            .with_map_mode(MapMode::Static)
-            .with_size(size)
-            .with_pixel_ratio(pixel_ratio),
+        MapOptions::new().with_map_mode(MapMode::Static).with_size(size).with_pixel_ratio(pixel_ratio),
     );
     map.get_style_mut().load_json(&json);
     let camera = map.get_style().get_default_camera();

@@ -9,13 +9,13 @@
 
 use crate::bucket::BucketPtr;
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::line_atlas::LineAtlas;
-use crate::render_source::{RenderSource, RenderTiles};
-use crate::render_tile::RenderTile;
 use crate::layer_tweaker::LayerTweakerPtr;
+use crate::line_atlas::LineAtlas;
 use crate::paint_parameters::PaintParameters;
 use crate::pattern_atlas::PatternAtlas;
 use crate::render_pass::RenderPass;
+use crate::render_source::{RenderSource, RenderTiles};
+use crate::render_tile::RenderTile;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
 use mln_gfx::{Context, LayerGroupBasePtr, ShaderRegistry, UploadPass};
@@ -26,10 +26,10 @@ use mln_style::layer::layer_type_info;
 use mln_style::layer_properties::LayerProperties;
 use mln_style::{PropertyEvaluationParameters, TransitionParameters};
 use mln_style_types::VisibilityType;
-use mln_util::immutable::Immutable;
 use mln_tile_id::OverscaledTileID;
 use mln_util::Color;
 use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -433,14 +433,15 @@ pub fn prepare_base<L: RenderLayer + ?Sized>(layer: &mut L, parameters: &mut Lay
 
 /// `getRenderTileBucketID(tileID)` on the data members.
 fn get_render_tile_bucket_id(base: &RenderLayerBase, tile_id: &OverscaledTileID) -> SimpleIdentity {
-    base.render_tile_ids
-        .get(tile_id)
-        .copied()
-        .unwrap_or(SimpleIdentity::EMPTY)
+    base.render_tile_ids.get(tile_id).copied().unwrap_or(SimpleIdentity::EMPTY)
 }
 
 /// (Un-)Register the layer group with the orchestrator.
-pub fn activate_layer_group(layer_group: &Option<LayerGroupBasePtr>, activate: bool, changes: &mut UniqueChangeRequestVec) {
+pub fn activate_layer_group(
+    layer_group: &Option<LayerGroupBasePtr>,
+    activate: bool,
+    changes: &mut UniqueChangeRequestVec,
+) {
     if let Some(layer_group) = layer_group {
         if activate {
             // The RenderTree has determined this layer should be included in

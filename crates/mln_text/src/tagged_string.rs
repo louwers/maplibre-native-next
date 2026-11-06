@@ -72,7 +72,13 @@ pub struct SectionOptions {
 
 impl SectionOptions {
     /// `SectionOptions(scale, fontStack, type, startIndex, textColor)`.
-    pub fn new(scale: f64, font_stack: FontStack, type_: GlyphIDType, start_index: u32, text_color: Option<Color>) -> Self {
+    pub fn new(
+        scale: f64,
+        font_stack: FontStack,
+        type_: GlyphIDType,
+        start_index: u32,
+        text_color: Option<Color>,
+    ) -> Self {
         let font_stack_hash = font_stack_hash(&font_stack);
         SectionOptions {
             scale,
@@ -390,8 +396,10 @@ mod tagged_string {
     // gtest: TaggedString.Trim
     #[test]
     fn trim() {
-        let mut basic =
-            TaggedString::new(u(" \t\ntrim that and not this  \n\t"), SectionOptions::new(1.0, vec![], GlyphIDType::FontPBF, 0, None));
+        let mut basic = TaggedString::new(
+            u(" \t\ntrim that and not this  \n\t"),
+            SectionOptions::new(1.0, vec![], GlyphIDType::FontPBF, 0, None),
+        );
         basic.trim();
         assert_eq!(basic.raw_text(), u("trim that and not this"));
 
@@ -407,7 +415,8 @@ mod tagged_string {
         empty.trim();
         assert_eq!(empty.raw_text(), u(""));
 
-        let mut no_trim = TaggedString::new(u("no trim!"), SectionOptions::new(1.0, vec![], GlyphIDType::FontPBF, 0, None));
+        let mut no_trim =
+            TaggedString::new(u("no trim!"), SectionOptions::new(1.0, vec![], GlyphIDType::FontPBF, 0, None));
         no_trim.trim();
         assert_eq!(no_trim.raw_text(), u("no trim!"));
     }

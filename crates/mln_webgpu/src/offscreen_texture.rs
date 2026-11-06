@@ -43,13 +43,8 @@ pub struct OffscreenTextureResource {
 impl OffscreenTextureResource {
     pub fn new(context: Rc<Context>, size: Size, type_: TextureChannelDataType, depth: bool, stencil: bool) -> Self {
         debug_assert!(size.width != 0 && size.height != 0);
-        let mut res = OffscreenTextureResource {
-            context,
-            size,
-            type_,
-            color_texture: RefCell::new(None),
-            depth_texture: None,
-        };
+        let mut res =
+            OffscreenTextureResource { context, size, type_, color_texture: RefCell::new(None), depth_texture: None };
         // Create color texture
         *res.color_texture.borrow_mut() = Some(res.create_color_texture());
 
@@ -244,7 +239,8 @@ pub struct OffscreenTexture {
 
 impl OffscreenTexture {
     pub fn new(context: Rc<Context>, size: Size, type_: TextureChannelDataType, depth: bool, stencil: bool) -> Self {
-        let resource = RenderableResourceBox::new_rc(OffscreenTextureResource::new(context, size, type_, depth, stencil));
+        let resource =
+            RenderableResourceBox::new_rc(OffscreenTextureResource::new(context, size, type_, depth, stencil));
         OffscreenTexture { renderable: RenderableBase::new(size, Some(resource)) }
     }
 

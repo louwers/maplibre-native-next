@@ -12,8 +12,8 @@ pub mod get_json_type;
 pub mod json_conversion;
 
 pub use conversion::{
-    ConversionTraits, Convertible, Error, array_length, array_member, each_member, is_array,
-    is_object, is_undefined, object_member, to_bool, to_double, to_geojson, to_number, to_string, to_value,
+    ConversionTraits, Convertible, Error, array_length, array_member, each_member, is_array, is_object, is_undefined,
+    object_member, to_bool, to_double, to_geojson, to_number, to_string, to_value,
 };
 pub use get_json_type::get_json_type;
 

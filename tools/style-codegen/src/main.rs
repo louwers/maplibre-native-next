@@ -14,9 +14,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 fn usage() -> ExitCode {
-    eprintln!(
-        "usage: style-codegen --spec <v8.json> (--out <dir> [--check] | --difftest <reference.cpp> <cases.rs>)"
-    );
+    eprintln!("usage: style-codegen --spec <v8.json> (--out <dir> [--check] | --difftest <reference.cpp> <cases.rs>)");
     ExitCode::from(2)
 }
 

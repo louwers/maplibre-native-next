@@ -96,10 +96,9 @@ impl PropertyExpressionBase {
                 debug_assert!(false);
                 0.0
             }
-            ZoomCurvePtr::Interpolate(z) => z.interpolation_factor(
-                Range::new(input_levels.min as f64, input_levels.max as f64),
-                input_value as f64,
-            ) as f32,
+            ZoomCurvePtr::Interpolate(z) => z
+                .interpolation_factor(Range::new(input_levels.min as f64, input_levels.max as f64), input_value as f64)
+                as f32,
             ZoomCurvePtr::Step(_) => 0.0,
         }
     }
@@ -197,10 +196,7 @@ impl<T> std::ops::DerefMut for PropertyExpression<T> {
 impl<T> PropertyExpression<T> {
     /// Second parameter to be used only for conversions from legacy functions.
     pub fn new(expression: Arc<dyn Expression>, default_value: Option<T>) -> Self {
-        PropertyExpression {
-            base: PropertyExpressionBase::new(expression),
-            default_value,
-        }
+        PropertyExpression { base: PropertyExpressionBase::new(expression), default_value }
     }
 
     /// `PropertyExpression(std::unique_ptr<Expression>, ...)`.

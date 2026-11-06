@@ -67,11 +67,7 @@ pub fn literal_strings(value: &[&str]) -> Box<dyn Expression> {
     literal(Value::Array(value.iter().map(|v| Value::String((*v).to_owned())).collect()))
 }
 
-pub fn assertion(
-    type_: Type,
-    value: Box<dyn Expression>,
-    def: Option<Box<dyn Expression>>,
-) -> Box<dyn Expression> {
+pub fn assertion(type_: Type, value: Box<dyn Expression>, def: Option<Box<dyn Expression>>) -> Box<dyn Expression> {
     let mut v = vec![value];
     if let Some(def) = def {
         v.push(def);
@@ -107,10 +103,7 @@ pub fn to_padding(value: Box<dyn Expression>, def: Option<Box<dyn Expression>>) 
     coercion(Type::Padding, value, def)
 }
 
-pub fn to_variable_anchor_offset(
-    value: Box<dyn Expression>,
-    def: Option<Box<dyn Expression>>,
-) -> Box<dyn Expression> {
+pub fn to_variable_anchor_offset(value: Box<dyn Expression>, def: Option<Box<dyn Expression>>) -> Box<dyn Expression> {
     coercion(Type::VariableAnchorOffsetCollection, value, def)
 }
 

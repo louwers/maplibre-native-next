@@ -132,10 +132,8 @@ const FILL_PATTERN_ATTRIBUTES: &[AttributeInfo] = &[
     attr(8, Float2, ID_FILL_OPACITY_VERTEX_ATTRIBUTE),
 ];
 const FILL_PATTERN_TEXTURES: &[TextureInfo] = &[tex(0, ID_FILL_IMAGE_TEXTURE)];
-const FILL_OUTLINE_TRIANGULATED_ATTRIBUTES: &[AttributeInfo] = &[
-    attr(0, Short2, ID_LINE_POS_NORMAL_VERTEX_ATTRIBUTE),
-    attr(1, UByte4, ID_LINE_DATA_VERTEX_ATTRIBUTE),
-];
+const FILL_OUTLINE_TRIANGULATED_ATTRIBUTES: &[AttributeInfo] =
+    &[attr(0, Short2, ID_LINE_POS_NORMAL_VERTEX_ATTRIBUTE), attr(1, UByte4, ID_LINE_DATA_VERTEX_ATTRIBUTE)];
 
 // src/mln/shaders/webgpu/line.cpp
 const LINE_ATTRIBUTES: &[AttributeInfo] = &[
@@ -255,10 +253,8 @@ shader_source!(
 );
 
 // src/mln/shaders/webgpu/raster.cpp (conformance)
-const RASTER_ATTRIBUTES: &[AttributeInfo] = &[
-    attr(0, Short2, ID_RASTER_POS_VERTEX_ATTRIBUTE),
-    attr(1, Short2, ID_RASTER_TEXTURE_POS_VERTEX_ATTRIBUTE),
-];
+const RASTER_ATTRIBUTES: &[AttributeInfo] =
+    &[attr(0, Short2, ID_RASTER_POS_VERTEX_ATTRIBUTE), attr(1, Short2, ID_RASTER_TEXTURE_POS_VERTEX_ATTRIBUTE)];
 const RASTER_TEXTURES: &[TextureInfo] = &[tex(0, ID_RASTER_IMAGE0_TEXTURE), tex(1, ID_RASTER_IMAGE1_TEXTURE)];
 shader_source!(RASTER_SHADER, RASTER_SHADER, "RasterShader", RASTER_ATTRIBUTES, RASTER_TEXTURES);
 
@@ -281,10 +277,8 @@ shader_source!(
     HEATMAP_TEXTURE_TEXTURES
 );
 // src/mln/shaders/webgpu/hillshade.cpp, hillshade_prepare.cpp
-const HILLSHADE_ATTRIBUTES: &[AttributeInfo] = &[
-    attr(5, Short2, ID_HILLSHADE_POS_VERTEX_ATTRIBUTE),
-    attr(6, Short2, ID_HILLSHADE_TEXTURE_POS_VERTEX_ATTRIBUTE),
-];
+const HILLSHADE_ATTRIBUTES: &[AttributeInfo] =
+    &[attr(5, Short2, ID_HILLSHADE_POS_VERTEX_ATTRIBUTE), attr(6, Short2, ID_HILLSHADE_TEXTURE_POS_VERTEX_ATTRIBUTE)];
 const HILLSHADE_TEXTURES: &[TextureInfo] = &[tex(0, ID_HILLSHADE_IMAGE_TEXTURE)];
 shader_source!(HILLSHADE_SHADER, HILLSHADE_SHADER, "HillshadeShader", HILLSHADE_ATTRIBUTES, HILLSHADE_TEXTURES);
 shader_source!(
@@ -376,7 +370,13 @@ const SYMBOL_TEXT_AND_ICON_ATTRIBUTES: &[AttributeInfo] = &[
 ];
 const SYMBOL_TEXT_AND_ICON_TEXTURES: &[TextureInfo] =
     &[tex(0, ID_SYMBOL_IMAGE_TEXTURE), tex(2, ID_SYMBOL_IMAGE_ICON_TEXTURE)];
-shader_source!(SYMBOL_ICON_SHADER, SYMBOL_ICON_SHADER, "SymbolIconShader", SYMBOL_ICON_ATTRIBUTES, SYMBOL_ICON_TEXTURES);
+shader_source!(
+    SYMBOL_ICON_SHADER,
+    SYMBOL_ICON_SHADER,
+    "SymbolIconShader",
+    SYMBOL_ICON_ATTRIBUTES,
+    SYMBOL_ICON_TEXTURES
+);
 shader_source!(SYMBOL_SDF_SHADER, SYMBOL_SDF_SHADER, "SymbolSDFShader", SYMBOL_SDF_ATTRIBUTES, SYMBOL_SDF_TEXTURES);
 shader_source!(
     SYMBOL_TEXT_AND_ICON_SHADER,

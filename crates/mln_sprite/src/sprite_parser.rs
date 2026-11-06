@@ -71,14 +71,8 @@ pub fn create_style_image(
     let mut dst_image = PremultipliedImage::new(size);
 
     // Copy from the source image into our individual sprite image
-    PremultipliedImage::copy(
-        image,
-        &mut dst_image,
-        Point::new(src_x as u32, src_y as u32),
-        Point::new(0, 0),
-        size,
-    )
-    .expect("sprite metrics were validated");
+    PremultipliedImage::copy(image, &mut dst_image, Point::new(src_x as u32, src_y as u32), Point::new(0, 0), size)
+        .expect("sprite metrics were validated");
 
     match Image::new(
         id.to_owned(),
@@ -111,9 +105,7 @@ fn get_u_int16(value: &JSValue, property: &str, name: &str, def: u16) -> u16 {
             Some(u) if u <= u16::MAX as u64 => return u as u16,
             _ => Log::warning(
                 Event::Sprite,
-                format!(
-                    "Invalid sprite image '{name}': value of '{property}' must be an integer between 0 and 65535"
-                ),
+                format!("Invalid sprite image '{name}': value of '{property}' must be an integer between 0 and 65535"),
             ),
         }
     }
@@ -158,10 +150,8 @@ fn get_stretches(value: &JSValue, property: &str, name: &str) -> ImageStretches 
                 match stretch.as_array() {
                     Some(pair) if pair.len() == 2 && pair[0].is_number() && pair[1].is_number() => {
                         // GetFloat() is static_cast<float>(GetDouble()).
-                        stretches.push((
-                            pair[0].as_f64().unwrap_or(0.0) as f32,
-                            pair[1].as_f64().unwrap_or(0.0) as f32,
-                        ));
+                        stretches
+                            .push((pair[0].as_f64().unwrap_or(0.0) as f32, pair[1].as_f64().unwrap_or(0.0) as f32));
                     }
                     _ => Log::warning(
                         Event::Sprite,
@@ -187,12 +177,7 @@ fn get_content(value: &JSValue, property: &str, name: &str) -> Option<ImageConte
         match content.as_array() {
             Some(c) if c.len() == 4 && c.iter().all(JSValue::is_number) => {
                 let f = |i: usize| c[i].as_f64().unwrap_or(0.0) as f32;
-                return Some(ImageContent {
-                    left: f(0),
-                    top: f(1),
-                    right: f(2),
-                    bottom: f(3),
-                });
+                return Some(ImageContent { left: f(0), top: f(1), right: f(2), bottom: f(3) });
             }
             _ => Log::warning(
                 Event::Sprite,
@@ -248,8 +233,8 @@ pub fn parse_sprite(id: &str, encoded_image: &[u8], json: &[u8]) -> Result<Vec<I
         Some(nul) => &json[..nul],
         None => json,
     };
-    let doc: JSValue = serde_json::from_slice(json)
-        .map_err(|e| RuntimeError::ptr(format!("Failed to parse JSON: {e}")))?;
+    let doc: JSValue =
+        serde_json::from_slice(json).map_err(|e| RuntimeError::ptr(format!("Failed to parse JSON: {e}")))?;
 
     let Some(properties) = doc.as_object() else {
         return Err(RuntimeError::ptr("Sprite JSON root must be an object"));
@@ -257,11 +242,7 @@ pub fn parse_sprite(id: &str, encoded_image: &[u8], json: &[u8]) -> Result<Vec<I
 
     let mut images = Vec::with_capacity(properties.len());
     for (name, value) in properties {
-        let complete_name = if id != "default" {
-            format!("{id}:{name}")
-        } else {
-            name.clone()
-        };
+        let complete_name = if id != "default" { format!("{id}:{name}") } else { name.clone() };
 
         if value.is_object() {
             let x = get_u_int16(value, "x", name, 0);

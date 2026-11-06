@@ -25,9 +25,7 @@ impl Settings {
     /// Returns singleton instance
     pub fn get_instance() -> &'static Settings {
         static INSTANCE: OnceLock<Settings> = OnceLock::new();
-        INSTANCE.get_or_init(|| Settings {
-            settings: Mutex::new(ValueObject::new()),
-        })
+        INSTANCE.get_or_init(|| Settings { settings: Mutex::new(ValueObject::new()) })
     }
 
     /// Sets setting value for a specified key.

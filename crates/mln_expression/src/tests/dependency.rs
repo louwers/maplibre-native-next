@@ -28,19 +28,10 @@ fn zoom_() {
 #[test]
 fn convert() {
     assert_eq!(Dependency::FEATURE, to_color(string(get_str("color"), None), None).dependencies());
-    assert_eq!(
-        Dependency::FEATURE,
-        to_string(number(string(get_str("color"), None), None), None).dependencies()
-    );
+    assert_eq!(Dependency::FEATURE, to_string(number(string(get_str("color"), None), None), None).dependencies());
     assert_eq!(Dependency::FEATURE, boolean(string(get_str("color"), None), None).dependencies());
-    assert_eq!(
-        Dependency::FEATURE,
-        to_formatted(to_color(string(get_str("color"), None), None), None).dependencies()
-    );
-    assert_eq!(
-        Dependency::FEATURE,
-        to_variable_anchor_offset(string(get_str("color"), None), None).dependencies()
-    );
+    assert_eq!(Dependency::FEATURE, to_formatted(to_color(string(get_str("color"), None), None), None).dependencies());
+    assert_eq!(Dependency::FEATURE, to_variable_anchor_offset(string(get_str("color"), None), None).dependencies());
 
     // See `coercion.cpp`, `extraDependency`
     assert_eq!(Dependency::FEATURE, to_image(string(get_str("color"), None), None).dependencies());
@@ -48,18 +39,12 @@ fn convert() {
     // See `collator_expression.cpp`, `extraDependency`
     assert_eq!(
         Dependency::FEATURE,
-        create_expression_from_str(r#"["resolved-locale",["collator",{"locale": "de"}]]"#)
-            .unwrap()
-            .dependencies()
+        create_expression_from_str(r#"["resolved-locale",["collator",{"locale": "de"}]]"#).unwrap().dependencies()
     );
     assert_eq!(
         Dependency::FEATURE | Dependency::ZOOM,
-        CollatorExpression::new(
-            gt(literal(1.0.into()), zoom()),
-            literal(true.into()),
-            Some(literal_str("en-us"))
-        )
-        .dependencies()
+        CollatorExpression::new(gt(literal(1.0.into()), zoom()), literal(true.into()), Some(literal_str("en-us")))
+            .dependencies()
     );
 }
 
@@ -94,10 +79,7 @@ fn interpolate_() {
 #[test]
 fn image_() {
     assert_eq!(Dependency::IMAGE, image(literal_str("airport-11")).dependencies());
-    assert_eq!(
-        Dependency::IMAGE | Dependency::FEATURE,
-        image(get(literal_str("image_name"))).dependencies()
-    );
+    assert_eq!(Dependency::IMAGE | Dependency::FEATURE, image(get(literal_str("image_name"))).dependencies());
 }
 
 // gtest: ExpressionDependencies.Distance

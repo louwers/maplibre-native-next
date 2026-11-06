@@ -8,6 +8,7 @@
 // TODO(port): queryRenderedFeatures / querySourceFeatures (both empty in
 // C++).
 
+use crate::bucket::Bucket;
 use crate::buckets::raster_bucket::RasterBucket;
 use crate::render_pass::RenderPass;
 use crate::render_source::{RenderSource, RenderSourceBase, SourcePrepareParameters};
@@ -16,6 +17,7 @@ use crate::tile_parameters::TileParameters;
 use crate::util::tile_cover::{TileCoverParameters, tile_cover, tile_cover_bounds};
 use geometry::Point;
 use mln_gfx::UploadPass;
+use mln_gfx::shaders::segment::SegmentBase;
 use mln_map_types::TileCoordinate;
 use mln_map_types::tile_coordinate::TileCoordinatePoint;
 use mln_style::layer_properties::LayerProperties;
@@ -28,8 +30,6 @@ use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use mln_util::mat4::{Mat4, matrix};
 use mln_util::range::Range;
-use mln_gfx::shaders::segment::SegmentBase;
-use crate::bucket::Bucket;
 use std::any::Any;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -99,7 +99,6 @@ impl RenderImageSource {
     fn impl_(&self) -> Arc<image_source::Impl> {
         static_immutable_cast::<image_source::Impl>(&self.base.base_impl)
     }
-
 }
 
 impl RenderSource for RenderImageSource {
@@ -230,10 +229,8 @@ impl RenderSource for RenderImageSource {
 
         // C++ clears the bucket and swaps its image in place; a changed image
         // gets a new bucket here (buckets are shared across threads).
-        let same_image = self
-            .bucket
-            .as_ref()
-            .is_some_and(|bucket| bucket.image.as_ref().is_some_and(|i| Arc::ptr_eq(i, &image)));
+        let same_image =
+            self.bucket.as_ref().is_some_and(|bucket| bucket.image.as_ref().is_some_and(|i| Arc::ptr_eq(i, &image)));
         if !same_image {
             self.bucket = Some(Arc::new(RasterBucket::with_shared_image(Some(image))));
         }

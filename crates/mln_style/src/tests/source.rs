@@ -6,15 +6,15 @@ use crate::source::Source;
 use crate::sources::geojson_source::GeoJSONSource;
 use crate::sources::image_source::ImageSource;
 use crate::sources::tile_source::{UrlOrTileset, VectorSource};
-use mln_util::tileset::{Tileset, VectorEncoding};
 use mln_actor::RunLoop;
+use mln_storage::response::{Error as ResponseError, Reason};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_storage::{Kind, Response};
-use mln_storage::response::{Error as ResponseError, Reason};
 use mln_util::exception::ExceptionPtr;
 use mln_util::geo::LatLng;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
+use mln_util::tileset::{Tileset, VectorEncoding};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -181,10 +181,7 @@ fn vector_source_set_tiles() {
         }));
     }
 
-    let tileset = Tileset {
-        tiles: vec!["url".to_owned()],
-        ..Default::default()
-    };
+    let tileset = Tileset { tiles: vec!["url".to_owned()], ..Default::default() };
     let source = VectorSource::new("source", UrlOrTileset::Tileset(tileset), None, None, VectorEncoding::Mapbox);
     source.set_observer(Some(observer.clone()));
     source.set_tiles(&["unused".to_owned()]); // make sure early setTiles does not crash

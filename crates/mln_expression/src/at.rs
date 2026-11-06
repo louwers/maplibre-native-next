@@ -2,8 +2,7 @@
 // src/mln/style/expression/at.cpp.
 
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
@@ -20,15 +19,7 @@ pub struct At {
 impl At {
     pub fn new(index: Box<dyn Expression>, input: Box<dyn Expression>) -> Self {
         let item_type = input.get_type().as_array().expect("array input").item_type.clone();
-        At {
-            base: ExpressionBase::new(
-                Kind::At,
-                item_type,
-                index.dependencies() | input.dependencies(),
-            ),
-            index,
-            input,
-        }
+        At { base: ExpressionBase::new(Kind::At, item_type, index.dependencies() | input.dependencies()), index, input }
     }
 
     pub fn parse(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseResult {
@@ -68,10 +59,7 @@ impl Expression for At {
         let input_array = evaluated_input.as_array().expect("array input");
 
         if i < 0.0 {
-            return Err(EvaluationError::new(format!(
-                "Array index out of bounds: {} < 0.",
-                to_string_double(i)
-            )));
+            return Err(EvaluationError::new(format!("Array index out of bounds: {} < 0.", to_string_double(i))));
         }
 
         if i >= input_array.len() as f64 {

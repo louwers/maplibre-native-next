@@ -107,11 +107,7 @@ impl Face {
             if p + 16 > size {
                 break;
             }
-            let t = TableRec {
-                tag: b.u32(p),
-                offset: b.u32(p + 8) as usize,
-                length: b.u32(p + 12) as usize,
-            };
+            let t = TableRec { tag: b.u32(p), offset: b.u32(p + 8) as usize, length: b.u32(p + 12) as usize };
             // We ignore invalid tables; `hmtx' and `vmtx' may be clipped.
             if t.offset > size {
                 continue;
@@ -279,20 +275,15 @@ impl Face {
 
         // Charmaps.
         self.charmaps = cmap::build_cmaps(data, self.cmap);
-        let has_unicode = self
-            .charmaps
-            .iter()
-            .any(|cm| cm.encoding == Encoding::Unicode || cm.encoding == Encoding::MsSymbol);
+        let has_unicode =
+            self.charmaps.iter().any(|cm| cm.encoding == Encoding::Unicode || cm.encoding == Encoding::MsSymbol);
         // TODO(port): without a Unicode (or symbol) charmap FreeType
         // synthesizes one from the `post' glyph names here
         // (FT_CONFIG_OPTION_POSTSCRIPT_NAMES), and the CFF driver one from
         // the CFF glyph names when there is no (3,1) or (0,x) charmap.
         self.needs_synthesized_charmap = !has_unicode
             || (self.is_cff
-                && !self
-                    .charmaps
-                    .iter()
-                    .any(|cm| (cm.platform_id == 3 && cm.encoding_id == 1) || cm.platform_id == 0));
+                && !self.charmaps.iter().any(|cm| (cm.platform_id == 3 && cm.encoding_id == 1) || cm.platform_id == 0));
 
         // TODO(port): the CFF driver appends charmaps for the CFF font's
         // Standard/Expert/Custom encodings (platform 7); force_ucs2_charmap
@@ -354,11 +345,7 @@ impl Face {
 
     /// The lookup context of `FT_Get_Char_Index` on this face.
     pub fn lookup_context<'a>(&self, data: &'a [u8]) -> LookupContext<'a> {
-        LookupContext {
-            data,
-            cmap_limit: self.cmap.map_or(0, |(o, s)| o + s),
-            num_glyphs: self.num_glyphs,
-        }
+        LookupContext { data, cmap_limit: self.cmap.map_or(0, |(o, s)| o + s), num_glyphs: self.num_glyphs }
     }
 
     /// `FT_Set_Charmap`.
@@ -428,11 +415,7 @@ impl Face {
         if k == 0 {
             return 0;
         }
-        let pos = if gindex < k {
-            table_pos + 4 * gindex as usize
-        } else {
-            table_pos + 4 * (k as usize - 1)
-        };
+        let pos = if gindex < k { table_pos + 4 * gindex as usize } else { table_pos + 4 * (k as usize - 1) };
         if pos + 2 > table_end || pos + 2 > data.len() {
             return 0;
         }
@@ -442,4 +425,3 @@ impl Face {
         b.u16(pos) as u16
     }
 }
-

@@ -2,8 +2,7 @@
 // src/mln/style/expression/step.cpp.
 
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::interpolate::parse_stop_label;
 use crate::parsing_context::{ParseResult, ParsingContext};
@@ -23,15 +22,8 @@ pub struct Step {
 impl Step {
     pub fn new(type_: Type, input: Box<dyn Expression>, stops: Stops) -> Self {
         assert!(*input.get_type() == Type::Number);
-        let deps = input.dependencies()
-            | stops
-                .values()
-                .fold(Default::default(), |a, e| a | e.dependencies());
-        Step {
-            base: ExpressionBase::new(Kind::Step, type_, deps),
-            input,
-            stops,
-        }
+        let deps = input.dependencies() | stops.values().fold(Default::default(), |a, e| a | e.dependencies());
+        Step { base: ExpressionBase::new(Kind::Step, type_, deps), input, stops }
     }
 
     pub fn get_stop_count(&self) -> usize {
@@ -58,10 +50,7 @@ impl Step {
         let length = value.array_length();
 
         if length - 1 < 4 {
-            ctx.error(format!(
-                "Expected at least 4 arguments, but found only {}.",
-                length - 1
-            ));
+            ctx.error(format!("Expected at least 4 arguments, but found only {}.", length - 1));
             return None;
         }
 
@@ -135,10 +124,7 @@ impl Expression for Step {
     fn evaluate(&self, params: &EvaluationContext<'_>) -> EvaluationResult {
         let evaluated_input = self.input.evaluate(params)?;
 
-        let x: f32 = evaluated_input
-            .as_number()
-            .map(|d| d as f32)
-            .expect("numeric step input");
+        let x: f32 = evaluated_input.as_number().map(|d| d as f32).expect("numeric step input");
         if x.is_nan() {
             return Err(EvaluationError::new("Input is not a number."));
         }
@@ -181,10 +167,7 @@ impl Expression for Step {
     }
 
     fn serialize(&self) -> MbglValue {
-        let mut serialized = vec![
-            MbglValue::String(self.get_operator()),
-            self.input.serialize(),
-        ];
+        let mut serialized = vec![MbglValue::String(self.get_operator()), self.input.serialize()];
         for (k, v) in self.stops.iter() {
             if k > f64::NEG_INFINITY {
                 serialized.push(MbglValue::Double(k));

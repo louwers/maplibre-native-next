@@ -66,14 +66,7 @@ impl Edge {
         if a.y > b.y {
             std::mem::swap(&mut a, &mut b);
         }
-        Edge {
-            x0: a.x,
-            y0: a.y,
-            x1: b.x,
-            y1: b.y,
-            dx: b.x - a.x,
-            dy: b.y - a.y,
-        }
+        Edge { x0: a.x, y0: a.y, x1: b.x, y1: b.y, dx: b.x - a.x, dy: b.y - a.y }
     }
 }
 
@@ -109,14 +102,7 @@ fn scan_spans(mut e0: Edge, mut e1: Edge, ymin: i32, ymax: i32, scan_line: &mut 
 }
 
 /// scan-line conversion
-fn scan_triangle(
-    a: &Point<f64>,
-    b: &Point<f64>,
-    c: &Point<f64>,
-    ymin: i32,
-    ymax: i32,
-    scan_line: &mut ScanLine<'_>,
-) {
+fn scan_triangle(a: &Point<f64>, b: &Point<f64>, c: &Point<f64>, ymin: i32, ymax: i32, scan_line: &mut ScanLine<'_>) {
     let mut ab = Edge::new(*a, *b);
     let mut bc = Edge::new(*b, *c);
     let mut ca = Edge::new(*c, *a);
@@ -175,11 +161,7 @@ fn tile_cover_points(
                 while x < x1 {
                     let dx = x as f64 + 0.5 - c.x;
                     let dy = y as f64 + 0.5 - c.y;
-                    t.push(ID {
-                        x,
-                        y,
-                        sq_dist: dx * dx + dy * dy,
-                    });
+                    t.push(ID { x, y, sq_dist: dx * dx + dy * dy });
                     x += 1;
                 }
             }
@@ -251,9 +233,7 @@ impl TileCover {
     /// When project == true, projects the geometry points to tile
     /// coordinates.
     pub fn new_from_geometry(geom: &Geometry<f64>, z: u8, project: bool) -> Result<TileCover, String> {
-        Ok(TileCover {
-            impl_: Box::new(Impl::new(z as i32, geom, project)?),
-        })
+        Ok(TileCover { impl_: Box::new(Impl::new(z as i32, geom, project)?) })
     }
 
     pub fn next(&mut self) -> Option<UnwrappedTileID> {
@@ -344,11 +324,8 @@ pub fn tile_cover(
     let world_size = Projection::world_size(transform.get_scale());
     let allow_variable_zoom = transform.get_pitch() > state.tile_lod_pitch_threshold;
     let min_zoom: u8 = if allow_variable_zoom { zoom_range.min } else { z };
-    let max_zoom: u8 = if (state.tile_lod_mode == TileLodMode::Distance) && allow_variable_zoom {
-        zoom_range.max
-    } else {
-        z
-    };
+    let max_zoom: u8 =
+        if (state.tile_lod_mode == TileLodMode::Distance) && allow_variable_zoom { zoom_range.max } else { z };
     let overscaled_zoom: u8 = std::cmp::max(overscaled_z.unwrap_or(z), max_zoom);
     let flipped_y = transform.get_viewport_mode() == ViewportMode::FlippedY;
 
@@ -363,13 +340,13 @@ pub fn tile_cover(
     let center_coord: Vec3 = [center_point.x, center_point.y, 0.0];
 
     // C++ asserts that the position is set, then dereferences it.
-    let camera_position_mercator: Vec3 =
-        transform.get_free_camera_options().position.expect("free camera position");
+    let camera_position_mercator: Vec3 = transform.get_free_camera_options().position.expect("free camera position");
     let nominal_scale = 2.0f64.powf(z as f64);
     let camera_coord = vec3_scale(&camera_position_mercator, nominal_scale);
     let camera_to_center_distance_mercator = vec3_length(&vec3_sub(&camera_coord, &center_coord)) / world_size;
 
-    let frustum = Frustum::from_inv_proj_matrix(&transform.get_inv_projection_matrix(), world_size, z as f64, flipped_y);
+    let frustum =
+        Frustum::from_inv_proj_matrix(&transform.get_inv_projection_matrix(), world_size, z as f64, flipped_y);
 
     // There should always be a certain number of maximum zoom level tiles
     // surrounding the center location
@@ -467,10 +444,7 @@ pub fn tile_cover(
                 let dx = node.wrap as f64 * num_tiles + node.x as f64 + 0.5 - coord_to_load_first[0];
                 let dy = node.y as f64 + 0.5 - coord_to_load_first[1];
 
-                result.push(ResultTile {
-                    id,
-                    sqr_dist: dx * dx + dy * dy,
-                });
+                result.push(ResultTile { id, sqr_dist: dx * dx + dy * dy });
             }
         } else {
             let children = children_of(&node);
@@ -805,10 +779,7 @@ mod tests {
         (0..n as u64)
             .map(|idx| {
                 state = state.wrapping_mul(1103515245).wrapping_add(12345);
-                E {
-                    key: ((state >> 16) & 0x7fff) % keys,
-                    idx,
-                }
+                E { key: ((state >> 16) & 0x7fff) % keys, idx }
             })
             .collect()
     }

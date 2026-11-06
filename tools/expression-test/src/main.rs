@@ -26,12 +26,7 @@ fn main() {
     print_stats(&stats);
 
     if let Some(path) = write_expected {
-        let mut ids: Vec<&str> = stats
-            .failed
-            .iter()
-            .chain(&stats.errored)
-            .map(|t| t.id.as_str())
-            .collect();
+        let mut ids: Vec<&str> = stats.failed.iter().chain(&stats.errored).map(|t| t.id.as_str()).collect();
         ids.sort();
         let mut text = String::new();
         for id in ids {

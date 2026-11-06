@@ -18,10 +18,7 @@ pub struct LRU<Item: Eq + Hash + Clone> {
 
 impl<Item: Eq + Hash + Clone> LRU<Item> {
     pub fn new() -> Self {
-        LRU {
-            list: VecDeque::new(),
-            map: HashSet::new(),
-        }
+        LRU { list: VecDeque::new(), map: HashSet::new() }
     }
 
     /// Number of cached items

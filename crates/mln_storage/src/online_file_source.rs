@@ -18,9 +18,7 @@
 // TODO(port): thread priority.
 
 use crate::async_request::AsyncRequest;
-use crate::file_source::{
-    API_BASE_URL_KEY, API_KEY_KEY, Callback, FileSource, MAX_CONCURRENT_REQUESTS_KEY,
-};
+use crate::file_source::{API_BASE_URL_KEY, API_KEY_KEY, Callback, FileSource, MAX_CONCURRENT_REQUESTS_KEY};
 use crate::file_source_request::{FileSourceRequest, FileSourceRequestState};
 use crate::http_file_source::HTTPFileSource;
 use crate::http_timeout::{error_retry_timeout, expiration_timeout};
@@ -33,7 +31,9 @@ use feature::Value;
 use mln_actor::{ActorRef, AsyncTask, Mailbox, Thread, Timer, scheduler};
 use mln_util::chrono::{Duration, Timestamp, now};
 use mln_util::client_options::ClientOptions;
-use mln_util::constants::{ASSET_PROTOCOL, CLOCK_SKEW_RETRY_TIMEOUT, DEFAULT_MAXIMUM_CONCURRENT_REQUESTS, FILE_PROTOCOL};
+use mln_util::constants::{
+    ASSET_PROTOCOL, CLOCK_SKEW_RETRY_TIMEOUT, DEFAULT_MAXIMUM_CONCURRENT_REQUESTS, FILE_PROTOCOL,
+};
 use mln_util::logging::{Event, Log};
 use mln_util::mapbox;
 use mln_util::tile_server_options::TileServerOptions;
@@ -310,12 +310,8 @@ impl ThreadState {
 
     /// `networkIsReachableAgain()`
     fn network_is_reachable_again(&self) {
-        let requests: Vec<Rc<OnlineFileRequest>> = self
-            .all_requests
-            .borrow()
-            .iter()
-            .filter_map(|id| self.get(*id))
-            .collect();
+        let requests: Vec<Rc<OnlineFileRequest>> =
+            self.all_requests.borrow().iter().filter_map(|id| self.get(*id)).collect();
         // Notify regular priority requests, then low priority requests.
         for priority in [Priority::Regular, Priority::Low] {
             for req in &requests {
@@ -340,10 +336,7 @@ impl OnlineFileRequest {
         // Lazy constructed because this can be costly and the
         // ResourceTransform is not used by many apps.
         let mailbox = mailbox.get_or_insert_with(|| {
-            let target = Rc::new(OnlineFileRequestRef {
-                impl_: self.impl_.clone(),
-                id: self.id,
-            });
+            let target = Rc::new(OnlineFileRequestRef { impl_: self.impl_.clone(), id: self.id });
             Mailbox::with_target(&scheduler::get_current(), target)
         });
         ActorRef::new(mailbox)
@@ -396,11 +389,8 @@ impl OnlineFileRequest {
     fn get_update_interval(&self, expires: Option<Timestamp>) -> Duration {
         // Calculate a timeout that depends on how many consecutive errors
         // we've encountered, and on the expiration time, if present.
-        let error_retry = error_retry_timeout(
-            self.failed_request_reason.get(),
-            self.failed_requests.get(),
-            self.retry_after.get(),
-        );
+        let error_retry =
+            error_retry_timeout(self.failed_request_reason.get(), self.failed_requests.get(), self.retry_after.get());
         let expiration = expiration_timeout(expires, self.expired_requests.get());
         let minimum = self.resource.borrow().minimum_update_interval;
         let expiration = if expiration < minimum { minimum } else { expiration };
@@ -507,11 +497,7 @@ impl OnlineFileSourceThread {
             }
         });
         let reachability_id = NetworkStatus::subscribe(reachability.sender());
-        OnlineFileSourceThread {
-            state,
-            _reachability: reachability,
-            reachability_id,
-        }
+        OnlineFileSourceThread { state, _reachability: reachability, reachability_id }
     }
 
     /// `request(AsyncRequest* req, Resource, const ActorRef<FileSourceRequest>&)`
@@ -622,9 +608,7 @@ impl Impl {
             actor_ref.invoke(move |t: &OnlineFileSourceThread| t.cancel(req_id));
         }));
         let req_ref = req.actor();
-        self.thread
-            .actor()
-            .invoke(move |t: &OnlineFileSourceThread| t.request(req_id, res, &req_ref));
+        self.thread.actor().invoke(move |t: &OnlineFileSourceThread| t.request(req_id, res, &req_ref));
         Box::new(req)
     }
 
@@ -641,9 +625,7 @@ pub struct OnlineFileSource {
 impl OnlineFileSource {
     /// `OnlineFileSource(const ResourceOptions&, const ClientOptions&)`
     pub fn new(resource_options: &ResourceOptions, client_options: &ClientOptions) -> Self {
-        OnlineFileSource {
-            impl_: Impl::new(resource_options, client_options),
-        }
+        OnlineFileSource { impl_: Impl::new(resource_options, client_options) }
     }
 }
 
@@ -751,10 +733,7 @@ impl FileSource for OnlineFileSource {
     }
 
     fn set_resource_transform(&self, transform: ResourceTransform) {
-        self.impl_
-            .thread
-            .actor()
-            .invoke(move |t: &OnlineFileSourceThread| t.set_resource_transform(transform));
+        self.impl_.thread.actor().invoke(move |t: &OnlineFileSourceThread| t.set_resource_transform(transform));
     }
 
     fn set_resource_options(&self, options: ResourceOptions) {

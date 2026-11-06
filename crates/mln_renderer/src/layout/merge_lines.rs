@@ -236,11 +236,8 @@ mod tests {
             symbol_feature_stub(geometry(&[&[(4, 0), (0, 0)]]), AAA),
         ];
 
-        let expected3 = [
-            geometry(&[&[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (0, 0)]]),
-            geometry(&[&[]]),
-            geometry(&[&[]]),
-        ];
+        let expected3 =
+            [geometry(&[&[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (0, 0)]]), geometry(&[&[]]), geometry(&[&[]])];
 
         merge_lines(&mut input3);
 

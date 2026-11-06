@@ -50,11 +50,7 @@ fn assert_vec3_near_1e7(arg: &Vec3, vec: &Vec3) {
 
 fn rotated_frame(quaternion: &Vec4) -> (Vec3, Vec3, Vec3) {
     let q = Quaternion::from_vec4(quaternion);
-    (
-        q.transform(&[1.0, 0.0, 0.0]),
-        q.transform(&[0.0, -1.0, 0.0]),
-        q.transform(&[0.0, 0.0, -1.0]),
-    )
+    (q.transform(&[1.0, 0.0, 0.0]), q.transform(&[0.0, -1.0, 0.0]), q.transform(&[0.0, 0.0, -1.0]))
 }
 
 // gtest: FreeCameraOptions.SetLocation
@@ -62,17 +58,11 @@ fn rotated_frame(quaternion: &Vec4) -> (Vec3, Vec3, Vec3) {
 fn set_location() {
     let mut options = FreeCameraOptions::default();
 
-    options.set_location(&LatLngAltitude {
-        location: ll(0.0, 0.0),
-        altitude: EARTH_RADIUS_M * PI,
-    });
+    options.set_location(&LatLngAltitude { location: ll(0.0, 0.0), altitude: EARTH_RADIUS_M * PI });
     assert!(options.position.is_some());
     assert_vec3_near_1e7(&options.position.unwrap(), &[0.5, 0.5, 0.5]);
 
-    options.set_location(&LatLngAltitude {
-        location: ll(25.0, -180.0),
-        altitude: 1000.0,
-    });
+    options.set_location(&LatLngAltitude { location: ll(25.0, -180.0), altitude: 1000.0 });
     assert!(options.position.is_some());
     assert_vec3_near_1e7(&options.position.unwrap(), &[0.0, 0.4282409625, 0.000027532812465]);
 
@@ -95,10 +85,7 @@ fn set_location() {
 #[test]
 fn set_location_negative_altitude() {
     let mut options = FreeCameraOptions::default();
-    options.set_location(&LatLngAltitude {
-        location: ll(0.0, 0.0),
-        altitude: -100.0,
-    });
+    options.set_location(&LatLngAltitude { location: ll(0.0, 0.0), altitude: -100.0 });
     assert!(options.position.is_some());
     assert_double_eq(options.position.unwrap()[2], -100.0 / M2PI / EARTH_RADIUS_M);
 }
@@ -108,10 +95,7 @@ fn set_location_negative_altitude() {
 fn set_location_unwrapped_location() {
     let mut options = FreeCameraOptions::default();
 
-    options.set_location(&LatLngAltitude {
-        location: ll(0.0, -540.0),
-        altitude: 0.0,
-    });
+    options.set_location(&LatLngAltitude { location: ll(0.0, -540.0), altitude: 0.0 });
     assert!(options.position.is_some());
     assert_vec3_near_1e7(&options.position.unwrap(), &[-1.0, 0.5, 0.0]);
 }
@@ -208,10 +192,7 @@ fn look_at_point() {
     assert_vec3_near_1e7(&forward, &[1.0, 0.0, 0.0]);
 
     // Pitch: 0, bearing: 0
-    options.set_location(&LatLngAltitude {
-        location: ll(60.1699, 24.9384),
-        altitude: 100.0,
-    });
+    options.set_location(&LatLngAltitude { location: ll(60.1699, 24.9384), altitude: 100.0 });
     options.look_at_point(&ll(60.1699, 24.9384), Some([0.0, -1.0, 0.0]));
     assert!(options.orientation.is_some());
     let (right, up, forward) = rotated_frame(&options.orientation.unwrap());
@@ -221,10 +202,7 @@ fn look_at_point() {
     assert_vec3_near_1e7(&forward, &[0.0, 0.0, -1.0]);
 
     // Pitch: 0, bearing: 45
-    options.set_location(&LatLngAltitude {
-        location: ll(60.1699, 24.9384),
-        altitude: 100.0,
-    });
+    options.set_location(&LatLngAltitude { location: ll(60.1699, 24.9384), altitude: 100.0 });
     options.look_at_point(&ll(60.1699, 24.9384), Some([-1.0, -1.0, 0.0]));
     assert!(options.orientation.is_some());
     let (right, up, forward) = rotated_frame(&options.orientation.unwrap());
@@ -234,10 +212,7 @@ fn look_at_point() {
     assert_vec3_near_1e7(&forward, &[0.0, 0.0, -1.0]);
 
     // Looking south, up vector almost same as forward vector
-    options.set_location(&LatLngAltitude {
-        location: ll(37.7749, 122.4194),
-        altitude: 0.0,
-    });
+    options.set_location(&LatLngAltitude { location: ll(37.7749, 122.4194), altitude: 0.0 });
     options.look_at_point(&ll(37.5, 122.4194), Some([0.0, 1.0, 0.00001]));
     assert!(options.orientation.is_some());
     let (right, up, forward) = rotated_frame(&options.orientation.unwrap());
@@ -247,10 +222,7 @@ fn look_at_point() {
     assert_vec3_near_1e7(&forward, &[0.0, 1.0, 0.0]);
 
     // Orientation with roll-component
-    options.set_location(&LatLngAltitude {
-        location: ll(-33.8688, 151.2093),
-        altitude: 0.0,
-    });
+    options.set_location(&LatLngAltitude { location: ll(-33.8688, 151.2093), altitude: 0.0 });
     options.look_at_point(&ll(-33.8688, 160.0), Some([0.0, -1.0, 0.1]));
     assert!(options.orientation.is_some());
     let (right, up, forward) = rotated_frame(&options.orientation.unwrap());

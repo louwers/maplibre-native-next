@@ -75,10 +75,7 @@ impl Stops {
         if self.stops.len() != rhs.stops.len() {
             return false;
         }
-        self.stops
-            .iter()
-            .zip(&rhs.stops)
-            .all(|(l, r)| l.0 == r.0 && l.1.equals(&*r.1))
+        self.stops.iter().zip(&rhs.stops).all(|(l, r)| l.0 == r.0 && l.1.equals(&*r.1))
     }
 }
 

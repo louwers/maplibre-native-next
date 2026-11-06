@@ -5,8 +5,8 @@
 // port's own exact implementation) on random and special doubles.
 
 use cheap_ruler::{Box, CheapRuler, Unit};
-use geometry_difftest_support::run_cases;
 use geometry::Point;
+use geometry_difftest_support::run_cases;
 use proptest::prelude::*;
 use serde_json::{Value as Json, json};
 
@@ -25,15 +25,8 @@ fn cpp(request: &Json) -> Json {
     }
 }
 
-const UNITS: [Unit; 7] = [
-    Unit::Kilometers,
-    Unit::Miles,
-    Unit::NauticalMiles,
-    Unit::Meters,
-    Unit::Yards,
-    Unit::Feet,
-    Unit::Inches,
-];
+const UNITS: [Unit; 7] =
+    [Unit::Kilometers, Unit::Miles, Unit::NauticalMiles, Unit::Meters, Unit::Yards, Unit::Feet, Unit::Inches];
 
 fn d(v: f64) -> Json {
     json!(v.to_bits())
@@ -172,9 +165,8 @@ fn ruler() -> impl Strategy<Value = Ruler> {
 
 #[test]
 fn cheap_ruler_matches_cpp() {
-    let strategy = (ruler(), -180.0f64..180.0, -80.0f64..80.0).prop_flat_map(|(r, cx, cy)| {
-        (Just(r), prop::collection::vec(op(cx, cy), 1..=20))
-    });
+    let strategy = (ruler(), -180.0f64..180.0, -80.0f64..80.0)
+        .prop_flat_map(|(r, cx, cy)| (Just(r), prop::collection::vec(op(cx, cy), 1..=20)));
     let ops = std::cell::Cell::new(0);
     let cases = run_cases(3000, &strategy, |(r, list)| {
         let (ruler, request_ruler) = match r {

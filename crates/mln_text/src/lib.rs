@@ -19,13 +19,14 @@ pub mod language_tag;
 pub mod local_glyph_rasterizer;
 pub mod shaping;
 pub mod tagged_string;
+#[rustfmt::skip]
 mod hb_ucd_table;
 mod rasterize;
 #[cfg(test)]
 mod shaping_test;
 
-pub use freetype::{FreeTypeFace, FreeTypeLibrary};
 pub use bidi::{BiDi, StyledText, apply_arabic_shaping};
+pub use freetype::{FreeTypeFace, FreeTypeLibrary};
 pub use glyph::{
     Glyph, GlyphID, GlyphIDType, GlyphMap, GlyphMetrics, GlyphPosition, GlyphPositions, GlyphRange, PositionedGlyph,
     PositionedLine, Shaping, WritingModeType,

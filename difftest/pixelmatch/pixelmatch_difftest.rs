@@ -19,9 +19,7 @@ fn cpp(img1: &[u8], img2: &[u8], w: usize, h: usize, threshold: f64, include_aa:
     assert!(img1.len() >= w * h * 4 && img2.len() >= w * h * 4);
     let mut out = vec![0u8; w * h * 4];
     // SAFETY: both inputs and the output hold w * h * 4 bytes.
-    let n = unsafe {
-        ref_pixelmatch(img1.as_ptr(), img2.as_ptr(), w, h, out.as_mut_ptr(), threshold, include_aa)
-    };
+    let n = unsafe { ref_pixelmatch(img1.as_ptr(), img2.as_ptr(), w, h, out.as_mut_ptr(), threshold, include_aa) };
     (n, out)
 }
 
@@ -51,7 +49,9 @@ fn image_pair() -> impl Strategy<Value = (usize, usize, Vec<u8>, Vec<u8>)> {
         let channel = if palette_bits == 0 {
             any::<u8>().boxed()
         } else {
-            (0u8..(1 << palette_bits)).prop_map(move |v| v.wrapping_mul(255 / ((1u8 << palette_bits) - 1).max(1))).boxed()
+            (0u8..(1 << palette_bits))
+                .prop_map(move |v| v.wrapping_mul(255 / ((1u8 << palette_bits) - 1).max(1)))
+                .boxed()
         };
         (
             Just(w),
@@ -63,9 +63,7 @@ fn image_pair() -> impl Strategy<Value = (usize, usize, Vec<u8>, Vec<u8>)> {
                 let img2 = img1
                     .iter()
                     .zip(changes)
-                    .map(|(&v, (change, delta))| {
-                        if change { (i16::from(v) + delta).clamp(0, 255) as u8 } else { v }
-                    })
+                    .map(|(&v, (change, delta))| if change { (i16::from(v) + delta).clamp(0, 255) as u8 } else { v })
                     .collect();
                 (w, h, img1, img2)
             })
@@ -107,7 +105,12 @@ fn edge_cases() {
     }
     // Every alpha/value combination through blend(): one 256x256 image of
     // (v, v, v, a) against its inverse.
-    let img1: Vec<u8> = (0..256 * 256).flat_map(|i| { let (a, v) = ((i / 256) as u8, (i % 256) as u8); [v, v, v, a] }).collect();
+    let img1: Vec<u8> = (0..256 * 256)
+        .flat_map(|i| {
+            let (a, v) = ((i / 256) as u8, (i % 256) as u8);
+            [v, v, v, a]
+        })
+        .collect();
     let img2: Vec<u8> = img1.iter().map(|v| 255 - v).collect();
     same(&img1, &img2, 256, 256, 0.1285, false);
     same(&img1, &img2, 256, 256, 0.0, true);
@@ -122,7 +125,13 @@ fn antialiasing_paths_are_exercised() {
         (0..w * h)
             .flat_map(|i| {
                 let x = i % w;
-                let v = if x < 12 + shift { 0u8 } else if x > 15 + shift { 255 } else { ((x - 12 - shift) * 64) as u8 };
+                let v = if x < 12 + shift {
+                    0u8
+                } else if x > 15 + shift {
+                    255
+                } else {
+                    ((x - 12 - shift) * 64) as u8
+                };
                 [v, v, v, 255]
             })
             .collect()

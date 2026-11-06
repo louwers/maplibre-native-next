@@ -7,9 +7,9 @@
 // Exceptions (`std::runtime_error`, `bad_variant_access`) are `Err`s with
 // the C++ `what()`.
 
-use kdbush::{KDBush, Nth};
 use feature::{Feature, Identifier, PropertyMap, Value};
 use geometry::{Geometry, Point};
+use kdbush::{KDBush, Nth};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::sync::Arc;
@@ -33,14 +33,7 @@ pub struct Cluster {
 impl Cluster {
     /// `Cluster(pos, num_points, id)`
     pub fn new(pos: Point<f64>, num_points: u32, id: u32) -> Self {
-        Cluster {
-            pos,
-            num_points,
-            id,
-            parent_id: 0,
-            visited: false,
-            properties: None,
-        }
+        Cluster { pos, num_points, id, parent_id: 0, visited: false, properties: None }
     }
 
     /// `Cluster(pos, num_points, id, properties)`: keeps the properties only
@@ -89,11 +82,7 @@ impl Cluster {
 pub fn abbreviate(num_points: u32) -> String {
     if num_points >= 1000 {
         let k = f64::from(num_points) / 1000.0;
-        if num_points < 10000 {
-            format!("{k:.1}k")
-        } else {
-            format!("{k:.6}k")
-        }
+        if num_points < 10000 { format!("{k:.1}k") } else { format!("{k:.6}k") }
     } else {
         num_points.to_string()
     }
@@ -228,14 +217,11 @@ impl Zoom {
                 });
             }
 
-            let mut cluster_properties = previous.clusters[i]
-                .properties
-                .as_deref()
-                .cloned()
-                .unwrap_or_default();
+            let mut cluster_properties = previous.clusters[i].properties.as_deref().cloned().unwrap_or_default();
             if num_points as usize >= options.min_points {
                 // enough points to form a cluster
-                let mut weight = Point::new(p_pos.x * f64::from(num_points_origin), p_pos.y * f64::from(num_points_origin));
+                let mut weight =
+                    Point::new(p_pos.x * f64::from(num_points_origin), p_pos.y * f64::from(num_points_origin));
                 let id = ((i as u64) << 5).wrapping_add(u64::from(zoom) + 1) as u32;
 
                 // find all nearby points
@@ -304,11 +290,7 @@ impl Supercluster {
     /// `Supercluster(features, options)`; `Err` if a feature is not a point
     /// (C++: `bad_variant_access` "in get<T>()").
     pub fn new(features: &GeoJSONFeatures, options: Options) -> Result<Self, String> {
-        let mut index = Supercluster {
-            features: features.clone(),
-            options,
-            zooms: HashMap::new(),
-        };
+        let mut index = Supercluster { features: features.clone(), options, zooms: HashMap::new() };
         let options = &index.options;
 
         // convert and index initial points
@@ -375,13 +357,9 @@ impl Supercluster {
         let top = (yf - r) / z2f;
         let bottom = (f64::from(y.wrapping_add(1)) + r) / z2f;
 
-        zoom.tree.range(
-            (f64::from(x) - r) / z2f,
-            top,
-            (f64::from(x.wrapping_add(1)) + r) / z2f,
-            bottom,
-            &mut |id| visitor(x, id),
-        );
+        zoom.tree.range((f64::from(x) - r) / z2f, top, (f64::from(x.wrapping_add(1)) + r) / z2f, bottom, &mut |id| {
+            visitor(x, id)
+        });
 
         if x_ == 0 {
             x = z2 as i32;
@@ -538,11 +516,7 @@ impl Supercluster {
 
     /// `clusterToGeoJSON(c)`
     fn cluster_to_geojson(&self, c: &Cluster) -> Feature<f64> {
-        if c.num_points == 1 {
-            self.features[c.id as usize].clone()
-        } else {
-            c.to_geojson()
-        }
+        if c.num_points == 1 { self.features[c.id as usize].clone() } else { c.to_geojson() }
     }
 }
 

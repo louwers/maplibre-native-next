@@ -73,23 +73,20 @@ impl RasterDEMTileWorker {
     pub fn parse(&mut self, data: Option<Data>, correlation_id: u64, encoding: RasterEncoding) {
         let Some(data) = data else {
             // No data; empty tile.
-            self.parent
-                .invoke(move |tile: &RasterDEMTileInner| tile.on_parsed(None, correlation_id));
+            self.parent.invoke(move |tile: &RasterDEMTileInner| tile.on_parsed(None, correlation_id));
             return;
         };
 
-        let result = mln_platform_default_image::decode_image(&data)
-            .and_then(|image| HillshadeBucket::new(image, encoding));
+        let result =
+            mln_platform_default_image::decode_image(&data).and_then(|image| HillshadeBucket::new(image, encoding));
         match result {
             Ok(bucket) => {
                 let bucket = Arc::new(bucket);
-                self.parent
-                    .invoke(move |tile: &RasterDEMTileInner| tile.on_parsed(Some(bucket), correlation_id));
+                self.parent.invoke(move |tile: &RasterDEMTileInner| tile.on_parsed(Some(bucket), correlation_id));
             }
             Err(error) => {
                 let error = RuntimeError::ptr(error);
-                self.parent
-                    .invoke(move |tile: &RasterDEMTileInner| tile.on_error(error, correlation_id));
+                self.parent.invoke(move |tile: &RasterDEMTileInner| tile.on_error(error, correlation_id));
             }
         }
     }
@@ -181,9 +178,7 @@ impl LoaderTile for RasterDEMTileInner {
             self.base.pending.set(true);
             let correlation_id = self.correlation_id.get();
             let encoding = self.encoding;
-            self.worker.invoke(move |worker: &mut RasterDEMTileWorker| {
-                worker.parse(data, correlation_id, encoding)
-            });
+            self.worker.invoke(move |worker: &mut RasterDEMTileWorker| worker.parse(data, correlation_id, encoding));
         }
     }
 }
@@ -235,11 +230,7 @@ impl RasterDEMTile {
         mailbox.open(&scheduler::get_current(), inner.clone() as Rc<dyn Any>);
         let weak: std::rc::Weak<RasterDEMTileInner> = Rc::downgrade(&inner);
         let loader = TileLoader::new(weak, VectorTileEncoding::Mvt, &id, parameters, tileset);
-        RasterDEMTile {
-            inner,
-            loader: Some(loader),
-            _worker: worker,
-        }
+        RasterDEMTile { inner, loader: Some(loader), _worker: worker }
     }
 
     pub fn inner(&self) -> &Rc<RasterDEMTileInner> {

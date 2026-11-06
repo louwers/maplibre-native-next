@@ -12,9 +12,7 @@ struct TestLayerImpl {
 
 impl TestLayerImpl {
     fn new(layer_id: &str, source_id: &str) -> Immutable<dyn Impl> {
-        Arc::new(TestLayerImpl {
-            base: ImplBase::new(layer_id.to_owned(), source_id.to_owned()),
-        })
+        Arc::new(TestLayerImpl { base: ImplBase::new(layer_id.to_owned(), source_id.to_owned()) })
     }
 }
 

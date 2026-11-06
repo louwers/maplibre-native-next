@@ -149,9 +149,7 @@ fn compare() {
     let mut messy = Stats::default();
     for i in 0..20_000 {
         let n = 3 + (rng.next() * 40.0) as usize;
-        let ring: Vec<(f64, f64)> = (0..n)
-            .map(|_| (rng.range(-1000.0, 1000.0), rng.range(-1000.0, 1000.0)))
-            .collect();
+        let ring: Vec<(f64, f64)> = (0..n).map(|_| (rng.range(-1000.0, 1000.0), rng.range(-1000.0, 1000.0))).collect();
         messy.add(&format!("random ring #{i}"), &vec![ring]);
     }
     messy.report("generated self-intersecting rings");

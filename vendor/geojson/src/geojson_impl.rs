@@ -18,15 +18,7 @@
 use crate::{Error, FeatureCollection, GeoJSON};
 use feature::{Feature, Identifier, PropertyMap, Value};
 use geometry::{
-    Geometry,
-    GeometryCollection,
-    LineString,
-    LinearRing,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
+    Geometry, GeometryCollection, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon,
 };
 use rapidjson::Writer;
 use serde_json::Value as Json;
@@ -51,9 +43,7 @@ fn validate_polygon(json: &Json) -> Result<()> {
     };
     for element in elements {
         let Some(element) = element.as_array() else {
-            return Err(error(
-                "Coordinates must be an array of arrays, each describing a polygon.",
-            ));
+            return Err(error("Coordinates must be an array of arrays, each describing a polygon."));
         };
         if element.len() < 4 {
             return Err(error(
@@ -84,8 +74,7 @@ const CONT_NOT_ARRAY: &str = "coordinates must be an array of points describing 
 /// `GetDouble()` of a coordinate.
 fn get_double(json: &Json) -> Result<f64> {
     // TODO(port): rapidjson asserts on a non-number.
-    json.as_f64()
-        .ok_or_else(|| error("coordinates must be numbers"))
+    json.as_f64().ok_or_else(|| error("coordinates must be numbers"))
 }
 
 /// `convert<point>`
@@ -167,16 +156,11 @@ pub fn convert_geometry(json: &Json) -> Result<Geometry<f64>> {
             return Err(error("GeometryCollection geometries property must be an array"));
         }
 
-        return Ok(Geometry::GeometryCollection(convert_geometry_collection(
-            json_geometries,
-        )?));
+        return Ok(Geometry::GeometryCollection(convert_geometry_collection(json_geometries)?));
     }
 
     let Some(json_coords) = object.get("coordinates") else {
-        return Err(Error::new(format!(
-            "{} geometry must have a coordinates property",
-            c_string(type_)
-        )));
+        return Err(Error::new(format!("{} geometry must have a coordinates property", c_string(type_))));
     };
     let Some(coords) = json_coords.as_array() else {
         return Err(error("coordinates property must be an array"));
@@ -430,11 +414,7 @@ fn write_geometry(w: &mut Writer, geometry: &Geometry<f64>) -> bool {
     w.start_object()
         && w.key("type")
         && w.string(geometry_type(geometry))
-        && w.key(if matches!(geometry, Geometry::GeometryCollection(_)) {
-            "geometries"
-        } else {
-            "coordinates"
-        })
+        && w.key(if matches!(geometry, Geometry::GeometryCollection(_)) { "geometries" } else { "coordinates" })
         && write_coordinates_or_geometries(w, geometry)
         && w.end_object()
 }
@@ -577,11 +557,7 @@ pub fn to_json_geometry(geometry: &Geometry<f64>) -> Json {
     }
     let mut result = serde_json::Map::new();
     result.insert("type".to_owned(), Json::String(geometry_type(geometry).to_owned()));
-    let key = if matches!(geometry, Geometry::GeometryCollection(_)) {
-        "geometries"
-    } else {
-        "coordinates"
-    };
+    let key = if matches!(geometry, Geometry::GeometryCollection(_)) { "geometries" } else { "coordinates" };
     result.insert(key.to_owned(), json_coordinates_or_geometries(geometry));
     Json::Object(result)
 }
@@ -629,10 +605,7 @@ pub fn to_json_feature(feature: &Feature<f64>) -> Json {
 pub fn to_json_feature_collection(collection: &[Feature<f64>]) -> Json {
     let mut result = serde_json::Map::new();
     result.insert("type".to_owned(), Json::String("FeatureCollection".to_owned()));
-    result.insert(
-        "features".to_owned(),
-        Json::Array(collection.iter().map(to_json_feature).collect()),
-    );
+    result.insert("features".to_owned(), Json::Array(collection.iter().map(to_json_feature).collect()));
     Json::Object(result)
 }
 

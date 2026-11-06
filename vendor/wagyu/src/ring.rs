@@ -75,7 +75,6 @@ impl RingManager {
         &self.points[p]
     }
 
-
     pub fn next(&self, p: PointPtr) -> PointPtr {
         self.points[p].next
     }
@@ -92,13 +91,10 @@ impl RingManager {
         (self.points[p].x, self.points[p].y)
     }
 
-
     /// `*a == *b` (`operator==` on wagyu points: the coordinates).
     pub fn pt_eq(&self, a: PointPtr, b: PointPtr) -> bool {
         self.points[a].x == self.points[b].x && self.points[a].y == self.points[b].y
     }
-
-
 
     pub fn parent(&self, r: RingPtr) -> RingPtr {
         self.rings[r].parent

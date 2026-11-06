@@ -52,8 +52,10 @@ impl LayerTweaker for HeatmapTextureLayerTweaker {
             pad2: 0.0,
             pad3: 0.0,
         };
-        layer_group
-            .mutable_uniform_buffers()
-            .create_or_update_pod(ID_HEATMAP_TEXTURE_PROPS_UBO, &props_ubo, parameters.context);
+        layer_group.mutable_uniform_buffers().create_or_update_pod(
+            ID_HEATMAP_TEXTURE_PROPS_UBO,
+            &props_ubo,
+            parameters.context,
+        );
     }
 }

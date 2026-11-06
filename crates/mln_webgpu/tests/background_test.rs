@@ -27,15 +27,15 @@ use mln_gfx::renderer_backend::{ContextMode, RendererBackend};
 use mln_gfx::scissor_rect::ScissorRect;
 use mln_gfx::shader_registry::ShaderRegistry;
 use mln_gfx::shaders::background_layer_ubo::{BackgroundDrawableUBO, BackgroundDrawableUnionUBO, BackgroundPropsUBO};
+use mln_gfx::shaders::clipping_mask_ubo::ClipUBO;
 use mln_gfx::shaders::program_parameters::ProgramParameters;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_gfx::shaders::shader_defines::{
     ID_BACKGROUND_DRAWABLE_UBO, ID_BACKGROUND_POS_VERTEX_ATTRIBUTE, ID_BACKGROUND_PROPS_UBO,
 };
-use mln_gfx::shaders::clipping_mask_ubo::ClipUBO;
 use mln_gfx::stencil_mode::{StencilMode, Test};
-use mln_gfx::types::StencilOpType;
 use mln_gfx::types::DepthMaskType;
+use mln_gfx::types::StencilOpType;
 use mln_gfx::uniform_buffer::UniformBufferPtr;
 use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
 use mln_util::Color;
@@ -169,10 +169,22 @@ fn tweak(context: &dyn Context, layer_group: &LayerGroupBasePtr, bg: &Background
 fn left_half_matrix() -> [f32; 16] {
     let e = f32::from(EXTENT);
     [
-        1.0 / e, 0.0, 0.0, 0.0, //
-        0.0, -2.0 / e, 0.0, 0.0, //
-        0.0, 0.0, 1.0, 0.0, //
-        -1.0, 1.0, 0.0, 1.0,
+        1.0 / e,
+        0.0,
+        0.0,
+        0.0, //
+        0.0,
+        -2.0 / e,
+        0.0,
+        0.0, //
+        0.0,
+        0.0,
+        1.0,
+        0.0, //
+        -1.0,
+        1.0,
+        0.0,
+        1.0,
     ]
 }
 
@@ -210,12 +222,7 @@ fn render_frame(
 
     parameters.render_pass = Some(parameters.encoder.create_render_pass(
         "main buffer",
-        &RenderPassDescriptor {
-            renderable,
-            clear_color: Some(clear),
-            clear_depth: Some(1.0),
-            clear_stencil: Some(0),
-        },
+        &RenderPassDescriptor { renderable, clear_color: Some(clear), clear_depth: Some(1.0), clear_stencil: Some(0) },
     ));
     context.bind_global_uniform_buffers(parameters.render_pass.as_deref().unwrap());
 
@@ -288,13 +295,8 @@ fn background_shader_opaque_and_translucent() {
     // Translucent: opacity 0.5, alpha blended (One, OneMinusSrcAlpha) over
     // the clear color: (1,0,0,1) * 0.5 + (0,0,1,1) * (1 - 0.5).
     let red = Color::new(1.0, 0.0, 0.0, 1.0);
-    let img = render_frame(
-        &backend,
-        &registry,
-        RenderPass::Translucent,
-        &Background { color: red, opacity: 0.5 },
-        blue,
-    );
+    let img =
+        render_frame(&backend, &registry, RenderPass::Translucent, &Background { color: red, opacity: 0.5 }, blue);
     check_halves(&img, [128, 0, 128, 255], [0, 0, 255, 255]);
 
     // The shader program was created once and is reused from the group.
@@ -337,10 +339,22 @@ fn clear_only_frame_reads_back_clear_color() {
 fn full_matrix() -> [f32; 16] {
     let e = f32::from(EXTENT);
     [
-        2.0 / e, 0.0, 0.0, 0.0, //
-        0.0, -2.0 / e, 0.0, 0.0, //
-        0.0, 0.0, 1.0, 0.0, //
-        -1.0, 1.0, 0.0, 1.0,
+        2.0 / e,
+        0.0,
+        0.0,
+        0.0, //
+        0.0,
+        -2.0 / e,
+        0.0,
+        0.0, //
+        0.0,
+        0.0,
+        1.0,
+        0.0, //
+        -1.0,
+        1.0,
+        0.0,
+        1.0,
     ]
 }
 
@@ -381,7 +395,12 @@ fn tile_clipping_masks_limit_stenciled_drawables() {
     };
     {
         let upload_pass = parameters.encoder.create_upload_pass("layerGroup-upload", renderable);
-        tweak(context, &layer_group, &Background { color: Color::new(1.0, 1.0, 0.0, 1.0), opacity: 1.0 }, full_matrix());
+        tweak(
+            context,
+            &layer_group,
+            &Background { color: Color::new(1.0, 1.0, 0.0, 1.0), opacity: 1.0 },
+            full_matrix(),
+        );
         layer_group.borrow_mut().upload(&*upload_pass);
     }
     parameters.render_pass = Some(parameters.encoder.create_render_pass(

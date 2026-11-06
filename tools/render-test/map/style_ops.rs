@@ -68,7 +68,8 @@ pub fn add_layer(style: &mut Style, json: &str) -> Result<(), MapError> {
 /// `layer->setFilter(filter)`.
 pub fn set_layer_filter(style: &mut Style, layer_name: &str, filter: &serde_json::Value) -> Result<(), MapError> {
     let mut error = mln_conversion::Error::default();
-    let Some(filter) = mln_style::conversion::convert::<mln_style::filter::Filter>(&Convertible::from(filter), &mut error)
+    let Some(filter) =
+        mln_style::conversion::convert::<mln_style::filter::Filter>(&Convertible::from(filter), &mut error)
     else {
         return Err(MapError::Conversion(error.message));
     };
@@ -81,11 +82,7 @@ pub fn set_layer_filter(style: &mut Style, layer_name: &str, filter: &serde_json
 
 /// `setGlobalStateProperty`: `style.setGlobalStateProperty(name, value)`;
 /// its MisuseException (style not loaded) is not caught by the runner.
-pub fn set_global_state_property(
-    style: &mut Style,
-    name: &str,
-    value: &feature::Value,
-) -> Result<(), MapError> {
+pub fn set_global_state_property(style: &mut Style, name: &str, value: &feature::Value) -> Result<(), MapError> {
     style.set_global_state_property(name, value).map_err(|e| MapError::Exception(e.to_string()))
 }
 
@@ -137,13 +134,9 @@ mod tests {
     use super::*;
 
     fn style_json(id: &str) -> String {
-        let root = std::env::var_os("RUNFILES_DIR")
-            .or_else(|| std::env::var_os("TEST_SRCDIR"))
-            .expect("runfiles");
-        let path = std::path::Path::new(&root)
-            .join("maplibre+/metrics/integration/render-tests")
-            .join(id)
-            .join("style.json");
+        let root = std::env::var_os("RUNFILES_DIR").or_else(|| std::env::var_os("TEST_SRCDIR")).expect("runfiles");
+        let path =
+            std::path::Path::new(&root).join("maplibre+/metrics/integration/render-tests").join(id).join("style.json");
         std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
     }
 

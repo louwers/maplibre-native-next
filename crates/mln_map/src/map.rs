@@ -8,13 +8,13 @@ use mln_map_types::{
     ProjectionMode, TileLodMode, TransformState, ViewportMode,
 };
 use mln_renderer::{ExceptionPtr, RendererFrontend};
+use mln_storage::FileSource;
 use mln_storage::{ClientOptions, FileSourceManager, FileSourceType, ResourceOptions};
 use mln_style::Style;
 use mln_util::exception::MisuseException;
 use mln_util::geo::{EdgeInsets, ScreenCoordinate};
-use mln_util::size::Size;
-use mln_storage::FileSource;
 use mln_util::geo::{LatLng, LatLngBounds, WrapMode};
+use mln_util::size::Size;
 use std::cell::Ref;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -58,9 +58,7 @@ impl Map {
     {
         let file_source =
             FileSourceManager::get().get_file_source(FileSourceType::ResourceLoader, resource_options, client_options);
-        Map {
-            impl_: MapImpl::new(Box::new(frontend.clone()), observer, file_source, &map_options),
-        }
+        Map { impl_: MapImpl::new(Box::new(frontend.clone()), observer, file_source, &map_options) }
     }
 
     // gtests-core: the C++ tests' `MapAdapter` (test/include/mln/test/
@@ -76,9 +74,7 @@ impl Map {
     where
         F: RendererFrontend + Clone + 'static,
     {
-        Map {
-            impl_: MapImpl::new(Box::new(frontend.clone()), observer, Some(file_source), &map_options),
-        }
+        Map { impl_: MapImpl::new(Box::new(frontend.clone()), observer, Some(file_source), &map_options) }
     }
 
     /// `getClientOptions()`.
@@ -88,7 +84,6 @@ impl Map {
             None => ClientOptions::default(),
         }
     }
-
 
     /// Register a callback that will get called (on the render thread) when
     /// all resources have been loaded and a complete render occurs.
@@ -522,10 +517,7 @@ impl Map {
 
     /// `latLngsForPixels(screenCoords, wrapMode)`.
     pub fn lat_lngs_for_pixels(&self, screen_coords: &[ScreenCoordinate], wrap_mode: WrapMode) -> Vec<LatLng> {
-        screen_coords
-            .iter()
-            .map(|point| self.lat_lng_for_pixel(point, wrap_mode))
-            .collect()
+        screen_coords.iter().map(|point| self.lat_lng_for_pixel(point, wrap_mode)).collect()
     }
 
     /// `setPrefetchZoomDelta(delta)`.

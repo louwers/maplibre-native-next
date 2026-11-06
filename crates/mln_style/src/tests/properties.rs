@@ -1,13 +1,13 @@
 // Ports test/style/properties.test.cpp.
 
+use crate::expression::dsl;
 use crate::map::zoom_history::ZoomHistory;
 use crate::properties::Transitioning;
-use crate::property_value::PropertyValue;
-use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
-use crate::expression::dsl;
 use crate::property_expression::PropertyExpression;
+use crate::property_value::PropertyValue;
 use crate::renderer::data_driven_property_evaluator::DataDrivenPropertyEvaluator;
 use crate::renderer::possibly_evaluated_property_value::PossiblyEvaluatedPropertyValue;
+use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
 use crate::renderer::property_evaluator::PropertyEvaluator;
 use crate::transition_options::TransitionOptions;
 use mln_util::chrono::{Duration, TimePoint, milliseconds};
@@ -16,11 +16,8 @@ fn evaluate(property: &Transitioning<PropertyValue<f32>>, delta: Duration) -> f3
     let mut zoom_history = ZoomHistory::default();
     zoom_history.update(0.0, &(TimePoint::min() + delta));
 
-    let parameters = PropertyEvaluationParameters::with_zoom_history(
-        zoom_history,
-        TimePoint::min() + delta,
-        Duration::zero(),
-    );
+    let parameters =
+        PropertyEvaluationParameters::with_zoom_history(zoom_history, TimePoint::min() + delta, Duration::zero());
 
     let evaluator = PropertyEvaluator::new(&parameters, 0.0_f32);
 
@@ -103,11 +100,8 @@ fn evaluate_data_expression(
     let mut zoom_history = ZoomHistory::default();
     zoom_history.update(0.0, &(TimePoint::min() + delta));
 
-    let parameters = PropertyEvaluationParameters::with_zoom_history(
-        zoom_history,
-        TimePoint::min() + delta,
-        Duration::zero(),
-    );
+    let parameters =
+        PropertyEvaluationParameters::with_zoom_history(zoom_history, TimePoint::min() + delta, Duration::zero());
 
     let evaluator = DataDrivenPropertyEvaluator::<f32>::new(&parameters, 0.0_f32);
 
@@ -130,7 +124,8 @@ fn transitioning_data_driven_property_value_evaluate() {
 
     let expression = PropertyExpression::<f32>::from_box(dsl::number(dsl::get_str("property_name"), None), None);
 
-    let t1 = Transitioning::with_prior(PropertyValue::Expression(expression), t0.clone(), &transition, TimePoint::min());
+    let t1 =
+        Transitioning::with_prior(PropertyValue::Expression(expression), t0.clone(), &transition, TimePoint::min());
 
     assert!(evaluate_data_expression(&t0, milliseconds(0)).is_constant());
     assert!(

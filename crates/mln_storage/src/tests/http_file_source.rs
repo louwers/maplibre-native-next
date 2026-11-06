@@ -3,12 +3,12 @@
 
 use super::http_server::HttpServer;
 use super::{Req, req};
+use crate::ClientOptions;
 use crate::file_source::FileSource;
 use crate::http_file_source::HTTPFileSource;
 use crate::resource::{Kind, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use crate::ClientOptions;
 use mln_actor::RunLoop;
 use mln_util::chrono::{Timestamp, now};
 use std::cell::Cell;
@@ -224,10 +224,7 @@ fn expires_parsing() {
 
     let stop = run_loop.clone();
     let _req = fs.request(
-        &Resource::new(
-            Kind::Unknown,
-            server.url("/test?modified=1420794326&expires=1420797926&etag=foo"),
-        ),
+        &Resource::new(Kind::Unknown, server.url("/test?modified=1420794326&expires=1420797926&etag=foo")),
         Box::new(move |res: Response| {
             assert_eq!(None, res.error);
             assert_eq!(b"Hello World!", data(&res));
@@ -275,7 +272,14 @@ pub struct LoadState {
 
 /// The `req(i)` lambda of the `Load` tests (also used by
 /// OnlineFileSource.Load).
-pub fn load_request(fs: &Rc<dyn FileSource>, state: &Rc<LoadState>, url: &Rc<dyn Fn(i32) -> String>, run_loop: &RunLoop, i: usize, max: i32) {
+pub fn load_request(
+    fs: &Rc<dyn FileSource>,
+    state: &Rc<LoadState>,
+    url: &Rc<dyn Fn(i32) -> String>,
+    run_loop: &RunLoop,
+    i: usize,
+    max: i32,
+) {
     let current = state.number.get();
     state.number.set(current + 1);
     let (fs2, state2, url2, run_loop2) = (fs.clone(), state.clone(), url.clone(), run_loop.clone());
@@ -310,10 +314,7 @@ fn load() {
     const CONCURRENCY: usize = 50;
     const MAX: i32 = 10000;
 
-    let state = Rc::new(LoadState {
-        reqs: (0..CONCURRENCY).map(|_| req()).collect(),
-        number: Cell::new(1),
-    });
+    let state = Rc::new(LoadState { reqs: (0..CONCURRENCY).map(|_| req()).collect(), number: Cell::new(1) });
     let base = server.url("/load/");
     let url: Rc<dyn Fn(i32) -> String> = Rc::new(move |n| format!("{base}{n}"));
 
@@ -323,4 +324,3 @@ fn load() {
 
     run_loop.run();
 }
-

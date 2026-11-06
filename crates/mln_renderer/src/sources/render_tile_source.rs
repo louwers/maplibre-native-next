@@ -15,14 +15,22 @@ use crate::render_source::{RenderSourceBase, RenderTiles, SourcePrepareParameter
 use crate::render_tile::RenderTile;
 use crate::render_tree::RenderItem;
 // layers: debug
-use crate::layer_tweaker::{get_tile_matrix, LayerTweaker, LayerTweakerBase};
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
 use crate::layers::cast_matrix;
 use crate::paint_parameters::PaintParameters;
+use crate::render_pass::RenderPass;
 use crate::render_tree::{DebugLayerGroupMap, DebugLayerTweakers, DebugType};
+use crate::tile::tile::Tile;
+use crate::tile_pyramid::TilePyramid;
+use geometry::Point;
+use mln_actor::TaggedScheduler;
+use mln_gfx::UploadPass;
 use mln_gfx::polyline_generator::PolylineGeneratorOptions;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shader_group::StringIDSetsPair;
-use mln_gfx::shaders::line_layer_ubo::{line_expression_mask, LineDrawableUBO, LineDrawableUnionUBO, LineEvaluatedPropsUBO};
+use mln_gfx::shaders::line_layer_ubo::{
+    LineDrawableUBO, LineDrawableUnionUBO, LineEvaluatedPropsUBO, line_expression_mask,
+};
 use mln_gfx::shaders::shader_defines::{
     ID_LINE_BLUR_VERTEX_ATTRIBUTE, ID_LINE_COLOR_VERTEX_ATTRIBUTE, ID_LINE_DRAWABLE_UBO, ID_LINE_EVALUATED_PROPS_UBO,
     ID_LINE_GAP_WIDTH_VERTEX_ATTRIBUTE, ID_LINE_OFFSET_VERTEX_ATTRIBUTE, ID_LINE_OPACITY_VERTEX_ATTRIBUTE,
@@ -33,28 +41,22 @@ use mln_gfx::{ColorMode, CullFaceMode, LayerGroupBase, LayerGroupBasePtr, Unifor
 use mln_map_types::MapDebugOptions;
 use mln_style::expression::Dependency;
 use mln_style::layer;
-use mln_style::layer::{layer_type_info, LayerTypeInfo};
+use mln_style::layer::{LayerTypeInfo, layer_type_info};
 use mln_style::layer_properties::{LayerProperties, LayerPropertiesBase};
+use mln_style::source;
 use mln_style_types::TranslateAnchorType;
 use mln_tile_id::OverscaledTileID;
+use mln_tile_id::UnwrappedTileID;
 use mln_tile_id::geometry_tile_data::GeometryCoordinates;
+use mln_util::Color;
 use mln_util::constants::EXTENT;
 use mln_util::geometry::FeatureType;
-use mln_util::Color;
-use std::collections::HashSet;
-use std::rc::Weak;
-use std::sync::Arc;
-use crate::render_pass::RenderPass;
-use crate::tile::tile::Tile;
-use crate::tile_pyramid::TilePyramid;
-use geometry::Point;
-use mln_actor::TaggedScheduler;
-use mln_gfx::UploadPass;
-use mln_style::source;
-use mln_tile_id::UnwrappedTileID;
 use mln_util::immutable::Immutable;
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::rc::Rc;
+use std::rc::Weak;
+use std::sync::Arc;
 
 /// `TileSourceRenderItem`.
 pub struct TileSourceRenderItem {
@@ -152,16 +154,18 @@ impl RenderItem for TileSourceRenderItem {
         };
 
         // add or get the layer group for a debug type
-        let add_or_get_layer_group_for_type =
-            |debug_layer_groups: &mut DebugLayerGroupMap, type_: DebugType, layer_name: &str| -> Option<LayerGroupBasePtr> {
-                if let Some(layer_group) = debug_layer_groups.get(&type_) {
-                    return Some(layer_group.clone());
-                }
-                let layer_group =
-                    context.create_tile_layer_group(type_ as i32, /*initial_capacity=*/ 64, layer_name.to_owned())?;
-                debug_layer_groups.insert(type_, layer_group.clone());
-                Some(layer_group)
-            };
+        let add_or_get_layer_group_for_type = |debug_layer_groups: &mut DebugLayerGroupMap,
+                                               type_: DebugType,
+                                               layer_name: &str|
+         -> Option<LayerGroupBasePtr> {
+            if let Some(layer_group) = debug_layer_groups.get(&type_) {
+                return Some(layer_group.clone());
+            }
+            let layer_group =
+                context.create_tile_layer_group(type_ as i32, /*initial_capacity=*/ 64, layer_name.to_owned())?;
+            debug_layer_groups.insert(type_, layer_group.clone());
+            Some(layer_group)
+        };
 
         // build a set of tiles to cover
         let new_tiles: HashSet<OverscaledTileID> =
@@ -184,7 +188,8 @@ impl RenderItem for TileSourceRenderItem {
 
         // Timestamps or Parse Status
         if parameters.debug_options.contains(MapDebugOptions::TIMESTAMPS | MapDebugOptions::PARSE_STATUS) {
-            for (type_, layer_name) in [(DebugType::TextOutline, "debug-text-outline"), (DebugType::Text, "debug-text")] {
+            for (type_, layer_name) in [(DebugType::TextOutline, "debug-text-outline"), (DebugType::Text, "debug-text")]
+            {
                 let Some(layer_group) = add_or_get_layer_group_for_type(debug_layer_groups, type_, layer_name) else {
                     continue;
                 };
@@ -207,7 +212,8 @@ impl RenderItem for TileSourceRenderItem {
 
         // Tile Borders
         if parameters.debug_options.contains(MapDebugOptions::TILE_BORDERS) {
-            let Some(layer_group) = add_or_get_layer_group_for_type(debug_layer_groups, DebugType::Border, "debug-border")
+            let Some(layer_group) =
+                add_or_get_layer_group_for_type(debug_layer_groups, DebugType::Border, "debug-border")
             else {
                 return;
             };
@@ -230,7 +236,8 @@ impl RenderItem for TileSourceRenderItem {
                     }
 
                     // MLN_ENABLE_POLYLINE_DRAWABLES
-                    if tile_layer_group.get_drawable_count_for(render_pass, &tile_id) == 0 && tile.get_needs_rendering() {
+                    if tile_layer_group.get_drawable_count_for(render_pass, &tile_id) == 0 && tile.get_needs_rendering()
+                    {
                         // addPolylineDrawable(tileLayerGroup, tile)
                         let extent = EXTENT as i16;
                         let coords: GeometryCoordinates = vec![
@@ -245,7 +252,8 @@ impl RenderItem for TileSourceRenderItem {
                         if polyline_shader.is_none() {
                             polyline_shader = create_polyline_shader();
                         }
-                        let builder = polyline_builder.get_or_insert_with(|| create_polyline_builder(polyline_shader.clone()));
+                        let builder =
+                            polyline_builder.get_or_insert_with(|| create_polyline_builder(polyline_shader.clone()));
                         builder.add_polyline(&coords, &options);
 
                         // finish
@@ -361,7 +369,11 @@ impl LayerTweaker for PolylineLayerTweaker {
         }
 
         let context = parameters.context;
-        layer_group.mutable_uniform_buffers().create_or_update_pod(ID_LINE_EVALUATED_PROPS_UBO, &self.props_ubo, context);
+        layer_group.mutable_uniform_buffers().create_or_update_pod(
+            ID_LINE_EVALUATED_PROPS_UBO,
+            &self.props_ubo,
+            context,
+        );
 
         // We would need to set up `idLineExpressionUBO` if the expression
         // mask isn't empty
@@ -476,7 +488,12 @@ impl RenderTileSource {
     }
 
     /// `removeFeatureState(sourceLayerID, featureID, stateKey)`.
-    pub fn remove_feature_state(&mut self, source_layer_id: Option<&str>, feature_id: Option<&str>, state_key: Option<&str>) {
+    pub fn remove_feature_state(
+        &mut self,
+        source_layer_id: Option<&str>,
+        feature_id: Option<&str>,
+        state_key: Option<&str>,
+    ) {
         self.feature_state.remove_state(source_layer_id, feature_id, state_key);
     }
 
@@ -517,10 +534,7 @@ impl RenderTileSource {
     }
 
     pub fn create_render_item(&mut self) -> Box<dyn RenderItem> {
-        Box::new(TileSourceRenderItem::new(
-            self.render_tiles.clone(),
-            self.base.base_impl.id.clone(),
-        ))
+        Box::new(TileSourceRenderItem::new(self.render_tiles.clone(), self.base.base_impl.id.clone()))
     }
 
     pub fn prepare(&mut self, parameters: &SourcePrepareParameters<'_>) {

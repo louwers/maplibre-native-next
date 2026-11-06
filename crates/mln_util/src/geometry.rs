@@ -4,15 +4,7 @@
 // here under their mln names.
 
 pub use geometry::{
-    Geometry,
-    GeometryCollection,
-    LineString,
-    LinearRing,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
+    Geometry, GeometryCollection, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon,
 };
 
 /// `mln::FeatureType`.

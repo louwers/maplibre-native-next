@@ -3,8 +3,7 @@
 // Rust keyword.)
 
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
@@ -38,11 +37,7 @@ impl In {
         debug_assert!(is_comparable_type(needle.get_type()));
         debug_assert!(is_searchable_type(haystack.get_type()));
         In {
-            base: ExpressionBase::new(
-                Kind::In,
-                Type::Boolean,
-                needle.dependencies() | haystack.dependencies(),
-            ),
+            base: ExpressionBase::new(Kind::In, Type::Boolean, needle.dependencies() | haystack.dependencies()),
             needle,
             haystack,
         }

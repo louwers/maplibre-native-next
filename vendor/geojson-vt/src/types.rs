@@ -47,11 +47,7 @@ pub fn get_point<const I: u8>(p: &Point<f64>) -> f64 {
 /// `calc_progress<I>(a, b, k)`
 #[inline]
 pub fn calc_progress<const I: u8>(a: &VtPoint, b: &VtPoint, k: f64) -> f64 {
-    if I == 0 {
-        (k - a.x) / (b.x - a.x)
-    } else {
-        (k - a.y) / (b.y - a.y)
-    }
+    if I == 0 { (k - a.x) / (b.x - a.x) } else { (k - a.y) / (b.y - a.y) }
 }
 
 /// `intersect<I>(a, b, k, t)`
@@ -81,10 +77,7 @@ pub struct VtLineString {
 
 impl VtLineString {
     pub fn new(points: Vec<VtPoint>) -> Self {
-        VtLineString {
-            points,
-            ..Default::default()
-        }
+        VtLineString { points, ..Default::default() }
     }
 }
 
@@ -169,11 +162,9 @@ impl VtGeometry {
             VtGeometry::Polygon(rings) => rings.iter().flat_map(|r| r.iter()).for_each(&mut *f),
             VtGeometry::MultiPoint(points) => points.iter().for_each(&mut *f),
             VtGeometry::MultiLineString(lines) => lines.iter().flat_map(|l| l.iter()).for_each(&mut *f),
-            VtGeometry::MultiPolygon(polygons) => polygons
-                .iter()
-                .flat_map(|p| p.iter())
-                .flat_map(|r| r.iter())
-                .for_each(&mut *f),
+            VtGeometry::MultiPolygon(polygons) => {
+                polygons.iter().flat_map(|p| p.iter()).flat_map(|r| r.iter()).for_each(&mut *f)
+            }
             VtGeometry::GeometryCollection(geometries) => {
                 for g in geometries {
                     g.for_each_point(f);
@@ -190,14 +181,10 @@ impl VtGeometry {
             VtGeometry::LineString(l) => l.iter_mut().for_each(&mut *f),
             VtGeometry::Polygon(rings) => rings.iter_mut().flat_map(|r| r.iter_mut()).for_each(&mut *f),
             VtGeometry::MultiPoint(points) => points.iter_mut().for_each(&mut *f),
-            VtGeometry::MultiLineString(lines) => {
-                lines.iter_mut().flat_map(|l| l.iter_mut()).for_each(&mut *f)
+            VtGeometry::MultiLineString(lines) => lines.iter_mut().flat_map(|l| l.iter_mut()).for_each(&mut *f),
+            VtGeometry::MultiPolygon(polygons) => {
+                polygons.iter_mut().flat_map(|p| p.iter_mut()).flat_map(|r| r.iter_mut()).for_each(&mut *f)
             }
-            VtGeometry::MultiPolygon(polygons) => polygons
-                .iter_mut()
-                .flat_map(|p| p.iter_mut())
-                .flat_map(|r| r.iter_mut())
-                .for_each(&mut *f),
             VtGeometry::GeometryCollection(geometries) => {
                 for g in geometries {
                     g.for_each_point_mut(f);
@@ -217,10 +204,7 @@ pub struct BoxD {
 impl BoxD {
     /// `{ { 2, 1 }, { -1, 0 } }`, the initial (inverted) feature and tile
     /// bounding box.
-    pub const INITIAL: BoxD = BoxD {
-        min: Point::new(2.0, 1.0),
-        max: Point::new(-1.0, 0.0),
-    };
+    pub const INITIAL: BoxD = BoxD { min: Point::new(2.0, 1.0), max: Point::new(-1.0, 0.0) };
 }
 
 /// `std::min(a, b)`: `(b < a) ? b : a`.
@@ -249,13 +233,7 @@ pub struct VtFeature {
 impl VtFeature {
     /// `vt_feature(geom, shared_ptr<const property_map>, id)`
     pub fn new(geometry: VtGeometry, properties: Arc<PropertyMap>, id: Identifier) -> Self {
-        let mut feature = VtFeature {
-            geometry,
-            properties,
-            id,
-            bbox: BoxD::INITIAL,
-            num_points: 0,
-        };
+        let mut feature = VtFeature { geometry, properties, id, bbox: BoxD::INITIAL, num_points: 0 };
         feature.process_geometry();
         feature
     }

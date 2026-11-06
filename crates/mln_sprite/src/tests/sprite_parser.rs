@@ -12,7 +12,14 @@ fn read_image(name: &str) -> PremultipliedImage {
     decode_image(&read_file(name)).unwrap()
 }
 
-fn create(image: &PremultipliedImage, x: i32, y: i32, w: i32, h: i32, ratio: f64) -> Option<mln_style_types::image::Image> {
+fn create(
+    image: &PremultipliedImage,
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
+    ratio: f64,
+) -> Option<mln_style_types::image::Image> {
     create_style_image("test", image, x, y, w, h, ratio, false, Vec::new(), Vec::new(), None, None, None)
 }
 
@@ -60,8 +67,22 @@ fn sprite_image_creation_invalid() {
     }
 
     assert!(
-        create_style_image("test", &image_1x, 0, 0, 16, 16, 1.0, false, vec![(-1.0, 3.0)], Vec::new(), None, None, None)
-            .is_none()
+        create_style_image(
+            "test",
+            &image_1x,
+            0,
+            0,
+            16,
+            16,
+            1.0,
+            false,
+            vec![(-1.0, 3.0)],
+            Vec::new(),
+            None,
+            None,
+            None
+        )
+        .is_none()
     );
     assert_eq!(
         1,
@@ -69,15 +90,24 @@ fn sprite_image_creation_invalid() {
     );
     assert_eq!(0, log.unchecked_count());
 
-    let content = ImageContent {
-        left: 14.0,
-        top: 14.0,
-        right: 12.0,
-        bottom: 10.0,
-    };
+    let content = ImageContent { left: 14.0, top: 14.0, right: 12.0, bottom: 10.0 };
     assert!(
-        create_style_image("test", &image_1x, 0, 0, 16, 16, 1.0, false, Vec::new(), Vec::new(), Some(content), None, None)
-            .is_none()
+        create_style_image(
+            "test",
+            &image_1x,
+            0,
+            0,
+            16,
+            16,
+            1.0,
+            false,
+            Vec::new(),
+            Vec::new(),
+            Some(content),
+            None,
+            None
+        )
+        .is_none()
     );
     assert_eq!(1, sprite_error(&log, "Can't create image with invalid metadata: content area is invalid"));
     assert_eq!(0, log.unchecked_count());
@@ -96,10 +126,7 @@ fn sprite_image_creation_1x() {
     assert_eq!(18, sprite.get_image().size.width);
     assert_eq!(18, sprite.get_image().size.height);
     assert_eq!(1.0, sprite.get_pixel_ratio());
-    assert_eq!(
-        &read_image("test/fixtures/annotations/result-spriteimagecreation1x-museum.png"),
-        sprite.get_image()
-    );
+    assert_eq!(&read_image("test/fixtures/annotations/result-spriteimagecreation1x-museum.png"), sprite.get_image());
 }
 
 // gtest: Sprite.SpriteImageCreation2x
@@ -125,10 +152,7 @@ fn sprite_image_creation_1_5x() {
     assert_eq!(36, sprite.get_image().size.width);
     assert_eq!(36, sprite.get_image().size.height);
     assert_eq!(1.5, sprite.get_pixel_ratio());
-    assert_eq!(
-        &read_image("test/fixtures/annotations/result-spriteimagecreation1_5x-museum.png"),
-        sprite.get_image()
-    );
+    assert_eq!(&read_image("test/fixtures/annotations/result-spriteimagecreation1_5x-museum.png"), sprite.get_image());
 
     // "hospital_icon":{"x":314,"y":518,"width":36,"height":36,"pixelRatio":2,"sdf":false}
     let sprite2 = create(&image_2x, 314, 518, 35, 35, 1.5).unwrap();
@@ -274,10 +298,7 @@ fn sprite_parsing_invalid_stretches() {
     let image_1x = read_file("test/fixtures/annotations/emerald.png");
 
     parse_sprite("default", &image_1x, &interstate(r#""stretchX": {}"#)).unwrap();
-    assert_eq!(
-        1,
-        sprite_warning(&log, "Invalid sprite image 'interstate_1': value of 'stretchX' must be an array")
-    );
+    assert_eq!(1, sprite_warning(&log, "Invalid sprite image 'interstate_1': value of 'stretchX' must be an array"));
     assert_eq!(0, log.unchecked_count());
 
     parse_sprite("default", &image_1x, &interstate(r#""stretchX": [[[]]]"#)).unwrap();
@@ -311,14 +332,20 @@ fn sprite_parsing_invalid_content() {
     parse_sprite("default", &image_1x, &interstate(r#""content": []"#)).unwrap();
     assert_eq!(
         1,
-        sprite_warning(&log, "Invalid sprite image 'interstate_1': value of 'content' must be an array of four numbers")
+        sprite_warning(
+            &log,
+            "Invalid sprite image 'interstate_1': value of 'content' must be an array of four numbers"
+        )
     );
     assert_eq!(0, log.unchecked_count());
 
     parse_sprite("default", &image_1x, &interstate(r#""content": [4, 4, 4, true]"#)).unwrap();
     assert_eq!(
         1,
-        sprite_warning(&log, "Invalid sprite image 'interstate_1': value of 'content' must be an array of four numbers")
+        sprite_warning(
+            &log,
+            "Invalid sprite image 'interstate_1': value of 'content' must be an array of four numbers"
+        )
     );
     assert_eq!(0, log.unchecked_count());
 }
@@ -351,15 +378,7 @@ fn sprite_parsing_stretch_and_content() {
     assert_eq!("image", images[0].id);
     assert_eq!(vec![(2.0f32, 14.0f32)], images[0].stretch_x);
     assert_eq!(vec![(0.0f32, 4.0f32), (12.0f32, 16.0f32)], images[0].stretch_y);
-    assert_eq!(
-        Some(ImageContent {
-            left: 2.0,
-            top: 2.0,
-            right: 14.0,
-            bottom: 14.0
-        }),
-        images[0].content
-    );
+    assert_eq!(Some(ImageContent { left: 2.0, top: 2.0, right: 14.0, bottom: 14.0 }), images[0].content);
 }
 
 // gtest: Sprite.SpriteParsingEmptyImage
@@ -371,10 +390,7 @@ fn sprite_parsing_empty_image() {
     let images = parse_sprite("default", &image_1x, br#"{ "image": {} }"#).unwrap();
     assert_eq!(0, images.len());
 
-    assert_eq!(
-        1,
-        sprite_error(&log, "Can't create image with invalid metrics: 0x0@0,0 in 200x299@1x sprite")
-    );
+    assert_eq!(1, sprite_error(&log, "Can't create image with invalid metrics: 0x0@0,0 in 200x299@1x sprite"));
 }
 
 // gtest: Sprite.SpriteParsingSimpleWidthHeight
@@ -400,10 +416,7 @@ fn sprite_parsing_width_too_big() {
         1,
         sprite_warning(&log, "Invalid sprite image 'image': value of 'width' must be an integer between 0 and 65535")
     );
-    assert_eq!(
-        1,
-        sprite_error(&log, "Can't create image with invalid metrics: 0x32@0,0 in 200x299@1x sprite")
-    );
+    assert_eq!(1, sprite_error(&log, "Can't create image with invalid metrics: 0x32@0,0 in 200x299@1x sprite"));
 }
 
 // gtest: Sprite.SpriteParsingNegativeWidth
@@ -419,10 +432,7 @@ fn sprite_parsing_negative_width() {
         1,
         sprite_warning(&log, "Invalid sprite image 'image': value of 'width' must be an integer between 0 and 65535")
     );
-    assert_eq!(
-        1,
-        sprite_error(&log, "Can't create image with invalid metrics: 0x32@0,0 in 200x299@1x sprite")
-    );
+    assert_eq!(1, sprite_error(&log, "Can't create image with invalid metrics: 0x32@0,0 in 200x299@1x sprite"));
 }
 
 // gtest: Sprite.SpriteParsingNullRatio
@@ -435,10 +445,7 @@ fn sprite_parsing_null_ratio() {
         parse_sprite("default", &image_1x, br#"{ "image": { "width": 32, "height": 32, "pixelRatio": 0 } }"#).unwrap();
     assert_eq!(0, images.len());
 
-    assert_eq!(
-        1,
-        sprite_error(&log, "Can't create image with invalid metrics: 32x32@0,0 in 200x299@0x sprite")
-    );
+    assert_eq!(1, sprite_error(&log, "Can't create image with invalid metrics: 32x32@0,0 in 200x299@0x sprite"));
 }
 
 fn text_fit_json(extra: &str) -> Vec<u8> {
@@ -495,20 +502,13 @@ fn sprite_parsing_invalid_text_fit() {
 
     let image_1x = read_file("test/fixtures/annotations/emerald.png");
 
-    parse_sprite(
-        "default",
-        &image_1x,
-        &text_fit_json(r#""textFitWidth": "invalid", "textFitHeight": "stretchOnly""#),
-    )
-    .unwrap();
+    parse_sprite("default", &image_1x, &text_fit_json(r#""textFitWidth": "invalid", "textFitHeight": "stretchOnly""#))
+        .unwrap();
     assert_eq!(
         1,
         sprite_warning(&log, "Invalid sprite image 'image': value of 'textFitWidth' is an invalid value 'invalid'")
     );
 
     parse_sprite("default", &image_1x, &text_fit_json(r#""textFitHeight": 0"#)).unwrap();
-    assert_eq!(
-        1,
-        sprite_warning(&log, "Invalid sprite image 'image': value of 'textFitHeight' must be a string")
-    );
+    assert_eq!(1, sprite_warning(&log, "Invalid sprite image 'image': value of 'textFitHeight' must be a string"));
 }

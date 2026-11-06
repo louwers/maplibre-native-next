@@ -4,8 +4,8 @@ use crate::support::*;
 use mln_actor::RunLoop;
 use mln_map::{CameraOptions, Map, MapMode, MapOptions};
 use mln_platform_default::HeadlessFrontend;
-use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_storage::Resource;
+use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_util::geo::LatLng;
 use mln_util::size::Size;
 use std::cell::RefCell;
@@ -42,9 +42,7 @@ fn prefetch_tiles() {
         &frontend,
         observer.clone(),
         file_source.clone(),
-        MapOptions::new()
-            .with_map_mode(MapMode::Continuous)
-            .with_size(frontend.get_size()),
+        MapOptions::new().with_map_mode(MapMode::Continuous).with_size(frontend.get_size()),
     );
 
     let tiles: Rc<RefCell<Vec<i32>>> = Rc::new(RefCell::new(Vec::new()));
@@ -66,10 +64,8 @@ fn prefetch_tiles() {
         tiles.borrow_mut().clear();
 
         // Force tile reloading.
-        map.get_style_mut()
-            .load_json(&read_file("test/fixtures/map/prefetch/empty.json"));
-        map.get_style_mut()
-            .load_json(&read_file("test/fixtures/map/prefetch/style.json"));
+        map.get_style_mut().load_json(&read_file("test/fixtures/map/prefetch/empty.json"));
+        map.get_style_mut().load_json(&read_file("test/fixtures/map/prefetch/style.json"));
         map.jump_to(
             &CameraOptions::default()
                 .with_center(Some(LatLng::new(40.726989, -73.992857).unwrap()))

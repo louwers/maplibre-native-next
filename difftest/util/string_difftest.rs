@@ -7,11 +7,7 @@ use reference_ffi as cpp;
 use reference_ffi::special_f64;
 
 fn config(cases: u32) -> ProptestConfig {
-    ProptestConfig {
-        cases,
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    }
+    ProptestConfig { cases, failure_persistence: None, ..ProptestConfig::default() }
 }
 
 fn check_double(v: f64) {
@@ -30,9 +26,7 @@ fn double_edge_cases() {
         n += 1;
     }
     // Every power of two and of ten, and their neighbours.
-    let powers_of_two = (-1022i64..=1023)
-        .map(|e| ((e + 1023) as u64) << 52)
-        .chain((0..52).map(|k| 1u64 << k));
+    let powers_of_two = (-1022i64..=1023).map(|e| ((e + 1023) as u64) << 52).chain((0..52).map(|k| 1u64 << k));
     for bits in powers_of_two {
         for v in [f64::from_bits(bits), f64::from_bits(bits - 1), f64::from_bits(bits + 1)] {
             check_double(v);

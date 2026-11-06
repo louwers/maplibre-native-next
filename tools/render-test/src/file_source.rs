@@ -120,10 +120,7 @@ impl FileSource for ProxyFileSource {
                     match (&logged.tile_data, logged.kind) {
                         (Some(tile_data), Kind::Tile) => Log::info(
                             Event::Database,
-                            format!(
-                                "Resource not found in cache: {}({})",
-                                logged.url, tile_data.url_template
-                            ),
+                            format!("Resource not found in cache: {}({})", logged.url, tile_data.url_template),
                         ),
                         _ => Log::info(Event::Database, format!("Resource not found in cache: {}", logged.url)),
                     }

@@ -55,10 +55,7 @@ pub struct CollectionBase<T: CollectionElement + ?Sized> {
 
 impl<T: CollectionElement + ?Sized> Default for CollectionBase<T> {
     fn default() -> Self {
-        CollectionBase {
-            wrappers: Vec::new(),
-            impls: Arc::new(Vec::new()),
-        }
+        CollectionBase { wrappers: Vec::new(), impls: Arc::new(Vec::new()) }
     }
 }
 
@@ -69,20 +66,12 @@ impl<T: CollectionElement + ?Sized> CollectionBase<T> {
 
     pub fn get(&self, id: &str) -> Option<&T> {
         let i = self.index(id);
-        if i < self.size() {
-            Some(self.wrappers[i].as_ref())
-        } else {
-            None
-        }
+        if i < self.size() { Some(self.wrappers[i].as_ref()) } else { None }
     }
 
     pub fn get_mut(&mut self, id: &str) -> Option<&mut T> {
         let i = self.index(id);
-        if i < self.size() {
-            Some(self.wrappers[i].as_mut())
-        } else {
-            None
-        }
+        if i < self.size() { Some(self.wrappers[i].as_mut()) } else { None }
     }
 
     pub fn get_wrappers(&self) -> Vec<&T> {
@@ -108,10 +97,7 @@ impl<T: CollectionElement + ?Sized> CollectionBase<T> {
     }
 
     pub fn index(&self, id: &str) -> usize {
-        self.wrappers
-            .iter()
-            .position(|e| e.get_id() == id)
-            .unwrap_or(self.wrappers.len())
+        self.wrappers.iter().position(|e| e.get_id() == id).unwrap_or(self.wrappers.len())
     }
 
     fn add_at(&mut self, wrapper_index: usize, impl_index: usize, wrapper: Box<T>) -> &mut T {
@@ -158,9 +144,7 @@ pub struct Collection<T: CollectionElement + ?Sized> {
 
 impl<T: CollectionElement + ?Sized> Default for Collection<T> {
     fn default() -> Self {
-        Collection {
-            base: CollectionBase::default(),
-        }
+        Collection { base: CollectionBase::default() }
     }
 }
 
@@ -210,9 +194,7 @@ pub struct CollectionWithPersistentOrder<T: CollectionElement + ?Sized> {
 
 impl<T: CollectionElement + ?Sized> Default for CollectionWithPersistentOrder<T> {
     fn default() -> Self {
-        CollectionWithPersistentOrder {
-            base: CollectionBase::default(),
-        }
+        CollectionWithPersistentOrder { base: CollectionBase::default() }
     }
 }
 

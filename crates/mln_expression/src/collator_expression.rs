@@ -2,9 +2,7 @@
 // src/mln/style/expression/collator_expression.cpp.
 
 use crate::collator::Collator;
-use crate::expression::{
-    Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::literal::Literal;
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;

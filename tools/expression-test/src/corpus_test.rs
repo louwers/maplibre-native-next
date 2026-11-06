@@ -14,11 +14,8 @@ fn expression_corpus() {
     let expected_path = std::path::Path::new(&std::env::var("TEST_SRCDIR").unwrap())
         .join("_main/tools/expression-test/expected_failures.txt");
     let expected_text = std::fs::read_to_string(&expected_path).expect("expected_failures.txt");
-    let expected: BTreeSet<&str> = expected_text
-        .lines()
-        .map(str::trim)
-        .filter(|l| !l.is_empty() && !l.starts_with('#'))
-        .collect();
+    let expected: BTreeSet<&str> =
+        expected_text.lines().map(str::trim).filter(|l| !l.is_empty() && !l.starts_with('#')).collect();
 
     let mut regressions = Vec::new();
     for t in stats.failed.iter().chain(&stats.errored) {
@@ -26,12 +23,8 @@ fn expression_corpus() {
             regressions.push(t);
         }
     }
-    let newly_passing: Vec<&str> = stats
-        .passed
-        .iter()
-        .map(|t| t.id.as_str())
-        .filter(|id| expected.contains(id))
-        .collect();
+    let newly_passing: Vec<&str> =
+        stats.passed.iter().map(|t| t.id.as_str()).filter(|id| expected.contains(id)).collect();
 
     println!(
         "expression corpus: {} of {} passed ({} ignored, {} failed, {} errored); {} expected failures",

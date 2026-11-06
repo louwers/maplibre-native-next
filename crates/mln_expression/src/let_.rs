@@ -2,9 +2,7 @@
 // src/mln/style/expression/let.cpp. (The module is `let_` because `let` is a
 // Rust keyword.)
 
-use crate::expression::{
-    Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{Bindings, ParseResult, ParsingContext};
 use crate::value::Value;
 use feature::Value as MbglValue;
@@ -19,16 +17,10 @@ pub struct Let {
 
 impl Let {
     pub fn new(bindings: Bindings, result: Box<dyn Expression>) -> Self {
-        let deps = bindings
-            .values()
-            .fold(Dependency::NONE, |a, e| a | e.dependencies())
+        let deps = bindings.values().fold(Dependency::NONE, |a, e| a | e.dependencies())
             | result.dependencies()
             | Dependency::BIND;
-        Let {
-            base: ExpressionBase::new(Kind::Let, result.get_type().clone(), deps),
-            bindings,
-            result,
-        }
+        Let { base: ExpressionBase::new(Kind::Let, result.get_type().clone(), deps), bindings, result }
     }
 
     pub fn get_result(&self) -> &dyn Expression {
@@ -41,10 +33,7 @@ impl Let {
         let length = value.array_length();
 
         if length < 4 {
-            ctx.error(format!(
-                "Expected at least 3 arguments, but found {} instead.",
-                length - 1
-            ));
+            ctx.error(format!("Expected at least 3 arguments, but found {} instead.", length - 1));
             return None;
         }
 
@@ -53,10 +42,7 @@ impl Let {
         while i < length - 1 {
             let Some(name) = value.array_member(i).to_string() else {
                 ctx.error_at(
-                    format!(
-                        "Expected string, but found {} instead.",
-                        get_json_type(&value.array_member(i))
-                    ),
+                    format!("Expected string, but found {} instead.", get_json_type(&value.array_member(i))),
                     i,
                 );
                 return None;
@@ -64,10 +50,7 @@ impl Let {
 
             let is_valid_name = name.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_');
             if !is_valid_name {
-                ctx.error_at(
-                    "Variable names must contain only alphanumeric characters or '_'.".to_owned(),
-                    1,
-                );
+                ctx.error_at("Variable names must contain only alphanumeric characters or '_'.".to_owned(), 1);
                 return None;
             }
 
@@ -78,12 +61,8 @@ impl Let {
             i += 2;
         }
 
-        let result = ctx.parse_with_bindings(
-            &value.array_member(length - 1),
-            length - 1,
-            ctx.get_expected(),
-            &bindings,
-        )?;
+        let result =
+            ctx.parse_with_bindings(&value.array_member(length - 1), length - 1, ctx.get_expected(), &bindings)?;
 
         Some(Box::new(Let::new(bindings, result)))
     }
@@ -141,11 +120,7 @@ pub struct Var {
 impl Var {
     pub fn new(name: String, value: Arc<dyn Expression>) -> Self {
         Var {
-            base: ExpressionBase::new(
-                Kind::Var,
-                value.get_type().clone(),
-                value.dependencies() | Dependency::VAR,
-            ),
+            base: ExpressionBase::new(Kind::Var, value.get_type().clone(), value.dependencies() | Dependency::VAR),
             name,
             value,
         }
@@ -158,11 +133,7 @@ impl Var {
     pub fn parse(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseResult {
         debug_assert!(value.is_array());
 
-        let name = if value.array_length() == 2 {
-            value.array_member(1).to_string()
-        } else {
-            None
-        };
+        let name = if value.array_length() == 2 { value.array_member(1).to_string() } else { None };
         let Some(name) = name else {
             ctx.error("'var' expression requires exactly one string literal argument.".to_owned());
             return None;
@@ -206,10 +177,7 @@ impl Expression for Var {
     }
 
     fn serialize(&self) -> MbglValue {
-        MbglValue::Array(vec![
-            MbglValue::String(self.get_operator()),
-            MbglValue::String(self.name.clone()),
-        ])
+        MbglValue::Array(vec![MbglValue::String(self.get_operator()), MbglValue::String(self.name.clone())])
     }
 
     fn get_operator(&self) -> String {

@@ -3,8 +3,7 @@
 use crate::data_view::DataView;
 use crate::exception::Exception;
 use crate::iterators::{
-    ConstFixedIterator, ConstSvarintIterator, ConstVarintIterator, FixedValue, IteratorRange, SvarintValue,
-    VarintValue,
+    ConstFixedIterator, ConstSvarintIterator, ConstVarintIterator, FixedValue, IteratorRange, SvarintValue, VarintValue,
 };
 use crate::types::{PbfLengthType, PbfTagType, PbfWireType, tag_and_type};
 use crate::varint::{decode_varint, decode_zigzag64, skip_varint};
@@ -100,9 +99,7 @@ impl<'a> PbfReader<'a> {
         Ok(IteratorRange::new(ConstVarintIterator::new(packed), ConstVarintIterator::new(&packed[packed.len()..])))
     }
 
-    fn get_packed_svarint<T: SvarintValue>(
-        &mut self,
-    ) -> Result<IteratorRange<ConstSvarintIterator<'a, T>>, Exception> {
+    fn get_packed_svarint<T: SvarintValue>(&mut self) -> Result<IteratorRange<ConstSvarintIterator<'a, T>>, Exception> {
         debug_assert!(self.tag() != 0, "call next() before accessing field value");
         let packed = self.get_len_and_skip()?;
         Ok(IteratorRange::new(ConstSvarintIterator::new(packed), ConstSvarintIterator::new(&packed[packed.len()..])))

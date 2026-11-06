@@ -191,7 +191,8 @@ impl Source for ImageSource {
         }
 
         let weak = Rc::downgrade(&self.inner);
-        let req = file_source.request(&Resource::image(&url), Box::new(move |res: Response| on_image_response(&weak, res)));
+        let req =
+            file_source.request(&Resource::image(&url), Box::new(move |res: Response| on_image_response(&weak, res)));
         *self.inner.req.borrow_mut() = Some(req);
     }
 

@@ -130,17 +130,7 @@ impl Impl {
         } else if content.as_ref().is_some_and(|content| !validate_content(content, &image.size)) {
             return Err(StyleImageException::new("content area is invalid"));
         }
-        Ok(Impl {
-            id,
-            image,
-            pixel_ratio,
-            sdf,
-            stretch_x,
-            stretch_y,
-            content,
-            text_fit_width,
-            text_fit_height,
-        })
+        Ok(Impl { id, image, pixel_ratio, sdf, stretch_x, stretch_y, content, text_fit_width, text_fit_height })
     }
 }
 

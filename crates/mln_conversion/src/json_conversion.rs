@@ -44,10 +44,7 @@ impl ConversionTraits for serde_json::Value {
         }
     }
 
-    fn each_member(
-        &self,
-        f: &mut dyn FnMut(&str, &Convertible<'_>) -> Option<Error>,
-    ) -> Option<Error> {
+    fn each_member(&self, f: &mut dyn FnMut(&str, &Convertible<'_>) -> Option<Error>) -> Option<Error> {
         let serde_json::Value::Object(o) = self else {
             panic!("each_member on a non-object");
         };
@@ -171,10 +168,7 @@ mod tests {
             fn object_member(&self, name: &str) -> Option<Convertible<'_>> {
                 self.0.object_member(name)
             }
-            fn each_member(
-                &self,
-                f: &mut dyn FnMut(&str, &Convertible<'_>) -> Option<Error>,
-            ) -> Option<Error> {
+            fn each_member(&self, f: &mut dyn FnMut(&str, &Convertible<'_>) -> Option<Error>) -> Option<Error> {
                 self.0.each_member(f)
             }
             fn to_bool(&self) -> Option<bool> {

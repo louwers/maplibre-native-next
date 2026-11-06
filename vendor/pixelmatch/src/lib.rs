@@ -90,14 +90,7 @@ pub mod detail {
     /// V. Vysniauskas, 2009.
     ///
     /// `img2` is `nullptr` in the C++ recursive calls.
-    pub fn antialiased(
-        img: &[u8],
-        x1: usize,
-        y1: usize,
-        width: usize,
-        height: usize,
-        img2: Option<&[u8]>,
-    ) -> bool {
+    pub fn antialiased(img: &[u8], x1: usize, y1: usize, width: usize, height: usize, img2: Option<&[u8]>) -> bool {
         let x0 = if x1 > 0 { x1 - 1 } else { 0 };
         let y0 = if y1 > 0 { y1 - 1 } else { 0 };
         // `std::min(x1 + 1, width - 1)` on `size_t`.
@@ -165,8 +158,7 @@ pub mod detail {
 
         // if either the darkest or the brightest pixel has more than 2 equal siblings in both images
         // (definitely not anti-aliased), this pixel is anti-aliased
-        (!antialiased(img, min_x, min_y, width, height, None)
-            && !antialiased(img2, min_x, min_y, width, height, None))
+        (!antialiased(img, min_x, min_y, width, height, None) && !antialiased(img2, min_x, min_y, width, height, None))
             || (!antialiased(img, max_x, max_y, width, height, None)
                 && !antialiased(img2, max_x, max_y, width, height, None))
     }

@@ -7,7 +7,7 @@
 use crate::camera::FreeCameraOptions;
 use mln_util::geo::{LatLng, LatLngAltitude};
 use mln_util::mat3::{vec3_cross, vec3_length, vec3_sub};
-use mln_util::mat4::{matrix, Mat4};
+use mln_util::mat4::{Mat4, matrix};
 use mln_util::projection::Projection;
 use mln_util::quaternion::Quaternion;
 use mln_util::vectors::Vec3;
@@ -44,12 +44,7 @@ fn to_mercator(location: &LatLng, altitude_meters: f64) -> Vec3 {
 
 fn get_column(matrix: &Mat4, col: usize) -> [f64; 4] {
     debug_assert!(col < 4);
-    [
-        matrix[col * 4],
-        matrix[col * 4 + 1],
-        matrix[col * 4 + 2],
-        matrix[col * 4 + 3],
-    ]
+    [matrix[col * 4], matrix[col * 4 + 1], matrix[col * 4 + 2], matrix[col * 4 + 3]]
 }
 
 pub(crate) fn orientation_from_roll_pitch_bearing(roll: f64, pitch: f64, bearing: f64) -> Quaternion {
@@ -99,10 +94,7 @@ impl Camera {
     pub fn new() -> Self {
         let mut transform = [0.0; 16];
         matrix::identity(&mut transform);
-        Camera {
-            orientation: Quaternion::IDENTITY,
-            transform,
-        }
+        Camera { orientation: Quaternion::IDENTITY, transform }
     }
 
     pub fn get_position(&self) -> Vec3 {

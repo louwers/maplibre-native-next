@@ -8,7 +8,10 @@ use mln_actor::RunLoop;
 use mln_map::{CameraOptions, Map, MapMode, MapObserver, MapOptions, RenderFrameStatus, RenderMode};
 use mln_platform_default::HeadlessFrontend;
 use mln_platform_default_image::compression::compress;
-use mln_storage::offline::{OfflineRegionDownloadState, OfflineRegionMetadata, OfflineRegionObserver, OfflineRegionStatus, OfflineTilePyramidRegionDefinition};
+use mln_storage::offline::{
+    OfflineRegionDownloadState, OfflineRegionMetadata, OfflineRegionObserver, OfflineRegionStatus,
+    OfflineTilePyramidRegionDefinition,
+};
 use mln_storage::offline_database::OfflineDatabase;
 use mln_storage::resource::{Priority, Usage};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
@@ -22,9 +25,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR")
-        .or_else(|_| std::env::var("RUNFILES_DIR"))
-        .expect("TEST_SRCDIR");
+    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+").join(relative)
 }
 
@@ -67,10 +68,8 @@ fn resource_offline_usage_unset() {
     let dir = std::env::var("TEST_TMPDIR").unwrap_or_else(|_| std::env::temp_dir().to_string_lossy().into_owned());
     let filename = format!("{dir}/offline_download.db");
     let _ = std::fs::remove_file(&filename);
-    let db = Rc::new(RefCell::new(OfflineDatabase::new(
-        filename.as_str(),
-        &TileServerOptions::map_tiler_configuration(),
-    )));
+    let db =
+        Rc::new(RefCell::new(OfflineDatabase::new(filename.as_str(), &TileServerOptions::map_tiler_configuration())));
     let size = Rc::new(Cell::new(0u64));
 
     let region = db

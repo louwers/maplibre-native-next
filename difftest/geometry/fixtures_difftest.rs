@@ -59,14 +59,25 @@ fn geojson_fixtures() {
         }
         cases += 1;
     }
-    println!("geojson.hpp fixtures: {cases} cases, 0 mismatches; parse differs (error text or default-precision numbers) for {parse_differences:?}");
+    println!(
+        "geojson.hpp fixtures: {cases} cases, 0 mismatches; parse differs (error text or default-precision numbers) for {parse_differences:?}"
+    );
 }
 
 fn vt_request(doc: &Json, options: Json, queries: &[(u8, u32, u32)]) -> Json {
     json!({"geojson": doc, "options": options, "queries": queries})
 }
 
-fn vt_options(max_zoom: u8, index_max_zoom: u8, index_max_points: u32, extent: u16, tolerance: f64, buffer: u16, line_metrics: bool, generate_id: bool) -> (Json, geojson_vt::Options) {
+fn vt_options(
+    max_zoom: u8,
+    index_max_zoom: u8,
+    index_max_points: u32,
+    extent: u16,
+    tolerance: f64,
+    buffer: u16,
+    line_metrics: bool,
+    generate_id: bool,
+) -> (Json, geojson_vt::Options) {
     let o = geojson_vt::Options {
         tile: geojson_vt::TileOptions { tolerance, extent, buffer, line_metrics },
         max_zoom,
@@ -127,7 +138,7 @@ fn geojson_vt_fixtures() {
         vt_options(20, 5, 100000, 8192, 0.0, 64, false, true),  // GenerateIds
         vt_options(20, 5, 100000, 8192, 0.0, 64, false, false), // Projection
         vt_options(18, 5, 100000, 4096, 3.0, 1024, false, false), // PolygonClippingBug
-        vt_options(18, 5, 100000, 8192, 3.0, 2048, true, false),  // ClipVertexOnTileBorder
+        vt_options(18, 5, 100000, 8192, 3.0, 2048, true, false), // ClipVertexOnTileBorder
     ];
     let test_tiles: Vec<(u8, u32, u32)> = vec![
         (7, 37, 48),
@@ -208,7 +219,9 @@ fn places() -> Json {
         .iter()
         .map(|f| {
             let mut props = serde_json::Map::new();
-            for key in ["name", "scalerank", "lat_y", "long_x", "region", "featureclass", "comment", "name_alt", "subregion"] {
+            for key in
+                ["name", "scalerank", "lat_y", "long_x", "region", "featureclass", "comment", "name_alt", "subregion"]
+            {
                 if let Some(v) = f["properties"].get(key) {
                     let v = match v {
                         Json::Null => Some(json!("null")),
@@ -245,11 +258,17 @@ fn supercluster_fixtures() {
         (json!({"min_zoom": 0, "max_zoom": 16, "radius": 40, "extent": 512, "min_points": 2, "generate_id": false}), 0),
         (json!({"min_zoom": 0, "max_zoom": 4, "radius": 60, "extent": 256, "min_points": 2, "generate_id": false}), 0),
         (json!({"min_zoom": 0, "max_zoom": 16, "radius": 40, "extent": 512, "min_points": 2, "generate_id": false}), 1),
-        (json!({"min_zoom": 0, "max_zoom": 16, "radius": 100, "extent": 512, "min_points": 2, "generate_id": false}), 1),
+        (
+            json!({"min_zoom": 0, "max_zoom": 16, "radius": 100, "extent": 512, "min_points": 2, "generate_id": false}),
+            1,
+        ),
         (json!({"min_zoom": 0, "max_zoom": 16, "radius": 40, "extent": 512, "min_points": 5, "generate_id": false}), 0),
         (json!({"min_zoom": 0, "max_zoom": 16, "radius": 40, "extent": 512, "min_points": 2, "generate_id": true}), 0),
         (json!({"min_zoom": 0, "max_zoom": 16, "radius": 40, "extent": 512, "min_points": 2, "generate_id": false}), 2),
-        (json!({"min_zoom": 2, "max_zoom": 14, "radius": 50, "extent": 8192, "min_points": 3, "generate_id": false}), 3),
+        (
+            json!({"min_zoom": 2, "max_zoom": 14, "radius": 50, "extent": 8192, "min_points": 3, "generate_id": false}),
+            3,
+        ),
     ];
     let mut clusters = 0;
     for (options, mode) in &option_sets {
@@ -261,7 +280,12 @@ fn supercluster_fixtures() {
         let expected = call(ref_supercluster, &request);
         let actual = supercluster_rust(&request);
         clusters += expected["clusters"].as_array().unwrap().len();
-        assert!(actual == expected, "{options} mode {mode}\nC++  {}\nRust {}", abbreviate(&expected), abbreviate(&actual));
+        assert!(
+            actual == expected,
+            "{options} mode {mode}\nC++  {}\nRust {}",
+            abbreviate(&expected),
+            abbreviate(&actual)
+        );
     }
     println!(
         "supercluster fixtures: {} cases ({} tiles each, {clusters} cluster ids), 0 mismatches",
@@ -274,9 +298,7 @@ fn supercluster_fixtures() {
 fn supercluster_rust(request: &Json) -> Json {
     use feature::{PropertyMap, Value};
     use std::sync::Arc;
-    let geojson::GeoJSON::FeatureCollection(fs) = geojson::convert(&request["features"]).unwrap() else {
-        panic!()
-    };
+    let geojson::GeoJSON::FeatureCollection(fs) = geojson::convert(&request["features"]).unwrap() else { panic!() };
     let o = &request["options"];
     let mut options = supercluster::Options {
         min_zoom: o["min_zoom"].as_u64().unwrap() as u8,
@@ -341,7 +363,8 @@ fn supercluster_rust(request: &Json) -> Json {
     let mut ids: Vec<u32> = Vec::new();
     let mut tiles = Vec::new();
     for t in request["tiles"].as_array().unwrap() {
-        let tile = index.get_tile(t[0].as_u64().unwrap() as u8, t[1].as_u64().unwrap() as u32, t[2].as_u64().unwrap() as u32);
+        let tile =
+            index.get_tile(t[0].as_u64().unwrap() as u8, t[1].as_u64().unwrap() as u32, t[2].as_u64().unwrap() as u32);
         tiles.push(features(&tile));
         for f in &tile {
             if let Some(Value::Uint(id)) = f.properties.get("cluster_id")
@@ -419,10 +442,17 @@ fn kdbush_fixture() {
         .collect();
     let points: Vec<(i32, i32)> = numbers.chunks(2).map(|c| (c[0], c[1])).collect();
     assert_eq!(points.len(), 100);
-    let queries = json!([["range", 20, 30, 50, 70], ["within", 50, 50, 20], ["range", 0, 0, 100, 100], ["within", 0, 0, 200], ["range", 50, 50, 50, 50]]);
+    let queries = json!([
+        ["range", 20, 30, 50, 70],
+        ["within", 50, 50, 20],
+        ["range", 0, 0, 100, 100],
+        ["within", 0, 0, 200],
+        ["range", 50, 50, 50, 50]
+    ]);
     let mut cases = 0;
     for node_size in [10u8, 64, 1, 2, 255] {
-        let expected = call(ref_kdbush, &json!({"type": "i32", "node_size": node_size, "points": points, "queries": queries}));
+        let expected =
+            call(ref_kdbush, &json!({"type": "i32", "node_size": node_size, "points": points, "queries": queries}));
         let index: kdbush::KDBush<i32, usize> = kdbush::KDBush::from_points(&points, node_size);
         let mut results = Vec::new();
         let mut r = Vec::new();

@@ -2,19 +2,19 @@
 // src/mln/style/conversion/property_value.cpp.
 
 use super::function::{
-    convert_function_to_expression, convert_token_string_to_expression,
-    convert_token_string_to_format_expression, convert_token_string_to_image_expression, has_tokens,
+    convert_function_to_expression, convert_token_string_to_expression, convert_token_string_to_format_expression,
+    convert_token_string_to_image_expression, has_tokens,
 };
 use super::{Converter, Convertible, Error, convert};
 use crate::expression::{Image, Kind, Literal, ParsingContext, ValueConverter, downcast, is_expression};
-use mln_expression::formatted::Formatted;
 use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
+use mln_expression::formatted::Formatted;
 use mln_style_types::{
     AlignmentType, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType, IconTextFitType,
-    LightAnchorType, LineCapType, LineJoinType, Position, RasterResamplingType, Rotation,
-    SymbolAnchorType, SymbolPlacementType, SymbolZOrderType, TextJustifyType, TextTransformType,
-    TextWritingModeType, TranslateAnchorType, VariableAnchorOffsetCollection, VisibilityType,
+    LightAnchorType, LineCapType, LineJoinType, Position, RasterResamplingType, Rotation, SymbolAnchorType,
+    SymbolPlacementType, SymbolZOrderType, TextJustifyType, TextTransformType, TextWritingModeType,
+    TranslateAnchorType, VariableAnchorOffsetCollection, VisibilityType,
 };
 use mln_util::{Color, Padding};
 
@@ -133,21 +133,14 @@ where
         expression = convert_function_to_expression::<T>(value, error, convert_tokens);
     } else {
         let constant = convert::<T>(value, error)?;
-        return Some(if convert_tokens {
-            constant.maybe_convert_tokens()
-        } else {
-            PropertyValue::Constant(constant)
-        });
+        return Some(if convert_tokens { constant.maybe_convert_tokens() } else { PropertyValue::Constant(constant) });
     }
 
     let expression = expression?;
     if !allow_data_expressions && !expression.is_feature_constant() {
         error.message = "data expressions not supported".to_owned();
         None
-    } else if !expression.is_feature_constant()
-        || !expression.is_zoom_constant()
-        || !expression.is_runtime_constant()
-    {
+    } else if !expression.is_feature_constant() || !expression.is_zoom_constant() || !expression.is_runtime_constant() {
         Some(PropertyValue::Expression(expression))
     } else if expression.get_expression().get_kind() == Kind::Literal {
         let literal = downcast::<Literal>(expression.get_expression()).expect("Kind::Literal is a Literal");

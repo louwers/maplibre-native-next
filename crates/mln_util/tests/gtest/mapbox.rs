@@ -219,7 +219,10 @@ fn canonicalize_vector_tileset() {
 #[ignore = "TODO(port): util::mapbox canonicalizeTileURL"]
 fn maplibre_canonical_url() {
     let maplibre = map_libre_tile_server_options();
-    assert_eq!("https://demotiles.maplibre.org/style.json", normalize_style_url(&maplibre, "maplibre://maps/style", ""));
+    assert_eq!(
+        "https://demotiles.maplibre.org/style.json",
+        normalize_style_url(&maplibre, "maplibre://maps/style", "")
+    );
     assert_eq!(
         "https://demotiles.maplibre.org/tiles/tiles.json",
         normalize_source_url(&maplibre, "maplibre://tiles/tiles", "").unwrap()
@@ -240,7 +243,10 @@ fn maplibre_canonical_url() {
 fn maptiler_style_url() {
     let maptiler = map_tiler_tile_server_options();
     // Styles
-    assert_eq!("https://api.maptiler.com/maps/basic/style.json", normalize_style_url(&maptiler, "maptiler://maps/basic", ""));
+    assert_eq!(
+        "https://api.maptiler.com/maps/basic/style.json",
+        normalize_style_url(&maptiler, "maptiler://maps/basic", "")
+    );
     assert_eq!(
         "https://api.maptiler.com/maps/basic/style.json?key=abcdef",
         normalize_style_url(&maptiler, "maptiler://maps/basic", "abcdef")

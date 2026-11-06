@@ -28,10 +28,7 @@ fn diff_test(
     include_aa: bool,
     expected_mismatch: u64,
 ) {
-    println!(
-        "comparing {img_path1} to {img_path2}, threshold: {threshold}, includeAA: {}",
-        include_aa as u8
-    );
+    println!("comparing {img_path1} to {img_path2}, threshold: {threshold}, includeAA: {}", include_aa as u8);
 
     let img1 = read_image(img_path1);
     let img2 = read_image(img_path2);
@@ -44,15 +41,7 @@ fn diff_test(
     assert_eq!(img2.len(), size);
     assert_eq!(expected_diff.len(), size);
 
-    let mismatch = pixelmatch::pixelmatch(
-        &img1,
-        &img2,
-        width,
-        height,
-        Some(&mut actual_diff),
-        threshold,
-        include_aa,
-    );
+    let mismatch = pixelmatch::pixelmatch(&img1, &img2, width, height, Some(&mut actual_diff), threshold, include_aa);
 
     assert_eq!(mismatch, expected_mismatch);
     assert!(actual_diff == expected_diff, "diff image differs");

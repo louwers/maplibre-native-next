@@ -11,8 +11,8 @@ use crate::file_source::ProxyFileSource;
 use crate::filesystem;
 use crate::log::{self, Event};
 use crate::metadata::{
-    FileSizeProbe, GfxProbe, GfxProbeMemory, MapDebugOptions, MapMode, MemoryProbe, NetworkProbe,
-    TestMetadata, TestMetrics, TestPaths, TestStatistics,
+    FileSizeProbe, GfxProbe, GfxProbeMemory, MapDebugOptions, MapMode, MemoryProbe, NetworkProbe, TestMetadata,
+    TestMetrics, TestPaths, TestStatistics,
 };
 use crate::runner::{CameraOptions, MapError, TestContext, TestOperation, TestOperations};
 use feature::Value;
@@ -133,16 +133,14 @@ pub fn to_json_features(features: &[mln_util::feature::Feature]) -> String {
 
 /// `readJson(path)`.
 pub fn read_json(json_path: &str) -> Result<serde_json::Value, ErrorMessage> {
-    let bytes = std::fs::read(json_path)
-        .map_err(|_| format!("Unable to open file {json_path}"))?;
+    let bytes = std::fs::read(json_path).map_err(|_| format!("Unable to open file {json_path}"))?;
     serde_json::from_slice(&bytes).map_err(|e| e.to_string())
 }
 
 /// `readJson(path)` keeping the text, for documents the runner hands on
 /// unchanged (style.json).
 pub fn read_json_with_text(json_path: &str) -> Result<(serde_json::Value, String), ErrorMessage> {
-    let bytes = std::fs::read(json_path)
-        .map_err(|_| format!("Unable to open file {json_path}"))?;
+    let bytes = std::fs::read(json_path).map_err(|_| format!("Unable to open file {json_path}"))?;
     let value = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
     let text = String::from_utf8(bytes).map_err(|e| e.to_string())?;
     Ok((value, text))
@@ -174,14 +172,9 @@ impl<'de> Deserialize<'de> for ObjectMembers {
 
 /// `readJson(path)` for a document whose top level is an object, as its
 /// members in document order.
-pub fn read_json_object_members(
-    json_path: &str,
-) -> Result<Vec<(String, serde_json::Value)>, ErrorMessage> {
-    let bytes = std::fs::read(json_path)
-        .map_err(|_| format!("Unable to open file {json_path}"))?;
-    serde_json::from_slice::<ObjectMembers>(&bytes)
-        .map(|members| members.0)
-        .map_err(|e| e.to_string())
+pub fn read_json_object_members(json_path: &str) -> Result<Vec<(String, serde_json::Value)>, ErrorMessage> {
+    let bytes = std::fs::read(json_path).map_err(|_| format!("Unable to open file {json_path}"))?;
+    serde_json::from_slice::<ObjectMembers>(&bytes).map(|members| members.0).map_err(|e| e.to_string())
 }
 
 /// `serializeJsonValue(value)`: compact JSON (rapidjson `Writer`).
@@ -210,12 +203,9 @@ fn read_expected_entries(regex: &Regex, base: &str) -> Vec<String> {
 
 // `std::regex_match` (whole string) with ECMAScript syntax; the patterns are
 // the same in the Rust regex dialect.
-static EXPECTED_IMAGE_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^(?:.*[/\\]expected.*.png)$").unwrap());
-static EXPECTED_METRIC_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^(?:.*[/\\]metrics.json)$").unwrap());
-static EXPECTED_JSON_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^(?:.*[/\\]expected.*.json)$").unwrap());
+static EXPECTED_IMAGE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(?:.*[/\\]expected.*.png)$").unwrap());
+static EXPECTED_METRIC_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(?:.*[/\\]metrics.json)$").unwrap());
+static EXPECTED_JSON_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(?:.*[/\\]expected.*.json)$").unwrap());
 
 pub fn read_expected_image_entries(base: &str) -> Vec<String> {
     read_expected_entries(&EXPECTED_IMAGE_REGEX, base)
@@ -271,11 +261,7 @@ pub fn read_expected_metrics(path: &str) -> TestMetrics {
         for probe_value in file_size_value.as_array().into_iter().flatten() {
             let mark = get_str(index(probe_value, 0)).to_string();
             let file_path = get_str(index(probe_value, 1)).to_string();
-            result.file_size.entry(mark).or_insert(FileSizeProbe::new(
-                file_path,
-                get_u64(index(probe_value, 2)),
-                0.0,
-            ));
+            result.file_size.entry(mark).or_insert(FileSizeProbe::new(file_path, get_u64(index(probe_value, 2)), 0.0));
         }
     }
 
@@ -353,10 +339,7 @@ pub fn parse_test_metadata(paths: &TestPaths) -> TestMetadata {
     };
 
     let Some(test_value) = metadata_value.get("test").cloned() else {
-        log::warning(
-            Event::ParseStyle,
-            &format!("Style has no 'metadata.test': {}", paths.style_path),
-        );
+        log::warning(Event::ParseStyle, &format!("Style has no 'metadata.test': {}", paths.style_path));
         return metadata;
     };
     let test_value = &test_value;
@@ -376,10 +359,7 @@ pub fn parse_test_metadata(paths: &TestPaths) -> TestMetadata {
         } else if map_mode_str == "static" {
             metadata.map_mode = MapMode::Static;
         } else {
-            log::warning(
-                Event::ParseStyle,
-                &format!("Unknown map mode: {map_mode_str}. Falling back to static mode"),
-            );
+            log::warning(Event::ParseStyle, &format!("Unknown map mode: {map_mode_str}. Falling back to static mode"));
             metadata.map_mode = MapMode::Static;
         }
     }
@@ -470,12 +450,7 @@ pub fn parse_test_metadata(paths: &TestPaths) -> TestMetadata {
         let query_options = member(test_value, "queryOptions");
 
         if let Some(layers) = query_options.get("layers") {
-            let layers_vec = layers
-                .as_array()
-                .into_iter()
-                .flatten()
-                .map(|layer| get_str(layer).to_string())
-                .collect();
+            let layers_vec = layers.as_array().into_iter().flatten().map(|layer| get_str(layer).to_string()).collect();
             metadata.query_options.layer_ids = Some(layers_vec);
         }
 
@@ -570,12 +545,10 @@ fn parse_global_state_value(value: &serde_json::Value) -> Value {
                 Value::Double(n.as_f64().unwrap_or(0.0))
             }
         }
-        serde_json::Value::Array(elements) => {
-            Value::Array(elements.iter().map(parse_global_state_value).collect())
+        serde_json::Value::Array(elements) => Value::Array(elements.iter().map(parse_global_state_value).collect()),
+        serde_json::Value::Object(members) => {
+            Value::Object(members.iter().map(|(k, v)| (k.clone(), parse_global_state_value(v))).collect())
         }
-        serde_json::Value::Object(members) => Value::Object(
-            members.iter().map(|(k, v)| (k.clone(), parse_global_state_value(v))).collect(),
-        ),
     }
 }
 
@@ -630,11 +603,7 @@ fn parse_feature_state(state: &serde_json::Value, metadata: &mut TestMetadata) -
         }
         p.parsed_state.insert(k.to_string(), p.state_value.clone());
     }
-    let mut p = Parse {
-        state_value: Value::Null,
-        value_parsed: false,
-        parsed_state: feature::PropertyMap::new(),
-    };
+    let mut p = Parse { state_value: Value::Null, value_parsed: false, parsed_state: feature::PropertyMap::new() };
     if let serde_json::Value::Object(members) = state {
         for (k, v) in members {
             convert(&mut p, k, v, metadata);
@@ -717,8 +686,7 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
                     Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
                     Err(MapError::Exception(what)) => ctx.fail_exception(&what),
                     Err(_) => {
-                        ctx.get_metadata().error_message +=
-                            &format!("Failed to load expected image {image_path}");
+                        ctx.get_metadata().error_message += &format!("Failed to load expected image {image_path}");
                         false
                     }
                 }
@@ -751,10 +719,9 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
             // C++ `LatLng` throws std::domain_error on an invalid latitude or
             // longitude, which the runner does not catch.
             match LatLng::new(get_f64(index(center_array, 1)), get_f64(index(center_array, 0))) {
-                Ok(center) => result.push(camera_operation(CameraOptions {
-                    center: Some(center),
-                    ..CameraOptions::default()
-                })),
+                Ok(center) => {
+                    result.push(camera_operation(CameraOptions { center: Some(center), ..CameraOptions::default() }))
+                }
                 Err(e) => {
                     metadata.error_message = format!("Invalid setCenter operation: {e}");
                     return Vec::new();
@@ -767,10 +734,7 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
         } else if name == SET_BEARING_OP {
             // setBearing
             let bearing = get_f64(arg(1));
-            result.push(camera_operation(CameraOptions {
-                bearing: Some(bearing),
-                ..Default::default()
-            }));
+            result.push(camera_operation(CameraOptions { bearing: Some(bearing), ..Default::default() }));
         } else if name == SET_PITCH_OP {
             // setPitch
             let pitch = get_f64(arg(1));
@@ -782,10 +746,8 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
         } else if name == SET_CENTER_ALTITUDE_OP {
             // setCenterAltitude
             let center_altitude = get_f64(arg(1));
-            result.push(camera_operation(CameraOptions {
-                center_altitude: Some(center_altitude),
-                ..Default::default()
-            }));
+            result
+                .push(camera_operation(CameraOptions { center_altitude: Some(center_altitude), ..Default::default() }));
         } else if name == SET_FILTER_OP {
             // setFilter
             let layer_name = get_str(arg(1)).to_string();
@@ -798,8 +760,7 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
                 match ctx.get_map().set_layer_filter(&layer_name, &filter) {
                     Ok(()) => true,
                     Err(MapError::Conversion(message)) => {
-                        ctx.get_metadata().error_message =
-                            format!("Unable to convert filter: {message}");
+                        ctx.get_metadata().error_message = format!("Unable to convert filter: {message}");
                         false
                     }
                     Err(MapError::LayerNotFound) => {
@@ -847,29 +808,24 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
         } else if name == ADD_LAYER_OP {
             // addLayer
             let json = serialize_json_value(arg(1));
-            result.push(Box::new(move |ctx: &mut TestContext<'_>| {
-                match ctx.get_map().add_layer(&json) {
-                    Ok(()) => true,
-                    Err(MapError::Conversion(message)) => {
-                        ctx.get_metadata().error_message =
-                            format!("Unable to convert layer: {message}");
-                        false
-                    }
-                    Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
-                    Err(MapError::Exception(what)) => ctx.fail_exception(&what),
-                    Err(_) => true,
+            result.push(Box::new(move |ctx: &mut TestContext<'_>| match ctx.get_map().add_layer(&json) {
+                Ok(()) => true,
+                Err(MapError::Conversion(message)) => {
+                    ctx.get_metadata().error_message = format!("Unable to convert layer: {message}");
+                    false
                 }
+                Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
+                Err(MapError::Exception(what)) => ctx.fail_exception(&what),
+                Err(_) => true,
             }));
         } else if name == REMOVE_LAYER_OP {
             // removeLayer
             let layer_name = get_str(arg(1)).to_string();
-            result.push(Box::new(move |ctx: &mut TestContext<'_>| {
-                match ctx.get_map().remove_layer(&layer_name) {
-                    Ok(removed) => removed,
-                    Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
-                    Err(MapError::Exception(what)) => ctx.fail_exception(&what),
-                    Err(_) => false,
-                }
+            result.push(Box::new(move |ctx: &mut TestContext<'_>| match ctx.get_map().remove_layer(&layer_name) {
+                Ok(removed) => removed,
+                Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
+                Err(MapError::Exception(what)) => ctx.fail_exception(&what),
+                Err(_) => false,
             }));
         } else if name == ADD_SOURCE_OP {
             // addSource
@@ -879,8 +835,7 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
                 match ctx.get_map().add_source(&source_name, &json) {
                     Ok(()) => true,
                     Err(MapError::Conversion(message)) => {
-                        ctx.get_metadata().error_message =
-                            format!("Unable to convert source: {message}");
+                        ctx.get_metadata().error_message = format!("Unable to convert source: {message}");
                         false
                     }
                     Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
@@ -891,13 +846,11 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
         } else if name == REMOVE_SOURCE_OP {
             // removeSource
             let source_name = get_str(arg(1)).to_string();
-            result.push(Box::new(move |ctx: &mut TestContext<'_>| {
-                match ctx.get_map().remove_source(&source_name) {
-                    Ok(removed) => removed,
-                    Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
-                    Err(MapError::Exception(what)) => ctx.fail_exception(&what),
-                    Err(_) => false,
-                }
+            result.push(Box::new(move |ctx: &mut TestContext<'_>| match ctx.get_map().remove_source(&source_name) {
+                Ok(removed) => removed,
+                Err(MapError::NotPorted(what)) => ctx.fail_not_ported(&what),
+                Err(MapError::Exception(what)) => ctx.fail_exception(&what),
+                Err(_) => false,
             }));
         } else if name == SET_LAYOUT_PROPERTY_OP || name == SET_PAINT_PROPERTY_OP {
             // set{Paint|Layout}Property
@@ -947,24 +900,19 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
                 }
                 let size = if compressed {
                     let raw = std::fs::read(&file_path).unwrap_or_default();
-                    mln_platform_default_image::compression::compress(&raw)
-                        .map(|c| c.len() as u64)
-                        .unwrap_or(0)
+                    mln_platform_default_image::compression::compress(&raw).map(|c| c.len() as u64).unwrap_or(0)
                 } else {
                     std::fs::metadata(&file_path).map(|m| m.len()).unwrap_or(0)
                 };
 
-                ctx.get_metadata()
-                    .metrics
-                    .file_size
-                    .entry(mark.clone())
-                    .or_insert(FileSizeProbe::new(path.clone(), size, tolerance));
+                ctx.get_metadata().metrics.file_size.entry(mark.clone()).or_insert(FileSizeProbe::new(
+                    path.clone(),
+                    size,
+                    tolerance,
+                ));
                 true
             }));
-        } else if name == MEMORY_PROBE_START_OP
-            || name == MEMORY_PROBE_OP
-            || name == MEMORY_PROBE_END_OP
-        {
+        } else if name == MEMORY_PROBE_START_OP || name == MEMORY_PROBE_OP || name == MEMORY_PROBE_END_OP {
             // TODO(port): probeMemoryStart / probeMemory / probeMemoryEnd need
             // render-test/allocation_index.cpp (a counting global allocator).
             result.push(not_ported(format!("{name} operation (AllocationIndex)")));
@@ -990,10 +938,7 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
                 ProxyFileSource::set_tracking_active(false);
                 true
             }));
-        } else if name == SET_FEATURE_STATE_OP
-            || name == GET_FEATURE_STATE_OP
-            || name == REMOVE_FEATURE_STATE_OP
-        {
+        } else if name == SET_FEATURE_STATE_OP || name == GET_FEATURE_STATE_OP || name == REMOVE_FEATURE_STATE_OP {
             let feature_options = arg(1);
             let source_id = feature_options.get("source").map(|v| get_str(v).to_string()).unwrap_or_default();
             let source_layer: Option<String> = feature_options.get("sourceLayer").map(|v| get_str(v).to_string());
@@ -1013,8 +958,12 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
                 // setFeatureState
                 let parsed_state = parse_feature_state(arg(2), metadata);
                 result.push(Box::new(move |ctx: &mut TestContext<'_>| {
-                    let result =
-                        ctx.get_map().set_feature_state(&source_id, source_layer.as_deref(), &feature_id, &parsed_state);
+                    let result = ctx.get_map().set_feature_state(
+                        &source_id,
+                        source_layer.as_deref(),
+                        &feature_id,
+                        &parsed_state,
+                    );
                     finish(ctx, result)
                 }));
             } else if name == GET_FEATURE_STATE_OP {
@@ -1040,8 +989,7 @@ pub fn parse_test_operations(metadata: &mut TestMetadata) -> TestOperations {
         } else if name == PAN_GESTURE_OP {
             // benchmarkPanGesture
             if metadata.map_mode != MapMode::Continuous {
-                metadata.error_message =
-                    format!("Map mode must be Continuous for {PAN_GESTURE_OP} operation");
+                metadata.error_message = format!("Map mode must be Continuous for {PAN_GESTURE_OP} operation");
                 return Vec::new();
             }
             // TODO(port): flyTo animation with frame-time sampling
@@ -1154,15 +1102,10 @@ fn to_string_u32(v: u32) -> String {
 
 /// `createResultItem(metadata, hasFailedTests)`.
 pub fn create_result_item(metadata: &TestMetadata, has_failed_tests: bool) -> String {
-    let should_hide = (has_failed_tests && metadata.status == "passed")
-        || metadata.status.contains("ignored");
+    let should_hide = (has_failed_tests && metadata.status == "passed") || metadata.status.contains("ignored");
 
     let mut html = String::new();
-    html.push_str(&format!(
-        "<div class=\"test {}{}\">\n",
-        metadata.status,
-        if should_hide { " hide" } else { "" }
-    ));
+    html.push_str(&format!("<div class=\"test {}{}\">\n", metadata.status, if should_hide { " hide" } else { "" }));
     html.push_str(&format!(
         r#"<h2><span class="label" style="background: {}">{}</span> {}</h2>"#,
         metadata.color, metadata.status, metadata.id
@@ -1176,10 +1119,7 @@ pub fn create_result_item(metadata: &TestMetadata, has_failed_tests: bool) -> St
             if metadata.render_test {
                 html.push_str(&format!("<img width={width}"));
                 html.push_str(&format!(" height={height}"));
-                html.push_str(&format!(
-                    " src=\"data:image/png;base64,{}\"",
-                    encode_base64(&metadata.actual)
-                ));
+                html.push_str(&format!(" src=\"data:image/png;base64,{}\"", encode_base64(&metadata.actual)));
                 html.push_str(&format!(
                     " data-alt-src=\"data:image/png;base64,{}\">\n",
                     encode_base64(&metadata.expected)
@@ -1187,30 +1127,20 @@ pub fn create_result_item(metadata: &TestMetadata, has_failed_tests: bool) -> St
 
                 html.push_str(&format!("<img width={width}"));
                 html.push_str(&format!(" height={height}"));
-                html.push_str(&format!(
-                    " src=\"data:image/png;base64,{}\">\n",
-                    encode_base64(&metadata.diff)
-                ));
+                html.push_str(&format!(" src=\"data:image/png;base64,{}\">\n", encode_base64(&metadata.diff)));
             } else {
                 html.push_str(&format!("<img width={width}"));
                 html.push_str(&format!(" height={height}"));
-                html.push_str(&format!(
-                    " src=\"data:image/png;base64,{}\">\n",
-                    encode_base64(&metadata.actual)
-                ));
+                html.push_str(&format!(" src=\"data:image/png;base64,{}\">\n", encode_base64(&metadata.actual)));
             }
         }
     } else {
         // FIXME: there are several places that errorMessage is not filled
         // comment out assert(!metadata.errorMessage.empty());
-        html.push_str(&format!(
-            "<p style=\"color: red\"><strong>Error:</strong> {}</p>\n",
-            metadata.error_message
-        ));
+        html.push_str(&format!("<p style=\"color: red\"><strong>Error:</strong> {}</p>\n", metadata.error_message));
     }
 
-    if metadata.metrics_failed != 0 || metadata.metrics_errored != 0 || metadata.label_cut_off_found != 0
-    {
+    if metadata.metrics_failed != 0 || metadata.metrics_errored != 0 || metadata.label_cut_off_found != 0 {
         html.push_str(&format!(
             "<p style=\"color: red\"><strong>Error:</strong> {}</p>\n",
             metadata.error_message.replace('\n', "<br>")
@@ -1236,12 +1166,7 @@ pub fn create_result_item(metadata: &TestMetadata, has_failed_tests: bool) -> St
 }
 
 /// `createResultPage(stats, metadatas, shuffle, seed)`.
-pub fn create_result_page(
-    stats: &TestStatistics,
-    metadatas: &[TestMetadata],
-    shuffle: bool,
-    seed: u32,
-) -> String {
+pub fn create_result_page(stats: &TestStatistics, metadatas: &[TestMetadata], shuffle: bool, seed: u32) -> String {
     let unsuccessful = stats.errored_tests + stats.failed_tests;
     let mut results_page = String::new();
 
@@ -1342,8 +1267,7 @@ mod tests {
 
     #[test]
     fn global_state_value() {
-        let v: serde_json::Value =
-            serde_json::from_str(r#"[null, true, 1, -1, 1.5, "s", {"a": [2]}]"#).unwrap();
+        let v: serde_json::Value = serde_json::from_str(r#"[null, true, 1, -1, 1.5, "s", {"a": [2]}]"#).unwrap();
         let mut object = feature::ValueObject::new();
         object.insert("a".to_string(), Value::Array(vec![Value::Uint(2)]));
         assert_eq!(

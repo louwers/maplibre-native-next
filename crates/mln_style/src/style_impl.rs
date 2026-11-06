@@ -32,6 +32,7 @@ use crate::expression::GlobalStateMap;
 use crate::image;
 use crate::layer::{self, Layer};
 use crate::light::{self, Light};
+use crate::map::camera::CameraOptions;
 use crate::observer::{NullObserver, Observer, SourceObserver};
 use crate::parser::Parser;
 use crate::source::{self, Source};
@@ -41,14 +42,13 @@ use feature::Value;
 use mln_actor::{TaggedScheduler, scheduler};
 use mln_sprite::{SpriteLoader, SpriteLoaderObserver};
 use mln_storage::{AsyncRequest, FileSource, Resource, Response};
-use std::collections::VecDeque;
-use mln_util::identity::SimpleIdentity;
-use std::cell::RefCell;
-use crate::map::camera::CameraOptions;
 use mln_util::exception::{ExceptionPtr, RuntimeError, StyleLoadException, StyleParseException};
+use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -186,10 +186,7 @@ impl SourceObserver for StyleSourceObserver {
             return;
         };
         shared.borrow_mut().last_error = Some(error.clone());
-        Log::error(
-            Event::Style,
-            format!("Failed to load source {}: {error}", source.get_id()),
-        );
+        Log::error(Event::Style, format!("Failed to load source {}: {error}", source.get_id()));
         let observer = shared_observer(&shared);
         observer.on_source_error(source, error.clone());
         observer.on_resource_error(error);
@@ -289,13 +286,9 @@ impl Impl {
             observer: None,
         }));
         let sprite_loader = SpriteLoader::new(pixel_ratio, thread_pool);
-        sprite_loader.set_observer(Rc::new(StyleSpriteObserver {
-            shared: Rc::downgrade(&shared),
-        }));
-        let source_observer: Rc<dyn SourceObserver> = Rc::new(StyleSourceObserver {
-            shared: Rc::downgrade(&shared),
-            file_source: file_source.clone(),
-        });
+        sprite_loader.set_observer(Rc::new(StyleSpriteObserver { shared: Rc::downgrade(&shared) }));
+        let source_observer: Rc<dyn SourceObserver> =
+            Rc::new(StyleSourceObserver { shared: Rc::downgrade(&shared), file_source: file_source.clone() });
         Impl {
             sprite_loader,
             style_request: None,
@@ -343,9 +336,7 @@ impl Impl {
 
     pub fn load_url(&mut self, url: &str) {
         let Some(file_source) = self.file_source.clone() else {
-            self.observer().on_style_error(StyleLoadException::ptr(
-                "Unable to find resource provider for style url.",
-            ));
+            self.observer().on_style_error(StyleLoadException::ptr("Unable to find resource provider for style url."));
             return;
         };
 
@@ -453,30 +444,18 @@ impl Impl {
         if let Some(file_source) = self.file_source.clone() {
             if parser.sprites.is_empty() {
                 // We identify no sprite with 'default' as string in the sprite loading status.
-                self.shared
-                    .borrow_mut()
-                    .sprites_loading_status
-                    .insert("default".to_owned(), false);
+                self.shared.borrow_mut().sprites_loading_status.insert("default".to_owned(), false);
                 self.sprite_loader.load(None, &*file_source);
             } else {
                 for sprite in &parser.sprites {
-                    self.shared
-                        .borrow_mut()
-                        .sprites_loading_status
-                        .insert(sprite.id.clone(), false);
+                    self.shared.borrow_mut().sprites_loading_status.insert(sprite.id.clone(), false);
                     self.sprite_loader.load(Some(sprite.clone()), &*file_source);
                 }
             }
         } else {
             // We identify no sprite with 'default' as string in the sprite loading status.
-            self.shared
-                .borrow_mut()
-                .sprites_loading_status
-                .insert("default".to_owned(), false);
-            self.on_sprite_error(
-                None,
-                RuntimeError::ptr("Unable to find resource provider for sprite url."),
-            );
+            self.shared.borrow_mut().sprites_loading_status.insert("default".to_owned(), false);
+            self.on_sprite_error(None, RuntimeError::ptr("Unable to find resource provider for sprite url."));
         }
         self.glyph_url = parser.glyph_url.clone();
         self.font_faces = parser.font_faces.clone();
@@ -623,11 +602,7 @@ impl Impl {
     /// (`onLayerChanged`) when dropped if the layer changed.
     pub fn get_layer_mut(&mut self, id: &str) -> Option<LayerRefMut<'_>> {
         let before = self.layers.get(id)?.base_impl();
-        Some(LayerRefMut {
-            style: self,
-            id: id.to_owned(),
-            before,
-        })
+        Some(LayerRefMut { style: self, id: id.to_owned(), before })
     }
 
     /// `addLayer(std::unique_ptr<Layer>, before)`. C++ throws
@@ -636,11 +611,8 @@ impl Impl {
         // TODO: verify source
         if let Some(source) = self.sources.get(&layer.get_source_id()) {
             if !source.supports_layer_type(layer.base_impl().get_type_info()) {
-                let message = format!(
-                    "Layer '{}' is not compatible with source '{}'",
-                    layer.get_id(),
-                    layer.get_source_id()
-                );
+                let message =
+                    format!("Layer '{}' is not compatible with source '{}'", layer.get_id(), layer.get_source_id());
                 return Err(RuntimeError::ptr(message));
             }
         }
@@ -866,8 +838,7 @@ fn state_values_equal(a: &Value, b: &Value) -> bool {
     }
     match (a, b) {
         (Value::Array(array_a), Value::Array(array_b)) => {
-            array_a.len() == array_b.len()
-                && array_a.iter().zip(array_b.iter()).all(|(x, y)| state_values_equal(x, y))
+            array_a.len() == array_b.len() && array_a.iter().zip(array_b.iter()).all(|(x, y)| state_values_equal(x, y))
         }
         (Value::Object(object_a), Value::Object(object_b)) => {
             if object_a.len() != object_b.len() {

@@ -58,11 +58,8 @@ impl DatabaseFileSourceThread {
 
     /// `request(const Resource&, const ActorRef<FileSourceRequest>&)`.
     pub fn request(&self, resource: &Resource, req: &ActorRef<FileSourceRequestState>) {
-        let mut offline_response = if resource.storage_policy != StoragePolicy::Volatile {
-            self.db.borrow_mut().get(resource)
-        } else {
-            None
-        };
+        let mut offline_response =
+            if resource.storage_policy != StoragePolicy::Volatile { self.db.borrow_mut().get(resource) } else { None };
         match &mut offline_response {
             None => {
                 let mut response = Response::new();
@@ -159,32 +156,24 @@ impl DatabaseFileSource {
     /// thread, as in C++.
     pub fn set_database_path(&self, path: &str, callback: Option<Box<dyn FnOnce() + Send>>) {
         let path = path.to_owned();
-        self.impl_
-            .actor()
-            .invoke(move |t: &DatabaseFileSourceThread| t.set_database_path(&path, callback));
+        self.impl_.actor().invoke(move |t: &DatabaseFileSourceThread| t.set_database_path(&path, callback));
     }
 
     /// `runPackDatabaseAutomatically(bool)`.
     pub fn run_pack_database_automatically(&self, autopack: bool) {
-        self.impl_
-            .actor()
-            .invoke(move |t: &DatabaseFileSourceThread| t.run_pack_database_automatically(autopack));
+        self.impl_.actor().invoke(move |t: &DatabaseFileSourceThread| t.run_pack_database_automatically(autopack));
     }
 
     /// `put(resource, response)`.
     pub fn put(&self, resource: &Resource, response: &Response) {
         let resource = resource.clone();
         let response = response.clone();
-        self.impl_
-            .actor()
-            .invoke(move |t: &DatabaseFileSourceThread| t.put(&resource, &response));
+        self.impl_.actor().invoke(move |t: &DatabaseFileSourceThread| t.put(&resource, &response));
     }
 
     /// `setOfflineMapboxTileCountLimit(uint64_t)`.
     pub fn set_offline_mapbox_tile_count_limit(&self, limit: u64) {
-        self.impl_
-            .actor()
-            .invoke(move |t: &DatabaseFileSourceThread| t.set_offline_mapbox_tile_count_limit(limit));
+        self.impl_.actor().invoke(move |t: &DatabaseFileSourceThread| t.set_offline_mapbox_tile_count_limit(limit));
     }
 }
 
@@ -193,9 +182,7 @@ impl FileSource for DatabaseFileSource {
         let req = FileSourceRequest::new(callback);
         let req_ref = req.actor();
         let resource = resource.clone();
-        self.impl_
-            .actor()
-            .invoke(move |t: &DatabaseFileSourceThread| t.request(&resource, &req_ref));
+        self.impl_.actor().invoke(move |t: &DatabaseFileSourceThread| t.request(&resource, &req_ref));
         Box::new(req)
     }
 
@@ -208,9 +195,7 @@ impl FileSource for DatabaseFileSource {
             callback.map(|callback| Box::new(scheduler::bind_once(&scheduler::get_current(), callback)) as _);
         let res = res.clone();
         let response = response.clone();
-        self.impl_
-            .actor()
-            .invoke(move |t: &DatabaseFileSourceThread| t.forward(&res, &response, wrapper));
+        self.impl_.actor().invoke(move |t: &DatabaseFileSourceThread| t.forward(&res, &response, wrapper));
     }
 
     fn can_request(&self, resource: &Resource) -> bool {
@@ -223,9 +208,7 @@ impl FileSource for DatabaseFileSource {
         match value {
             Value::Bool(read_only) if key == READ_ONLY_MODE_KEY => {
                 let read_only = *read_only;
-                self.impl_
-                    .actor()
-                    .invoke(move |t: &DatabaseFileSourceThread| t.reopen_database_read_only(read_only));
+                self.impl_.actor().invoke(move |t: &DatabaseFileSourceThread| t.reopen_database_read_only(read_only));
             }
             _ => {
                 let message = format!("Resource provider does not support property {key}");

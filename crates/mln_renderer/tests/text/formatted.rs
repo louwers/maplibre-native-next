@@ -34,8 +34,7 @@ fn empty() {
     let multiple_empty_sections = Formatted::new(vec![empty_text.clone(), empty_text.clone(), empty_text.clone()]);
     assert!(multiple_empty_sections.empty());
 
-    let multiple_empty_sections_with_image =
-        Formatted::new(vec![empty_text.clone(), empty_image, empty_text.clone()]);
+    let multiple_empty_sections_with_image = Formatted::new(vec![empty_text.clone(), empty_image, empty_text.clone()]);
     assert!(multiple_empty_sections_with_image.empty());
 
     let text = text_section("Formatted");

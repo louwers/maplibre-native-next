@@ -2,9 +2,9 @@
 // src/mln/renderer/layers/line_layer_tweaker.cpp (MLN_RENDER_BACKEND_WEBGPU
 // and MLN_UBO_CONSOLIDATION branches; the GPU expressions are Metal-only).
 
-use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, slot_bucket, get_drawable_render_tile};
+use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
 use crate::buckets::line_bucket::LineBucket;
-use crate::layer_tweaker::{get_tile_matrix, LayerTweaker, LayerTweakerBase};
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
 use crate::line_atlas::LinePatternCap;
 use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
@@ -15,7 +15,7 @@ use mln_gfx::shaders::shader_defines::{
 };
 use mln_gfx::{LayerGroupBase, UniformBufferPtr};
 use mln_style::expression::Image;
-use mln_style::layer_properties::{get_crossfade, get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
 use mln_style::layers::line_layer_properties::*;
 use mln_style::properties::Property;
 use mln_style::renderer::cross_faded_property_evaluator::Faded;
@@ -269,8 +269,10 @@ impl LayerTweaker for LineLayerTweaker {
                 }
 
                 Some(line_type @ (LineType::SDF | LineType::GradientSDF)) => {
-                    let line_pattern_cap =
-                        drawable.get_data().and_then(|d| d.downcast_ref::<LineDrawableData>()).map(|d| d.line_pattern_cap);
+                    let line_pattern_cap = drawable
+                        .get_data()
+                        .and_then(|d| d.downcast_ref::<LineDrawableData>())
+                        .map(|d| d.line_pattern_cap);
                     if let Some(cap) = line_pattern_cap {
                         let mut line_atlas = parameters.line_atlas.borrow_mut();
                         let dash_pattern_texture = line_atlas.get_dash_pattern_texture(

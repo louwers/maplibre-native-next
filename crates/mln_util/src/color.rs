@@ -64,35 +64,19 @@ struct Hcl {
 }
 
 fn rgb2xyz(x: f64) -> f64 {
-    if x <= 0.04045 {
-        x / 12.92
-    } else {
-        ((x + 0.055) / 1.055).powf(2.4)
-    }
+    if x <= 0.04045 { x / 12.92 } else { ((x + 0.055) / 1.055).powf(2.4) }
 }
 
 fn xyz2lab(t: f64) -> f64 {
-    if t > T3 {
-        t.powf(1.0 / 3.0)
-    } else {
-        t / T2 + T0
-    }
+    if t > T3 { t.powf(1.0 / 3.0) } else { t / T2 + T0 }
 }
 
 fn lab2xyz(t: f64) -> f64 {
-    if t > T1 {
-        t * t * t
-    } else {
-        T2 * (t - T0)
-    }
+    if t > T1 { t * t * t } else { T2 * (t - T0) }
 }
 
 fn xyz2rgb(x: f64) -> f64 {
-    let x = if x <= 0.00304 {
-        12.92 * x
-    } else {
-        1.055 * x.powf(1.0 / 2.4) - 0.055
-    };
+    let x = if x <= 0.00304 { 12.92 * x } else { 1.055 * x.powf(1.0 / 2.4) - 0.055 };
     // std::clamp(x, 0.0, 1.0): `x < lo ? lo : hi < x ? hi : x` (NaN and -0.0
     // pass through).
     if x < 0.0 {
@@ -106,11 +90,7 @@ fn xyz2rgb(x: f64) -> f64 {
 
 fn constrain_angle(angle: f64) -> f64 {
     let angle = angle % 360.0;
-    if angle < 0.0 {
-        angle + 360.0
-    } else {
-        angle
-    }
+    if angle < 0.0 { angle + 360.0 } else { angle }
 }
 
 fn rgb_to_lab(c: Rgb) -> Lab {
@@ -125,12 +105,7 @@ fn rgb_to_lab(c: Rgb) -> Lab {
         z = xyz2lab((0.0139322 * r + 0.0971045 * g + 0.7141733 * b) / ZN);
     }
     let l = 116.0 * y - 16.0;
-    Lab {
-        l: if l < 0.0 { 0.0 } else { l },
-        a: 500.0 * (x - y),
-        b: 200.0 * (y - z),
-        alpha: c.a,
-    }
+    Lab { l: if l < 0.0 { 0.0 } else { l }, a: 500.0 * (x - y), b: 200.0 * (y - z), alpha: c.a }
 }
 
 fn lab_to_rgb(c: Lab) -> Rgb {
@@ -156,36 +131,17 @@ fn rgb_to_hcl(rgb: Rgb) -> Hcl {
     } else {
         f64::NAN
     };
-    Hcl {
-        h,
-        c,
-        l: lab.l,
-        alpha: lab.alpha,
-    }
+    Hcl { h, c, l: lab.l, alpha: lab.alpha }
 }
 
 fn hcl_to_rgb(c: Hcl) -> Rgb {
-    let h = if c.h.is_nan() {
-        0.0
-    } else {
-        c.h * std::f64::consts::PI / 180.0
-    };
-    lab_to_rgb(Lab {
-        l: c.l,
-        a: h.cos() * c.c,
-        b: h.sin() * c.c,
-        alpha: c.alpha,
-    })
+    let h = if c.h.is_nan() { 0.0 } else { c.h * std::f64::consts::PI / 180.0 };
+    lab_to_rgb(Lab { l: c.l, a: h.cos() * c.c, b: h.sin() * c.c, alpha: c.alpha })
 }
 
 fn straight(color: &Color) -> Rgb {
     if color.a == 0.0 {
-        return Rgb {
-            r: 0.0,
-            g: 0.0,
-            b: 0.0,
-            a: 0.0,
-        };
+        return Rgb { r: 0.0, g: 0.0, b: 0.0, a: 0.0 };
     }
     Rgb {
         r: (color.r / color.a) as f64,
@@ -196,12 +152,7 @@ fn straight(color: &Color) -> Rgb {
 }
 
 fn premultiplied(c: Rgb) -> Color {
-    Color::new(
-        (c.r * c.a) as f32,
-        (c.g * c.a) as f32,
-        (c.b * c.a) as f32,
-        c.a as f32,
-    )
+    Color::new((c.r * c.a) as f32, (c.g * c.a) as f32, (c.b * c.a) as f32, c.a as f32)
 }
 
 fn lerp(a: f64, b: f64, t: f64) -> f64 {
@@ -296,11 +247,7 @@ impl Color {
                 }
                 premultiplied(hcl_to_rgb(Hcl {
                     h: hue,
-                    c: if chroma.is_nan() {
-                        lerp(a.c, b.c, t)
-                    } else {
-                        chroma
-                    },
+                    c: if chroma.is_nan() { lerp(a.c, b.c, t) } else { chroma },
                     l: lerp(a.l, b.l, t),
                     alpha: lerp(a.alpha, b.alpha, t),
                 }))
@@ -374,12 +321,7 @@ impl std::ops::Mul<f32> for Color {
     type Output = Color;
     fn mul(self, alpha: f32) -> Color {
         debug_assert!((0.0..=1.0).contains(&alpha));
-        Color {
-            r: self.r * alpha,
-            g: self.g * alpha,
-            b: self.b * alpha,
-            a: self.a * alpha,
-        }
+        Color { r: self.r * alpha, g: self.g * alpha, b: self.b * alpha, a: self.a * alpha }
     }
 }
 

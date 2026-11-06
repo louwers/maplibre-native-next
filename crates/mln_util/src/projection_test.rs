@@ -12,11 +12,7 @@ fn double_eq(a: f64, b: f64) -> bool {
     }
     fn biased(f: f64) -> u64 {
         let bits = f.to_bits();
-        if bits & 0x8000_0000_0000_0000 != 0 {
-            (!bits).wrapping_add(1)
-        } else {
-            0x8000_0000_0000_0000 | bits
-        }
+        if bits & 0x8000_0000_0000_0000 != 0 { (!bits).wrapping_add(1) } else { 0x8000_0000_0000_0000 | bits }
     }
     let (ba, bb) = (biased(a), biased(b));
     (if ba >= bb { ba - bb } else { bb - ba }) <= 4
@@ -25,14 +21,7 @@ fn double_eq(a: f64, b: f64) -> bool {
 macro_rules! expect_double_eq {
     ($a:expr, $b:expr) => {{
         let (a, b): (f64, f64) = ($a, $b);
-        assert!(
-            double_eq(a, b),
-            "EXPECT_DOUBLE_EQ({}, {}): {:?} vs {:?}",
-            stringify!($a),
-            stringify!($b),
-            a,
-            b
-        );
+        assert!(double_eq(a, b), "EXPECT_DOUBLE_EQ({}, {}): {:?} vs {:?}", stringify!($a), stringify!($b), a, b);
     }};
 }
 
@@ -102,27 +91,15 @@ fn boundaries() {
 fn meters_per_pixel_at_latitude() {
     let mut zoom = 0.0;
     expect_near!(Projection::get_meters_per_pixel_at_latitude(0.0, zoom), 78271.516964020484, 1e-7);
-    expect_near!(
-        Projection::get_meters_per_pixel_at_latitude(-LATITUDE_MAX, zoom),
-        6752.2284729446501,
-        1e-7
-    );
+    expect_near!(Projection::get_meters_per_pixel_at_latitude(-LATITUDE_MAX, zoom), 6752.2284729446501, 1e-7);
     expect_double_eq!(
         Projection::get_meters_per_pixel_at_latitude(LATITUDE_MAX, zoom),
         Projection::get_meters_per_pixel_at_latitude(-LATITUDE_MAX, zoom)
     );
 
     zoom = 20.0;
-    expect_near!(
-        Projection::get_meters_per_pixel_at_latitude(0.0, zoom),
-        0.074645535434742435,
-        1e-7
-    );
-    expect_near!(
-        Projection::get_meters_per_pixel_at_latitude(-LATITUDE_MAX, zoom),
-        0.0064394268731543065,
-        1e-7
-    );
+    expect_near!(Projection::get_meters_per_pixel_at_latitude(0.0, zoom), 0.074645535434742435, 1e-7);
+    expect_near!(Projection::get_meters_per_pixel_at_latitude(-LATITUDE_MAX, zoom), 0.0064394268731543065, 1e-7);
 
     // std::numeric_limits<double>::lowest() / max()
     expect_double_eq!(
@@ -183,14 +160,8 @@ fn projected_meters() {
 #[test]
 fn invalid_projected_meters() {
     // C++ `ProjectedMeters{NAN}`: the easting defaults to 0.
-    assert_eq!(
-        ProjectedMeters::new(f64::NAN, 0.0).unwrap_err(),
-        "northing must not be NaN"
-    );
-    assert_eq!(
-        ProjectedMeters::new(0.0, f64::NAN).unwrap_err(),
-        "easting must not be NaN"
-    );
+    assert_eq!(ProjectedMeters::new(f64::NAN, 0.0).unwrap_err(), "northing must not be NaN");
+    assert_eq!(ProjectedMeters::new(0.0, f64::NAN).unwrap_err(), "easting must not be NaN");
 }
 
 // Not in the C++ suite: the int-zoom `project` overload and the throwing
@@ -206,8 +177,7 @@ fn project_zoom_and_unproject_errors() {
         Projection::unproject(&Point::new(f64::NAN, 0.0), 1.0, WrapMode::Unwrapped).unwrap_err(),
         "longitude must not be NaN"
     );
-    let wrapped = Projection::unproject(&Point::new(TILE_SIZE_D * 1.5, 256.0), 1.0, WrapMode::Wrapped)
-        .unwrap();
+    let wrapped = Projection::unproject(&Point::new(TILE_SIZE_D * 1.5, 256.0), 1.0, WrapMode::Wrapped).unwrap();
     // Unwrapped longitude 360 wraps to 0.
     assert_eq!(wrapped.longitude(), 0.0);
 }

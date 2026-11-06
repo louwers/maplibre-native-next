@@ -6,8 +6,11 @@
 
 #[test]
 fn clear_offscreen_texture_and_read_back() {
-    let backends = wgpu::Backends::from_env()
-        .unwrap_or(if cfg!(target_os = "linux") { wgpu::Backends::VULKAN } else { wgpu::Backends::all() });
+    let backends = wgpu::Backends::from_env().unwrap_or(if cfg!(target_os = "linux") {
+        wgpu::Backends::VULKAN
+    } else {
+        wgpu::Backends::all()
+    });
     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
         backends,
         ..wgpu::InstanceDescriptor::new_without_display_handle()
@@ -20,10 +23,9 @@ fn clear_offscreen_texture_and_read_back() {
     let info = adapter.get_info();
     eprintln!("adapter: {} ({:?}, {:?})", info.name, info.backend, info.device_type);
 
-    let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor {
-        label: Some("smoke test device"),
-        ..Default::default()
-    }))
+    let (device, queue) = pollster::block_on(
+        adapter.request_device(&wgpu::DeviceDescriptor { label: Some("smoke test device"), ..Default::default() }),
+    )
     .expect("request_device failed");
 
     let (width, height) = (64u32, 32u32);
@@ -90,9 +92,7 @@ fn clear_offscreen_texture_and_read_back() {
 
     let (tx, rx) = std::sync::mpsc::channel();
     readback.map_async(wgpu::MapMode::Read, .., move |r| tx.send(r).unwrap());
-    device
-        .poll(wgpu::PollType::Wait { submission_index: None, timeout: None })
-        .expect("poll failed");
+    device.poll(wgpu::PollType::Wait { submission_index: None, timeout: None }).expect("poll failed");
     rx.recv().unwrap().expect("map_async failed");
 
     let mapped = readback.get_mapped_range(..).expect("get_mapped_range failed");

@@ -43,10 +43,7 @@ impl ColorRampPropertyValue {
             }
             _ => None,
         };
-        ColorRampPropertyValue {
-            value,
-            global_state_refs,
-        }
+        ColorRampPropertyValue { value, global_state_refs }
     }
 
     pub fn is_undefined(&self) -> bool {
@@ -76,9 +73,7 @@ impl ColorRampPropertyValue {
 
     /// `getExpression()`; C++ requires a defined value.
     pub fn get_expression(&self) -> &dyn Expression {
-        self.value
-            .as_deref()
-            .expect("ColorRampPropertyValue::get_expression on an undefined value")
+        self.value.as_deref().expect("ColorRampPropertyValue::get_expression on an undefined value")
     }
 
     pub fn get_dependencies(&self) -> Dependency {

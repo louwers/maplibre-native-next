@@ -107,11 +107,8 @@ fn main() {
         std::process::exit(1);
     };
     let expected = [51u8, 102, 204, 255];
-    let matching = image
-        .data
-        .chunks_exact(4)
-        .filter(|px| px.iter().zip(expected).all(|(&a, b)| a.abs_diff(b) <= 1))
-        .count();
+    let matching =
+        image.data.chunks_exact(4).filter(|px| px.iter().zip(expected).all(|(&a, b)| a.abs_diff(b) <= 1)).count();
     let total = image.data.len() / 4;
     println!(
         "read back {}x{} after {frames} frames: {matching}/{total} pixels are rgba{expected:?}",

@@ -13,13 +13,14 @@
 use crate::bucket::{Bucket, BucketBase, FeatureStates};
 use crate::layout::symbol_instance::SymbolInstance;
 use crate::paint_property_binder::PaintPropertyBinder;
+use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::symbol_layer_impl::SymbolLayerPaintPropertyOverrides;
 use mln_style::layers::symbol_layer_properties::*;
-use mln_style::property_value::PropertyValue;
 use mln_style::property_expression::PropertyExpression;
+use mln_style::property_value::PropertyValue;
 use mln_style_types::image::ImagePositions;
 use mln_style_types::{TextWritingModeType, VariableAnchorOffsetCollection};
 use mln_text::glyph::WritingModeType;
@@ -27,7 +28,6 @@ use mln_tile_id::geometry_tile_data::{GeometryCoordinates, GeometryTileFeature, 
 use mln_util::Color;
 use mln_util::immutable::Immutable;
 use mln_util::range::Range;
-use geometry::Point;
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock, RwLock};
@@ -211,11 +211,7 @@ impl SymbolSizeBinder {
                     // tileZoom + 1] in order to be consistent with this
                     // restriction on composite functions.
                     let expression = expression.as_ref().expect("expression");
-                    let t = mln_math::clamp_f32(
-                        expression.interpolation_factor(*zoom_levels, current_zoom),
-                        0.0,
-                        1.0,
-                    );
+                    let t = mln_math::clamp_f32(expression.interpolation_factor(*zoom_levels, current_zoom), 0.0, 1.0);
                     size = size_levels.min + t * (size_levels.max - size_levels.min);
                 } else if let Some(expression) = expression {
                     size = expression.evaluate_zoom(current_zoom);
@@ -236,11 +232,8 @@ impl SymbolSizeBinder {
                 layout_size: unused,
             },
             SymbolSizeBinder::CompositeFunction { expression, covering_zoom_stops, .. } => {
-                let size_interpolation_t = mln_math::clamp_f32(
-                    expression.interpolation_factor(*covering_zoom_stops, current_zoom),
-                    0.0,
-                    1.0,
-                );
+                let size_interpolation_t =
+                    mln_math::clamp_f32(expression.interpolation_factor(*covering_zoom_stops, current_zoom), 0.0, 1.0);
                 ZoomEvaluatedSize {
                     is_zoom_constant: false,
                     is_feature_constant: false,
@@ -447,8 +440,8 @@ impl SymbolBucket {
         placement_modes: Vec<TextWritingModeType>,
         icons_in_text: bool,
     ) -> Self {
-        let icon_size_data_driven_or_zoom =
-            icon_size.is_expression() && (!icon_size.as_expression().is_feature_constant() || !icon_size.as_expression().is_zoom_constant());
+        let icon_size_data_driven_or_zoom = icon_size.is_expression()
+            && (!icon_size.as_expression().is_feature_constant() || !icon_size.as_expression().is_zoom_constant());
         let mut binders = BTreeMap::new();
         for (id, properties) in paint_properties {
             let evaluated = get_evaluated::<SymbolLayerProperties>(properties);
@@ -480,11 +473,7 @@ impl SymbolBucket {
             dynamic_version: AtomicU32::new(0),
             sort_version: AtomicU32::new(0),
             binder_version: AtomicU32::new(0),
-            state: Mutex::new(SymbolBucketState {
-                sorted_angle: f32::MAX,
-                symbol_instances,
-                ..Default::default()
-            }),
+            state: Mutex::new(SymbolBucketState { sorted_angle: f32::MAX, symbol_instances, ..Default::default() }),
         }
     }
 
@@ -658,8 +647,8 @@ impl SymbolBucket {
         pixel_offset: Point<f32>,
         min_font_scale: Point<f32>,
     ) -> SymbolLayoutVertex {
-        let a_size_min = (MAX_PACKED_SIZE.min(cast_u16(size_data.min * SIZE_PACK_FACTOR as f32)) << 1)
-            .wrapping_add(is_sdf as u16);
+        let a_size_min =
+            (MAX_PACKED_SIZE.min(cast_u16(size_data.min * SIZE_PACK_FACTOR as f32)) << 1).wrapping_add(is_sdf as u16);
         let a_size_max = MAX_PACKED_SIZE.min(cast_u16(size_data.max * SIZE_PACK_FACTOR as f32));
         SymbolLayoutVertex {
             // combining pos and offset to reduce number of vertex attributes
@@ -726,16 +715,8 @@ fn add_placed_symbol(triangles: &mut Vec<u16>, placed_symbol: &PlacedSymbol) {
     let end_index = placed_symbol.start_index + placed_symbol.glyph_offsets.len() * 4;
     let mut vertex_index = placed_symbol.start_index;
     while vertex_index < end_index {
-        triangles.extend_from_slice(&[
-            (vertex_index + 0) as u16,
-            (vertex_index + 1) as u16,
-            (vertex_index + 2) as u16,
-        ]);
-        triangles.extend_from_slice(&[
-            (vertex_index + 1) as u16,
-            (vertex_index + 2) as u16,
-            (vertex_index + 3) as u16,
-        ]);
+        triangles.extend_from_slice(&[(vertex_index + 0) as u16, (vertex_index + 1) as u16, (vertex_index + 2) as u16]);
+        triangles.extend_from_slice(&[(vertex_index + 1) as u16, (vertex_index + 2) as u16, (vertex_index + 3) as u16]);
         vertex_index += 4;
     }
 }

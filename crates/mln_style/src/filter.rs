@@ -14,10 +14,7 @@ pub struct Filter {
 
 impl Filter {
     pub fn new(expression: Option<Arc<dyn Expression>>, legacy_filter: Option<Value>) -> Self {
-        Filter {
-            expression,
-            legacy_filter,
-        }
+        Filter { expression, legacy_filter }
     }
 
     /// `operator bool()`.

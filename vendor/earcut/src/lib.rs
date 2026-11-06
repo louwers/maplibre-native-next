@@ -203,11 +203,7 @@ impl<N: Index> Earcut<N> {
             let dx = self.max_x - self.min_x;
             let dy = self.max_y - self.min_y;
             self.inv_size = if dx < dy { dy } else { dx };
-            self.inv_size = if self.inv_size != 0.0 {
-                1.0 / self.inv_size
-            } else {
-                0.0
-            };
+            self.inv_size = if self.inv_size != 0.0 { 1.0 / self.inv_size } else { 0.0 };
         }
 
         self.earcut_linked(outer_node, 0);
@@ -309,11 +305,7 @@ impl<N: Index> Earcut<N> {
             let prev = self.nodes[ear].prev;
             let next = self.nodes[ear].next;
 
-            let is_ear = if self.hashing {
-                self.is_ear_hashed(ear)
-            } else {
-                self.is_ear(ear)
-            };
+            let is_ear = if self.hashing { self.is_ear_hashed(ear) } else { self.is_ear(ear) };
             if is_ear {
                 // cut off the triangle
                 self.indices.push(self.nodes[prev].i);
@@ -648,11 +640,7 @@ impl<N: Index> Earcut<N> {
 
         loop {
             let z = self.nodes[p].z;
-            let z = if z != 0 {
-                z
-            } else {
-                self.z_order(self.nodes[p].x, self.nodes[p].y)
-            };
+            let z = if z != 0 { z } else { self.z_order(self.nodes[p].x, self.nodes[p].y) };
             let pn = &mut self.nodes[p];
             pn.z = z;
             pn.prev_z = pn.prev;
@@ -877,7 +865,8 @@ impl<N: Index> Earcut<N> {
         loop {
             let pn = &self.nodes[p];
             let nn = &self.nodes[pn.next];
-            if ((pn.y > py) != (nn.y > py)) && nn.y != pn.y && (px < (nn.x - pn.x) * (py - pn.y) / (nn.y - pn.y) + pn.x) {
+            if ((pn.y > py) != (nn.y > py)) && nn.y != pn.y && (px < (nn.x - pn.x) * (py - pn.y) / (nn.y - pn.y) + pn.x)
+            {
                 inside = !inside;
             }
             p = pn.next;
@@ -914,17 +903,7 @@ impl<N: Index> Earcut<N> {
     }
 
     fn new_node(&mut self, i: N, x: f64, y: f64) -> usize {
-        self.nodes.push(Node {
-            i,
-            x,
-            y,
-            prev: NIL,
-            next: NIL,
-            z: 0,
-            prev_z: NIL,
-            next_z: NIL,
-            steiner: false,
-        });
+        self.nodes.push(Node { i, x, y, prev: NIL, next: NIL, z: 0, prev_z: NIL, next_z: NIL, steiner: false });
         self.nodes.len() - 1
     }
 
@@ -947,13 +926,7 @@ impl<N: Index> Earcut<N> {
     }
 
     fn remove_node(&mut self, p: usize) {
-        let Node {
-            prev,
-            next,
-            prev_z,
-            next_z,
-            ..
-        } = self.nodes[p];
+        let Node { prev, next, prev_z, next_z, .. } = self.nodes[p];
         self.nodes[next].prev = prev;
         self.nodes[prev].next = next;
 

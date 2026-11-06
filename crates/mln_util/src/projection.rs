@@ -37,10 +37,7 @@ impl ProjectedMeters {
         if e.is_nan() {
             return Err("easting must not be NaN".to_owned());
         }
-        Ok(ProjectedMeters {
-            northing: n,
-            easting: e,
-        })
+        Ok(ProjectedMeters { northing: n, easting: e })
     }
 
     pub fn northing(&self) -> f64 {
@@ -66,14 +63,12 @@ impl Projection {
         let constrained_zoom = clamp_f64(zoom, MIN_ZOOM, MAX_ZOOM);
         let constrained_scale = 2.0f64.powf(constrained_zoom);
         let constrained_latitude = clamp_f64(lat, -LATITUDE_MAX, LATITUDE_MAX);
-        deg2rad(constrained_latitude).cos() * M2PI * EARTH_RADIUS_M
-            / Self::world_size(constrained_scale)
+        deg2rad(constrained_latitude).cos() * M2PI * EARTH_RADIUS_M / Self::world_size(constrained_scale)
     }
 
     pub fn projected_meters_for_lat_lng(lat_lng: &LatLng) -> ProjectedMeters {
         let constrained_latitude = clamp_f64(lat_lng.latitude(), -LATITUDE_MAX, LATITUDE_MAX);
-        let constrained_longitude =
-            clamp_f64(lat_lng.longitude(), -LONGITUDE_MAX, LONGITUDE_MAX);
+        let constrained_longitude = clamp_f64(lat_lng.longitude(), -LONGITUDE_MAX, LONGITUDE_MAX);
 
         let m = 1.0 - 1e-15;
         let f = clamp_f64(deg2rad(constrained_latitude).sin(), -m, m);
@@ -88,9 +83,7 @@ impl Projection {
     /// Not noexcept in C++, but the clamps keep both values in range (a NaN
     /// clamps to the upper bound), so the LatLng constructor cannot throw.
     pub fn lat_lng_for_projected_meters(projected_meters: &ProjectedMeters) -> LatLng {
-        let mut latitude = rad2deg(
-            2.0 * (projected_meters.northing() / EARTH_RADIUS_M).exp().atan() - (PI / 2.0),
-        );
+        let mut latitude = rad2deg(2.0 * (projected_meters.northing() / EARTH_RADIUS_M).exp().atan() - (PI / 2.0));
         let mut longitude = rad2deg(projected_meters.easting()) / EARTH_RADIUS_M;
 
         latitude = clamp_f64(latitude, -LATITUDE_MAX, LATITUDE_MAX);

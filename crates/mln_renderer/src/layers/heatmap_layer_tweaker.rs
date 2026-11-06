@@ -58,7 +58,8 @@ impl LayerTweaker for HeatmapLayerTweaker {
                 intensity: *evaluated.get::<HeatmapIntensity>(),
                 padding: 0.0,
             };
-            context.emplace_or_update_uniform_buffer_pod(&mut self.evaluated_props_uniform_buffer, &evaluated_props_ubo);
+            context
+                .emplace_or_update_uniform_buffer_pod(&mut self.evaluated_props_uniform_buffer, &evaluated_props_ubo);
             self.base.properties_updated = false;
         }
         layer_group
@@ -129,8 +130,6 @@ impl LayerTweaker for HeatmapLayerTweaker {
             }
         }
 
-        layer_group
-            .mutable_uniform_buffers()
-            .set(ID_HEATMAP_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
+        layer_group.mutable_uniform_buffers().set(ID_HEATMAP_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
     }
 }

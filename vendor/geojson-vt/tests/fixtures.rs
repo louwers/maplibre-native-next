@@ -8,8 +8,8 @@
 // and the ids; the coordinates are not compared. The port compares the
 // same. //difftest/geometry compares everything exactly against the C++.
 
-use geojson_vt::{EMPTY_TILE, GeoJSONVT, Options, TileOptions, geojson_to_tile};
 use feature::{Feature, Identifier, PropertyMap, Value};
+use geojson_vt::{EMPTY_TILE, GeoJSONVT, Options, TileOptions, geojson_to_tile};
 use geometry::{Geometry, Point};
 use serde_json::Value as Json;
 use std::collections::BTreeMap;
@@ -19,9 +19,7 @@ fn load_file(name: &str) -> String {
     let root = std::env::var_os("RUNFILES_DIR")
         .or_else(|| std::env::var_os("TEST_SRCDIR"))
         .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    let path = std::path::Path::new(&root)
-        .join("maplibre+/vendor/maplibre-native-base/deps/geojson-vt-cpp")
-        .join(name);
+    let path = std::path::Path::new(&root).join("maplibre+/vendor/maplibre-native-base/deps/geojson-vt-cpp").join(name);
     std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 
@@ -162,11 +160,7 @@ fn parse_json_tile_str(data: &str) -> Vec<Feature<i16>> {
 
 fn parse_json_tiles(data: &str) -> BTreeMap<String, Vec<Feature<i16>>> {
     let d: Json = serde_json::from_str(data).unwrap();
-    d.as_object()
-        .unwrap()
-        .iter()
-        .map(|(k, v)| (k.clone(), parse_json_tile(v)))
-        .collect()
+    d.as_object().unwrap().iter().map(|(k, v)| (k.clone(), parse_json_tile(v))).collect()
 }
 
 fn feature_collection(geojson: &geojson::GeoJSON) -> &Vec<Feature<f64>> {
@@ -287,9 +281,7 @@ fn get_tile_projection() {
         let tile = index.get_tile(z, x, y).unwrap();
         assert_eq!(tile.num_points, tile.num_simplified);
         assert_eq!(tile.features.len(), 1);
-        let Geometry::LineString(line_string) = &tile.features[0].geometry else {
-            panic!("not a line string")
-        };
+        let Geometry::LineString(line_string) = &tile.features[0].geometry else { panic!("not a line string") };
         assert_eq!(line_string.len(), 2);
 
         let total_features = f64::from(1u32 << z) * 8192.0;
@@ -397,10 +389,7 @@ fn geojson_to_tile_simple() {
 
     assert_eq!(tile.features.len(), 1);
     let props = &tile.features[0].properties;
-    assert_eq!(
-        property_string(props, "name"),
-        "P Street Northwest - Massachusetts Avenue Northwest"
-    );
+    assert_eq!(property_string(props, "name"), "P Street Northwest - Massachusetts Avenue Northwest");
 }
 
 #[test]
@@ -416,12 +405,7 @@ fn geojson_to_tile_clips() {
 #[test]
 fn geojson_to_tile_metrics() {
     let geojson = geojson::parse(&load_file("test/fixtures/single-tile.json")).unwrap();
-    let options = TileOptions {
-        line_metrics: true,
-        buffer: 64,
-        tolerance: 3.0,
-        ..TileOptions::default()
-    };
+    let options = TileOptions { line_metrics: true, buffer: 64, tolerance: 3.0, ..TileOptions::default() };
     let k_epsilon = 1e-5;
 
     let tile_left = geojson_to_tile(&geojson, 13, 2342, 3133, &options, false, false);

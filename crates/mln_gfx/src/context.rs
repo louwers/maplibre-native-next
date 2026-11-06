@@ -96,8 +96,12 @@ pub trait Context: Any {
     fn reset_state(&self, depth_mode: DepthMode, color_mode: ColorMode);
 
     /// Creates the buffer if `ptr` is empty (returns true), else updates it.
-    fn emplace_or_update_uniform_buffer(&self, ptr: &mut Option<UniformBufferPtr>, data: &[u8], persistent: bool)
-    -> bool;
+    fn emplace_or_update_uniform_buffer(
+        &self,
+        ptr: &mut Option<UniformBufferPtr>,
+        data: &[u8],
+        persistent: bool,
+    ) -> bool;
 
     fn get_global_uniform_buffers(&self) -> Ref<'_, UniformBufferArray>;
     fn mutable_global_uniform_buffers(&self) -> RefMut<'_, UniformBufferArray>;

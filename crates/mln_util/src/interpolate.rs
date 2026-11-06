@@ -46,10 +46,7 @@ impl Interpolate for f32 {
 /// arithmetic: `a * (1.0 - t) + b * t` per coordinate).
 impl Interpolate for Point<f64> {
     fn interpolate(&self, to: &Self, t: f64) -> Self {
-        Point::new(
-            self.x * (1.0 - t) + to.x * t,
-            self.y * (1.0 - t) + to.y * t,
-        )
+        Point::new(self.x * (1.0 - t) + to.x * t, self.y * (1.0 - t) + to.y * t)
     }
 }
 
@@ -157,8 +154,7 @@ pub fn interpolation_factor(base: f32, range: Range<f32>, z: f32) -> f32 {
     } else if base == 1.0f32 {
         zoom_progress / zoom_diff
     } else {
-        (((base as f64).powf(zoom_progress as f64) - 1.0) / ((base as f64).powf(zoom_diff as f64) - 1.0))
-            as f32
+        (((base as f64).powf(zoom_progress as f64) - 1.0) / ((base as f64).powf(zoom_diff as f64) - 1.0)) as f32
     }
 }
 

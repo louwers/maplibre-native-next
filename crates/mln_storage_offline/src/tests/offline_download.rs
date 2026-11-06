@@ -746,15 +746,7 @@ fn tile_count_limit_exceeded_with_tile_response() {
 fn put_tile(test: &OfflineTest, x: i32, y: i32, z: i8) {
     let response = test.response("0-0-0.vector.pbf");
     test.db.borrow_mut().put(
-        &Resource::tile(
-            "http://127.0.0.1:3000/{z}-{x}-{y}.vector.pbf",
-            1.0,
-            x,
-            y,
-            z,
-            Scheme::XYZ,
-            LoadingMethod::All,
-        ),
+        &Resource::tile("http://127.0.0.1:3000/{z}-{x}-{y}.vector.pbf", 1.0, x, y, z, Scheme::XYZ, LoadingMethod::All),
         &response,
     );
 }
@@ -982,8 +974,7 @@ fn interrupt_and_resume() {
 fn no_freezing_on_cached_tiles_and_new_style() {
     let test = OfflineTest::new();
     let region = test.create_region().expect("region");
-    let download =
-        test.download_with_zoom(region.get_id(), STYLE_URL, 1.0, 1.0, true, test.file_source.clone());
+    let download = test.download_with_zoom(region.get_id(), STYLE_URL, 1.0, 1.0, true, test.file_source.clone());
 
     test.file_source.set_property(MAX_CONCURRENT_REQUESTS_KEY, &Value::Uint(2));
     test.respond_with(Kind::Style, "inline_source.style.json", |_| {});

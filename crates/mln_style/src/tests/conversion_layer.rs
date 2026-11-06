@@ -4,8 +4,8 @@ use super::util::{parse_json, value_to_json};
 use crate::conversion::{convert, convert_layer};
 use crate::filter::Filter;
 use crate::layer::Layer;
-use crate::layers::background_layer::BackgroundLayer;
 use crate::layers::BackgroundColor;
+use crate::layers::background_layer::BackgroundLayer;
 use feature::Value;
 use mln_conversion::{Convertible, Error};
 use mln_util::chrono::milliseconds;
@@ -41,14 +41,8 @@ fn layer_transition() {
     .unwrap();
     assert_eq!("background", layer.get_type_info().type_);
     let background = (layer.as_ref() as &dyn Layer).downcast_ref::<BackgroundLayer>().unwrap();
-    assert_eq!(
-        Some(milliseconds(400)),
-        background.impl_().paint.get::<BackgroundColor>().options.duration
-    );
-    assert_eq!(
-        Some(milliseconds(500)),
-        background.impl_().paint.get::<BackgroundColor>().options.delay
-    );
+    assert_eq!(Some(milliseconds(400)), background.impl_().paint.get::<BackgroundColor>().options.duration);
+    assert_eq!(Some(milliseconds(500)), background.impl_().paint.get::<BackgroundColor>().options.delay);
 }
 
 // gtest: StyleConversion.SerializeDefaults

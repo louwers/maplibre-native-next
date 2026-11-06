@@ -11,8 +11,8 @@ use crate::layer::LayerTypeInfo;
 use crate::layer::layer_type_info::TileKind;
 use crate::source::{Source, SourceBase, static_immutable_cast};
 use crate::source_impl;
-use geojson::GeoJSON;
 use feature::Feature;
+use geojson::GeoJSON;
 use mln_actor::scheduler::{self, SchedulerPtr};
 use mln_storage::{AsyncRequest, FileSource, Resource, Response};
 use mln_tile_id::CanonicalTileID;
@@ -139,10 +139,7 @@ pub fn get_sequenced() -> SchedulerPtr {
     }
     static STATE: Mutex<Option<State>> = Mutex::new(None);
     let mut guard = STATE.lock().unwrap();
-    let state = guard.get_or_insert_with(|| State {
-        weaks: Vec::new(),
-        last_used_index: 0,
-    });
+    let state = guard.get_or_insert_with(|| State { weaks: Vec::new(), last_used_index: 0 });
     if state.weaks.is_empty() {
         for _ in 0..SCHEDULERS_COUNT {
             let weak: std::sync::Weak<mln_actor::thread_pool::ThreadedScheduler> = std::sync::Weak::new();
@@ -226,11 +223,8 @@ impl GeoJSONSource {
 
     /// `setGeoJSON(geoJSON)`. `Err`: see `create_geojson_data`.
     pub fn set_geojson(&self, geojson: &GeoJSON) -> Result<(), String> {
-        let data = create_geojson_data(
-            geojson,
-            self.inner.sequenced_scheduler.clone(),
-            &self.impl_().get_options().clone(),
-        )?;
+        let data =
+            create_geojson_data(geojson, self.inner.sequenced_scheduler.clone(), &self.impl_().get_options().clone())?;
         self.set_geojson_data(Some(data));
         Ok(())
     }
@@ -268,17 +262,11 @@ fn on_description_response(weak: &Weak<Inner>, res: Response) {
     };
     let this = GeoJSONSource { inner };
     if let Some(error) = &res.error {
-        this.inner
-            .base
-            .observer()
-            .on_source_error(&this, RuntimeError::ptr(error.message.clone()));
+        this.inner.base.observer().on_source_error(&this, RuntimeError::ptr(error.message.clone()));
     } else if res.not_modified {
         // return
     } else if res.no_content {
-        this.inner
-            .base
-            .observer()
-            .on_source_error(&this, RuntimeError::ptr("unexpectedly empty GeoJSON"));
+        this.inner.base.observer().on_source_error(&this, RuntimeError::ptr("unexpectedly empty GeoJSON"));
     } else {
         // Note: This task appears to be safe enough to schedule on the
         // generic background queue. This task does not reference other
@@ -308,10 +296,7 @@ fn on_description_response(weak: &Weak<Inner>, res: Response) {
                 } else {
                     // Create an empty GeoJSON VT object to make sure we're
                     // not infinitely waiting for tiles to load.
-                    Log::error(
-                        Event::ParseStyle,
-                        format!("Failed to parse GeoJSON data: {}", error.message),
-                    );
+                    Log::error(Event::ParseStyle, format!("Failed to parse GeoJSON data: {}", error.message));
                 }
                 Arc::new(Impl::with_data(&current, geojson_data))
             },
@@ -352,10 +337,8 @@ impl Source for GeoJSONSource {
         }
 
         let weak = Rc::downgrade(&self.inner);
-        let req = file_source.request(
-            &Resource::source(&url),
-            Box::new(move |res: Response| on_description_response(&weak, res)),
-        );
+        let req = file_source
+            .request(&Resource::source(&url), Box::new(move |res: Response| on_description_response(&weak, res)));
         *self.inner.req.borrow_mut() = Some(req);
     }
 

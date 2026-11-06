@@ -80,8 +80,16 @@ impl LayerTweaker for HillshadePrepareLayerTweaker {
             };
 
             let drawable_uniforms = drawable.mutable_uniform_buffers();
-            drawable_uniforms.create_or_update_pod(ID_HILLSHADE_PREPARE_DRAWABLE_UBO, &drawable_ubo, parameters.context);
-            drawable_uniforms.create_or_update_pod(ID_HILLSHADE_PREPARE_TILE_PROPS_UBO, &tile_props_ubo, parameters.context);
+            drawable_uniforms.create_or_update_pod(
+                ID_HILLSHADE_PREPARE_DRAWABLE_UBO,
+                &drawable_ubo,
+                parameters.context,
+            );
+            drawable_uniforms.create_or_update_pod(
+                ID_HILLSHADE_PREPARE_TILE_PROPS_UBO,
+                &tile_props_ubo,
+                parameters.context,
+            );
         });
     }
 }

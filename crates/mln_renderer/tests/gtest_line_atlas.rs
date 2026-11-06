@@ -29,9 +29,7 @@ impl Mt19937 {
         let mut state = [0u32; Self::N];
         state[0] = value;
         for i in 1..Self::N {
-            state[i] = 1812433253u32
-                .wrapping_mul(state[i - 1] ^ (state[i - 1] >> 30))
-                .wrapping_add(i as u32);
+            state[i] = 1812433253u32.wrapping_mul(state[i - 1] ^ (state[i - 1] >> 30)).wrapping_add(i as u32);
         }
         Mt19937 { state, index: Self::N }
     }
@@ -101,12 +99,7 @@ struct NormalDistribution {
 
 impl NormalDistribution {
     fn new(mean: f32, stddev: f32) -> Self {
-        NormalDistribution {
-            mean,
-            stddev,
-            saved: 0.0,
-            saved_available: false,
-        }
+        NormalDistribution { mean, stddev, saved: 0.0, saved_available: false }
     }
 
     fn sample(&mut self, g: &mut Mt19937) -> f32 {
@@ -150,11 +143,8 @@ fn random() {
             for _i in 0..count {
                 dasharray.push(length_distribution.sample(&mut generator));
             }
-            let pattern_cap = if cap_style_distribution(&mut generator) > 0 {
-                LinePatternCap::Round
-            } else {
-                LinePatternCap::Square
-            };
+            let pattern_cap =
+                if cap_style_distribution(&mut generator) > 0 { LinePatternCap::Round } else { LinePatternCap::Square };
 
             atlas.get_dash_pattern_texture(&dasharray, &dasharray, pattern_cap);
         }

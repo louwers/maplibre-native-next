@@ -35,11 +35,7 @@ static ORACLE: std::sync::LazyLock<std::sync::Mutex<Oracle>> = std::sync::LazyLo
         .expect("start the C++ oracle");
     let stdin = child.stdin.take().unwrap();
     let stdout = std::io::BufReader::new(child.stdout.take().unwrap());
-    std::sync::Mutex::new(Oracle {
-        stdin,
-        stdout,
-        _child: child,
-    })
+    std::sync::Mutex::new(Oracle { stdin, stdout, _child: child })
 });
 
 fn encode(t: &Type, out: &mut Vec<u8>) {
@@ -74,13 +70,7 @@ fn reference_report(json: &str, expected: Option<&Type>, props: &str, zooms: &[f
     });
     let zooms: Vec<serde_json::Value> = zooms
         .iter()
-        .map(|z| {
-            if z.is_nan() {
-                serde_json::Value::Null
-            } else {
-                serde_json::Value::from(*z as f64)
-            }
-        })
+        .map(|z| if z.is_nan() { serde_json::Value::Null } else { serde_json::Value::from(*z as f64) })
         .collect();
     let request = serde_json::json!({"e": json, "t": enc, "p": props, "z": zooms});
     let mut oracle = ORACLE.lock().unwrap_or_else(|e| e.into_inner());
@@ -122,11 +112,7 @@ fn canon(v: &MbglValue) -> String {
             let sorted: BTreeMap<_, _> = o.iter().collect();
             format!(
                 "{{{}}}",
-                sorted
-                    .iter()
-                    .map(|(k, v)| format!("{}:{}", quote(k), canon(v)))
-                    .collect::<Vec<_>>()
-                    .join(",")
+                sorted.iter().map(|(k, v)| format!("{}:{}", quote(k), canon(v))).collect::<Vec<_>>().join(",")
             )
         }
     }
@@ -147,20 +133,13 @@ fn canon_expr(v: &Value) -> String {
         Value::Collator(_) => "collator".to_owned(),
         Value::Formatted(f) => format!("f:{}", canon(&f.to_object())),
         Value::Image(i) => format!("i:{},{}", quote(i.id()), if i.is_available() { 1 } else { 0 }),
-        Value::Padding(p) => format!(
-            "p:{},{},{},{}",
-            f32_hex(p.top),
-            f32_hex(p.right),
-            f32_hex(p.bottom),
-            f32_hex(p.left)
-        ),
+        Value::Padding(p) => {
+            format!("p:{},{},{},{}", f32_hex(p.top), f32_hex(p.right), f32_hex(p.bottom), f32_hex(p.left))
+        }
         Value::Array(a) => format!("[{}]", a.iter().map(canon_expr).collect::<Vec<_>>().join(",")),
         Value::Object(o) => format!(
             "{{{}}}",
-            o.iter()
-                .map(|(k, v)| format!("{}:{}", quote(k), canon_expr(v)))
-                .collect::<Vec<_>>()
-                .join(",")
+            o.iter().map(|(k, v)| format!("{}:{}", quote(k), canon_expr(v))).collect::<Vec<_>>().join(",")
         ),
     }
 }
@@ -270,10 +249,7 @@ fn spec_type(spec: &serde_json::Value) -> Option<Type> {
     let t = spec.get("type")?.as_str()?;
     match t {
         "array" => {
-            let item = spec
-                .get("value")
-                .and_then(|v| v.as_str())
-                .map_or(Type::Value, string_to_type);
+            let item = spec.get("value").and_then(|v| v.as_str()).map_or(Type::Value, string_to_type);
             match spec.get("length").and_then(|l| l.as_f64()) {
                 Some(n) if n as usize != 0 => Some(Type::array_n(item, n as usize)),
                 _ => Some(Type::array(item)),
@@ -330,11 +306,7 @@ fn corpus_expressions() {
             .map(|inputs| {
                 inputs
                     .iter()
-                    .map(|input| {
-                        input[1]
-                            .get("properties")
-                            .map_or("{}".to_owned(), |p| p.to_string())
-                    })
+                    .map(|input| input[1].get("properties").map_or("{}".to_owned(), |p| p.to_string()))
                     .collect()
             })
             .unwrap_or_default();
@@ -394,15 +366,18 @@ fn interp_type() -> impl Strategy<Value = serde_json::Value> {
         Just(json!(["linear"])),
         (0.01f64..4.0).prop_map(|b| json!(["exponential", num(b)])),
         prop::sample::select(vec![0.5, 1.0, 1.2, 2.0]).prop_map(|b| json!(["exponential", num(b)])),
-        (0.0f64..=1.0, 0.0f64..=1.0, 0.0f64..=1.0, 0.0f64..=1.0)
-            .prop_map(|(a, b, c, d)| json!(["cubic-bezier", num(a), num(b), num(c), num(d)])),
+        (0.0f64..=1.0, 0.0f64..=1.0, 0.0f64..=1.0, 0.0f64..=1.0).prop_map(|(a, b, c, d)| json!([
+            "cubic-bezier",
+            num(a),
+            num(b),
+            num(c),
+            num(d)
+        ])),
     ]
 }
 
 fn stop_keys() -> impl Strategy<Value = Vec<f64>> {
-    prop::collection::btree_set(-20i32..40, 1..5).prop_map(|keys| {
-        keys.into_iter().map(|k| k as f64 * 0.75).collect()
-    })
+    prop::collection::btree_set(-20i32..40, 1..5).prop_map(|keys| keys.into_iter().map(|k| k as f64 * 0.75).collect())
 }
 
 fn num_expr() -> impl Strategy<Value = serde_json::Value> {
@@ -416,16 +391,12 @@ fn num_expr() -> impl Strategy<Value = serde_json::Value> {
     ];
     leaf.prop_recursive(4, 24, 4, |inner| {
         prop_oneof![
-            (
-                prop::sample::select(vec!["+", "-", "*", "/", "%", "^", "min", "max"]),
-                inner.clone(),
-                inner.clone()
-            )
+            (prop::sample::select(vec!["+", "-", "*", "/", "%", "^", "min", "max"]), inner.clone(), inner.clone())
                 .prop_map(|(op, a, b)| json!([op, a, b])),
             (
                 prop::sample::select(vec![
-                    "-", "sqrt", "ln", "log10", "log2", "abs", "floor", "ceil", "round", "sin", "cos", "tan",
-                    "asin", "acos", "atan"
+                    "-", "sqrt", "ln", "log10", "log2", "abs", "floor", "ceil", "round", "sin", "cos", "tan", "asin",
+                    "acos", "atan"
                 ]),
                 inner.clone()
             )
@@ -457,9 +428,23 @@ fn num_expr() -> impl Strategy<Value = serde_json::Value> {
 fn color_string() -> impl Strategy<Value = String> {
     prop_oneof![
         prop::sample::select(vec![
-            "red", "blue", "transparent", "#fff", "#0f08", "#123456", "#12345678", "rgb(10, 20, 30)",
-            "rgba(255, 0, 0, 0.5)", "rgba(0,0,0,0)", "hsl(120, 50%, 50%)", "hsla(240, 100%, 50%, 0.25)",
-            "rebeccapurple", "not a color", "#ggg", "rgba(300, -1, 0.5, 2)", "rgb(50%, 10%, 0%)",
+            "red",
+            "blue",
+            "transparent",
+            "#fff",
+            "#0f08",
+            "#123456",
+            "#12345678",
+            "rgb(10, 20, 30)",
+            "rgba(255, 0, 0, 0.5)",
+            "rgba(0,0,0,0)",
+            "hsl(120, 50%, 50%)",
+            "hsla(240, 100%, 50%, 0.25)",
+            "rebeccapurple",
+            "not a color",
+            "#ggg",
+            "rgba(300, -1, 0.5, 2)",
+            "rgb(50%, 10%, 0%)",
         ])
         .prop_map(str::to_owned),
         (any::<u8>(), any::<u8>(), any::<u8>(), 1u8..=10)
@@ -476,16 +461,17 @@ fn color_expr() -> impl Strategy<Value = serde_json::Value> {
         3 => (0u8..=10).prop_map(|v| v as f64 / 10.0),
         1 => prop::sample::select(vec![-0.5, 1.5, 0.333]),
     ];
-    let simple_input = prop_oneof![
-        Just(json!(["zoom"])),
-        Just(json!(["get", "n"])),
-        interesting_f64().prop_map(num),
-    ];
+    let simple_input = prop_oneof![Just(json!(["zoom"])), Just(json!(["get", "n"])), interesting_f64().prop_map(num),];
     prop_oneof![
         color_string().prop_map(|s| json!(s)),
         color_string().prop_map(|s| json!(["to-color", s])),
-        (channel.clone(), channel.clone(), channel.clone(), alpha)
-            .prop_map(|(r, g, b, a)| json!(["rgba", num(r), num(g), num(b), num(a)])),
+        (channel.clone(), channel.clone(), channel.clone(), alpha).prop_map(|(r, g, b, a)| json!([
+            "rgba",
+            num(r),
+            num(g),
+            num(b),
+            num(a)
+        ])),
         (channel.clone(), channel.clone(), channel).prop_map(|(r, g, b)| json!(["rgb", num(r), num(g), num(b)])),
         (
             prop::sample::select(vec!["interpolate", "interpolate-hcl", "interpolate-lab"]),

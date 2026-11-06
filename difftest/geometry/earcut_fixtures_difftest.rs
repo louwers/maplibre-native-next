@@ -36,10 +36,7 @@ fn reference<T: Copy>(f: RefEarcut<T>, polygon: &[Vec<(T, T)>]) -> Vec<u32> {
 }
 
 fn points<T: Copy>(polygon: &[Vec<(T, T)>]) -> Vec<Vec<Point<T>>> {
-    polygon
-        .iter()
-        .map(|r| r.iter().map(|&(x, y)| Point::new(x, y)).collect())
-        .collect()
+    polygon.iter().map(|r| r.iter().map(|&(x, y)| Point::new(x, y)).collect()).collect()
 }
 
 #[test]
@@ -54,11 +51,8 @@ fn fixtures_match_cpp() {
             cases += 1;
         }
 
-        let polygon: Vec<Vec<(f32, f32)>> = fixture
-            .polygon
-            .iter()
-            .map(|r| r.iter().map(|&(x, y)| (x as f32, y as f32)).collect())
-            .collect();
+        let polygon: Vec<Vec<(f32, f32)>> =
+            fixture.polygon.iter().map(|r| r.iter().map(|&(x, y)| (x as f32, y as f32)).collect()).collect();
         let actual: Vec<u32> = earcut::earcut(&points(&polygon));
         assert_eq!(actual, reference(ref_earcut_f32, &polygon), "{} as point<float>", fixture.name);
         cases += 1;

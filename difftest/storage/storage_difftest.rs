@@ -48,9 +48,7 @@ fn oracle_call(op: u8, payload: &[u8]) -> Vec<u8> {
     use std::io::{Read, Write};
     let mut guard = ORACLE.lock().unwrap_or_else(|e| e.into_inner());
     let oracle = guard.get_or_insert_with(|| {
-        let base = std::env::var("RUNFILES_DIR")
-            .or_else(|_| std::env::var("TEST_SRCDIR"))
-            .expect("RUNFILES_DIR");
+        let base = std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR");
         let path = PathBuf::from(base).join("_main/difftest/storage/storage_oracle");
         let mut child = std::process::Command::new(path)
             .stdin(std::process::Stdio::piped())
@@ -59,21 +57,14 @@ fn oracle_call(op: u8, payload: &[u8]) -> Vec<u8> {
             .expect("start the C++ oracle");
         let stdin = child.stdin.take().unwrap();
         let stdout = child.stdout.take().unwrap();
-        Oracle {
-            _child: child,
-            stdin,
-            stdout,
-        }
+        Oracle { _child: child, stdin, stdout }
     });
     oracle.stdin.write_all(&[op]).unwrap();
     oracle.stdin.write_all(&(payload.len() as u32).to_le_bytes()).unwrap();
     oracle.stdin.write_all(payload).unwrap();
     oracle.stdin.flush().unwrap();
     let mut len = [0u8; 4];
-    oracle
-        .stdout
-        .read_exact(&mut len)
-        .unwrap_or_else(|e| panic!("the C++ oracle exited (assert?): {e}"));
+    oracle.stdout.read_exact(&mut len).unwrap_or_else(|e| panic!("the C++ oracle exited (assert?): {e}"));
     let mut answer = vec![0u8; u32::from_le_bytes(len) as usize];
     oracle.stdout.read_exact(&mut answer).unwrap();
     answer
@@ -215,16 +206,7 @@ fn read_response(r: &mut Reader<'_>) -> Option<ResponseDump> {
     let modified = if r.u8() != 0 { Some(r.i64()) } else { None };
     let expires = if r.u8() != 0 { Some(r.i64()) } else { None };
     let etag = if r.u8() != 0 { Some(r.string()) } else { None };
-    Some(ResponseDump {
-        error,
-        no_content,
-        not_modified,
-        must_revalidate,
-        data,
-        modified,
-        expires,
-        etag,
-    })
+    Some(ResponseDump { error, no_content, not_modified, must_revalidate, data, modified, expires, etag })
 }
 
 fn reason_code(reason: Reason) -> u8 {
@@ -233,10 +215,7 @@ fn reason_code(reason: Reason) -> u8 {
 
 fn dump(response: &Response) -> ResponseDump {
     ResponseDump {
-        error: response
-            .error
-            .as_ref()
-            .map(|e| (reason_code(e.reason), e.message.clone())),
+        error: response.error.as_ref().map(|e| (reason_code(e.reason), e.message.clone())),
         no_content: response.no_content,
         not_modified: response.not_modified,
         must_revalidate: response.must_revalidate,
@@ -283,9 +262,7 @@ fn capture_rust_logs<T>(f: impl FnOnce() -> T) -> (T, Vec<LogRecord>) {
 // ---- databases ----
 
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR")
-        .or_else(|_| std::env::var("RUNFILES_DIR"))
-        .expect("TEST_SRCDIR");
+    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+").join(relative)
 }
 
@@ -336,9 +313,7 @@ fn resources_of(path: &str) -> Vec<Resource> {
         resources.push(volatile);
     }
 
-    let mut stmt = conn
-        .prepare("SELECT url_template, pixel_ratio, z, x, y FROM tiles ORDER BY id")
-        .unwrap();
+    let mut stmt = conn.prepare("SELECT url_template, pixel_ratio, z, x, y FROM tiles ORDER BY id").unwrap();
     let tiles: Vec<TileData> = stmt
         .query_map([], |row| {
             Ok(TileData {
@@ -358,10 +333,7 @@ fn resources_of(path: &str) -> Vec<Resource> {
         };
         resources.push(resource(tile.clone()));
         // Missing neighbours: other pixel ratio, x + 1.
-        resources.push(resource(TileData {
-            pixel_ratio: tile.pixel_ratio.wrapping_add(1),
-            ..tile.clone()
-        }));
+        resources.push(resource(TileData { pixel_ratio: tile.pixel_ratio.wrapping_add(1), ..tile.clone() }));
         resources.push(resource(TileData { x: tile.x + 1, ..tile.clone() }));
     }
 
@@ -371,13 +343,7 @@ fn resources_of(path: &str) -> Vec<Resource> {
     resources.push(Resource::with_tile_data(
         Kind::Tile,
         "http://missing/{z}/{x}/{y}.png",
-        Some(TileData {
-            url_template: "http://missing/{z}/{x}/{y}.png".to_owned(),
-            pixel_ratio: 1,
-            x: 0,
-            y: 0,
-            z: 0,
-        }),
+        Some(TileData { url_template: "http://missing/{z}/{x}/{y}.png".to_owned(), pixel_ratio: 1, x: 0, y: 0, z: 0 }),
         LoadingMethod::CacheOnly,
     ));
     resources
@@ -392,10 +358,8 @@ fn offline_database_get_matches_cpp_for_every_row() {
         let path = copy_to_tmp(relative, "offline-db");
         let resources = resources_of(&path);
         // The OfflineDatabase does not look at volatility.
-        let resources: Vec<Resource> = resources
-            .into_iter()
-            .filter(|r| r.storage_policy != StoragePolicy::Volatile)
-            .collect();
+        let resources: Vec<Resource> =
+            resources.into_iter().filter(|r| r.storage_policy != StoragePolicy::Volatile).collect();
 
         let mut request = Writer::default();
         request.bytes(path.as_bytes());
@@ -427,10 +391,7 @@ fn offline_database_get_matches_cpp_for_every_row() {
 
 fn rust_dbfs_request_all(path: &str, resources: &[Resource]) -> Vec<Option<ResponseDump>> {
     let run_loop = RunLoop::new();
-    let dbfs = DatabaseFileSource::new(
-        &ResourceOptions::default().with_cache_path(path),
-        &ClientOptions::default(),
-    );
+    let dbfs = DatabaseFileSource::new(&ResourceOptions::default().with_cache_path(path), &ClientOptions::default());
     dbfs.set_property(READ_ONLY_MODE_KEY, &feature::Value::Bool(true));
     let responses: Rc<RefCell<Vec<Option<ResponseDump>>>> = Rc::new(RefCell::new(vec![None; resources.len()]));
     let received = Rc::new(RefCell::new(0usize));
@@ -610,7 +571,11 @@ fn compare_sprite(case: &str, id: &str, image: &[u8], json: &[u8], image_is_vali
             }
             0
         }
-        _ => panic!("{case}: C++ {:?} vs Rust {:?}", cpp.result.as_ref().map(|v| v.len()), rust.result.as_ref().map(|v| v.len())),
+        _ => panic!(
+            "{case}: C++ {:?} vs Rust {:?}",
+            cpp.result.as_ref().map(|v| v.len()),
+            rust.result.as_ref().map(|v| v.len())
+        ),
     }
 }
 
@@ -655,7 +620,10 @@ fn parse_sprite_matches_cpp_on_fixtures() {
         ("test/fixtures/annotations/emerald.png", "test/fixtures/annotations/emerald.json"),
         ("test/fixtures/annotations/emerald@2x.png", "test/fixtures/annotations/emerald@2x.json"),
         ("test/fixtures/resources/sprite.png", "test/fixtures/resources/sprite.json"),
-        ("test/fixtures/resources/versatiles-sprite/sprite.png", "test/fixtures/resources/versatiles-sprite/sprite.json"),
+        (
+            "test/fixtures/resources/versatiles-sprite/sprite.png",
+            "test/fixtures/resources/versatiles-sprite/sprite.json",
+        ),
         (
             "test/fixtures/resources/versatiles-sprite/sprite@2x.png",
             "test/fixtures/resources/versatiles-sprite/sprite@2x.json",
@@ -664,7 +632,13 @@ fn parse_sprite_matches_cpp_on_fixtures() {
     for (image, json) in fixtures {
         let (image, json) = (read(image), read(json));
         for id in ["default", "custom"] {
-            images += compare_sprite(&format!("{id} {}", String::from_utf8_lossy(&json[..json.len().min(40)])), id, &image, &json, true);
+            images += compare_sprite(
+                &format!("{id} {}", String::from_utf8_lossy(&json[..json.len().min(40)])),
+                id,
+                &image,
+                &json,
+                true,
+            );
             cases += 1;
         }
     }
@@ -759,12 +733,7 @@ fn entry() -> impl Strategy<Value = String> {
         .boxed()
     };
     (
-        (
-            field("x", small()),
-            field("y", small()),
-            field("width", small()),
-            field("height", small()),
-        ),
+        (field("x", small()), field("y", small()), field("width", small()), field("height", small())),
         (
             field("pixelRatio", prop_oneof![3 => Just("1".to_owned()), 1 => number(), 1 => value()].boxed()),
             field("sdf", prop_oneof![Just("true".to_owned()), Just("false".to_owned()), value()].boxed()),
@@ -783,11 +752,7 @@ fn entry() -> impl Strategy<Value = String> {
 
 fn sprite_json() -> impl Strategy<Value = String> {
     prop::collection::vec(prop_oneof![9 => entry(), 1 => value()], 0..6).prop_map(|entries| {
-        let members: Vec<String> = entries
-            .iter()
-            .enumerate()
-            .map(|(i, e)| format!("\"image{i}\": {e}"))
-            .collect();
+        let members: Vec<String> = entries.iter().enumerate().map(|(i, e)| format!("\"image{i}\": {e}")).collect();
         format!("{{{}}}", members.join(", "))
     })
 }

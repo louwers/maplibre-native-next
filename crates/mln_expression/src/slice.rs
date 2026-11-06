@@ -2,14 +2,11 @@
 // src/mln/style/expression/slice.cpp.
 
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_;
-use crate::utf8_op_helpers::{
-    get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8,
-};
+use crate::utf8_op_helpers::{get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8};
 use crate::value::{Value, type_of};
 use mln_conversion::Convertible;
 
@@ -20,11 +17,7 @@ fn normalize_index(index: i32, length: i32) -> i32 {
 /// `static_cast<int>(double)` as clang compiles it on x86-64: out of range
 /// and NaN give INT_MIN.
 fn static_cast_int(f: f64) -> i32 {
-    if f > -2147483649.0 && f < 2147483648.0 {
-        f as i32
-    } else {
-        i32::MIN
-    }
+    if f > -2147483649.0 && f < 2147483648.0 { f as i32 } else { i32::MIN }
 }
 
 pub struct Slice {
@@ -43,15 +36,15 @@ impl Slice {
         let deps = input.dependencies()
             | from_index.dependencies()
             | to_index.as_ref().map_or(Default::default(), |e| e.dependencies());
-        Slice {
-            base: ExpressionBase::new(Kind::Slice, input.get_type().clone(), deps),
-            input,
-            from_index,
-            to_index,
-        }
+        Slice { base: ExpressionBase::new(Kind::Slice, input.get_type().clone(), deps), input, from_index, to_index }
     }
 
-    fn evaluate_for_array_input(&self, array: &[Value], from_index_value: i32, to_index_value: i32) -> EvaluationResult {
+    fn evaluate_for_array_input(
+        &self,
+        array: &[Value],
+        from_index_value: i32,
+        to_index_value: i32,
+    ) -> EvaluationResult {
         let length = array.len() as i32;
         let mut to_index_value = to_index_value;
         if to_index_value == i32::MAX {
@@ -107,11 +100,7 @@ impl Slice {
         let input = ctx.parse(&value.array_member(1), 1, None, None);
         let from_index = ctx.parse(&value.array_member(2), 2, None, None);
 
-        let to_index = if length == 4 {
-            ctx.parse(&value.array_member(3), 3, None, None)
-        } else {
-            None
-        };
+        let to_index = if length == 4 { ctx.parse(&value.array_member(3), 3, None, None) } else { None };
 
         let (Some(input), Some(from_index)) = (input, from_index) else {
             return None;

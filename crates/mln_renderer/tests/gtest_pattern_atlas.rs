@@ -9,9 +9,7 @@ use std::path::PathBuf;
 
 /// The runfiles path of `test/fixtures/...` (`@maplibre//test:fixtures`).
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR")
-        .or_else(|_| std::env::var("RUNFILES_DIR"))
-        .expect("TEST_SRCDIR");
+    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+").join(relative)
 }
 

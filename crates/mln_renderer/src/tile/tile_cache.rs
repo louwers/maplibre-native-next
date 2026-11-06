@@ -165,10 +165,7 @@ mod tests {
         fn new(id: OverscaledTileID) -> Box<VectorTileMock> {
             let base = TileBase::new(Kind::Geometry, id, "source".to_owned(), None);
             base.renderable.set(true);
-            Box::new(VectorTileMock {
-                base,
-                unique_id: SimpleIdentity::new(),
-            })
+            Box::new(VectorTileMock { base, unique_id: SimpleIdentity::new() })
         }
     }
 

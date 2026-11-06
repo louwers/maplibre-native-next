@@ -24,11 +24,7 @@ pub fn mul_div(a: i64, b: i64, c: i64) -> i64 {
     let a = move_sign(a, &mut s);
     let b = move_sign(b, &mut s);
     let c = move_sign(c, &mut s);
-    let d = if c > 0 {
-        a.wrapping_mul(b).wrapping_add(c >> 1) / c
-    } else {
-        0x7FFF_FFFF
-    };
+    let d = if c > 0 { a.wrapping_mul(b).wrapping_add(c >> 1) / c } else { 0x7FFF_FFFF };
     let d = d as i64;
     if s < 0 { neg_long(d) } else { d }
 }
@@ -38,11 +34,7 @@ pub fn div_fix(a: i64, b: i64) -> i64 {
     let mut s = 1;
     let a = move_sign(a, &mut s);
     let b = move_sign(b, &mut s);
-    let q = if b > 0 {
-        (a << 16).wrapping_add(b >> 1) / b
-    } else {
-        0x7FFF_FFFF
-    };
+    let q = if b > 0 { (a << 16).wrapping_add(b >> 1) / b } else { 0x7FFF_FFFF };
     let q = q as i64;
     if s < 0 { neg_long(q) } else { q }
 }

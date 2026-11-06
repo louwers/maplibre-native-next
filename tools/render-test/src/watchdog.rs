@@ -25,10 +25,7 @@ pub struct TestTimedOut {
 
 impl TestTimedOut {
     pub fn message(&self) -> String {
-        format!(
-            "Test timed out after {} s (port-only per-test limit, --timeout)",
-            self.limit.as_secs_f64()
-        )
+        format!("Test timed out after {} s (port-only per-test limit, --timeout)", self.limit.as_secs_f64())
     }
 }
 

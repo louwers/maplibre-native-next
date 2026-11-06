@@ -3,10 +3,10 @@
 // branches: the port's backend is WebGPU).
 
 use super::render_fill_layer::FillVariant;
-use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, slot_bucket, get_drawable_render_tile};
+use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
 use crate::bucket::Bucket;
 use crate::buckets::fill_bucket::FillBucket;
-use crate::layer_tweaker::{get_tile_matrix, LayerTweaker, LayerTweakerBase};
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
 use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::fill_layer_ubo::*;
@@ -15,7 +15,7 @@ use mln_gfx::shaders::shader_defines::{
 };
 use mln_gfx::{LayerGroupBase, UniformBufferPtr};
 use mln_style::expression::Image;
-use mln_style::layer_properties::{get_crossfade, get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
 use mln_style::layers::fill_layer_properties::*;
 use mln_style::properties::Property;
 use mln_style::renderer::cross_faded_property_evaluator::Faded;
@@ -126,9 +126,8 @@ impl LayerTweaker for FillLayerTweaker {
 
             let sdf_pattern: f32 = if bucket.is_sdf_pattern(&id) { 1.0 } else { 0.0 };
 
-            let fill_pattern_value = evaluated
-                .get::<FillPattern>()
-                .constant_or(&Faded { from: Image::new(""), to: Image::new("") });
+            let fill_pattern_value =
+                evaluated.get::<FillPattern>().constant_or(&Faded { from: Image::new(""), to: Image::new("") });
             let pattern_pos_a = tile.and_then(|t| t.get_pattern(fill_pattern_value.from.id()));
             let pattern_pos_b = tile.and_then(|t| t.get_pattern(fill_pattern_value.to.id()));
             binders.set_pattern_parameters(pattern_pos_a.as_ref(), pattern_pos_b.as_ref(), &crossfade);

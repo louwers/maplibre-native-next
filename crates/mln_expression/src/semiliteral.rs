@@ -2,8 +2,8 @@
 // src/mln/style/expression/semiliteral.cpp.
 
 use crate::expression::{
-    EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
-    collect_dependencies, downcast,
+    EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal, collect_dependencies,
+    downcast,
 };
 use crate::literal::Literal;
 use crate::parsing_context::{ParseResult, ParsingContext};
@@ -13,11 +13,7 @@ use feature::Value as MbglValue;
 use mln_conversion::Convertible;
 
 fn array_type(elements: &[Box<dyn Expression>]) -> type_::Array {
-    let item_type = if elements.is_empty() {
-        Type::Value
-    } else {
-        elements[0].get_type().clone()
-    };
+    let item_type = if elements.is_empty() { Type::Value } else { elements[0].get_type().clone() };
     let homogeneous = elements.iter().all(|element| *element.get_type() == item_type);
     type_::Array::with_n(if homogeneous { item_type } else { Type::Value }, Some(elements.len()))
 }
@@ -30,11 +26,7 @@ pub struct Semiliteral {
 impl Semiliteral {
     pub fn new(elements: Vec<Box<dyn Expression>>) -> Self {
         Semiliteral {
-            base: ExpressionBase::new(
-                Kind::Semiliteral,
-                array_type(&elements).into(),
-                collect_dependencies(&elements),
-            ),
+            base: ExpressionBase::new(Kind::Semiliteral, array_type(&elements).into(), collect_dependencies(&elements)),
             elements,
         }
     }

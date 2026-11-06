@@ -23,17 +23,9 @@ fn parse_features() -> Vec<Feature<f64>> {
         let lat = json_coords[1].as_f64().unwrap();
         let mut feature = Feature::new(Geometry::Point(Point::new(lng, lat)));
         let properties = &itr["properties"];
-        for key in [
-            "name",
-            "scalerank",
-            "lat_y",
-            "long_x",
-            "region",
-            "featureclass",
-            "comment",
-            "name_alt",
-            "subregion",
-        ] {
+        for key in
+            ["name", "scalerank", "lat_y", "long_x", "region", "featureclass", "comment", "name_alt", "subregion"]
+        {
             if let Some(value) = properties.get(key) {
                 let v = match value {
                     Json::Null => Some(Value::String("null".to_owned())),
@@ -86,11 +78,7 @@ fn sum_options(radius: Option<u16>) -> Options {
             to_update.insert("sum".to_owned(), Value::Uint(sum));
         }
     });
-    let mut options = Options {
-        map,
-        reduce: Some(reduce),
-        ..Options::default()
-    };
+    let mut options = Options { map, reduce: Some(reduce), ..Options::default() };
     if let Some(r) = radius {
         options.radius = r;
     }
@@ -153,12 +141,7 @@ fn test_1_default_options() {
 #[test]
 fn test_2_expansion_zoom() {
     let features = parse_features();
-    let options2 = Options {
-        radius: 60,
-        extent: 256,
-        max_zoom: 4,
-        ..Options::default()
-    };
+    let options2 = Options { radius: 60, extent: 256, max_zoom: 4, ..Options::default() };
     let index2 = Supercluster::new(&features, options2).unwrap();
     assert_eq!(index2.get_cluster_expansion_zoom(2436).unwrap(), 5);
 }
@@ -182,10 +165,7 @@ fn test_4_map_reduce_radius() {
     let expect_vec0: Vec<u64> = vec![298, 122, 12, 36, 98, 7, 24, 8, 125, 98, 125, 12, 36, 8];
     let expect_vec1: Vec<u64> = vec![146, 84, 63, 23, 34, 12, 19, 29, 8, 8, 80, 35];
     let sums = |tile: &[Feature<i16>]| -> Vec<u64> {
-        tile.iter()
-            .filter(|f| f.properties.contains_key("sum"))
-            .map(|f| uint(&f.properties, "sum"))
-            .collect()
+        tile.iter().filter(|f| f.properties.contains_key("sum")).map(|f| uint(&f.properties, "sum")).collect()
     };
     assert_eq!(sums(&index4.get_tile(0, 0, 0)), expect_vec0);
     assert_eq!(sums(&index4.get_tile(1, 0, 0)), expect_vec1);
@@ -194,10 +174,7 @@ fn test_4_map_reduce_radius() {
 #[test]
 fn test_5_min_points() {
     let features = parse_features();
-    let options5 = Options {
-        min_points: 5,
-        ..Options::default()
-    };
+    let options5 = Options { min_points: 5, ..Options::default() };
     let index5 = Supercluster::new(&features, options5).unwrap();
 
     let tile5 = index5.get_tile(0, 0, 0);
@@ -220,10 +197,7 @@ fn test_5_min_points() {
 #[test]
 fn test_generate_id() {
     let features = parse_features();
-    let options = Options {
-        generate_id: true,
-        ..Options::default()
-    };
+    let options = Options { generate_id: true, ..Options::default() };
     let index = Supercluster::new(&features, options).unwrap();
     let ids: Vec<u64> = index
         .get_tile(0, 0, 0)

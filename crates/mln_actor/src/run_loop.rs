@@ -190,9 +190,7 @@ impl RunLoop {
             timers: RefCell::new(Vec::new()),
         });
         CURRENT.with(|c| *c.borrow_mut() = Some(inner.clone()));
-        let scheduler: Arc<dyn Scheduler + Send + Sync> = Arc::new(RunLoopHandle {
-            core: inner.core.clone(),
-        });
+        let scheduler: Arc<dyn Scheduler + Send + Sync> = Arc::new(RunLoopHandle { core: inner.core.clone() });
         scheduler::set_current(Some(scheduler));
         RunLoop { inner }
     }
@@ -216,9 +214,7 @@ impl RunLoop {
 
     /// A handle other threads can post to.
     pub fn handle(&self) -> RunLoopHandle {
-        RunLoopHandle {
-            core: self.inner.core.clone(),
-        }
+        RunLoopHandle { core: self.inner.core.clone() }
     }
 
     /// Invoke `task` on this RunLoop.
@@ -280,11 +276,7 @@ impl RunLoop {
         let mut due: Vec<Rc<TimerHandle>> = {
             let mut timers = self.inner.timers.borrow_mut();
             timers.retain(|t| t.strong_count() > 0);
-            timers
-                .iter()
-                .filter_map(Weak::upgrade)
-                .filter(|t| t.due.get().is_some_and(|d| d <= now))
-                .collect()
+            timers.iter().filter_map(Weak::upgrade).filter(|t| t.due.get().is_some_and(|d| d <= now)).collect()
         };
         due.sort_by_key(|t| (t.due.get(), t.start_id.get()));
         for timer in due {
@@ -297,13 +289,7 @@ impl RunLoop {
 
     /// The earliest due time of this loop's running timers.
     fn next_timer_due(&self) -> Option<std::time::Instant> {
-        self.inner
-            .timers
-            .borrow()
-            .iter()
-            .filter_map(Weak::upgrade)
-            .filter_map(|t| t.due.get())
-            .min()
+        self.inner.timers.borrow().iter().filter_map(Weak::upgrade).filter_map(|t| t.due.get()).min()
     }
 
     pub(crate) fn register_timer(&self, timer: &Rc<TimerHandle>) {

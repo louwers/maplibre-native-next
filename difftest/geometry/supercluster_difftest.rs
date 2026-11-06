@@ -10,9 +10,9 @@
 // point_count_abbreviated, ids) or errors. Also every
 // point_count_abbreviated text.
 
+use feature::{PropertyMap, Value};
 use geojson_canonical::{abbreviate, features};
 use geometry_difftest_support::run_cases;
-use feature::{PropertyMap, Value};
 use proptest::prelude::*;
 use serde_json::{Value as Json, json};
 use std::sync::Arc;
@@ -130,11 +130,8 @@ fn feature() -> impl Strategy<Value = (f64, f64, Json, Option<Json>)> {
             }
             Json::Object(p)
         });
-    let id = prop_oneof![
-        Just(None),
-        any::<u32>().prop_map(|u| Some(json!(u))),
-        "[a-z]{1,3}".prop_map(|s| Some(json!(s))),
-    ];
+    let id =
+        prop_oneof![Just(None), any::<u32>().prop_map(|u| Some(json!(u))), "[a-z]{1,3}".prop_map(|s| Some(json!(s))),];
     (Just(0.0), Just(0.0), properties, id)
 }
 
@@ -152,10 +149,8 @@ fn case() -> impl Strategy<Value = Case> {
         prop_oneof![4 => -80.0f64..80.0, 1 => -90.0f64..90.0],
         prop::sample::select(vec![30.0, 3.0, 0.3, 0.01, 0.0]),
     );
-    let points = prop::collection::vec(
-        (centre, prop::collection::vec((-1.0f64..1.0, -1.0f64..1.0, feature()), 1..=40)),
-        1..=6,
-    );
+    let points =
+        prop::collection::vec((centre, prop::collection::vec((-1.0f64..1.0, -1.0f64..1.0, feature()), 1..=40)), 1..=6);
     (
         points,
         0u8..=3,
@@ -170,7 +165,19 @@ fn case() -> impl Strategy<Value = Case> {
         prop::collection::vec((0u32..=20, 0u32..=30), 1..=3),
     )
         .prop_map(
-            |(groups, min_zoom, max_zoom, radius, extent, min_points, generate_id, mode, raw_tiles, extra_ids, leaf_args)| {
+            |(
+                groups,
+                min_zoom,
+                max_zoom,
+                radius,
+                extent,
+                min_points,
+                generate_id,
+                mode,
+                raw_tiles,
+                extra_ids,
+                leaf_args,
+            )| {
                 let max_zoom = max_zoom.max(min_zoom);
                 let mut fs = Vec::new();
                 let mut centres = Vec::new();

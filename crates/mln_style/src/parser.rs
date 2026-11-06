@@ -22,7 +22,6 @@ use mln_util::exception::{ExceptionPtr, RuntimeError};
 use mln_util::logging::{Event, Log};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
-
 /// `using StyleParseResult = std::exception_ptr`: `Err` holds the exception.
 pub type StyleParseResult = Result<(), ExceptionPtr>;
 
@@ -221,19 +220,14 @@ impl Parser {
 
         for (property_name, member) in object {
             let Some(member_object) = member.as_object() else {
-                Log::warning(
-                    Event::ParseStyle,
-                    format!("state property \"{property_name}\" must be an object"),
-                );
+                Log::warning(Event::ParseStyle, format!("state property \"{property_name}\" must be an object"));
                 continue;
             };
             let Some(default) = member_object.get("default") else {
                 continue;
             };
             // emplace: the first definition wins.
-            self.global_state_defaults
-                .entry(property_name.clone())
-                .or_insert_with(|| parse_state_value(default));
+            self.global_state_defaults.entry(property_name.clone()).or_insert_with(|| parse_state_value(default));
         }
     }
 
@@ -317,13 +311,7 @@ impl Parser {
                 continue;
             }
 
-            layers_map.insert(
-                layer_id.clone(),
-                LayerEntry {
-                    value: layer_value,
-                    layer: None,
-                },
-            );
+            layers_map.insert(layer_id.clone(), LayerEntry { value: layer_value, layer: None });
             ids.push(layer_id);
         }
 

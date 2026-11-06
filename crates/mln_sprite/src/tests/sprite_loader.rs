@@ -89,12 +89,13 @@ impl Drop for SpriteLoaderTest {
     }
 }
 
-fn successful_response(extension: &'static str, sprite_path: String, pixel_ratio: f32) -> impl Fn(&Resource) -> Option<Response> {
+fn successful_response(
+    extension: &'static str,
+    sprite_path: String,
+    pixel_ratio: f32,
+) -> impl Fn(&Resource) -> Option<Response> {
     move |resource: &Resource| {
-        assert_eq!(
-            format!("{sprite_path}{}{extension}", if pixel_ratio == 2.0 { "@2x" } else { "" }),
-            resource.url
-        );
+        assert_eq!(format!("{sprite_path}{}{extension}", if pixel_ratio == 2.0 { "@2x" } else { "" }), resource.url);
         let mut response = Response::new();
         response.data = Some(Arc::new(std::fs::read(&resource.url).unwrap()));
         Some(response)
@@ -117,10 +118,8 @@ fn loading_success(sprite_path: String, expected_images: usize, pixel_ratio: f32
     let mut test = SpriteLoaderTest::new(pixel_ratio);
     test.sprite_path = sprite_path.clone();
 
-    test.file_source
-        .set_response(Kind::SpriteImage, successful_response(".png", sprite_path.clone(), pixel_ratio));
-    test.file_source
-        .set_response(Kind::SpriteJSON, successful_response(".json", sprite_path, pixel_ratio));
+    test.file_source.set_response(Kind::SpriteImage, successful_response(".png", sprite_path.clone(), pixel_ratio));
+    test.file_source.set_response(Kind::SpriteJSON, successful_response(".json", sprite_path, pixel_ratio));
 
     let failure: Rc<RefCell<Option<String>>> = Rc::new(RefCell::new(None));
     let count: Rc<RefCell<Option<usize>>> = Rc::new(RefCell::new(None));
@@ -176,8 +175,7 @@ fn expect_error(test: &SpriteLoaderTest) -> Rc<RefCell<Option<String>>> {
 fn json_loading_fail() {
     let test = SpriteLoaderTest::new(1.0);
 
-    test.file_source
-        .set_response(Kind::SpriteImage, successful_response(".png", default_sprite_path(), 1.0));
+    test.file_source.set_response(Kind::SpriteImage, successful_response(".png", default_sprite_path(), 1.0));
     test.file_source.set_response(Kind::SpriteJSON, failed_sprite_response);
 
     let error = expect_error(&test);
@@ -191,8 +189,7 @@ fn image_loading_fail() {
     let test = SpriteLoaderTest::new(1.0);
 
     test.file_source.set_response(Kind::SpriteImage, failed_sprite_response);
-    test.file_source
-        .set_response(Kind::SpriteJSON, successful_response(".json", default_sprite_path(), 1.0));
+    test.file_source.set_response(Kind::SpriteJSON, successful_response(".json", default_sprite_path(), 1.0));
 
     let error = expect_error(&test);
     test.run();
@@ -204,8 +201,7 @@ fn image_loading_fail() {
 fn json_loading_corrupted() {
     let test = SpriteLoaderTest::new(1.0);
 
-    test.file_source
-        .set_response(Kind::SpriteImage, successful_response(".png", default_sprite_path(), 1.0));
+    test.file_source.set_response(Kind::SpriteImage, successful_response(".png", default_sprite_path(), 1.0));
     test.file_source.set_response(Kind::SpriteJSON, corrupt_sprite_response);
 
     let error = expect_error(&test);
@@ -222,8 +218,7 @@ fn image_loading_corrupted() {
     let test = SpriteLoaderTest::new(1.0);
 
     test.file_source.set_response(Kind::SpriteImage, corrupt_sprite_response);
-    test.file_source
-        .set_response(Kind::SpriteJSON, successful_response(".json", default_sprite_path(), 1.0));
+    test.file_source.set_response(Kind::SpriteJSON, successful_response(".json", default_sprite_path(), 1.0));
 
     let error = expect_error(&test);
     test.run();

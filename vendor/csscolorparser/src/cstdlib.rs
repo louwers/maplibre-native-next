@@ -29,9 +29,7 @@ fn at(s: &[u8], i: usize) -> u8 {
 }
 
 fn starts_with_ignore_case(s: &[u8], i: usize, word: &[u8]) -> bool {
-    word.iter()
-        .enumerate()
-        .all(|(k, &w)| at(s, i + k).to_ascii_lowercase() == w)
+    word.iter().enumerate().all(|(k, &w)| at(s, i + k).to_ascii_lowercase() == w)
 }
 
 fn hex_value(c: u8) -> u32 {
@@ -61,25 +59,11 @@ struct Format {
     bin_zero: i64,
 }
 
-const BINARY32: Format = Format {
-    p: 24,
-    emin: -126,
-    emax: 127,
-    dec_overflow: 39,
-    dec_zero: -47,
-    bin_overflow: 128,
-    bin_zero: -152,
-};
+const BINARY32: Format =
+    Format { p: 24, emin: -126, emax: 127, dec_overflow: 39, dec_zero: -47, bin_overflow: 128, bin_zero: -152 };
 
-const BINARY64: Format = Format {
-    p: 53,
-    emin: -1022,
-    emax: 1023,
-    dec_overflow: 309,
-    dec_zero: -325,
-    bin_overflow: 1024,
-    bin_zero: -1077,
-};
+const BINARY64: Format =
+    Format { p: 53, emin: -1022, emax: 1023, dec_overflow: 309, dec_zero: -325, bin_overflow: 1024, bin_zero: -1077 };
 
 /// Significant decimal digits kept exactly; the rest only contributes a
 /// sticky digit. Every binary64 value and rounding boundary has fewer
@@ -91,7 +75,10 @@ const MAX_HEX_DIGITS: usize = 300;
 enum Magnitude {
     Zero,
     /// `m * 2^qe`; `m < 2^p`; normal iff `m >= 2^(p-1)`.
-    Finite { m: u64, qe: i64 },
+    Finite {
+        m: u64,
+        qe: i64,
+    },
     Inf,
     NaN,
 }
@@ -147,11 +134,7 @@ fn round_ratio(mut n: Big, mut d: Big, f: &Format) -> (Magnitude, bool) {
         false
     };
     let erange = tiny && inexact;
-    if m == 0 {
-        (Magnitude::Zero, erange)
-    } else {
-        (Magnitude::Finite { m, qe }, erange)
-    }
+    if m == 0 { (Magnitude::Zero, erange) } else { (Magnitude::Finite { m, qe }, erange) }
 }
 
 fn parse_float(s: &[u8], f: &Format) -> Parsed {
@@ -174,12 +157,7 @@ fn parse_float(s: &[u8], f: &Format) -> Parsed {
         // Check for `INF' or `INFINITY'.
         if starts_with_ignore_case(s, i, b"inf") {
             let consumed = i + if starts_with_ignore_case(s, i + 3, b"inity") { 8 } else { 3 };
-            return Parsed {
-                negative,
-                magnitude: Magnitude::Inf,
-                consumed,
-                erange: false,
-            };
+            return Parsed { negative, magnitude: Magnitude::Inf, consumed, erange: false };
         }
         if starts_with_ignore_case(s, i, b"nan") {
             let mut j = i + 3;
@@ -193,20 +171,10 @@ fn parse_float(s: &[u8], f: &Format) -> Parsed {
                     j = k + 1;
                 }
             }
-            return Parsed {
-                negative,
-                magnitude: Magnitude::NaN,
-                consumed: j,
-                erange: false,
-            };
+            return Parsed { negative, magnitude: Magnitude::NaN, consumed: j, erange: false };
         }
         // It is really a text we do not recognize.
-        return Parsed {
-            negative: false,
-            magnitude: Magnitude::Zero,
-            consumed: 0,
-            erange: false,
-        };
+        return Parsed { negative: false, magnitude: Magnitude::Zero, consumed: 0, erange: false };
     }
 
     // First look whether we are faced with a hexadecimal number.
@@ -229,17 +197,8 @@ fn parse_float(s: &[u8], f: &Format) -> Parsed {
         || (hex && i != start_of_digits && c.to_ascii_lowercase() == b'p')
         || (!hex && c.to_ascii_lowercase() == b'e'))
     {
-        let consumed = if i == start_of_digits {
-            if hex { i - 1 } else { 0 }
-        } else {
-            i
-        };
-        return Parsed {
-            negative,
-            magnitude: Magnitude::Zero,
-            consumed,
-            erange: false,
-        };
+        let consumed = if i == start_of_digits { if hex { i - 1 } else { 0 } } else { i };
+        return Parsed { negative, magnitude: Magnitude::Zero, consumed, erange: false };
     }
 
     let int_start = i;
@@ -283,12 +242,7 @@ fn parse_float(s: &[u8], f: &Format) -> Parsed {
     }
     let consumed = i;
 
-    let finish = |magnitude: Magnitude, erange: bool| Parsed {
-        negative,
-        magnitude,
-        consumed,
-        erange,
-    };
+    let finish = |magnitude: Magnitude, erange: bool| Parsed { negative, magnitude, consumed, erange };
 
     // The significant digits, without leading and trailing zeros.
     let digits: Vec<u8> = int_digits.iter().chain(frac_digits).copied().collect();
@@ -454,14 +408,12 @@ pub fn strtoll(s: &[u8], base: u32) -> (i64, usize, bool) {
     if i == save {
         // No conversion. A "0x" (or "0b") prefix without digits leaves the
         // end pointer at the `x`.
-        let consumed = if save >= 2
-            && matches!(at(s, save - 1).to_ascii_uppercase(), b'X' | b'B')
-            && at(s, save - 2) == b'0'
-        {
-            save - 1
-        } else {
-            0
-        };
+        let consumed =
+            if save >= 2 && matches!(at(s, save - 1).to_ascii_uppercase(), b'X' | b'B') && at(s, save - 2) == b'0' {
+                save - 1
+            } else {
+                0
+            };
         return (0, consumed, false);
     }
 
@@ -469,11 +421,7 @@ pub fn strtoll(s: &[u8], base: u32) -> (i64, usize, bool) {
     if overflow || acc > limit {
         return (if negative { i64::MIN } else { i64::MAX }, i, true);
     }
-    let v = if negative {
-        acc.wrapping_neg() as i64
-    } else {
-        acc as i64
-    };
+    let v = if negative { acc.wrapping_neg() as i64 } else { acc as i64 };
     (v, i, false)
 }
 

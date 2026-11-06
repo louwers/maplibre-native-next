@@ -12,7 +12,7 @@ use mln_util::size::Size;
 
 use crate::bidi::BiDi;
 use crate::glyph::{
-    GlyphID, GlyphIDType, GlyphMap, GlyphMetrics, GlyphPosition, GlyphPositions, Glyph, PositionedGlyph, Shaping,
+    Glyph, GlyphID, GlyphIDType, GlyphMap, GlyphMetrics, GlyphPosition, GlyphPositions, PositionedGlyph, Shaping,
     WritingModeType, gen_new_glyph_id_type,
 };
 use crate::shaping::{PositionedIcon, get_shaping};
@@ -166,7 +166,10 @@ fn zwsp() {
     // 中中中中中中
     // 中中
     {
-        let string = TaggedString::new(u("中中\u{200b}中中\u{200b}中中\u{200b}中中中中中中\u{200b}中中"), section_options.clone());
+        let string = TaggedString::new(
+            u("中中\u{200b}中中\u{200b}中中\u{200b}中中中中中中\u{200b}中中"),
+            section_options.clone(),
+        );
         let shaping = test_get_shaping(&string, 5);
         assert_eq!(shaping.positioned_lines.len(), 3);
         assert_eq!(shaping.top, -36.0);
@@ -237,7 +240,8 @@ fn vertical_digits_between_cjk_characters() {
 #[test]
 fn vertical_trailing_digits() {
     let orientations = get_glyph_orientations(&shape_line_label("身什戰33"));
-    let expected = expect(&[('身', "upright"), ('什', "upright"), ('戰', "upright"), ('3', "upright"), ('3', "upright")]);
+    let expected =
+        expect(&[('身', "upright"), ('什', "upright"), ('戰', "upright"), ('3', "upright"), ('3', "upright")]);
     assert_eq!(orientations, expected);
 }
 
@@ -357,7 +361,8 @@ fn vertical_lowercase_latin_word() {
 #[test]
 fn vertical_mixed_alphanumeric_code() {
     let orientations = get_glyph_orientations(&shape_line_label("身什戰A1"));
-    let expected = expect(&[('身', "upright"), ('什', "upright"), ('戰', "upright"), ('A', "upright"), ('1', "upright")]);
+    let expected =
+        expect(&[('身', "upright"), ('什', "upright"), ('戰', "upright"), ('A', "upright"), ('1', "upright")]);
     assert_eq!(orientations, expected);
 }
 
@@ -404,7 +409,8 @@ fn vertical_long_uppercase_word() {
 #[test]
 fn vertical_short_uppercase_code() {
     let orientations = get_glyph_orientations(&shape_line_label("JR山手線"));
-    let expected = expect(&[('J', "upright"), ('R', "upright"), ('山', "upright"), ('手', "upright"), ('線', "upright")]);
+    let expected =
+        expect(&[('J', "upright"), ('R', "upright"), ('山', "upright"), ('手', "upright"), ('線', "upright")]);
     assert_eq!(orientations, expected);
 }
 
@@ -551,7 +557,8 @@ fn vertical_four_character_uppercase_word() {
 #[test]
 fn vertical_bengali_digits() {
     let orientations = get_glyph_orientations(&shape_line_label("国道১২号"));
-    let expected = expect(&[('国', "upright"), ('道', "upright"), ('১', "upright"), ('২', "upright"), ('号', "upright")]);
+    let expected =
+        expect(&[('国', "upright"), ('道', "upright"), ('১', "upright"), ('২', "upright"), ('号', "upright")]);
     assert_eq!(orientations, expected);
 }
 

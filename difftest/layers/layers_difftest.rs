@@ -29,7 +29,7 @@ use mln_renderer::gfx::fill_generator::generate_fill_and_outline_buffers;
 use mln_renderer::layermanager::create_render_layer;
 use mln_renderer::layout::circle_layout::CircleLayout;
 use mln_renderer::layout::pattern_layout::{
-    fill_layout_is_sorted, line_layout_is_sorted, FillLayoutSpec, LineLayoutSpec, PatternLayout,
+    FillLayoutSpec, LineLayoutSpec, PatternLayout, fill_layout_is_sorted, line_layout_is_sorted,
 };
 use mln_renderer::line_atlas::{DashPatternTexture, LinePatternCap};
 use mln_renderer::paint_property_binder::{
@@ -42,14 +42,16 @@ use mln_style::layer_properties::LayerProperties;
 use mln_style::{PropertyEvaluationParameters, TransitionOptions, TransitionParameters};
 use mln_style_types::image::{ImageDependencies, ImagePositions};
 use mln_style_types::{LineCapType, LineJoinType};
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinates, GeometryTileFeature, GeometryTileLayer};
+use mln_tile_id::geometry_tile_data::{
+    GeometryCollection, GeometryCoordinates, GeometryTileFeature, GeometryTileLayer,
+};
 use mln_tile_id::{CanonicalTileID, OverscaledTileID};
 use mln_util::chrono::TimePoint;
 use mln_util::geometry::FeatureType;
 use mln_util::immutable::Immutable;
 use proptest::prelude::*;
 use proptest::test_runner::{Config, TestRunner};
-use serde_json::{json, Value as Json};
+use serde_json::{Value as Json, json};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::Write as _;
 use std::path::PathBuf;
@@ -110,8 +112,16 @@ fn hex(data: &[u8]) -> String {
 fn dump_segments(out: &mut String, name: &str, segments: &[SegmentBase]) {
     out.push_str(name);
     for s in segments {
-        write!(out, " {},{},{},{},{}", s.vertex_offset, s.index_offset, s.vertex_length, s.index_length, bits(s.sort_key))
-            .unwrap();
+        write!(
+            out,
+            " {},{},{},{},{}",
+            s.vertex_offset,
+            s.index_offset,
+            s.vertex_length,
+            s.index_length,
+            bits(s.sort_key)
+        )
+        .unwrap();
     }
     out.push('\n');
 }
@@ -378,7 +388,8 @@ fn rust_bucket_report(request: &Json) -> String {
             return out;
         };
         let mut render_layer = render_layer.borrow_mut();
-        render_layer.transition(&TransitionParameters { now: TimePoint::max(), transition: TransitionOptions::default() });
+        render_layer
+            .transition(&TransitionParameters { now: TimePoint::max(), transition: TransitionOptions::default() });
         render_layer.evaluate(&PropertyEvaluationParameters::new(zoom));
         group.push(render_layer.base().evaluated_properties.clone());
     }
@@ -427,7 +438,13 @@ fn rust_bucket_report(request: &Json) -> String {
             );
             writeln!(out, "dependencies {}", layout.has_dependencies() as i32).unwrap();
             writeln!(out, "imagedeps {}", image_dependencies.len()).unwrap();
-            layout.create_bucket_with(&source_layer, &ImagePositions::new(), &mut no_index, &mut render_data, &canonical)
+            layout.create_bucket_with(
+                &source_layer,
+                &ImagePositions::new(),
+                &mut no_index,
+                &mut render_data,
+                &canonical,
+            )
         }
         "line" => {
             let sorted = line_layout_is_sorted(&group[0]);
@@ -441,7 +458,13 @@ fn rust_bucket_report(request: &Json) -> String {
             );
             writeln!(out, "dependencies {}", layout.has_dependencies() as i32).unwrap();
             writeln!(out, "imagedeps {}", image_dependencies.len()).unwrap();
-            layout.create_bucket_with(&source_layer, &ImagePositions::new(), &mut no_index, &mut render_data, &canonical)
+            layout.create_bucket_with(
+                &source_layer,
+                &ImagePositions::new(),
+                &mut no_index,
+                &mut render_data,
+                &canonical,
+            )
         }
         other => panic!("unexpected layer type {other}"),
     };
@@ -686,10 +709,26 @@ fn number_property(lo: f64, hi: f64) -> impl Strategy<Value = Option<Json>> {
     prop_oneof![
         Just(None),
         (lo..hi).prop_map(|v| Some(json!(v))),
-        (lo..hi, lo..hi, 0.0f64..10.0).prop_map(|(a, b, z)| Some(json!(["interpolate", ["linear"], ["zoom"], z, a, z + 5.0, b]))),
+        (lo..hi, lo..hi, 0.0f64..10.0).prop_map(|(a, b, z)| Some(json!([
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            z,
+            a,
+            z + 5.0,
+            b
+        ]))),
         Just(Some(json!(["get", "n"]))),
         Just(Some(json!(["coalesce", ["get", "n"], 3]))),
-        (0.0f64..8.0).prop_map(|z| Some(json!(["interpolate", ["linear"], ["zoom"], z, ["get", "n"], z + 4.0, ["*", 2, ["get", "n"]]]))),
+        (0.0f64..8.0).prop_map(|z| Some(json!([
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            z,
+            ["get", "n"],
+            z + 4.0,
+            ["*", 2, ["get", "n"]]
+        ]))),
         (0.0f64..8.0).prop_map(|z| Some(json!(["step", ["zoom"], ["get", "n"], z, 4]))),
         (1.1f64..3.0).prop_map(|base| Some(json!({"stops": [[0, 1], [10, 6]], "base": base}))),
         Just(Some(json!({"property": "n", "stops": [[0, 1], [10, 6]]}))),
@@ -705,7 +744,15 @@ fn color_property() -> impl Strategy<Value = Option<Json>> {
         (0.0f64..10.0).prop_map(|z| Some(json!(["interpolate", ["linear"], ["zoom"], z, "red", z + 3.0, "blue"]))),
         Just(Some(json!(["to-color", ["get", "c"], "black"]))),
         Just(Some(json!(["get", "c"]))),
-        (0.0f64..8.0).prop_map(|z| Some(json!(["interpolate", ["linear"], ["zoom"], z, ["to-color", ["get", "c"], "white"], z + 2.0, "green"]))),
+        (0.0f64..8.0).prop_map(|z| Some(json!([
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            z,
+            ["to-color", ["get", "c"], "white"],
+            z + 2.0,
+            "green"
+        ]))),
         Just(Some(json!(["case", [">", ["get", "n"], 5], "yellow", "purple"]))),
     ]
 }
@@ -757,29 +804,30 @@ fn circle_layer(id: &'static str) -> impl Strategy<Value = Json> {
         sort_key(),
         filter(),
     )
-        .prop_map(move |((radius, color, blur, opacity), (stroke_color, stroke_opacity, stroke_width), sort_key, filter)| {
-            let mut paint = serde_json::Map::new();
-            insert(&mut paint, "circle-radius", radius);
-            insert(&mut paint, "circle-color", color);
-            insert(&mut paint, "circle-blur", blur);
-            insert(&mut paint, "circle-opacity", opacity);
-            insert(&mut paint, "circle-stroke-color", stroke_color);
-            insert(&mut paint, "circle-stroke-opacity", stroke_opacity);
-            insert(&mut paint, "circle-stroke-width", stroke_width);
-            let mut layout = serde_json::Map::new();
-            insert(&mut layout, "circle-sort-key", sort_key);
-            let mut layer = json!({"id": id, "type": "circle", "source": "s", "paint": paint, "layout": layout});
-            if let Some(filter) = filter {
-                layer["filter"] = filter;
-            }
-            layer
-        })
+        .prop_map(
+            move |((radius, color, blur, opacity), (stroke_color, stroke_opacity, stroke_width), sort_key, filter)| {
+                let mut paint = serde_json::Map::new();
+                insert(&mut paint, "circle-radius", radius);
+                insert(&mut paint, "circle-color", color);
+                insert(&mut paint, "circle-blur", blur);
+                insert(&mut paint, "circle-opacity", opacity);
+                insert(&mut paint, "circle-stroke-color", stroke_color);
+                insert(&mut paint, "circle-stroke-opacity", stroke_opacity);
+                insert(&mut paint, "circle-stroke-width", stroke_width);
+                let mut layout = serde_json::Map::new();
+                insert(&mut layout, "circle-sort-key", sort_key);
+                let mut layer = json!({"id": id, "type": "circle", "source": "s", "paint": paint, "layout": layout});
+                if let Some(filter) = filter {
+                    layer["filter"] = filter;
+                }
+                layer
+            },
+        )
 }
 
 fn point_feature() -> impl Strategy<Value = Json> {
-    (feature_id(), props(), proptest::collection::vec(proptest::collection::vec(coord(-300, 8500), 1..4), 1..3)).prop_map(
-        |(id, props, geom)| json!({"type": 1, "id": id, "props": props, "geom": geom}),
-    )
+    (feature_id(), props(), proptest::collection::vec(proptest::collection::vec(coord(-300, 8500), 1..4), 1..3))
+        .prop_map(|(id, props, geom)| json!({"type": 1, "id": id, "props": props, "geom": geom}))
 }
 
 /// A ring around a center: points at increasing (or decreasing) angles,
@@ -797,8 +845,13 @@ fn ring(max_radius: f64) -> impl Strategy<Value = Json> {
                 .iter()
                 .enumerate()
                 .map(|(i, (jitter, r))| {
-                    let a = (i as f64 + jitter * 0.9) / n as f64 * std::f64::consts::TAU * if clockwise { -1.0 } else { 1.0 };
-                    json!([(cx + a.cos() * r * max_radius).round() as i64, (cy + a.sin() * r * max_radius).round() as i64])
+                    let a = (i as f64 + jitter * 0.9) / n as f64
+                        * std::f64::consts::TAU
+                        * if clockwise { -1.0 } else { 1.0 };
+                    json!([
+                        (cx + a.cos() * r * max_radius).round() as i64,
+                        (cy + a.sin() * r * max_radius).round() as i64
+                    ])
                 })
                 .collect();
             if close {
@@ -849,7 +902,14 @@ fn line_feature() -> impl Strategy<Value = Json> {
 }
 
 fn fill_layer(id: &'static str) -> impl Strategy<Value = Json> {
-    (color_property(), number_property(0.0, 1.0), color_property(), proptest::option::of(any::<bool>()), sort_key(), filter())
+    (
+        color_property(),
+        number_property(0.0, 1.0),
+        color_property(),
+        proptest::option::of(any::<bool>()),
+        sort_key(),
+        filter(),
+    )
         .prop_map(move |(color, opacity, outline, antialias, sort_key, filter)| {
             let mut paint = serde_json::Map::new();
             insert(&mut paint, "fill-color", color);
@@ -871,7 +931,13 @@ fn line_layer(id: &'static str) -> impl Strategy<Value = Json> {
         (color_property(), number_property(0.0, 20.0), number_property(0.0, 10.0), number_property(-10.0, 10.0)),
         (number_property(0.0, 3.0), number_property(0.0, 1.0)),
         (
-            prop_oneof![Just(None), Just(Some(json!("miter"))), Just(Some(json!("bevel"))), Just(Some(json!("round"))), Just(Some(json!(["get", "j"])))],
+            prop_oneof![
+                Just(None),
+                Just(Some(json!("miter"))),
+                Just(Some(json!("bevel"))),
+                Just(Some(json!("round"))),
+                Just(Some(json!(["get", "j"])))
+            ],
             prop_oneof![Just(None), Just(Some(json!("butt"))), Just(Some(json!("square"))), Just(Some(json!("round")))],
             proptest::option::of(0.5f64..10.0),
             proptest::option::of(0.5f64..3.0),
@@ -984,7 +1050,10 @@ fn polyline_request() -> impl Strategy<Value = Json> {
         proptest::collection::vec(line_coords(), 1..4),
         prop_oneof![Just(2), Just(3)],
         prop_oneof![Just("miter"), Just("bevel"), Just("round")],
-        (prop_oneof![Just("butt"), Just("round"), Just("square")], prop_oneof![Just("butt"), Just("round"), Just("square")]),
+        (
+            prop_oneof![Just("butt"), Just("round"), Just("square")],
+            prop_oneof![Just("butt"), Just("round"), Just("square")],
+        ),
         prop_oneof![0.0f64..1.5, 1.0f64..10.0, Just(2.0)],
         prop_oneof![0.0f64..1.5, Just(1.05), 1.5f64..3.0],
         prop_oneof![Just(0u32), Just(1), Just(2), Just(16), Just(17), 1u32..64],

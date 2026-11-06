@@ -52,7 +52,8 @@ fn trie_get16(c: i32) -> u16 {
         TRIE_HIGH_VALUE_INDEX
     } else {
         // _UTRIE2_INDEX_FROM_SUPP
-        let i1 = index[(UTRIE2_INDEX_1_OFFSET - UTRIE2_OMITTED_BMP_INDEX_1_LENGTH) + (c >> UTRIE2_SHIFT_1) as usize] as usize;
+        let i1 = index[(UTRIE2_INDEX_1_OFFSET - UTRIE2_OMITTED_BMP_INDEX_1_LENGTH) + (c >> UTRIE2_SHIFT_1) as usize]
+            as usize;
         ((index[i1 + ((c >> UTRIE2_SHIFT_2) & UTRIE2_INDEX_2_MASK) as usize] as usize) << UTRIE2_INDEX_SHIFT)
             + (c & UTRIE2_DATA_MASK) as usize
     };

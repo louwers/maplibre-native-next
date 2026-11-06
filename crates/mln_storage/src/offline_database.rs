@@ -14,11 +14,11 @@
 // (`prepare_cached`) instead of the `statements` map; both are dropped with
 // the connection.
 
+use crate::merge_sideloaded::MERGE_SIDELOADED_DATABASE_SQL;
 use crate::offline::{
     OfflineRegion, OfflineRegionDefinition, OfflineRegionMetadata, OfflineRegionStatus, OfflineRegions,
     RegionDefinitionError, decode_offline_region_definition, encode_offline_region_definition,
 };
-use crate::merge_sideloaded::MERGE_SIDELOADED_DATABASE_SQL;
 use crate::offline_schema::OFFLINE_DATABASE_SCHEMA;
 use crate::resource::{Kind, Resource, TileData};
 use crate::response::Response;
@@ -54,7 +54,10 @@ impl std::fmt::Display for MapboxTileLimitExceededException {
 pub enum DatabaseError {
     Sqlite(Exception),
     /// `util::IOException { code }` with its `what()`.
-    Io { code: i32, message: String },
+    Io {
+        code: i32,
+        message: String,
+    },
     /// `MapboxTileLimitExceededException` (a `std::runtime_error`).
     MapboxTileLimitExceeded,
     /// `std::runtime_error`.
@@ -108,10 +111,7 @@ fn delete_file(filename: &str) -> DbResult<()> {
             // IOException(err, msg): msg + ": " + std::generic_category().message(err)
             let what = std::io::Error::from_raw_os_error(code).to_string();
             let what = what.split(" (os error").next().unwrap_or(&what).to_owned();
-            Err(DatabaseError::Io {
-                code,
-                message: format!("Could not delete file {filename}: {what}"),
-            })
+            Err(DatabaseError::Io { code, message: format!("Could not delete file {filename}: {what}") })
         }
     }
 }
@@ -131,11 +131,7 @@ impl DatabaseSizeChangeStats {
         let page_count = db.get_pragma_i64("PRAGMA page_count")? as u64;
         let freelist_count = db.get_pragma_i64("PRAGMA freelist_count")?;
         let initial_size = page_size.wrapping_mul(page_count.wrapping_sub(freelist_count as u64));
-        Ok(DatabaseSizeChangeStats {
-            page_size,
-            page_count,
-            initial_size,
-        })
+        Ok(DatabaseSizeChangeStats { page_size, page_count, initial_size })
     }
 
     /// Returns difference between current database size and database size at
@@ -322,12 +318,7 @@ impl OfflineDatabase {
             }
             DatabaseError::Io { code, message } => {
                 // We failed to delete the database file.
-                Log::record(
-                    EventSeverity::Error,
-                    Event::Database,
-                    *code as i64,
-                    &format!("Can't {action}: {message}"),
-                );
+                Log::record(EventSeverity::Error, Event::Database, *code as i64, &format!("Can't {action}: {message}"));
             }
             DatabaseError::MapboxTileLimitExceeded => {
                 // This is ours and must be handled on client side (C++
@@ -682,7 +673,13 @@ impl OfflineDatabase {
             .flatten())
     }
 
-    fn put_resource(&mut self, resource: &Resource, response: &Response, data: &[u8], compressed: bool) -> DbResult<bool> {
+    fn put_resource(
+        &mut self,
+        resource: &Resource,
+        response: &Response,
+        data: &[u8],
+        compressed: bool,
+    ) -> DbResult<bool> {
         self.check_flags()?;
 
         let key = Self::cache_key(resource);
@@ -703,11 +700,8 @@ impl OfflineDatabase {
 
         // `bindBlob(data.data(), data.size())`: an empty string is an empty
         // blob, noContent is NULL.
-        let (data, compressed): (Option<&[u8]>, bool) = if response.no_content {
-            (None, false)
-        } else {
-            (Some(data), compressed)
-        };
+        let (data, compressed): (Option<&[u8]>, bool) =
+            if response.no_content { (None, false) } else { (Some(data), compressed) };
 
         // We can't use REPLACE because it would change the id value.
         let changes = self.execute(
@@ -829,11 +823,8 @@ impl OfflineDatabase {
             return Ok(false);
         }
 
-        let (data, compressed): (Option<&[u8]>, bool) = if response.no_content {
-            (None, false)
-        } else {
-            (Some(data), compressed)
-        };
+        let (data, compressed): (Option<&[u8]>, bool) =
+            if response.no_content { (None, false) } else { (Some(data), compressed) };
 
         // We can't use REPLACE because it would change the id value.
         let changes = self.execute(
@@ -1041,11 +1032,7 @@ impl OfflineDatabase {
                 return Err(DatabaseError::Runtime(format!("Region {region_id} not found in database")));
             }
 
-            Ok(Some(OfflineRegion::new(
-                region_id,
-                decode_offline_region_definition(&definition)?,
-                description,
-            )))
+            Ok(Some(OfflineRegion::new(region_id, decode_offline_region_definition(&definition)?, description)))
         })();
         self.expected(result, "get region")
     }
@@ -1117,7 +1104,8 @@ impl OfflineDatabase {
                 .unwrap_or(0);
             // `(countOfTilesToMerge + currentTileCount) > offlineMapboxTileCountLimit`
             // (int64_t + uint64_t: uint64_t arithmetic).
-            if (count_of_tiles_to_merge as u64).wrapping_add(current_tile_count) > self.offline_mapbox_tile_count_limit {
+            if (count_of_tiles_to_merge as u64).wrapping_add(current_tile_count) > self.offline_mapbox_tile_count_limit
+            {
                 return Err(DatabaseError::MapboxTileLimitExceeded);
             }
 
@@ -1312,7 +1300,12 @@ impl OfflineDatabase {
         }
     }
 
-    fn put_region_resource_internal(&mut self, region_id: i64, resource: &Resource, response: &Response) -> DbResult<u64> {
+    fn put_region_resource_internal(
+        &mut self,
+        region_id: i64,
+        resource: &Resource,
+        response: &Response,
+    ) -> DbResult<u64> {
         self.check_flags()?;
 
         let size = self.put_internal(resource, response, false)?.1;
@@ -1478,7 +1471,8 @@ impl OfflineDatabase {
         } else {
             self.maximum_ambient_cache_size
         };
-        let mut new_ambient_cache_size = ambient_cache_size.wrapping_add(needed_free_size).wrapping_add(stats.page_size());
+        let mut new_ambient_cache_size =
+            ambient_cache_size.wrapping_add(needed_free_size).wrapping_add(stats.page_size());
 
         while new_ambient_cache_size > self.maximum_ambient_cache_size {
             let accessed = self.query_row(
@@ -1616,7 +1610,9 @@ impl OfflineDatabase {
         let result = (|| -> DbResult<()> {
             self.maximum_ambient_cache_size = size;
 
-            if self.current_ambient_cache_size.expect("initialized ambient cache size") > self.maximum_ambient_cache_size {
+            if self.current_ambient_cache_size.expect("initialized ambient cache size")
+                > self.maximum_ambient_cache_size
+            {
                 let stats = DatabaseSizeChangeStats::new(self)?;
                 self.evict(0, &stats)?;
                 if self.autopack {

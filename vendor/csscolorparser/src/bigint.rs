@@ -11,9 +11,7 @@ pub struct Big {
 
 impl Big {
     pub fn from_u64(v: u64) -> Self {
-        let mut b = Big {
-            limbs: vec![v as u32, (v >> 32) as u32],
-        };
+        let mut b = Big { limbs: vec![v as u32, (v >> 32) as u32] };
         b.trim();
         b
     }

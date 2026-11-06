@@ -16,7 +16,11 @@ fn timestamp_diff(a: Timestamp, b: Timestamp) -> Duration {
 }
 
 /// `errorRetryTimeout(failedRequestReason, failedRequests, retryAfter)`
-pub fn error_retry_timeout(failed_request_reason: Reason, failed_requests: u32, retry_after: Option<Timestamp>) -> Duration {
+pub fn error_retry_timeout(
+    failed_request_reason: Reason,
+    failed_requests: u32,
+    retry_after: Option<Timestamp>,
+) -> Duration {
     match failed_request_reason {
         Reason::Server => {
             // Retry after one second three times, then start exponential backoff.

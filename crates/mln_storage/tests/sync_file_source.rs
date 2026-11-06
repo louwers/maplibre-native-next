@@ -15,9 +15,7 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 fn read_file(relative: &str) -> Vec<u8> {
-    let base = std::env::var("TEST_SRCDIR")
-        .or_else(|_| std::env::var("RUNFILES_DIR"))
-        .expect("TEST_SRCDIR");
+    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
     let path = PathBuf::from(base).join("maplibre+").join(relative);
     std::fs::read(&path).unwrap_or_else(|e| panic!("Cannot read file {}: {e}", path.display()))
 }

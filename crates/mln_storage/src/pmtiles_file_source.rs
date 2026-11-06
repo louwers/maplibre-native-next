@@ -146,15 +146,15 @@ impl State {
                 return;
             };
 
-            let header = pmtiles::deserialize_header(&data[..data.len().min(127)])
-                .map_err(|e| e.to_string())
-                .and_then(|header| {
+            let header = pmtiles::deserialize_header(&data[..data.len().min(127)]).map_err(|e| e.to_string()).and_then(
+                |header| {
                     let supported = |c: u8| c == pmtiles::COMPRESSION_NONE || c == pmtiles::COMPRESSION_GZIP;
                     if !supported(header.internal_compression) || !supported(header.tile_compression) {
                         return Err("Compression method not supported".to_owned());
                     }
                     Ok(header)
-                });
+                },
+            );
             match header {
                 Ok(header) => {
                     this.header_cache.borrow_mut().entry(url.clone()).or_insert(header);
@@ -187,11 +187,7 @@ impl State {
                 let parse_callback = {
                     let (this, url, callback) = (this.clone(), url.clone(), callback.clone());
                     move |data: &[u8]| {
-                        let mut doc = if data.is_empty() {
-                            Document::default()
-                        } else {
-                            Document::parse_object(data)
-                        };
+                        let mut doc = if data.is_empty() { Document::default() } else { Document::parse_object(data) };
 
                         doc.add_member("tilejson", Json::String("3.0.0".to_owned()));
 
@@ -320,7 +316,13 @@ impl State {
         );
     }
 
-    fn store_directory(&self, url: &str, directory_offset: u64, directory_length: u64, directory_data: &[u8]) -> Result<(), String> {
+    fn store_directory(
+        &self,
+        url: &str,
+        directory_offset: u64,
+        directory_length: u64,
+        directory_data: &[u8],
+    ) -> Result<(), String> {
         let directory_cache_key = format!("{url}|{directory_offset}|{directory_length}");
         let directory = pmtiles::deserialize_directory(directory_data).map_err(|e| e.to_string())?;
 
@@ -349,11 +351,8 @@ impl State {
     ) {
         let directory_cache_key = format!("{url}|{directory_offset}|{directory_length}");
 
-        let cached = self
-            .directory_cache
-            .borrow()
-            .get(url)
-            .is_some_and(|cache| cache.contains_key(&directory_cache_key));
+        let cached =
+            self.directory_cache.borrow().get(url).is_some_and(|cache| cache.contains_key(&directory_cache_key));
         if cached {
             {
                 let mut controls = self.directory_cache_control.borrow_mut();
@@ -440,10 +439,7 @@ impl State {
         if directory_depth > 3 {
             callback(
                 (0, 0),
-                error(
-                    Reason::Other,
-                    "Error fetching PMTiles tile address: Maximum directory depth exceeded",
-                ),
+                error(Reason::Other, "Error fetching PMTiles tile address: Maximum directory depth exceeded"),
             );
 
             return;
@@ -600,8 +596,7 @@ impl PMTilesFileSourceThread {
                             response.no_content = true;
 
                             if let Some(e) = &tile_response.error {
-                                response.error =
-                                    error(e.reason, format!("Error fetching PMTiles tile: {}", e.message));
+                                response.error = error(e.reason, format!("Error fetching PMTiles tile: {}", e.message));
                                 send(&r, response);
                                 return;
                             }
@@ -611,7 +606,8 @@ impl PMTilesFileSourceThread {
                             }
 
                             let Some(data) = &tile_response.data else {
-                                response.error = error(Reason::Other, "Error fetching PMTiles tile: response has no data");
+                                response.error =
+                                    error(Reason::Other, "Error fetching PMTiles tile: response has no data");
                                 send(&r, response);
                                 return;
                             };
@@ -628,10 +624,8 @@ impl PMTilesFileSourceThread {
                                     match decompress(data) {
                                         Ok(decompressed) => response.data = Some(Arc::new(decompressed)),
                                         Err(e) => {
-                                            response.error = error(
-                                                Reason::Other,
-                                                format!("Error decompressing PMTiles tile: {e}"),
-                                            )
+                                            response.error =
+                                                error(Reason::Other, format!("Error decompressing PMTiles tile: {e}"))
                                         }
                                     }
                                 } else {
@@ -701,16 +695,12 @@ impl FileSource for PMTilesFileSource {
         // assume if there is a tile request, that the pmtiles file has been
         // validated
         if resource.kind == Kind::Tile {
-            self.thread
-                .actor()
-                .invoke(move |t: &PMTilesFileSourceThread| t.request_tile(req_id, &resource, &req_ref));
+            self.thread.actor().invoke(move |t: &PMTilesFileSourceThread| t.request_tile(req_id, &resource, &req_ref));
             return Box::new(req);
         }
 
         // return TileJSON
-        self.thread
-            .actor()
-            .invoke(move |t: &PMTilesFileSourceThread| t.request_tilejson(req_id, &resource, &req_ref));
+        self.thread.actor().invoke(move |t: &PMTilesFileSourceThread| t.request_tilejson(req_id, &resource, &req_ref));
         Box::new(req)
     }
 

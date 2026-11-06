@@ -2,8 +2,7 @@
 // expression-test/expression_test_runner.cpp (minus UPDATE mode).
 
 use crate::parser::{
-    TestData, TestResult, compiled_to_value, expression_value_to_value, parse_expression,
-    to_document, to_json,
+    TestData, TestResult, compiled_to_value, expression_value_to_value, parse_expression, to_document, to_json,
 };
 use crate::test_runner_common::{deep_equal_opt, tokenize};
 use feature::{Value, ValueObject};
@@ -112,10 +111,7 @@ fn evaluate_expression(data_inputs: &[crate::parser::Input], expression: &dyn Ex
 
 /// `runExpressionTest`.
 pub fn run_expression_test(data: &mut TestData, id: &str) -> TestRunOutput {
-    let mut output = TestRunOutput {
-        id: id.to_owned(),
-        ..Default::default()
-    };
+    let mut output = TestRunOutput { id: id.to_owned(), ..Default::default() };
 
     // Parse expression
     let document_expression = data.document["expression"].clone();
@@ -182,10 +178,7 @@ pub fn run_expression_test(data: &mut TestData, id: &str) -> TestRunOutput {
     if compile_ok && !eval_ok {
         output.text += &format!(
             "Expression outputs difference:\n{}\n",
-            simple_diff(
-                data.expected.outputs.as_ref().unwrap_or(&null),
-                data.result.outputs.as_ref().unwrap_or(&null)
-            )
+            simple_diff(data.expected.outputs.as_ref().unwrap_or(&null), data.result.outputs.as_ref().unwrap_or(&null))
         );
     }
 

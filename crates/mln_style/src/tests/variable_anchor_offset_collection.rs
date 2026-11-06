@@ -169,7 +169,8 @@ fn expression() {
         assert_eq!(error.message, expected_error);
 
         // Invalid anchor type
-        let expected_error = "[4]: Invalid variableAnchorOffsetCollection value [\"test\",[0,0]]: unknown anchor type 'test'";
+        let expected_error =
+            "[4]: Invalid variableAnchorOffsetCollection value [\"test\",[0,0]]: unknown anchor type 'test'";
         let parsed_result = json_to_property_value(
             r#"["interpolate", ["linear"], ["zoom"], 0, ["literal", ["test", [0, 0]]], 1, ["literal",["left",
                 [10, 20]]]]"#,

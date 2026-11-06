@@ -149,10 +149,7 @@ impl ImageManager {
     }
 
     pub fn dump_debug_logs(&self) {
-        Log::info(
-            Event::General,
-            format!("ImageManager::loaded: {}", if self.is_loaded() { "1" } else { "0" }),
-        );
+        Log::info(Event::General, format!("ImageManager::loaded: {}", if self.is_loaded() { "1" } else { "0" }));
     }
 
     /// `getImage(id)`.
@@ -395,11 +392,7 @@ impl ImageManager {
                 // `observer->onStyleImageMissing`, so that rendering is
                 // re-launched from the handler at Map::Impl.
             } else {
-                state
-                    .requested_images
-                    .entry(missing_image.clone())
-                    .or_default()
-                    .insert(key, requestor.clone());
+                state.requested_images.entry(missing_image.clone()).or_default().insert(key, requestor.clone());
                 requestor_rc.add_pending_request(missing_image);
             }
             missing_calls.push(missing_image.clone());

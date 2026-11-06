@@ -46,8 +46,8 @@ use mln_util::mat4::{Mat4, matrix};
 
 use crate::bucket::Bucket;
 use crate::buckets::symbol_bucket::{
-    Buffer, CollisionBoxDynamicVertex, PlacedSymbol, SortKeyRange, SymbolBucket, SymbolBucketState,
-    ZoomEvaluatedSize, get_sorted_symbols,
+    Buffer, CollisionBoxDynamicVertex, PlacedSymbol, SortKeyRange, SymbolBucket, SymbolBucketState, ZoomEvaluatedSize,
+    get_sorted_symbols,
 };
 use crate::geometry::feature_index::{FeatureIndex, IndexedSubfeature};
 use crate::layout::symbol_instance::SymbolInstance;
@@ -100,11 +100,19 @@ pub struct JointOpacityState {
 impl JointOpacityState {
     /// `JointOpacityState(bool placedText, bool placedIcon, bool skipFade)`.
     pub fn new(placed_text: bool, placed_icon: bool, skip_fade: bool) -> Self {
-        JointOpacityState { icon: OpacityState::new(placed_icon, skip_fade), text: OpacityState::new(placed_text, skip_fade) }
+        JointOpacityState {
+            icon: OpacityState::new(placed_icon, skip_fade),
+            text: OpacityState::new(placed_text, skip_fade),
+        }
     }
 
     /// `JointOpacityState(prevOpacityState, increment, placedText, placedIcon)`.
-    pub fn from_prev(prev_opacity_state: &JointOpacityState, increment: f32, placed_text: bool, placed_icon: bool) -> Self {
+    pub fn from_prev(
+        prev_opacity_state: &JointOpacityState,
+        increment: f32,
+        placed_text: bool,
+        placed_icon: bool,
+    ) -> Self {
         JointOpacityState {
             icon: OpacityState::from_prev(&prev_opacity_state.icon, increment, placed_icon),
             text: OpacityState::from_prev(&prev_opacity_state.text, increment, placed_text),
@@ -591,7 +599,8 @@ fn hash_u16string(s: &[u16]) -> u64 {
     let len_aligned = bytes.len() & !0x7;
     let mut hash = seed ^ len.wrapping_mul(mul);
     for chunk in bytes[..len_aligned].chunks_exact(8) {
-        let data = shift_mix(u64::from_le_bytes(chunk.try_into().expect("8 bytes")).wrapping_mul(mul)).wrapping_mul(mul);
+        let data =
+            shift_mix(u64::from_le_bytes(chunk.try_into().expect("8 bytes")).wrapping_mul(mul)).wrapping_mul(mul);
         hash ^= data;
         hash = hash.wrapping_mul(mul);
     }
@@ -845,9 +854,7 @@ impl Placement {
                 Placement::new(update_parameters, prev_placement, PlacementKind::Continuous)
             }
             MapMode::Static => Placement::new(update_parameters, None, PlacementKind::Static),
-            MapMode::Tile => {
-                Placement::new(update_parameters, None, PlacementKind::Tile(Box::default()))
-            }
+            MapMode::Tile => Placement::new(update_parameters, None, PlacementKind::Tile(Box::default())),
         }
     }
 
@@ -935,7 +942,11 @@ impl Placement {
         // As long as this placement lives, we have to hold onto this bucket's
         // matching FeatureIndex/data for querying purposes
         self.retained_query_data.entry(symbol_bucket.bucket_instance_id).or_insert_with(|| {
-            RetainedQueryData::new(symbol_bucket.bucket_instance_id, params.feature_index.clone(), *ctx.get_overscaled_id())
+            RetainedQueryData::new(
+                symbol_bucket.bucket_instance_id,
+                params.feature_index.clone(),
+                *ctx.get_overscaled_id(),
+            )
         });
     }
 
@@ -1069,24 +1080,25 @@ impl Placement {
                     ctx.has_icon_text_fit && !ctx.icon_allow_overlap && symbol_instance.placed_icon_index.is_some();
                 let variable_text_anchors_ref = &variable_text_anchors;
                 let shift_ref = &shift;
-                let place_feature_for_variable_anchors = |this: &mut Placement,
-                                                          text_collision_feature: &CollisionFeature,
-                                                          orientation: TextWritingModeType,
-                                                          icon_collision_feature: &CollisionFeature| {
-                    this.place_feature_for_variable_anchors(
-                        text_collision_feature,
-                        orientation,
-                        icon_collision_feature,
-                        symbol_instance,
-                        ctx,
-                        placed_symbol,
-                        font_size,
-                        &pos_matrix,
-                        variable_text_anchors_ref,
-                        do_variable_icon_placement,
-                        shift_ref,
-                    )
-                };
+                let place_feature_for_variable_anchors =
+                    |this: &mut Placement,
+                     text_collision_feature: &CollisionFeature,
+                     orientation: TextWritingModeType,
+                     icon_collision_feature: &CollisionFeature| {
+                        this.place_feature_for_variable_anchors(
+                            text_collision_feature,
+                            orientation,
+                            icon_collision_feature,
+                            symbol_instance,
+                            ctx,
+                            placed_symbol,
+                            font_size,
+                            &pos_matrix,
+                            variable_text_anchors_ref,
+                            do_variable_icon_placement,
+                            shift_ref,
+                        )
+                    };
 
                 let mut place_horizontal = |this: &mut Placement| {
                     place_feature_for_variable_anchors(
@@ -1479,8 +1491,7 @@ impl Placement {
                 let joint_opacity = JointOpacityState::from_prev(prev_opacity, increment, false, false);
                 if !joint_opacity.is_hidden() {
                     self.opacities.insert(*id, joint_opacity);
-                    placement_changed =
-                        placement_changed || prev_opacity.icon.placed || prev_opacity.text.placed;
+                    placement_changed = placement_changed || prev_opacity.icon.placed || prev_opacity.text.placed;
                 }
             }
         }
@@ -1604,8 +1615,7 @@ impl Placement {
             bs.has_variable_placement = false;
 
             let partially_evaluated_size = bucket.text_size_binder.evaluate_for_zoom(state.get_zoom() as f32);
-            let tile_scale =
-                2f64.powf(state.get_zoom() - tile.get_overscaled_tile_id().overscaled_z as f64) as f32;
+            let tile_scale = 2f64.powf(state.get_zoom() - tile.get_overscaled_tile_id().overscaled_z as f64) as f32;
             let rotate_with_map = *layout.get::<TextRotationAlignment>() == AlignmentType::Map;
             let pitch_with_map = *layout.get::<TextPitchAlignment>() == AlignmentType::Map;
             let pixels_to_tile_units = tile.id.pixels_to_tile_units(1.0, state.get_zoom() as f32);
@@ -1659,8 +1669,7 @@ impl Placement {
                         // based shift to the anchor before projecting to the label
                         // plane.
                         let shifted_anchor = if pitch_with_map {
-                            project(Point::new(tile_anchor.x + shift.x, tile_anchor.y + shift.y), &label_plane_matrix)
-                                .0
+                            project(Point::new(tile_anchor.x + shift.x, tile_anchor.y + shift.y), &label_plane_matrix).0
                         } else if rotate_with_map {
                             let rotated = rotate_f64(shift, -state.get_pitch());
                             Point::new(projected_anchor.0.x + rotated.x, projected_anchor.0.y + rotated.y)
@@ -1692,7 +1701,10 @@ impl Placement {
                         } else {
                             match placed_text_shifts.get(&i) {
                                 None => {
-                                    hide_glyphs(placed_icon.glyph_offsets.len(), &mut icon_buffer.dynamic_attribute_data);
+                                    hide_glyphs(
+                                        placed_icon.glyph_offsets.len(),
+                                        &mut icon_buffer.dynamic_attribute_data,
+                                    );
                                 }
                                 Some(pair) => {
                                     for _ in 0..placed_icon.glyph_offsets.len() {
@@ -1720,7 +1732,11 @@ impl Placement {
                         hide_glyphs(symbol.glyph_offsets.len(), &mut buffer.dynamic_attribute_data);
                     } else {
                         for _ in 0..symbol.glyph_offsets.len() {
-                            add_dynamic_attributes(symbol.anchor_point, symbol.angle, &mut buffer.dynamic_attribute_data);
+                            add_dynamic_attributes(
+                                symbol.anchor_point,
+                                symbol.angle,
+                                &mut buffer.dynamic_attribute_data,
+                            );
                         }
                     }
                 }
@@ -1976,7 +1992,11 @@ impl Placement {
                             // vertex of the first call is used from then on.
                             static DYNAMIC_VERTEX: OnceLock<CollisionBoxDynamicVertex> = OnceLock::new();
                             let dynamic_vertex = *DYNAMIC_VERTEX.get_or_init(|| {
-                                SymbolBucket::collision_dynamic_vertex(placed, false /*not used*/, Point::new(0.0, 0.0))
+                                SymbolBucket::collision_dynamic_vertex(
+                                    placed,
+                                    false, /*not used*/
+                                    Point::new(0.0, 0.0),
+                                )
                             });
                             extend(dynamic_vertices, 4 * feature.boxes.len(), dynamic_vertex);
                         }
@@ -2229,7 +2249,8 @@ impl Placement {
             }
         }
         // Can be placed, if it does not intersect tile borders.
-        let status = self.collision_index.intersects_tile_edges(box_, shift, pos_matrix, text_pixel_ratio, tile_borders);
+        let status =
+            self.collision_index.intersects_tile_edges(box_, shift, pos_matrix, text_pixel_ratio, tile_borders);
         status.flags == IntersectStatus::NONE
     }
 
@@ -2379,38 +2400,55 @@ impl Placement {
         let extent = EXTENT as f32;
         // `y - 1` etc. are uint32_t arithmetic, converted to int64_t.
         let neighbours = [
-            neighbor_tile_data(&self.collision_index, UnwrappedTileID::new(z, x as i64, y.wrapping_sub(1) as i64), Point::new(0.0, extent)), // top
-            neighbor_tile_data(&self.collision_index, UnwrappedTileID::new(z, x as i64, y.wrapping_add(1) as i64), Point::new(0.0, -extent)), // bottom
-            neighbor_tile_data(&self.collision_index, UnwrappedTileID::new(z, x.wrapping_sub(1) as i64, y as i64), Point::new(extent, 0.0)), // left
-            neighbor_tile_data(&self.collision_index, UnwrappedTileID::new(z, x.wrapping_add(1) as i64, y as i64), Point::new(-extent, 0.0)), // right
+            neighbor_tile_data(
+                &self.collision_index,
+                UnwrappedTileID::new(z, x as i64, y.wrapping_sub(1) as i64),
+                Point::new(0.0, extent),
+            ), // top
+            neighbor_tile_data(
+                &self.collision_index,
+                UnwrappedTileID::new(z, x as i64, y.wrapping_add(1) as i64),
+                Point::new(0.0, -extent),
+            ), // bottom
+            neighbor_tile_data(
+                &self.collision_index,
+                UnwrappedTileID::new(z, x.wrapping_sub(1) as i64, y as i64),
+                Point::new(extent, 0.0),
+            ), // left
+            neighbor_tile_data(
+                &self.collision_index,
+                UnwrappedTileID::new(z, x.wrapping_add(1) as i64, y as i64),
+                Point::new(-extent, 0.0),
+            ), // right
         ];
 
         let tile_borders = self.tile_state().tile_borders.expect("tileBorders");
         let collision_index = &self.collision_index;
-        let collision_box_intersects_tile_edges = |collision_box: &CollisionBox, shift: Point<f32>| -> IntersectStatus {
-            let mut intersects = collision_index.intersects_tile_edges(
-                collision_box,
-                shift,
-                &render_tile.matrix,
-                ctx.pixel_ratio,
-                &tile_borders,
-            );
-            // Check if this symbol intersects the neighbor tile borders. If so, it
-            // also shall be placed with priority.
-            for neighbor in &neighbours {
-                if intersects.flags != IntersectStatus::NONE {
-                    break;
-                }
-                intersects = collision_index.intersects_tile_edges(
+        let collision_box_intersects_tile_edges =
+            |collision_box: &CollisionBox, shift: Point<f32>| -> IntersectStatus {
+                let mut intersects = collision_index.intersects_tile_edges(
                     collision_box,
-                    add(shift, neighbor.shift),
-                    &neighbor.matrix,
+                    shift,
+                    &render_tile.matrix,
                     ctx.pixel_ratio,
-                    &neighbor.borders,
+                    &tile_borders,
                 );
-            }
-            intersects
-        };
+                // Check if this symbol intersects the neighbor tile borders. If so, it
+                // also shall be placed with priority.
+                for neighbor in &neighbours {
+                    if intersects.flags != IntersectStatus::NONE {
+                        break;
+                    }
+                    intersects = collision_index.intersects_tile_edges(
+                        collision_box,
+                        add(shift, neighbor.shift),
+                        &neighbor.matrix,
+                        ctx.pixel_ratio,
+                        &neighbor.borders,
+                    );
+                }
+                intersects
+            };
 
         let pitch_text_with_map = ctx.pitch_text_with_map;
         let rotate_text_with_map = ctx.rotate_text_with_map;
@@ -2432,10 +2470,8 @@ impl Placement {
                     let width = text_collision_box.x2 - text_collision_box.x1;
                     let height = text_collision_box.y2 - text_collision_box.y1;
 
-                    let variable_text_offset = text_variable_anchor_offset
-                        .as_ref()
-                        .expect("offsets")
-                        .get_offset_by_anchor(&variable_anchor);
+                    let variable_text_offset =
+                        text_variable_anchor_offset.as_ref().expect("offsets").get_offset_by_anchor(&variable_anchor);
 
                     offset = calculate_variable_layout_offset(
                         variable_anchor,
@@ -2459,10 +2495,8 @@ impl Placement {
                     let width = icon_collision_box.x2 - icon_collision_box.x1;
                     let height = icon_collision_box.y2 - icon_collision_box.y1;
 
-                    let variable_text_offset = text_variable_anchor_offset
-                        .as_ref()
-                        .expect("offsets")
-                        .get_offset_by_anchor(&variable_anchor);
+                    let variable_text_offset =
+                        text_variable_anchor_offset.as_ref().expect("offsets").get_offset_by_anchor(&variable_anchor);
 
                     offset = calculate_variable_layout_offset(
                         variable_anchor,

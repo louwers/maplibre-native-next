@@ -31,8 +31,14 @@ fn calculations() {
     #[allow(clippy::excessive_precision)]
     expect_array_eq(position.get_cartesian(), [0.34729638695716858, -1.9696154594421387, 2.384976127700611e-08]);
 
-    expect_array_ne(create_position([2.0, 30.0, 10.0]).get_spherical(), create_position([2.0, 30.0, 370.0]).get_spherical());
-    expect_array_eq(create_position([2.0, 30.0, 10.0]).get_cartesian(), create_position([2.0, 30.0, 370.0]).get_cartesian());
+    expect_array_ne(
+        create_position([2.0, 30.0, 10.0]).get_spherical(),
+        create_position([2.0, 30.0, 370.0]).get_spherical(),
+    );
+    expect_array_eq(
+        create_position([2.0, 30.0, 10.0]).get_cartesian(),
+        create_position([2.0, 30.0, 370.0]).get_cartesian(),
+    );
 
     let new_spherical = [1.0, 80.0, 270.0];
     position.set(new_spherical);

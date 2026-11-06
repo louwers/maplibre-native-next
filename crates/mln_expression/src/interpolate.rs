@@ -5,8 +5,7 @@
 // `InterpolateOutput` tag here; there is one `Interpolate` struct.
 
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::interpolator::{CubicBezierInterpolator, ExponentialInterpolator, Interpolator};
 use crate::parsing_context::{ParseResult, ParsingContext};
@@ -36,9 +35,7 @@ impl InterpolateOutput {
             InterpolateOutput::Number => Type::Number,
             InterpolateOutput::Color => Type::Color,
             InterpolateOutput::Padding => Type::Padding,
-            InterpolateOutput::VariableAnchorOffsetCollection => {
-                Type::VariableAnchorOffsetCollection
-            }
+            InterpolateOutput::VariableAnchorOffsetCollection => Type::VariableAnchorOffsetCollection,
             InterpolateOutput::Array => Type::array(Type::Value),
         }
     }
@@ -49,10 +46,7 @@ impl InterpolateOutput {
             (InterpolateOutput::Number, Value::Number(_))
                 | (InterpolateOutput::Color, Value::Color(_))
                 | (InterpolateOutput::Padding, Value::Padding(_))
-                | (
-                    InterpolateOutput::VariableAnchorOffsetCollection,
-                    Value::VariableAnchorOffsetCollection(_)
-                )
+                | (InterpolateOutput::VariableAnchorOffsetCollection, Value::VariableAnchorOffsetCollection(_))
                 | (InterpolateOutput::Array, Value::Array(_))
         )
     }
@@ -87,10 +81,7 @@ impl Interpolate {
         output: InterpolateOutput,
     ) -> Self {
         assert!(*input.get_type() == Type::Number);
-        let deps = input.dependencies()
-            | stops
-                .values()
-                .fold(Default::default(), |a, e| a | e.dependencies());
+        let deps = input.dependencies() | stops.values().fold(Default::default(), |a, e| a | e.dependencies());
         Interpolate {
             base: ExpressionBase::new(Kind::Interpolate, type_, deps),
             interpolator,
@@ -136,9 +127,7 @@ impl Interpolate {
     fn interpolate_outputs(&self, lower: &Value, upper: &Value, t: f64) -> EvaluationResult {
         Ok(match (lower, upper) {
             (Value::Number(a), Value::Number(b)) => Value::Number(interpolate_double(*a, *b, t)),
-            (Value::Color(a), Value::Color(b)) => {
-                Value::Color(Color::interpolate(a, b, t, self.color_space))
-            }
+            (Value::Color(a), Value::Color(b)) => Value::Color(Color::interpolate(a, b, t, self.color_space)),
             (Value::Padding(a), Value::Padding(b)) => Value::Padding(Padding::new(
                 interpolate_float(a.top, b.top, t),
                 interpolate_float(a.right, b.right, t),
@@ -182,10 +171,7 @@ impl Expression for Interpolate {
     fn evaluate(&self, params: &EvaluationContext<'_>) -> EvaluationResult {
         let evaluated_input = self.input.evaluate(params)?;
 
-        let x: f32 = evaluated_input
-            .as_number()
-            .map(|d| d as f32)
-            .expect("numeric interpolation input");
+        let x: f32 = evaluated_input.as_number().map(|d| d as f32).expect("numeric interpolation input");
         if x.is_nan() {
             return Err(EvaluationError::new("Input is not a number."));
         }
@@ -373,36 +359,22 @@ pub fn parse_interpolate(value: &Convertible<'_>, ctx: &mut ParsingContext) -> P
         let in_unit = |v: Option<f64>| v.is_some_and(|v| !(v < 0.0 || v > 1.0));
         if !in_unit(x1) || !in_unit(y1) || !in_unit(x2) || !in_unit(y2) {
             ctx.error_at(
-                "Cubic bezier interpolation requires four numeric arguments with values between 0 and 1."
-                    .to_owned(),
+                "Cubic bezier interpolation requires four numeric arguments with values between 0 and 1.".to_owned(),
                 1,
             );
             return None;
         }
-        interpolator = Some(
-            CubicBezierInterpolator::new(x1.unwrap(), y1.unwrap(), x2.unwrap(), y2.unwrap())
-                .into(),
-        );
+        interpolator = Some(CubicBezierInterpolator::new(x1.unwrap(), y1.unwrap(), x2.unwrap(), y2.unwrap()).into());
     }
 
     let Some(interpolator) = interpolator else {
-        ctx.error_at2(
-            format!(
-                "Unknown interpolation type {}",
-                interp_name.as_deref().unwrap_or("")
-            ),
-            1,
-            0,
-        );
+        ctx.error_at2(format!("Unknown interpolation type {}", interp_name.as_deref().unwrap_or("")), 1, 0);
         return None;
     };
 
     let min_args = 4;
     if length - 1 < min_args {
-        ctx.error(format!(
-            "Expected at least 4 arguments, but found only {}.",
-            length - 1
-        ));
+        ctx.error(format!("Expected at least 4 arguments, but found only {}.", length - 1));
         return None;
     }
 
@@ -487,12 +459,5 @@ pub fn create_interpolate(
             return None;
         }
     };
-    Some(Box::new(Interpolate::new(
-        type_,
-        interpolator,
-        color_space,
-        input,
-        stops,
-        output,
-    )))
+    Some(Box::new(Interpolate::new(type_, interpolator, color_space, input, stops, output)))
 }

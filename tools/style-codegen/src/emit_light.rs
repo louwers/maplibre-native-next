@@ -103,7 +103,8 @@ pub fn emit(properties: &[Property]) -> String {
     w.line("        };");
     w.blank();
     for (key, members) in conversion_groups(properties.iter()) {
-        let terms: Vec<String> = members.iter().map(|p| format!("property == Property::{}", camelize(&p.name))).collect();
+        let terms: Vec<String> =
+            members.iter().map(|p| format!("property == Property::{}", camelize(&p.name))).collect();
         for line in if_condition("        ", &terms) {
             w.line(&line);
         }
@@ -165,7 +166,10 @@ pub fn emit(properties: &[Property]) -> String {
             w.line(&arm);
         } else {
             w.line(&format!("            Property::{}Transition => {{", camelize(&p.name)));
-            w.line(&format!("                make_transition_style_property(&self.get_{}_transition())", snake(&p.name)));
+            w.line(&format!(
+                "                make_transition_style_property(&self.get_{}_transition())",
+                snake(&p.name)
+            ));
             w.line("            }");
         }
     }

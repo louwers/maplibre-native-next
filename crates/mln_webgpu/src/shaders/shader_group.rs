@@ -30,7 +30,10 @@ impl ShaderGroup {
     }
 
     /// `ShaderGroupBase::addAdditionalDefines`
-    fn add_additional_defines(properties_as_uniforms: &StringIDSetsPair, additional_defines: &mut HashMap<String, String>) {
+    fn add_additional_defines(
+        properties_as_uniforms: &StringIDSetsPair,
+        additional_defines: &mut HashMap<String, String>,
+    ) {
         additional_defines.reserve(properties_as_uniforms.0.len());
         for name in &properties_as_uniforms.0 {
             // We expect the names to be prefixed by "a_", but we need just the base here.

@@ -18,10 +18,7 @@ pub struct DataDrivenPropertyEvaluator<'a, T, const USE_INTEGER_ZOOM: bool = fal
 
 impl<'a, T, const USE_INTEGER_ZOOM: bool> DataDrivenPropertyEvaluator<'a, T, USE_INTEGER_ZOOM> {
     pub fn new(parameters: &'a PropertyEvaluationParameters, default_value: T) -> Self {
-        DataDrivenPropertyEvaluator {
-            parameters,
-            default_value,
-        }
+        DataDrivenPropertyEvaluator { parameters, default_value }
     }
 }
 
@@ -80,24 +77,15 @@ pub struct DataDrivenFadedPropertyEvaluator<'a, T> {
 
 impl<'a, T: Clone> DataDrivenFadedPropertyEvaluator<'a, T> {
     pub fn new(parameters: &'a PropertyEvaluationParameters, default_value: T) -> Self {
-        DataDrivenFadedPropertyEvaluator {
-            parameters,
-            default_value,
-        }
+        DataDrivenFadedPropertyEvaluator { parameters, default_value }
     }
 
     fn calculate(&self, min: &T, mid: &T, max: &T) -> Faded<T> {
         let z = self.parameters.z;
         if z > self.parameters.zoom_history.last_integer_zoom {
-            Faded {
-                from: min.clone(),
-                to: mid.clone(),
-            }
+            Faded { from: min.clone(), to: mid.clone() }
         } else {
-            Faded {
-                from: max.clone(),
-                to: mid.clone(),
-            }
+            Faded { from: max.clone(), to: mid.clone() }
         }
     }
 }

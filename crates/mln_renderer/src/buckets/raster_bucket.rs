@@ -80,11 +80,7 @@ impl RasterBucket {
 
     /// `RasterBucket(std::shared_ptr<PremultipliedImage>)`.
     pub fn with_shared_image(image: Option<Arc<PremultipliedImage>>) -> Self {
-        RasterBucket {
-            base: BucketBase::default(),
-            image,
-            geometry: Mutex::new(RasterBucketGeometry::new()),
-        }
+        RasterBucket { base: BucketBase::default(), image, geometry: Mutex::new(RasterBucketGeometry::new()) }
     }
 
     /// `layoutVertex(Point<int16_t> p, Point<uint16_t> t)`.
@@ -152,7 +148,10 @@ impl RasterBucket {
             let vertex_extent: i32 = constants::EXTENT >> id.z;
 
             // C++ static_cast<int16_t> of `id.x * vertexExtent` (int32).
-            let tl_vertex = Point::new((id.x as i32).wrapping_mul(vertex_extent) as i16, (id.y as i32).wrapping_mul(vertex_extent) as i16);
+            let tl_vertex = Point::new(
+                (id.x as i32).wrapping_mul(vertex_extent) as i16,
+                (id.y as i32).wrapping_mul(vertex_extent) as i16,
+            );
             let br_vertex = Point::new(
                 (i32::from(tl_vertex.x) + vertex_extent) as i16,
                 (i32::from(tl_vertex.y) + vertex_extent) as i16,

@@ -24,12 +24,7 @@ pub struct Position {
 
 impl Position {
     pub fn new(position: [f32; 3]) -> Self {
-        let mut p = Position {
-            radial: position[0],
-            azimuthal: position[1],
-            polar: position[2],
-            ..Default::default()
-        };
+        let mut p = Position { radial: position[0], azimuthal: position[1], polar: position[2], ..Default::default() };
         p.calculate_cartesian();
         p
     }

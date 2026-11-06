@@ -15,7 +15,6 @@
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlas, DynamicTextureAtlasPtr};
 use crate::image_manager::ImageManager;
-use crate::text::glyph_manager::GlyphManager;
 use crate::layer_tweaker::LayerTweaker;
 use crate::layermanager;
 use crate::line_atlas::LineAtlas;
@@ -24,24 +23,25 @@ use crate::pattern_atlas::PatternAtlas;
 use crate::render_layer::{LayerPrepareParameters, RenderLayerPtr};
 use crate::render_source::{self, RenderSource, RenderSourceObserver, SourcePrepareParameters};
 use crate::render_tree::{LayerRenderItem, RenderItem, RenderTree, RenderTreeParameters};
-use crate::tile::tile::TileOperation;
-use crate::tile_parameters::TileParameters;
 use crate::renderer_observer::RendererObserver;
 use crate::style_diff::{diff_images, diff_layers, diff_sources, has_layout_difference};
+use crate::text::glyph_manager::GlyphManager;
+use crate::tile::tile::TileOperation;
+use crate::tile_parameters::TileParameters;
 use crate::update_parameters::UpdateParameters;
 use mln_actor::{TaggedScheduler, scheduler};
 use mln_gfx::{Context, LayerGroupBase, LayerGroupBasePtr, ShaderRegistry};
-use mln_style::layer_properties::LayerProperties;
-use mln_tile_id::OverscaledTileID;
-use mln_util::exception::ExceptionPtr;
 use mln_map_types::{MapMode, TransformState};
 use mln_style::collection::ImmutableVector;
 use mln_style::expression::{Dependency, GlobalStateMap};
 use mln_style::layer;
 use mln_style::layer::layer_type_info;
+use mln_style::layer_properties::LayerProperties;
 use mln_style::map::zoom_history::ZoomHistory;
-use mln_style::{image, source, PropertyEvaluationParameters, TransitionOptions, TransitionParameters};
+use mln_style::{PropertyEvaluationParameters, TransitionOptions, TransitionParameters, image, source};
+use mln_tile_id::OverscaledTileID;
 use mln_util::chrono::{Duration, TimePoint};
+use mln_util::exception::ExceptionPtr;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
@@ -155,10 +155,7 @@ impl RenderSourceObserver for OrchestratorSourceObserver {
 
     /// `onTileError(RenderSource&, const OverscaledTileID&, std::exception_ptr)`.
     fn on_tile_error(&self, source_id: &str, tile_id: &OverscaledTileID, error: ExceptionPtr) {
-        Log::error(
-            Event::Style,
-            format!("Failed to load tile {tile_id} for source {source_id}: {error}"),
-        );
+        Log::error(Event::Style, format!("Failed to load tile {tile_id} for source {source_id}: {error}"));
         if let Some(observer) = shared_observer(&self.observer) {
             observer.on_resource_error(error);
         }
@@ -249,9 +246,7 @@ impl RenderOrchestrator {
         let observer: SharedObserver = Rc::new(RefCell::new(None));
         // `imageManager->setObserver(this)`.
         let image_manager = ImageManager::create();
-        image_manager.set_observer(Some(Rc::new(OrchestratorImageObserver {
-            observer: observer.clone(),
-        })));
+        image_manager.set_observer(Some(Rc::new(OrchestratorImageObserver { observer: observer.clone() })));
         // symbols: `glyphManager->setObserver(this)`.
         let glyph_manager = GlyphManager::new(None);
         glyph_manager.set_observer(Some(Rc::new(OrchestratorGlyphObserver { observer: observer.clone() })));
@@ -285,7 +280,7 @@ impl RenderOrchestrator {
             layer_groups_by_layer_index: BTreeMap::new(),
             layer_group_tweakers: HashMap::new(),
             debug_layer_groups: BTreeMap::new(), // layers: debug
-            render_targets: Vec::new(), // dem-heatmap
+            render_targets: Vec::new(),          // dem-heatmap
             pending_changes: Vec::new(),
         }
     }
@@ -341,10 +336,8 @@ impl RenderOrchestrator {
             TransitionOptions::default()
         };
 
-        let transition_parameters = TransitionParameters {
-            now: update_parameters.time_point,
-            transition: transition_options.clone(),
-        };
+        let transition_parameters =
+            TransitionParameters { now: update_parameters.time_point, transition: transition_options.clone() };
         let transition_duration = transition_options.duration.unwrap_or(if is_map_mode_continuous {
             DEFAULT_TRANSITION_DURATION
         } else {
@@ -613,10 +606,7 @@ impl RenderOrchestrator {
                                 } else {
                                     let mut refs = BTreeSet::new();
                                     base_impl.collect_layout_global_state_refs(&mut refs);
-                                    layer
-                                        .base()
-                                        .evaluated_properties
-                                        .collect_evaluated_global_state_refs(&mut refs);
+                                    layer.base().evaluated_properties.collect_evaluated_global_state_refs(&mut refs);
                                     mln_style::expression::global_state_refs_intersect(
                                         Some(&refs),
                                         changed_global_state_keys.as_deref(),
@@ -629,8 +619,7 @@ impl RenderOrchestrator {
                                 || has_layout_difference(&layer_diff, &layer_id)
                                 || global_state_requires_relayout;
                             if layer_is_visible {
-                                self.filtered_layers_for_source
-                                    .push(layer.base().evaluated_properties.clone());
+                                self.filtered_layers_for_source.push(layer.base().evaluated_properties.clone());
                                 if zoom_fits_layer {
                                     source_needs_rendering = true;
                                     let source_id = source_impl.base().id.clone();
@@ -713,11 +702,8 @@ impl RenderOrchestrator {
         let mut opaque_pass_cut_off_estimation = layer_render_items.len();
         for render_item in layer_render_items.values() {
             let mut render_layer = render_item.layer.borrow_mut();
-            let source = render_item
-                .source
-                .as_ref()
-                .and_then(|id| self.render_sources.get(id))
-                .map(|source| source.as_ref());
+            let source =
+                render_item.source.as_ref().and_then(|id| self.render_sources.get(id)).map(|source| source.as_ref());
             render_layer.prepare(&mut LayerPrepareParameters {
                 source,
                 image_manager: &self.image_manager, // conformance
@@ -742,10 +728,8 @@ impl RenderOrchestrator {
         let mut symbol_buckets_changed = false;
         let mut symbol_buckets_added = false;
         let mut used_symbol_layers: BTreeSet<String> = BTreeSet::new();
-        let longitude = update_parameters
-            .transform_state
-            .get_lat_lng(mln_util::geo::WrapMode::Unwrapped)
-            .longitude() as f32;
+        let longitude =
+            update_parameters.transform_state.get_lat_lng(mln_util::geo::WrapMode::Unwrapped).longitude() as f32;
         for layer in layers_need_placement.iter().rev() {
             let layer = layer.borrow();
             let result = self.cross_tile_symbol_index.add_layer(&*layer, longitude);
@@ -823,12 +807,8 @@ impl RenderOrchestrator {
             }
         }
 
-        let mut render_tree = RenderTree::new(
-            render_tree_parameters,
-            layer_render_items,
-            source_render_items,
-            start_time,
-        );
+        let mut render_tree =
+            RenderTree::new(render_tree_parameters, layer_render_items, source_render_items, start_time);
         // symbols: layersNeedPlacement, placement, updateSymbolOpacities.
         render_tree.set_placement(
             layers_need_placement,
@@ -947,10 +927,7 @@ impl RenderOrchestrator {
                     self.layer_groups_by_layer_index.remove(&current);
                 }
                 layer_group.borrow_mut().update_layer_index(new_index);
-                self.layer_groups_by_layer_index
-                    .entry(new_index)
-                    .or_default()
-                    .push(layer_group.clone());
+                self.layer_groups_by_layer_index.entry(new_index).or_default().push(layer_group.clone());
                 return;
             }
         }

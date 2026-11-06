@@ -64,9 +64,7 @@ impl RenderVectorSource {
         let source_id = impl_.base().id.clone();
         // C++ decides once, from the first tileset (`isMLT`).
         let encoding = if tileset.vector_encoding == Some(VectorEncoding::MLT) {
-            VectorTileEncoding::Mlt {
-                fast_pfor_enabled: self.fast_pfor_enabled,
-            }
+            VectorTileEncoding::Mlt { fast_pfor_enabled: self.fast_pfor_enabled }
         } else {
             VectorTileEncoding::Mvt
         };
@@ -189,8 +187,7 @@ impl RenderSource for RenderVectorSource {
         global_state: Option<&mln_style::expression::GlobalStateMap>,
         proj_matrix: &mln_util::mat4::Mat4,
     ) -> crate::geometry::feature_index::QueryResults {
-        self.tile_source
-            .query_rendered_features(geometry, transform_state, layers, options, global_state, proj_matrix)
+        self.tile_source.query_rendered_features(geometry, transform_state, layers, options, global_state, proj_matrix)
     }
 
     fn query_source_features(
@@ -219,7 +216,12 @@ impl RenderSource for RenderVectorSource {
         self.tile_source.get_feature_state(source_layer_id, feature_id)
     }
 
-    fn remove_feature_state(&mut self, source_layer_id: Option<&str>, feature_id: Option<&str>, state_key: Option<&str>) {
+    fn remove_feature_state(
+        &mut self,
+        source_layer_id: Option<&str>,
+        feature_id: Option<&str>,
+        state_key: Option<&str>,
+    ) {
         self.tile_source.remove_feature_state(source_layer_id, feature_id, state_key);
     }
 
@@ -241,8 +243,6 @@ impl RenderSource for RenderVectorSource {
 
     /// `RenderTileSetSource::getMaxZoom()`.
     fn get_max_zoom(&self) -> u8 {
-        self.cached_tileset
-            .as_ref()
-            .map_or(constants::TERRAIN_RGB_MAXZOOM, |tileset| tileset.zoom_range.max)
+        self.cached_tileset.as_ref().map_or(constants::TERRAIN_RGB_MAXZOOM, |tileset| tileset.zoom_range.max)
     }
 }

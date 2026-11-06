@@ -6,11 +6,11 @@
 // copy of what the layout reads: type, id, properties and the geometry
 // (C++ also clones the geometry, for mergeLines).
 
+use feature::{Identifier, PropertyMap, Value};
 use mln_expression::image::Image;
 use mln_text::TaggedString;
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature};
 use mln_util::geometry::FeatureType;
-use feature::{Identifier, PropertyMap, Value};
 
 /// `SymbolFeature`.
 #[derive(Clone, Debug)]

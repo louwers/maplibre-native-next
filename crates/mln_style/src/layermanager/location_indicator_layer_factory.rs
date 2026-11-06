@@ -3,7 +3,7 @@
 
 use super::layer_factory::LayerFactory;
 use crate::layer::{Layer, LayerTypeInfo};
-use crate::layers::location_indicator_layer::{LocationIndicatorLayer, Impl};
+use crate::layers::location_indicator_layer::{Impl, LocationIndicatorLayer};
 use mln_conversion::Convertible;
 
 pub struct LocationIndicatorLayerFactory;

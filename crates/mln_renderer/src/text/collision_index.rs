@@ -59,7 +59,11 @@ fn find_viewport_padding(transform_state: &TransformState, map_mode: MapMode) ->
 }
 
 /// `IndexedSubfeature(const RefIndexedSubfeature&, bucketInstanceId, collisionGroupId)`.
-fn indexed_subfeature(feature: &IndexedSubfeature, bucket_instance_id: u32, collision_group_id: u16) -> IndexedSubfeature {
+fn indexed_subfeature(
+    feature: &IndexedSubfeature,
+    bucket_instance_id: u32,
+    collision_group_id: u16,
+) -> IndexedSubfeature {
     IndexedSubfeature { bucket_instance_id, collision_group_id, ..feature.clone() }
 }
 
@@ -259,10 +263,9 @@ impl CollisionIndex {
             if avoid_edges.as_ref().is_some_and(|edges| !Self::is_inside_tile(&collision_boundaries, edges))
                 || !self.is_inside_grid(&collision_boundaries)
                 || (!allow_overlap
-                    && self.collision_grid.hit_test(
-                        projected_boxes.last().expect("pushed").box_(),
-                        collision_group_predicate,
-                    ))
+                    && self
+                        .collision_grid
+                        .hit_test(projected_boxes.last().expect("pushed").box_(), collision_group_predicate))
             {
                 return (false, false);
             }
@@ -524,10 +527,7 @@ impl CollisionIndex {
     /// `projectAnchor(posMatrix, point)`: (perspective ratio, camera distance).
     fn project_anchor(&self, pos_matrix: &Mat4, point: Point<f32>) -> (f32, f32) {
         let p = transform(pos_matrix, point);
-        (
-            0.5 + 0.5 * (self.transform_state.get_camera_to_center_distance() / p[3] as f32),
-            p[3] as f32,
-        )
+        (0.5 + 0.5 * (self.transform_state.get_camera_to_center_distance() / p[3] as f32), p[3] as f32)
     }
 
     /// `projectAndGetPerspectiveRatio(posMatrix, point)`.

@@ -20,9 +20,7 @@ pub struct Error {
 
 impl Error {
     pub fn new(message: impl Into<String>) -> Self {
-        Error {
-            message: message.into(),
-        }
+        Error { message: message.into() }
     }
 }
 
@@ -41,10 +39,7 @@ pub trait ConversionTraits {
     fn object_member(&self, name: &str) -> Option<Convertible<'_>>;
     /// Calls `f` once per key and value; stops at, and returns, the first
     /// error `f` returns.
-    fn each_member(
-        &self,
-        f: &mut dyn FnMut(&str, &Convertible<'_>) -> Option<Error>,
-    ) -> Option<Error>;
+    fn each_member(&self, f: &mut dyn FnMut(&str, &Convertible<'_>) -> Option<Error>) -> Option<Error>;
 
     fn to_bool(&self) -> Option<bool>;
     /// A JSON number as `float`.
@@ -79,16 +74,12 @@ pub struct Convertible<'a> {
 impl<'a> Convertible<'a> {
     /// Wraps a borrowed front-end value.
     pub fn new(value: &'a dyn ConversionTraits) -> Self {
-        Convertible {
-            inner: Inner::Borrowed(value),
-        }
+        Convertible { inner: Inner::Borrowed(value) }
     }
 
     /// Wraps an owned front-end value (a handle the front end created).
     pub fn owned(value: impl ConversionTraits + 'a) -> Self {
-        Convertible {
-            inner: Inner::Owned(Box::new(value)),
-        }
+        Convertible { inner: Inner::Owned(Box::new(value)) }
     }
 
     fn traits(&self) -> &dyn ConversionTraits {
@@ -122,10 +113,7 @@ impl<'a> Convertible<'a> {
         self.traits().object_member(name)
     }
 
-    pub fn each_member(
-        &self,
-        mut f: impl FnMut(&str, &Convertible<'_>) -> Option<Error>,
-    ) -> Option<Error> {
+    pub fn each_member(&self, mut f: impl FnMut(&str, &Convertible<'_>) -> Option<Error>) -> Option<Error> {
         self.traits().each_member(&mut f)
     }
 
@@ -193,10 +181,7 @@ pub fn object_member<'b>(v: &'b Convertible<'_>, name: &str) -> Option<Convertib
     v.object_member(name)
 }
 
-pub fn each_member(
-    v: &Convertible<'_>,
-    f: impl FnMut(&str, &Convertible<'_>) -> Option<Error>,
-) -> Option<Error> {
+pub fn each_member(v: &Convertible<'_>, f: impl FnMut(&str, &Convertible<'_>) -> Option<Error>) -> Option<Error> {
     v.each_member(f)
 }
 

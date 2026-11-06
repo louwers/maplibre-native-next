@@ -44,20 +44,15 @@ fn points_f64() -> impl Strategy<Value = Vec<(f64, f64)>> {
         1 => (0u8..8, 0u8..8).prop_map(|(x, y)| (f64::from(x) / 8.0, f64::from(y) / 8.0)),
         1 => (0.0f64..1.0).prop_map(|x| (x, 0.5)),
     ];
-    prop_oneof![
-        prop::collection::vec(point.clone(), 0..=200),
-        prop::collection::vec(point, 601..=3000),
-    ]
+    prop_oneof![prop::collection::vec(point.clone(), 0..=200), prop::collection::vec(point, 601..=3000),]
 }
 
 fn queries_f64() -> impl Strategy<Value = Vec<Query<f64>>> {
     let q = prop_oneof![
-        (0.0f64..1.0, 0.0f64..1.0, 0.0f64..0.5, 0.0f64..0.5)
-            .prop_map(|(x, y, w, h)| Query::Range(x, y, x + w, y + h)),
+        (0.0f64..1.0, 0.0f64..1.0, 0.0f64..0.5, 0.0f64..0.5).prop_map(|(x, y, w, h)| Query::Range(x, y, x + w, y + h)),
         (0.0f64..1.0, 0.0f64..1.0, 0.0f64..0.3).prop_map(|(x, y, r)| Query::Within(x, y, r)),
-        (0u8..8, 0u8..8, 0u8..3).prop_map(|(x, y, r)| {
-            Query::Within(f64::from(x) / 8.0, f64::from(y) / 8.0, f64::from(r) / 8.0)
-        }),
+        (0u8..8, 0u8..8, 0u8..3)
+            .prop_map(|(x, y, r)| { Query::Within(f64::from(x) / 8.0, f64::from(y) / 8.0, f64::from(r) / 8.0) }),
     ];
     prop::collection::vec(q, 1..=10)
 }
@@ -95,10 +90,7 @@ fn kdbush_f64_u32_matches_cpp() {
 #[test]
 fn kdbush_i32_usize_matches_cpp() {
     let point = (0i32..100, 0i32..100);
-    let points = prop_oneof![
-        prop::collection::vec(point.clone(), 0..=200),
-        prop::collection::vec(point, 601..=2000),
-    ];
+    let points = prop_oneof![prop::collection::vec(point.clone(), 0..=200), prop::collection::vec(point, 601..=2000),];
     let q = prop_oneof![
         (0i32..100, 0i32..100, 0i32..50, 0i32..50).prop_map(|(x, y, w, h)| Query::Range(x, y, x + w, y + h)),
         (0i32..100, 0i32..100, 0i32..30).prop_map(|(x, y, r)| Query::Within(x, y, r)),

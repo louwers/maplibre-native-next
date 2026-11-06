@@ -94,8 +94,5 @@ fn formatted_identity_function() {
     let fn1 = convert_json::<Formatted>(r#"{ "property": "name", "type": "identity" }"#, &mut error, true);
     let fn1 = fn1.expect("identity function");
     assert!(fn1.is_expression());
-    assert_eq!(
-        fn1.as_expression().get_expression().serialize(),
-        format(get(literal_str("name"))).serialize()
-    );
+    assert_eq!(fn1.as_expression().get_expression().serialize(), format(get(literal_str("name"))).serialize());
 }

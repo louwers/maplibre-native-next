@@ -51,7 +51,9 @@ impl Init {
             Init::Enumerator(t, v) => format!("{t}::{v}"),
             Init::ColorBlack => "Color::black()".into(),
             Init::ColorWhite => "Color::white()".into(),
-            Init::ColorComponents(c) => format!("{{ {} }}", c.iter().map(|v| js_number(*v)).collect::<Vec<_>>().join(", ")),
+            Init::ColorComponents(c) => {
+                format!("{{ {} }}", c.iter().map(|v| js_number(*v)).collect::<Vec<_>>().join(", "))
+            }
         }
     }
 }
@@ -85,11 +87,7 @@ pub fn js_number(value: f64) -> String {
     } else {
         let e = n - 1;
         let e = if e >= 0 { format!("+{e}") } else { e.to_string() };
-        if k == 1 {
-            format!("{digits}e{e}")
-        } else {
-            format!("{}.{}e{e}", &digits[..1], &digits[1..])
-        }
+        if k == 1 { format!("{digits}e{e}") } else { format!("{}.{}e{e}", &digits[..1], &digits[1..]) }
     };
     format!("{sign}{body}")
 }
@@ -245,11 +243,7 @@ fn default_of(q: &DefaultQuery<'_>) -> Init {
                     .collect(),
                 Some(other) => panic!("{name:?}: array default {other}"),
             };
-            if q.length.is_some() {
-                Init::Braced(vec![Init::Braced(defaults)])
-            } else {
-                Init::Braced(defaults)
-            }
+            if q.length.is_some() { Init::Braced(vec![Init::Braced(defaults)]) } else { Init::Braced(defaults) }
         }
         _ => Init::Raw(q.default.cloned().unwrap_or(Value::Null)),
     }
@@ -374,10 +368,7 @@ pub fn rust_value(init: &Init, t: &EvaluatedType) -> String {
             if items.is_empty() {
                 "Vec::new()".into()
             } else {
-                format!(
-                    "vec![{}]",
-                    items.iter().map(|item| rust_value(item, element)).collect::<Vec<_>>().join(", ")
-                )
+                format!("vec![{}]", items.iter().map(|item| rust_value(item, element)).collect::<Vec<_>>().join(", "))
             }
         }
         // `{x}` for a scalar: copy-list-initialization from `x`.

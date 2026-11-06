@@ -19,10 +19,7 @@ impl Image {
     }
 
     pub fn with_available(image_id: impl Into<String>, available: bool) -> Self {
-        Image {
-            image_id: image_id.into(),
-            available,
-        }
+        Image { image_id: image_id.into(), available }
     }
 
     pub fn to_value(&self) -> MbglValue {

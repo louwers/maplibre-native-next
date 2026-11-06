@@ -10,14 +10,12 @@
 use crate::check_subtype::check_subtype;
 use crate::collator::Collator;
 use crate::expression::{
-    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase,
-    Kind, children_equal, collect_dependencies, downcast, mbgl_to_expression_value,
+    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
+    collect_dependencies, downcast, mbgl_to_expression_value,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
-use crate::utf8_op_helpers::{
-    get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8,
-};
+use crate::utf8_op_helpers::{get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8};
 use crate::util::rgba;
 use crate::value::{ObjectType, Value, to_string, type_of};
 use feature::{Identifier as FeatureIdentifier, Value as MbglValue};
@@ -51,10 +49,7 @@ impl SignatureBase {
 
 /// Evaluates the arguments in order, stopping at the first error (both
 /// `Signature::applyImpl` and the varargs `apply`).
-fn eval_args(
-    params: &EvaluationContext<'_>,
-    args: &[Box<dyn Expression>],
-) -> Result<Vec<Value>, EvaluationError> {
+fn eval_args(params: &EvaluationContext<'_>, args: &[Box<dyn Expression>]) -> Result<Vec<Value>, EvaluationError> {
     args.iter().map(|arg| arg.evaluate(params)).collect()
 }
 
@@ -70,20 +65,8 @@ fn string(v: &Value) -> &str {
     v.as_str().expect("string argument")
 }
 
-fn sig(
-    name: &'static str,
-    result: Type,
-    params: Params,
-    dependencies: Dependency,
-    apply: ApplyFn,
-) -> SignatureBase {
-    SignatureBase {
-        result,
-        params,
-        name,
-        dependencies,
-        apply,
-    }
+fn sig(name: &'static str, result: Type, params: Params, dependencies: Dependency, apply: ApplyFn) -> SignatureBase {
+    SignatureBase { result, params, name, dependencies, apply }
 }
 
 fn fixed(types: &[Type]) -> Params {
@@ -234,11 +217,7 @@ fn filter_id_string(
     Ok(Value::Bool(rhs.is_some_and(|rhs| cmp(&rhs, string(&a[0])))))
 }
 
-fn math1(
-    params: &EvaluationContext<'_>,
-    args: &[Box<dyn Expression>],
-    f: fn(f64) -> f64,
-) -> EvaluationResult {
+fn math1(params: &EvaluationContext<'_>, args: &[Box<dyn Expression>], f: fn(f64) -> f64) -> EvaluationResult {
     let a = eval_args(params, args)?;
     Ok(Value::Number(f(num(&a[0]))))
 }
@@ -270,9 +249,9 @@ static REGISTRY: LazyLock<Vec<SignatureBase>> = LazyLock::new(|| {
             Ok(Value::Color(rgba(num(&a[0]), num(&a[1]), num(&a[2]), 1.0f32 as f64)?))
         }),
         sig("zoom", n.clone(), fixed(&[]), D::ZOOM, |p, _| match p.zoom {
-            None => Err(EvaluationError::new(
-                "The 'zoom' expression is unavailable in the current evaluation context.",
-            )),
+            None => {
+                Err(EvaluationError::new("The 'zoom' expression is unavailable in the current evaluation context."))
+            }
             Some(zoom) => Ok(Value::Number(zoom as f64)),
         }),
         sig("heatmap-density", n.clone(), fixed(&[]), D::NONE, |p, _| match p.color_ramp_parameter {
@@ -550,9 +529,7 @@ static REGISTRY: LazyLock<Vec<SignatureBase>> = LazyLock::new(|| {
             let Some(feature) = p.feature else {
                 return Ok(Value::Bool(false));
             };
-            Ok(Value::Bool(
-                feature_type_as_string(feature.get_type()).as_deref() == Some(string(&a[0])),
-            ))
+            Ok(Value::Bool(feature_type_as_string(feature.get_type()).as_deref() == Some(string(&a[0]))))
         }),
         sig("filter-<", T::Boolean, fixed(&[s.clone(), n.clone()]), D::FEATURE, |p, args| {
             filter_property_number(p, args, |a, b| a < b)
@@ -714,10 +691,7 @@ fn expected_types_error(definitions: &[&'static SignatureBase], args: &[Box<dyn 
                 overloads.push(format!("({})", type_::to_string(t)));
             }
             Params::Fixed(params) => {
-                let overload = format!(
-                    "({})",
-                    params.iter().map(type_::to_string).collect::<Vec<_>>().join(", ")
-                );
+                let overload = format!("({})", params.iter().map(type_::to_string).collect::<Vec<_>>().join(", "));
                 if params.len() == args.len() {
                     overloads.push(overload);
                 } else {
@@ -727,17 +701,9 @@ fn expected_types_error(definitions: &[&'static SignatureBase], args: &[Box<dyn 
         }
     }
 
-    let signatures = if overloads.is_empty() {
-        available_overloads.join(" | ")
-    } else {
-        overloads.join(" | ")
-    };
+    let signatures = if overloads.is_empty() { available_overloads.join(" | ") } else { overloads.join(" | ") };
 
-    let actual_types = args
-        .iter()
-        .map(|arg| type_::to_string(arg.get_type()))
-        .collect::<Vec<_>>()
-        .join(", ");
+    let actual_types = args.iter().map(|arg| type_::to_string(arg.get_type())).collect::<Vec<_>>().join(", ");
 
     format!("Expected arguments of type {signatures}, but found ({actual_types}) instead.")
 }
@@ -864,10 +830,6 @@ pub fn parse_compound_expression(name: &str, value: &Convertible<'_>, ctx: &mut 
     None
 }
 
-pub fn create_compound_expression(
-    name: &str,
-    args: Vec<Box<dyn Expression>>,
-    ctx: &mut ParsingContext,
-) -> ParseResult {
+pub fn create_compound_expression(name: &str, args: Vec<Box<dyn Expression>>, ctx: &mut ParsingContext) -> ParseResult {
     create_compound_expression_from(&definitions(name), args, ctx)
 }

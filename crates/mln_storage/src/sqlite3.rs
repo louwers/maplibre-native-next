@@ -79,11 +79,7 @@ pub struct Exception {
 
 impl Exception {
     pub fn new(err: i32, message: impl Into<String>) -> Self {
-        Exception {
-            code: err & 0xff,
-            extended_code: (err >> 8) & 0xff,
-            message: message.into(),
-        }
+        Exception { code: err & 0xff, extended_code: (err >> 8) & 0xff, message: message.into() }
     }
 }
 
@@ -96,10 +92,9 @@ impl std::fmt::Display for Exception {
 impl From<rusqlite::Error> for Exception {
     fn from(e: rusqlite::Error) -> Self {
         match &e {
-            rusqlite::Error::SqliteFailure(error, message) => Exception::new(
-                error.extended_code,
-                message.clone().unwrap_or_else(|| error.to_string()),
-            ),
+            rusqlite::Error::SqliteFailure(error, message) => {
+                Exception::new(error.extended_code, message.clone().unwrap_or_else(|| error.to_string()))
+            }
             _ => Exception::new(result_code::ERROR, e.to_string()),
         }
     }
@@ -117,9 +112,7 @@ impl Database {
     pub fn try_open(filename: &str, flags: OpenFlag) -> Result<Database, Exception> {
         let flags = OpenFlags::from_bits_retain(flags as i32) | OpenFlags::SQLITE_OPEN_URI;
         let conn = Connection::open_with_flags(filename, flags)?;
-        Ok(Database {
-            impl_: Arc::new(Mutex::new(conn)),
-        })
+        Ok(Database { impl_: Arc::new(Mutex::new(conn)) })
     }
 
     /// `Database::open(filename, flags)` (throws the `tryOpen` exception).
@@ -187,10 +180,7 @@ impl Transaction {
         };
         // C++ throws from the constructor: no destructor, no rollback.
         db.exec(sql)?;
-        Ok(Transaction {
-            db_impl: db.impl_.clone(),
-            need_rollback: true,
-        })
+        Ok(Transaction { db_impl: db.impl_.clone(), need_rollback: true })
     }
 
     fn exec(&self, sql: &str) -> Result<(), Exception> {
@@ -232,12 +222,7 @@ pub struct Statement<'conn> {
 impl<'conn> Statement<'conn> {
     /// `Statement(Database&, const char* sql)` (`sqlite3_prepare_v2`).
     pub fn new(conn: &'conn Connection, sql: &str) -> Result<Statement<'conn>, Exception> {
-        Ok(Statement {
-            stmt: conn.prepare(sql)?,
-            conn,
-            last_insert_row_id: 0,
-            changes: 0,
-        })
+        Ok(Statement { stmt: conn.prepare(sql)?, conn, last_insert_row_id: 0, changes: 0 })
     }
 }
 
@@ -253,19 +238,8 @@ pub struct Query<'s, 'conn> {
 impl<'s, 'conn> Query<'s, 'conn> {
     /// `Query(Statement&)`.
     pub fn new(statement: &'s mut Statement<'conn>) -> Self {
-        let Statement {
-            stmt,
-            conn,
-            last_insert_row_id,
-            changes,
-        } = statement;
-        Query {
-            stmt: Some(stmt),
-            rows: None,
-            conn,
-            last_insert_row_id,
-            changes,
-        }
+        let Statement { stmt, conn, last_insert_row_id, changes } = statement;
+        Query { stmt: Some(stmt), rows: None, conn, last_insert_row_id, changes }
     }
 
     /// `bind(offset, value)` (before the first `run()`).

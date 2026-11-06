@@ -14,9 +14,7 @@ pub struct Rotation {
 
 impl Rotation {
     pub fn new(angle: f64) -> Self {
-        Rotation {
-            angle: mln_math::wrap(angle, 0.0, Self::PERIOD),
-        }
+        Rotation { angle: mln_math::wrap(angle, 0.0, Self::PERIOD) }
     }
 
     const PERIOD: f64 = 360.0;

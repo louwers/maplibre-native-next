@@ -108,14 +108,8 @@ fn canonical() {
     assert_eq!(c(31, 671088640, 1744830464), scale_base.scaled_to(31));
     assert_eq!(c(32, 1342177280, 3489660928), scale_base.scaled_to(32));
 
-    assert_eq!(
-        [c(5, 4, 6), c(5, 4, 7), c(5, 5, 6), c(5, 5, 7)],
-        c(4, 2, 3).children()
-    );
-    assert_eq!(
-        [c(1, 0, 0), c(1, 0, 1), c(1, 1, 0), c(1, 1, 1)],
-        c(0, 0, 0).children()
-    );
+    assert_eq!([c(5, 4, 6), c(5, 4, 7), c(5, 5, 6), c(5, 5, 7)], c(4, 2, 3).children());
+    assert_eq!([c(1, 0, 0), c(1, 0, 1), c(1, 1, 0), c(1, 1, 1)], c(0, 0, 0).children());
 }
 
 // gtest: TileID.Overscaled
@@ -285,14 +279,8 @@ fn unwrapped() {
     assert_eq!(uw(-1, c(1, 1, 1)), u(1, -1, 1));
     assert_eq!(uw(-1, c(0, 0, 0)), u(0, -1, 0));
 
-    assert_eq!(
-        [u(1, 0, 0), u(1, 0, 1), u(1, 1, 0), u(1, 1, 1)],
-        u(0, 0, 0).children()
-    );
-    assert_eq!(
-        [u(1, -2, 0), u(1, -2, 1), u(1, -1, 0), u(1, -1, 1)],
-        u(0, -1, 0).children()
-    );
+    assert_eq!([u(1, 0, 0), u(1, 0, 1), u(1, 1, 0), u(1, 1, 1)], u(0, 0, 0).children());
+    assert_eq!([u(1, -2, 0), u(1, -2, 1), u(1, -1, 0), u(1, -1, 1)], u(0, -1, 0).children());
 }
 
 // Not in the C++ test file: the `util::toString` / `operator<<` formats from

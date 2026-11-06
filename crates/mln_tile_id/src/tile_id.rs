@@ -90,11 +90,7 @@ impl OverscaledTileID {
     /// `OverscaledTileID(uint8_t overscaledZ, int16_t wrap, CanonicalTileID)`.
     pub fn new(overscaled_z: u8, wrap: i16, canonical: CanonicalTileID) -> Self {
         debug_assert!(overscaled_z >= canonical.z);
-        OverscaledTileID {
-            overscaled_z,
-            wrap,
-            canonical,
-        }
+        OverscaledTileID { overscaled_z, wrap, canonical }
     }
 
     /// `OverscaledTileID(uint8_t overscaledZ, int16_t wrap, uint8_t z,
@@ -105,11 +101,7 @@ impl OverscaledTileID {
 
     /// `OverscaledTileID(uint8_t z, uint32_t x, uint32_t y)`.
     pub fn from_zxy(z: u8, x: u32, y: u32) -> Self {
-        OverscaledTileID {
-            overscaled_z: z,
-            wrap: 0,
-            canonical: CanonicalTileID::new(z, x, y),
-        }
+        OverscaledTileID { overscaled_z: z, wrap: 0, canonical: CanonicalTileID::new(z, x, y) }
     }
 
     pub fn overscale_factor(&self) -> u32 {
@@ -126,11 +118,7 @@ impl OverscaledTileID {
         OverscaledTileID::new(
             z,
             self.wrap,
-            if z >= self.canonical.z {
-                self.canonical
-            } else {
-                self.canonical.scaled_to(z)
-            },
+            if z >= self.canonical.z { self.canonical } else { self.canonical.scaled_to(z) },
         )
     }
 
@@ -180,10 +168,7 @@ impl UnwrappedTileID {
             let y = y as u32;
             if max < y { max } else { y }
         };
-        UnwrappedTileID {
-            wrap,
-            canonical: CanonicalTileID::new(z, canonical_x, canonical_y),
-        }
+        UnwrappedTileID { wrap, canonical: CanonicalTileID::new(z, canonical_x, canonical_y) }
     }
 
     /// `UnwrappedTileID(int16_t wrap, CanonicalTileID)`.
@@ -201,14 +186,8 @@ impl UnwrappedTileID {
         let child_y = self.canonical.y.wrapping_mul(2);
         [
             UnwrappedTileID::with_wrap(self.wrap, CanonicalTileID::new(child_z, child_x, child_y)),
-            UnwrappedTileID::with_wrap(
-                self.wrap,
-                CanonicalTileID::new(child_z, child_x, child_y.wrapping_add(1)),
-            ),
-            UnwrappedTileID::with_wrap(
-                self.wrap,
-                CanonicalTileID::new(child_z, child_x.wrapping_add(1), child_y),
-            ),
+            UnwrappedTileID::with_wrap(self.wrap, CanonicalTileID::new(child_z, child_x, child_y.wrapping_add(1))),
+            UnwrappedTileID::with_wrap(self.wrap, CanonicalTileID::new(child_z, child_x.wrapping_add(1), child_y)),
             UnwrappedTileID::with_wrap(
                 self.wrap,
                 CanonicalTileID::new(child_z, child_x.wrapping_add(1), child_y.wrapping_add(1)),
@@ -223,8 +202,7 @@ impl UnwrappedTileID {
 
     pub fn pixels_to_tile_units(&self, pixel_value: f32, zoom: f32) -> f32 {
         pixel_value
-            * (constants::EXTENT as f32
-                / (constants::TILE_SIZE as f32 * 2.0f32.powf(zoom - self.canonical.z as f32)))
+            * (constants::EXTENT as f32 / (constants::TILE_SIZE as f32 * 2.0f32.powf(zoom - self.canonical.z as f32)))
     }
 
     pub fn unwrap_to(&self, new_wrap: i16) -> UnwrappedTileID {
@@ -235,13 +213,7 @@ impl UnwrappedTileID {
 /// `operator<<` and `util::toString`: `z/x/y+wrap` (or `z/x/y-wrap`).
 impl fmt::Display for UnwrappedTileID {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}{}{}",
-            self.canonical,
-            if self.wrap >= 0 { "+" } else { "" },
-            self.wrap
-        )
+        write!(f, "{}{}{}", self.canonical, if self.wrap >= 0 { "+" } else { "" }, self.wrap)
     }
 }
 

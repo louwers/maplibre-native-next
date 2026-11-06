@@ -106,7 +106,8 @@ impl LayerTweaker for RasterLayerTweaker {
             let matrix: Mat4 = match drawable.get_tile_id() {
                 None => {
                     // this is an image drawable
-                    let Some(image_data) = drawable.get_data().and_then(|d| d.downcast_ref::<ImageDrawableData>()) else {
+                    let Some(image_data) = drawable.get_data().and_then(|d| d.downcast_ref::<ImageDrawableData>())
+                    else {
                         Log::error(
                             Event::General,
                             "Invalid raster layer drawable: neither tile id nor image data is set.".to_owned(),
@@ -155,8 +156,6 @@ impl LayerTweaker for RasterLayerTweaker {
             }
         }
 
-        layer_group
-            .mutable_uniform_buffers()
-            .set(ID_RASTER_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
+        layer_group.mutable_uniform_buffers().set(ID_RASTER_DRAWABLE_UBO, self.drawable_uniform_buffer.clone());
     }
 }

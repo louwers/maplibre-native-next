@@ -2,7 +2,7 @@
 
 use crate::{Failures, get};
 use mln_actor::actor::Actor;
-use mln_actor::scheduler::{self, SchedulerPtr, Task, TaggedScheduler};
+use mln_actor::scheduler::{self, SchedulerPtr, TaggedScheduler, Task};
 use mln_actor::{ActorRef, RunLoop, Thread, Timer};
 use mln_util::chrono::{Duration, milliseconds};
 use mln_util::identity::SimpleIdentity;
@@ -419,9 +419,7 @@ fn delete_before_child_starts() {
     let thread = Thread::new("Test", move |actor| TestWorkerDelayedConstruction::new(actor, start_future));
 
     let f = flag.clone();
-    thread
-        .actor()
-        .invoke(move |o: &TestWorkerDelayedConstruction| o.send(move || f.store(true, Ordering::SeqCst)));
+    thread.actor().invoke(move |o: &TestWorkerDelayedConstruction| o.send(move || f.store(true, Ordering::SeqCst)));
     let start = Mutex::new(Some(start));
     control.actor().invoke(move |o: &TestWorker| {
         o.send_delayed(move || {

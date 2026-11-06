@@ -6,9 +6,7 @@ use crate::manifest_parser::ManifestParser;
 use crate::metadata::{MapDebugOptions, MapMode, TestMetadata};
 use crate::parser::{parse_test_metadata, parse_test_operations};
 use crate::render_test::{Arguments, RunResult, parse_arguments, run_render_tests_with};
-use crate::runner::{
-    ImplFactory, MapError, ResourceOptions, TestContext, TestRunner, TestRunnerImpl, UpdateResults,
-};
+use crate::runner::{ImplFactory, MapError, ResourceOptions, TestContext, TestRunner, TestRunnerImpl, UpdateResults};
 use mln_platform_default_image::encode_png;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
@@ -57,10 +55,7 @@ fn parses_our_manifest() {
     assert_eq!(manifest.get_manifest_path(), "tools/render-test/manifests");
     assert_eq!(manifest.get_result_path(), "tools/render-test/manifests");
     assert_eq!(manifest.get_test_root_path(), INTEGRATION);
-    assert_eq!(
-        manifest.get_cache_path(),
-        "tools/render-test/manifests/../../../../maplibre+/metrics/cache-style.db"
-    );
+    assert_eq!(manifest.get_cache_path(), "tools/render-test/manifests/../../../../maplibre+/metrics/cache-style.db");
     assert!(manifest.get_probes().is_empty());
 
     // Ignore files in manifest order, members in document order.
@@ -88,20 +83,15 @@ fn parses_our_manifest() {
         .iter()
         .find(|t| t.style_path.ends_with("/render-tests/background-color/default/style.json"))
         .unwrap();
-    assert_eq!(
-        default.style_path,
-        format!("{INTEGRATION}/render-tests/background-color/default/style.json")
-    );
+    assert_eq!(default.style_path, format!("{INTEGRATION}/render-tests/background-color/default/style.json"));
     assert_eq!(
         default.expectations,
         vec![
             format!("{INTEGRATION}/render-tests/background-color/default/"),
             // platform-macos first: the runner checks the paths from the last
             // one, so a platform-linux baseline wins where both exist.
-            "../maplibre+/metrics/expectations/platform-macos/render-tests/background-color/default/"
-                .to_string(),
-            "../maplibre+/metrics/expectations/platform-linux/render-tests/background-color/default/"
-                .to_string(),
+            "../maplibre+/metrics/expectations/platform-macos/render-tests/background-color/default/".to_string(),
+            "../maplibre+/metrics/expectations/platform-linux/render-tests/background-color/default/".to_string(),
         ]
     );
     assert_eq!(
@@ -116,11 +106,8 @@ fn parses_our_manifest() {
 #[test]
 fn filters_tests_by_regex_search_on_the_path() {
     let manifest = ManifestParser::parse_manifest(OUR_MANIFEST, M1_FILTER.to_string()).unwrap();
-    let mut ids: Vec<&str> = manifest
-        .get_test_paths()
-        .iter()
-        .map(|t| t.style_path.strip_prefix(INTEGRATION).unwrap())
-        .collect();
+    let mut ids: Vec<&str> =
+        manifest.get_test_paths().iter().map(|t| t.style_path.strip_prefix(INTEGRATION).unwrap()).collect();
     ids.sort();
     assert_eq!(
         ids,
@@ -171,19 +158,9 @@ fn manifest_errors() {
         .is_none()
     );
     assert!(
-        parse(
-            "bad-ignores.json",
-            &format!(r#"{{"base_test_path": "{integration}", "ignore_paths": "x"}}"#)
-        )
-        .is_none()
+        parse("bad-ignores.json", &format!(r#"{{"base_test_path": "{integration}", "ignore_paths": "x"}}"#)).is_none()
     );
-    assert!(
-        parse(
-            "bad-probe.json",
-            &format!(r#"{{"base_test_path": "{integration}", "probes": [1]}}"#)
-        )
-        .is_none()
-    );
+    assert!(parse("bad-probe.json", &format!(r#"{{"base_test_path": "{integration}", "probes": [1]}}"#)).is_none());
 
     // The manifest's own filter applies when none is given; a given one wins.
     let manifest = parse(
@@ -196,8 +173,7 @@ fn manifest_errors() {
     assert_eq!(manifest.get_test_paths().len(), 1);
     assert_eq!(manifest.get_result_path(), dir.to_str().unwrap());
     let path = dir.join("filter.json");
-    let manifest =
-        ManifestParser::parse_manifest(path.to_str().unwrap(), "background-color/".to_string()).unwrap();
+    let manifest = ManifestParser::parse_manifest(path.to_str().unwrap(), "background-color/".to_string()).unwrap();
     assert_eq!(manifest.get_test_paths().len(), 6);
 }
 
@@ -214,8 +190,7 @@ fn parses_test_metadata() {
     assert!(metadata.error_message.is_empty());
     assert_eq!(
         metadata.document_json,
-        std::fs::read_to_string(format!("{INTEGRATION}/render-tests/background-color/default/style.json"))
-            .unwrap()
+        std::fs::read_to_string(format!("{INTEGRATION}/render-tests/background-color/default/style.json")).unwrap()
     );
 
     let overlay = parse_test_metadata(&style_paths("render-tests/background-opacity/overlay"));
@@ -224,10 +199,7 @@ fn parses_test_metadata() {
     let tile = parse_test_metadata(&style_paths("render-tests/symbol-placement/line-center-tile-map-mode"));
     assert_eq!(tile.map_mode, MapMode::Tile);
     assert_eq!(tile.size, Size::new(512, 512));
-    assert_eq!(
-        tile.debug,
-        MapDebugOptions(MapDebugOptions::TILE_BORDERS.0 | MapDebugOptions::COLLISION.0)
-    );
+    assert_eq!(tile.debug, MapDebugOptions(MapDebugOptions::TILE_BORDERS.0 | MapDebugOptions::COLLISION.0));
 
     let retina = parse_test_metadata(&style_paths("render-tests/runtime-styling/image-add-1x-image-2x-screen"));
     assert_eq!(retina.pixel_ratio, 2.0);
@@ -296,12 +268,7 @@ impl TestRunnerImpl for MockMap {
         }
         Ok(solid(self.size, self.color))
     }
-    fn set_layer_property(
-        &mut self,
-        layer: &str,
-        name: &str,
-        value: &serde_json::Value,
-    ) -> Result<(), MapError> {
+    fn set_layer_property(&mut self, layer: &str, name: &str, value: &serde_json::Value) -> Result<(), MapError> {
         self.log(format!("set {layer} {name} {value}"));
         if layer != "background" {
             return Err(MapError::LayerNotFound);
@@ -336,10 +303,7 @@ fn transition_operations_drive_the_map() {
     let (metadata, ok) = run_operations("render-tests/background-color/transition", &mut map);
     assert!(ok);
     assert!(metadata.error_message.is_empty());
-    assert_eq!(
-        *calls.borrow(),
-        vec!["set background background-color \"white\"", "render", "render"]
-    );
+    assert_eq!(*calls.borrow(), vec!["set background background-color \"white\"", "render", "render"]);
     assert_eq!(map.color, [255, 255, 255, 255]);
 }
 
@@ -348,8 +312,7 @@ fn unported_operations_error_the_test() {
     let calls = Rc::new(RefCell::new(Vec::new()));
     let mut map = MockMap::new(calls.clone(), [0, 0, 0, 255]);
     // addImage, addLayer, wait: addImage is not implemented by the mock.
-    let (metadata, ok) =
-        run_operations("render-tests/runtime-styling/image-add-1x-image-2x-screen", &mut map);
+    let (metadata, ok) = run_operations("render-tests/runtime-styling/image-add-1x-image-2x-screen", &mut map);
     assert!(!ok);
     assert_eq!(metadata.render_errored, 1);
     assert!(metadata.error_message.starts_with("TODO(port): "), "{}", metadata.error_message);
@@ -505,8 +468,7 @@ impl Suite {
 
 fn mock_factory() -> ImplFactory {
     Box::new(|_metadata: &TestMetadata, _options: &ResourceOptions| {
-        Ok(Box::new(MockMap::new(Rc::new(RefCell::new(Vec::new())), [0, 0, 0, 0]))
-            as Box<dyn TestRunnerImpl>)
+        Ok(Box::new(MockMap::new(Rc::new(RefCell::new(Vec::new())), [0, 0, 0, 0])) as Box<dyn TestRunnerImpl>)
     })
 }
 

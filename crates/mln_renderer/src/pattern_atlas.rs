@@ -83,15 +83,26 @@ impl PatternAtlas {
         let _ = PremultipliedImage::copy(src, atlas, Point::new(0, 0), Point::new(x, y), Size::new(w, h));
 
         // Add 1 pixel wrapped padding on each side of the image.
-        let _ = PremultipliedImage::copy(src, atlas, Point::new(0, h.wrapping_sub(1)), Point::new(x, y - 1), Size::new(w, 1)); // T
+        let _ = PremultipliedImage::copy(
+            src,
+            atlas,
+            Point::new(0, h.wrapping_sub(1)),
+            Point::new(x, y - 1),
+            Size::new(w, 1),
+        ); // T
         let _ = PremultipliedImage::copy(src, atlas, Point::new(0, 0), Point::new(x, y + h), Size::new(w, 1)); // B
-        let _ = PremultipliedImage::copy(src, atlas, Point::new(w.wrapping_sub(1), 0), Point::new(x - 1, y), Size::new(1, h)); // L
+        let _ = PremultipliedImage::copy(
+            src,
+            atlas,
+            Point::new(w.wrapping_sub(1), 0),
+            Point::new(x - 1, y),
+            Size::new(1, h),
+        ); // L
         let _ = PremultipliedImage::copy(src, atlas, Point::new(0, 0), Point::new(x + w, y), Size::new(1, h)); // R
 
         self.dirty = true;
 
-        let position =
-            ImagePosition::new(RectU16 { x: bx as u16, y: by as u16, w: bw as u16, h: bh as u16 }, image, 0);
+        let position = ImagePosition::new(RectU16 { x: bx as u16, y: by as u16, w: bw as u16, h: bh as u16 }, image, 0);
         self.patterns.insert(image.id.clone(), Pattern { bin, position: position.clone() });
         Some(position)
     }

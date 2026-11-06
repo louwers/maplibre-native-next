@@ -2,8 +2,7 @@
 // src/mln/style/expression/length.cpp.
 
 use crate::expression::{
-    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
-    downcast,
+    EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
@@ -18,10 +17,7 @@ pub struct Length {
 
 impl Length {
     pub fn new(input: Box<dyn Expression>) -> Self {
-        Length {
-            base: ExpressionBase::new(Kind::Length, Type::Number, input.dependencies()),
-            input,
-        }
+        Length { base: ExpressionBase::new(Kind::Length, Type::Number, input.dependencies()), input }
     }
 
     pub fn parse(value: &Convertible<'_>, ctx: &mut ParsingContext) -> ParseResult {
@@ -36,10 +32,7 @@ impl Length {
 
         let t = input.get_type();
         if !t.is_array() && *t != Type::String && *t != Type::Value {
-            ctx.error(format!(
-                "Expected argument of type string or array, but found {} instead.",
-                type_::to_string(t)
-            ));
+            ctx.error(format!("Expected argument of type string or array, but found {} instead.", type_::to_string(t)));
             return None;
         }
 

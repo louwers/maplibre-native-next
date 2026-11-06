@@ -18,10 +18,7 @@ fn assert_double_eq(actual: f64, expected: f64) {
         let bits = x.to_bits() as i64;
         if bits < 0 { i64::MIN - bits } else { bits }
     };
-    assert!(
-        actual == expected || (ulps(actual) - ulps(expected)).abs() <= 4,
-        "{actual} != {expected}"
-    );
+    assert!(actual == expected || (ulps(actual) - ulps(expected)).abs() <= 4, "{actual} != {expected}");
 }
 
 fn assert_near(actual: f64, expected: f64, abs_error: f64) {
@@ -60,22 +57,10 @@ fn from_lat_lng() {
     // Center, top-left, bottom-left, bottom-right, top-right edges.
     let edges: Vec<(LatLng, ScreenCoordinate)> = vec![
         (LatLng::default(), ScreenCoordinate::new(max / 2.0, max / 2.0)),
-        (
-            LatLng::new(constants::LATITUDE_MAX, -constants::LONGITUDE_MAX).unwrap(),
-            ScreenCoordinate::new(0.0, max),
-        ),
-        (
-            LatLng::new(-constants::LATITUDE_MAX, -constants::LONGITUDE_MAX).unwrap(),
-            ScreenCoordinate::new(0.0, 0.0),
-        ),
-        (
-            LatLng::new(-constants::LATITUDE_MAX, constants::LONGITUDE_MAX).unwrap(),
-            ScreenCoordinate::new(max, 0.0),
-        ),
-        (
-            LatLng::new(constants::LATITUDE_MAX, constants::LONGITUDE_MAX).unwrap(),
-            ScreenCoordinate::new(max, max),
-        ),
+        (LatLng::new(constants::LATITUDE_MAX, -constants::LONGITUDE_MAX).unwrap(), ScreenCoordinate::new(0.0, max)),
+        (LatLng::new(-constants::LATITUDE_MAX, -constants::LONGITUDE_MAX).unwrap(), ScreenCoordinate::new(0.0, 0.0)),
+        (LatLng::new(-constants::LATITUDE_MAX, constants::LONGITUDE_MAX).unwrap(), ScreenCoordinate::new(max, 0.0)),
+        (LatLng::new(constants::LATITUDE_MAX, constants::LONGITUDE_MAX).unwrap(), ScreenCoordinate::new(max, max)),
     ];
 
     for (lat_lng, screen_coordinate) in &edges {

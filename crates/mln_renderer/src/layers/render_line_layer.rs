@@ -4,10 +4,13 @@
 // TODO(port): captureRenderedFeatures.
 
 use super::line_layer_tweaker::{LineDrawableData, LineLayerTweaker, LineType};
-use super::{TileDrawables, refresh_if_bucket_updated, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot, shared_vertices};
+use super::{
+    TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot,
+    refresh_if_bucket_updated, shared_vertices,
+};
 use crate::buckets::line_bucket::{LineBinders, LineBucket, LineLayoutVertex};
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::layer_tweaker::{layer_tweaker_slot, LayerTweakerPtr};
+use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
 use crate::line_atlas::LinePatternCap;
 use crate::paint_parameters::PaintParameters;
 use crate::paint_property_binder::read_data_driven_paint_property;
@@ -26,19 +29,19 @@ use mln_gfx::{
     UniqueDrawableBuilder, VertexAttributeArrayPtr,
 };
 use mln_map_types::TransformState;
-use mln_style::expression::{global_state_refs_intersect, Dependency, GlobalStateMap};
+use mln_style::expression::{Dependency, GlobalStateMap, global_state_refs_intersect};
 use mln_style::layer;
 use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{get_crossfade, get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
 use mln_style::layers::line_layer_impl::Impl as LineLayerImpl;
 use mln_style::layers::line_layer_properties::*;
 use mln_style::{PropertyEvaluationParameters, TransitionParameters};
 use mln_style_types::LineCapType;
+use mln_util::Color;
 use mln_util::identity::SimpleIdentity;
 use mln_util::image::PremultipliedImage;
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
-use mln_util::Color;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -88,14 +91,86 @@ fn read_line_attributes(
     let buffer = &b.interleaved_vertex_buffer;
     let shared = shared_vertices(&buffer.shared_vertex_vector);
     let mut id = ID_LINE_COLOR_VERTEX_ATTRIBUTE;
-    read_data_driven_paint_property(attrs, &b.line_color, buffer, &shared, &["a_color"], evaluated.get::<LineColor>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.line_blur, buffer, &shared, &["a_blur"], evaluated.get::<LineBlur>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.line_opacity, buffer, &shared, &["a_opacity"], evaluated.get::<LineOpacity>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.line_gap_width, buffer, &shared, &["a_gapwidth"], evaluated.get::<LineGapWidth>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.line_offset, buffer, &shared, &["a_offset"], evaluated.get::<LineOffset>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.line_width, buffer, &shared, &["a_width"], evaluated.get::<LineWidth>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.line_floor_width, buffer, &shared, &["a_floorwidth"], evaluated.get::<LineFloorWidth>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &b.line_pattern, buffer, &shared, &["a_pattern_to", "a_pattern_from"], evaluated.get::<LinePattern>().is_constant(), pau, &mut id);
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_color,
+        buffer,
+        &shared,
+        &["a_color"],
+        evaluated.get::<LineColor>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_blur,
+        buffer,
+        &shared,
+        &["a_blur"],
+        evaluated.get::<LineBlur>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_opacity,
+        buffer,
+        &shared,
+        &["a_opacity"],
+        evaluated.get::<LineOpacity>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_gap_width,
+        buffer,
+        &shared,
+        &["a_gapwidth"],
+        evaluated.get::<LineGapWidth>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_offset,
+        buffer,
+        &shared,
+        &["a_offset"],
+        evaluated.get::<LineOffset>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_width,
+        buffer,
+        &shared,
+        &["a_width"],
+        evaluated.get::<LineWidth>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_floor_width,
+        buffer,
+        &shared,
+        &["a_floorwidth"],
+        evaluated.get::<LineFloorWidth>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &b.line_pattern,
+        buffer,
+        &shared,
+        &["a_pattern_to", "a_pattern_from"],
+        evaluated.get::<LinePattern>().is_constant(),
+        pau,
+        &mut id,
+    );
 }
 
 pub struct RenderLineLayer {
@@ -170,8 +245,12 @@ impl RenderLineLayer {
         use mln_style::properties::Property;
 
         let evaluated = get_evaluated::<LineLayerProperties>(&self.base.evaluated_properties);
-        let line_width =
-            evaluated.get::<LineWidth>().evaluate_feature_state(feature, zoom, feature_state, LineWidth::default_value());
+        let line_width = evaluated.get::<LineWidth>().evaluate_feature_state(
+            feature,
+            zoom,
+            feature_state,
+            LineWidth::default_value(),
+        );
         let gap_width = evaluated.get::<LineGapWidth>().evaluate_feature_state(
             feature,
             zoom,
@@ -323,8 +402,8 @@ impl RenderLayer for RenderLineLayer {
             LineOffset::default_value(),
         ) * pixels_to_tile_units;
         // Test intersection
-        let half_width =
-            (f64::from(self.get_line_width(feature, zoom, feature_state)) / 2.0 * f64::from(pixels_to_tile_units)) as f32;
+        let half_width = (f64::from(self.get_line_width(feature, zoom, feature_state)) / 2.0
+            * f64::from(pixels_to_tile_units)) as f32;
 
         // Apply offset to geometry
         if offset != 0.0 && !feature.get_geometries().is_empty() {
@@ -335,7 +414,11 @@ impl RenderLayer for RenderLineLayer {
             );
         }
 
-        mln_util::intersection_tests::polygon_intersects_buffered_multi_line(query, feature.get_geometries(), half_width)
+        mln_util::intersection_tests::polygon_intersects_buffered_multi_line(
+            query,
+            feature.get_geometries(),
+            half_width,
+        )
     }
 
     fn prepare(&mut self, params: &mut LayerPrepareParameters<'_>) {
@@ -391,7 +474,11 @@ impl RenderLayer for RenderLineLayer {
 
         // Set up a layer group
         if self.base.layer_group.is_none() {
-            match context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned()) {
+            match context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => self.set_layer_group(Some(layer_group), changes),
                 None => return,
             }
@@ -418,7 +505,8 @@ impl RenderLayer for RenderLineLayer {
             // If the render pass has changed or the tile has dropped out of
             // the cover set, remove it.
             let removed = tile_layer_group.remove_drawables_if(|drawable| {
-                drawable.get_render_pass() != passes || drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id))
+                drawable.get_render_pass() != passes
+                    || drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id))
             });
             self.base.stats.drawables_removed += removed;
 
@@ -441,7 +529,9 @@ impl RenderLayer for RenderLineLayer {
             builder
         };
 
-        let add_attributes = |builder: &mut dyn DrawableBuilder, bucket: &LineBucket, vertex_attrs: VertexAttributeArrayPtr| {
+        let add_attributes = |builder: &mut dyn DrawableBuilder,
+                              bucket: &LineBucket,
+                              vertex_attrs: VertexAttributeArrayPtr| {
             let vertex_count = bucket.vertices.len();
             builder.set_raw_vertices(Vec::new(), vertex_count, AttributeDataType::Short4);
 
@@ -565,22 +655,23 @@ impl RenderLayer for RenderLineLayer {
             let has_gradient = !self.unevaluated.get::<LineGradient>().get_value().is_undefined();
 
             // The ramp texture is shared by every tile of the layer.
-            let ensure_color_ramp_texture = |texture_2d: &mut Option<Texture2DPtr>, color_ramp: &Rc<PremultipliedImage>| {
-                if texture_2d.is_none() && color_ramp.valid() {
-                    let texture = context.create_texture_2d();
-                    {
-                        let mut t = texture.borrow_mut();
-                        t.set_image(Some(color_ramp.clone()));
-                        t.set_sampler_configuration(SamplerState {
-                            filter: TextureFilterType::Linear,
-                            wrap_u: TextureWrapType::Clamp,
-                            wrap_v: TextureWrapType::Clamp,
-                            ..Default::default()
-                        });
+            let ensure_color_ramp_texture =
+                |texture_2d: &mut Option<Texture2DPtr>, color_ramp: &Rc<PremultipliedImage>| {
+                    if texture_2d.is_none() && color_ramp.valid() {
+                        let texture = context.create_texture_2d();
+                        {
+                            let mut t = texture.borrow_mut();
+                            t.set_image(Some(color_ramp.clone()));
+                            t.set_sampler_configuration(SamplerState {
+                                filter: TextureFilterType::Linear,
+                                wrap_u: TextureWrapType::Clamp,
+                                wrap_v: TextureWrapType::Clamp,
+                                ..Default::default()
+                            });
+                        }
+                        *texture_2d = Some(texture);
                     }
-                    *texture_2d = Some(texture);
-                }
-            };
+                };
 
             if has_dasharray && has_gradient {
                 // dash array over a gradient

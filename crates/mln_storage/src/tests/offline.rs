@@ -12,10 +12,7 @@ use mln_util::geometry::{Geometry, Point};
 fn offline_tile_pyramid_region_definition_encode_decode() {
     let region = OfflineTilePyramidRegionDefinition::new(
         "maptiler://style",
-        LatLngBounds::hull(
-            LatLng::new(37.6609, -122.5744).unwrap(),
-            LatLng::new(37.8271, -122.3204).unwrap(),
-        ),
+        LatLngBounds::hull(LatLng::new(37.6609, -122.5744).unwrap(), LatLng::new(37.8271, -122.3204).unwrap()),
         0.0,
         20.0,
         1.0,
@@ -71,10 +68,7 @@ fn offline_geometry_region_definition_encode_decode() {
 fn encoding_matches_rapidjson() {
     let region = OfflineTilePyramidRegionDefinition::new(
         "maptiler://style",
-        LatLngBounds::hull(
-            LatLng::new(37.6609, -122.5744).unwrap(),
-            LatLng::new(37.8271, -122.3204).unwrap(),
-        ),
+        LatLngBounds::hull(LatLng::new(37.6609, -122.5744).unwrap(), LatLng::new(37.8271, -122.3204).unwrap()),
         0.0,
         20.0,
         1.0,
@@ -117,9 +111,10 @@ fn decode_rejects_malformed_definitions() {
         );
     }
     // Defaults: max_zoom = INFINITY, include_ideographs = true.
-    let decoded =
-        decode_offline_region_definition(br#"{"style_url":"s","min_zoom":1.0,"pixel_ratio":1.0,"bounds":[1.0,2.0,3.0,4.0]}"#)
-            .unwrap();
+    let decoded = decode_offline_region_definition(
+        br#"{"style_url":"s","min_zoom":1.0,"pixel_ratio":1.0,"bounds":[1.0,2.0,3.0,4.0]}"#,
+    )
+    .unwrap();
     assert_eq!(f64::INFINITY, decoded.max_zoom());
     assert!(decoded.include_ideographs());
 }

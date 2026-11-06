@@ -4,12 +4,12 @@
 
 use super::geojson_source::{Features, GeoJSONData, GeoJSONOptions, TileFeatures};
 use crate::expression::{Expression, from_expression_value};
-use mln_expression::expression::evaluate_accumulated;
 use crate::source_impl::{self, ImplBase};
-use geojson::GeoJSON;
 use feature::{Feature, PropertyMap, Value};
+use geojson::GeoJSON;
 use geometry::Geometry;
 use mln_actor::scheduler::{self, SchedulerPtr};
+use mln_expression::expression::evaluate_accumulated;
 use mln_style_types::SourceType;
 use mln_tile_id::CanonicalTileID;
 use mln_util::constants;

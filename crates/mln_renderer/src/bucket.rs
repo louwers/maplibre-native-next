@@ -15,13 +15,13 @@ use crate::render_layer::RenderLayer;
 use mln_gfx::UploadPass;
 use mln_style::util::AsAny;
 use mln_style_types::image::ImagePositions;
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
 use mln_tile_id::CanonicalTileID;
+use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
 use mln_util::exception::ExceptionPtr;
 use mln_util::feature::feature_id_to_string;
 use mln_util::identity::SimpleIdentity;
-use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
 
 pub type BucketPtr = Arc<dyn Bucket>;
 

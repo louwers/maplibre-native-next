@@ -114,11 +114,7 @@ fn interpolatable(t: &EvaluatedType) -> bool {
 }
 
 fn is_interpolated(p: &Property) -> bool {
-    p.spec
-        .get("expression")
-        .and_then(|e| e.get("interpolated"))
-        .and_then(Value::as_bool)
-        .unwrap_or(false)
+    p.spec.get("expression").and_then(|e| e.get("interpolated")).and_then(Value::as_bool).unwrap_or(false)
 }
 
 /// Sample JSON values for one property.
@@ -175,12 +171,7 @@ pub fn samples(p: &Property) -> Vec<String> {
 }
 
 fn transition_samples() -> Vec<String> {
-    vec![
-        r#"{"duration": 300, "delay": 50}"#.into(),
-        r#"{"duration": 0}"#.into(),
-        "{}".into(),
-        "5".into(),
-    ]
+    vec![r#"{"duration": 300, "delay": 50}"#.into(), r#"{"duration": 0}"#.into(), "{}".into(), "5".into()]
 }
 
 /// One whole layer JSON per type, every property at its first sample, for
@@ -279,10 +270,8 @@ pub fn generate(spec_text: &str) -> Result<(String, String), String> {
     for layer in &layers {
         let class = format!("{}Layer", camelize(&layer.type_));
         cpp.line(&format!("    if (type == \"{}\") {{", layer.type_));
-        for p in layer
-            .layout_properties
-            .iter()
-            .chain(layer.paint_properties.iter().filter(|p| p.name != "line-floor-width"))
+        for p in
+            layer.layout_properties.iter().chain(layer.paint_properties.iter().filter(|p| p.name != "line-floor-width"))
         {
             cpp.line(&format!(
                 "        if (name == \"{}\") return makeStyleProperty({class}::getDefault{}());",
@@ -359,10 +348,7 @@ pub fn generate(spec_text: &str) -> Result<(String, String), String> {
         if is_source_less(&layer.type_) {
             rs.line(&format!("        \"{}\" => Some(Box::new({class}::new(\"layer\"))),", layer.type_));
         } else {
-            rs.line(&format!(
-                "        \"{}\" => Some(Box::new({class}::new(\"layer\", \"source\"))),",
-                layer.type_
-            ));
+            rs.line(&format!("        \"{}\" => Some(Box::new({class}::new(\"layer\", \"source\"))),", layer.type_));
         }
     }
     rs.line("        _ => None,");

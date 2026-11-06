@@ -43,11 +43,7 @@ pub fn strip_precision(value: &Value) -> Value {
 
     match value {
         Value::Array(vec) => Value::Array(vec.iter().map(strip_precision).collect()),
-        Value::Object(map) => Value::Object(
-            map.iter()
-                .map(|(k, v)| (k.clone(), strip_precision(v)))
-                .collect(),
-        ),
+        Value::Object(map) => Value::Object(map.iter().map(|(k, v)| (k.clone(), strip_precision(v))).collect()),
         v => v.clone(),
     }
 }

@@ -13,6 +13,7 @@
 // `requests` is keyed by an id (C++: a `std::list` of requests, erased by
 // iterator). `RunLoop::invokeCancellable` is `invoke_cancellable` below.
 
+use feature::Value;
 use mln_actor::{LocalObject, RunLoop};
 use mln_conversion::Error as ConversionError;
 use mln_renderer::util::tile_cover::{TileCover, covering_zoom_level, tile_count_bounds, tile_count_geometry};
@@ -38,7 +39,6 @@ use mln_util::constants::{DEFAULT_MAXIMUM_CONCURRENT_REQUESTS, TILE_SIZE_I};
 use mln_util::i18n::glyph_range_is_entirely_locally_generated;
 use mln_util::range::Range;
 use mln_util::tileset::Tileset;
-use feature::Value;
 use std::cell::{Cell, RefCell};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::rc::{Rc, Weak};
@@ -223,9 +223,7 @@ impl OfflineDownload {
 
     /// A weak reference, for observers that call back into the download.
     pub fn downgrade(&self) -> WeakOfflineDownload {
-        WeakOfflineDownload {
-            inner: Rc::downgrade(&self.inner),
-        }
+        WeakOfflineDownload { inner: Rc::downgrade(&self.inner) }
     }
 
     /// `setObserver(std::unique_ptr<OfflineRegionObserver>)`.
@@ -319,10 +317,7 @@ impl Inner {
         };
 
         result.required_resource_count += 1;
-        let style_response = self
-            .offline_database
-            .borrow_mut()
-            .get(&Resource::style(self.definition.style_url()));
+        let style_response = self.offline_database.borrow_mut().get(&Resource::style(self.definition.style_url()));
         let Some(style_response) = style_response else {
             return result;
         };
@@ -350,8 +345,7 @@ impl Inner {
                         let data = source_response.data.as_deref().map(Vec::as_slice).unwrap_or_default();
                         let tileset = convert_json_tileset(data, &mut error);
                         if let Some(tileset) = tileset {
-                            let tile_source_count =
-                                tile_count(&self.definition, type_, tile_size, &tileset.zoom_range);
+                            let tile_source_count = tile_count(&self.definition, type_, tile_size, &tileset.zoom_range);
                             result.required_tile_count += tile_source_count;
                             result.required_resource_count += tile_source_count;
                         }
@@ -398,7 +392,10 @@ impl Inner {
                     }
                 }
 
-                SourceType::Video | SourceType::Annotations | SourceType::CustomVector | SourceType::CustomMVTVector => {}
+                SourceType::Video
+                | SourceType::Annotations
+                | SourceType::CustomVector
+                | SourceType::CustomMVTVector => {}
             }
         }
 
@@ -541,7 +538,10 @@ impl Inner {
                     }
                 }
 
-                SourceType::Video | SourceType::Annotations | SourceType::CustomVector | SourceType::CustomMVTVector => {}
+                SourceType::Video
+                | SourceType::Annotations
+                | SourceType::CustomVector
+                | SourceType::CustomMVTVector => {}
             }
         }
 
@@ -554,7 +554,11 @@ impl Inner {
                     let start = (i * GLYPHS_PER_GLYPH_RANGE) as u16;
                     if include_ideographs || !glyph_range_is_entirely_locally_generated(start) {
                         let range = get_glyph_range(GlyphID::from(start));
-                        self.queue_resource(Resource::glyphs(&parser.glyph_url, &font_stack, (range.first, range.second)));
+                        self.queue_resource(Resource::glyphs(
+                            &parser.glyph_url,
+                            &font_stack,
+                            (range.first, range.second),
+                        ));
                     }
                     if let Some(faces) = &parser.font_faces {
                         for face in faces.iter() {
@@ -643,10 +647,7 @@ impl Inner {
         }
         let buffer = self.buffer.borrow().clone();
         let mut status = *self.status.borrow();
-        let result = self
-            .offline_database
-            .borrow_mut()
-            .put_region_resources(self.id, &buffer, &mut status);
+        let result = self.offline_database.borrow_mut().put_region_resources(self.id, &buffer, &mut status);
         *self.status.borrow_mut() = status;
         match result {
             Ok(()) => {
@@ -720,7 +721,12 @@ impl Inner {
     }
 
     /// The task of `ensureResource`.
-    fn ensure_resource_task(self: &Rc<Self>, work_request_id: u64, resource: Resource, callback: Option<ResponseCallback>) {
+    fn ensure_resource_task(
+        self: &Rc<Self>,
+        work_request_id: u64,
+        resource: Resource,
+        callback: Option<ResponseCallback>,
+    ) {
         self.remove_request(work_request_id);
         let resource_kind = resource.kind;
         let get_resource_size_in_database = || -> Option<i64> {
@@ -818,7 +824,8 @@ impl Inner {
         // Have to keep `resourcesRemaining.empty()` as the following
         // condition would fail otherwise.
         // TODO: Simplify the tile count limit check code path!
-        let flush = self.buffer.borrow().len() == K_RESOURCES_BATCH_SIZE || self.resources_remaining.borrow().is_empty();
+        let flush =
+            self.buffer.borrow().len() == K_RESOURCES_BATCH_SIZE || self.resources_remaining.borrow().is_empty();
         if flush && !self.flush_resources_buffer() {
             return;
         }

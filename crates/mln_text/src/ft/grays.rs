@@ -339,11 +339,7 @@ fn split_cubic(base: &mut [(i64, i64)]) {
     for k in 0..2 {
         let get = |b: &[(i64, i64)], i: usize| if k == 0 { b[i].0 } else { b[i].1 };
         let set = |b: &mut [(i64, i64)], i: usize, v: i64| {
-            if k == 0 {
-                b[i].0 = v
-            } else {
-                b[i].1 = v
-            }
+            if k == 0 { b[i].0 = v } else { b[i].1 = v }
         };
         let b3 = get(base, 3);
         set(base, 6, b3);

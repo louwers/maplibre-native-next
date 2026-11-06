@@ -207,61 +207,27 @@ define_enum!(
     ]
 );
 
-define_enum!(
-    VisibilityType,
-    [
-        (VisibilityType::Visible, "visible"),
-        (VisibilityType::None, "none"),
-    ]
-);
+define_enum!(VisibilityType, [(VisibilityType::Visible, "visible"), (VisibilityType::None, "none"),]);
 
-define_enum!(
-    TranslateAnchorType,
-    [
-        (TranslateAnchorType::Map, "map"),
-        (TranslateAnchorType::Viewport, "viewport"),
-    ]
-);
+define_enum!(TranslateAnchorType, [(TranslateAnchorType::Map, "map"), (TranslateAnchorType::Viewport, "viewport"),]);
 
 define_enum!(
     RasterResamplingType,
-    [
-        (RasterResamplingType::Linear, "linear"),
-        (RasterResamplingType::Nearest, "nearest"),
-    ]
+    [(RasterResamplingType::Linear, "linear"), (RasterResamplingType::Nearest, "nearest"),]
 );
 
 define_enum!(
     HillshadeIlluminationAnchorType,
-    [
-        (HillshadeIlluminationAnchorType::Map, "map"),
-        (HillshadeIlluminationAnchorType::Viewport, "viewport"),
-    ]
+    [(HillshadeIlluminationAnchorType::Map, "map"), (HillshadeIlluminationAnchorType::Viewport, "viewport"),]
 );
 
-define_enum!(
-    RotateAnchorType,
-    [
-        (RotateAnchorType::Map, "map"),
-        (RotateAnchorType::Viewport, "viewport"),
-    ]
-);
+define_enum!(RotateAnchorType, [(RotateAnchorType::Map, "map"), (RotateAnchorType::Viewport, "viewport"),]);
 
-define_enum!(
-    CirclePitchScaleType,
-    [
-        (CirclePitchScaleType::Map, "map"),
-        (CirclePitchScaleType::Viewport, "viewport"),
-    ]
-);
+define_enum!(CirclePitchScaleType, [(CirclePitchScaleType::Map, "map"), (CirclePitchScaleType::Viewport, "viewport"),]);
 
 define_enum!(
     LineCapType,
-    [
-        (LineCapType::Round, "round"),
-        (LineCapType::Butt, "butt"),
-        (LineCapType::Square, "square"),
-    ]
+    [(LineCapType::Round, "round"), (LineCapType::Butt, "butt"), (LineCapType::Square, "square"),]
 );
 
 define_enum!(
@@ -329,19 +295,12 @@ define_enum!(
 
 define_enum!(
     TextWritingModeType,
-    [
-        (TextWritingModeType::Horizontal, "horizontal"),
-        (TextWritingModeType::Vertical, "vertical"),
-    ]
+    [(TextWritingModeType::Horizontal, "horizontal"), (TextWritingModeType::Vertical, "vertical"),]
 );
 
 define_enum!(
     AlignmentType,
-    [
-        (AlignmentType::Map, "map"),
-        (AlignmentType::Viewport, "viewport"),
-        (AlignmentType::Auto, "auto"),
-    ]
+    [(AlignmentType::Map, "map"), (AlignmentType::Viewport, "viewport"), (AlignmentType::Auto, "auto"),]
 );
 
 define_enum!(
@@ -354,13 +313,7 @@ define_enum!(
     ]
 );
 
-define_enum!(
-    LightAnchorType,
-    [
-        (LightAnchorType::Map, "map"),
-        (LightAnchorType::Viewport, "viewport"),
-    ]
-);
+define_enum!(LightAnchorType, [(LightAnchorType::Map, "map"), (LightAnchorType::Viewport, "viewport"),]);
 
 // `Enum<HillshadeMethodType>` is defined next to the hillshade layer in C++
 // (src/mln/style/conversion/hillshade_conversions.cpp), with these names.

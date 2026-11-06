@@ -98,10 +98,7 @@ pub fn get_sequenced() -> SchedulerPtr {
         weaks: Vec<Option<Weak<SequencedScheduler>>>,
         last_used_index: usize,
     }
-    static STATE: Mutex<State> = Mutex::new(State {
-        weaks: Vec::new(),
-        last_used_index: 0,
-    });
+    static STATE: Mutex<State> = Mutex::new(State { weaks: Vec::new(), last_used_index: 0 });
     let mut state = STATE.lock().unwrap();
     if state.weaks.is_empty() {
         state.weaks.resize(SCHEDULERS_COUNT, None);

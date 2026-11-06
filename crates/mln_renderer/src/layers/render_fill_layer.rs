@@ -5,11 +5,14 @@
 // TODO(port): captureRenderedFeatures.
 
 use super::fill_layer_tweaker::FillLayerTweaker;
-use super::{TileDrawables, refresh_if_bucket_updated, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot, shared_vertices};
+use super::{
+    TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot,
+    refresh_if_bucket_updated, shared_vertices,
+};
 use crate::buckets::fill_bucket::{FillBinders, FillBucket, FillLayoutVertex};
 use crate::buckets::line_bucket::LineLayoutVertex;
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::layer_tweaker::{layer_tweaker_slot, LayerTweakerPtr};
+use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
 use crate::paint_parameters::PaintParameters;
 use crate::paint_property_binder::read_data_driven_paint_property;
 use crate::render_layer::{RenderLayer, RenderLayerBase};
@@ -26,13 +29,13 @@ use mln_gfx::{
 use mln_map_types::TransformState;
 use mln_style::layer;
 use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{get_crossfade, get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
 use mln_style::layers::fill_layer_impl::Impl as FillLayerImpl;
 use mln_style::layers::fill_layer_properties::*;
 use mln_style::{PropertyEvaluationParameters, TransitionParameters};
+use mln_util::Color;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
-use mln_util::Color;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -86,10 +89,46 @@ fn read_fill_attributes(
     let buffer = &binders.interleaved_vertex_buffer;
     let shared = shared_vertices(&buffer.shared_vertex_vector);
     let mut id = ID_FILL_COLOR_VERTEX_ATTRIBUTE;
-    read_data_driven_paint_property(attrs, &binders.fill_color, buffer, &shared, &["a_color"], evaluated.get::<FillColor>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &binders.fill_opacity, buffer, &shared, &["a_opacity"], evaluated.get::<FillOpacity>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &binders.fill_outline_color, buffer, &shared, &["a_outline_color"], evaluated.get::<FillOutlineColor>().is_constant(), pau, &mut id);
-    read_data_driven_paint_property(attrs, &binders.fill_pattern, buffer, &shared, &["a_pattern_to", "a_pattern_from"], evaluated.get::<FillPattern>().is_constant(), pau, &mut id);
+    read_data_driven_paint_property(
+        attrs,
+        &binders.fill_color,
+        buffer,
+        &shared,
+        &["a_color"],
+        evaluated.get::<FillColor>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &binders.fill_opacity,
+        buffer,
+        &shared,
+        &["a_opacity"],
+        evaluated.get::<FillOpacity>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &binders.fill_outline_color,
+        buffer,
+        &shared,
+        &["a_outline_color"],
+        evaluated.get::<FillOutlineColor>().is_constant(),
+        pau,
+        &mut id,
+    );
+    read_data_driven_paint_property(
+        attrs,
+        &binders.fill_pattern,
+        buffer,
+        &shared,
+        &["a_pattern_to", "a_pattern_from"],
+        evaluated.get::<FillPattern>().is_constant(),
+        pau,
+        &mut id,
+    );
 }
 
 pub struct RenderFillLayer {
@@ -220,7 +259,11 @@ impl RenderLayer for RenderFillLayer {
 
         // Set up a layer group for fill
         if self.base.layer_group.is_none() {
-            match context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned()) {
+            match context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => self.set_layer_group(Some(layer_group), changes),
                 None => return,
             }
@@ -283,8 +326,9 @@ impl RenderLayer for RenderFillLayer {
             let base = &self.base;
             // If the render pass has changed or the tile has dropped out of
             // the cover set, remove it.
-            let removed = tile_layer_group
-                .remove_drawables_if(|drawable| drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id)));
+            let removed = tile_layer_group.remove_drawables_if(|drawable| {
+                drawable.get_tile_id().is_some_and(|id| !base.render_tile_ids.contains_key(&id))
+            });
             self.base.stats.drawables_removed += removed;
 
             tile_layer_group.set_stencil_tiles(Some(Rc::new(render_tiles.iter().map(|tile| tile.id).collect())));
@@ -329,7 +373,8 @@ impl RenderLayer for RenderFillLayer {
             // when those change.
             let update_existing = |drawable: &mut dyn mln_gfx::Drawable| {
                 let current = drawable_has_layer_tweaker(drawable, &layer_tweaker);
-                if current && FillVariant::from_type(drawable.get_type()) != Some(FillVariant::FillOutlineTriangulated) {
+                if current && FillVariant::from_type(drawable.get_type()) != Some(FillVariant::FillOutlineTriangulated)
+                {
                     refresh_if_bucket_updated(drawable, |attrs| {
                         read_fill_attributes(attrs, binders, evaluated, &mut Default::default())
                     });
@@ -400,21 +445,22 @@ impl RenderLayer for RenderFillLayer {
 
             let base_stats = &mut self.base.stats;
             let layer_id = self.base.base_impl.id.clone();
-            let finish = |builder: &mut dyn DrawableBuilder, type_: FillVariant, base_stats: &mut crate::render_layer::Stats| {
-                builder.flush(context);
+            let finish =
+                |builder: &mut dyn DrawableBuilder, type_: FillVariant, base_stats: &mut crate::render_layer::Stats| {
+                    builder.flush(context);
 
-                let mut group = layer_group.borrow_mut();
-                let tile_layer_group = group.as_tile_layer_group_mut().expect("TileLayerGroup");
-                for mut drawable in builder.clear_drawables() {
-                    drawable.set_tile_id(tile_id);
-                    drawable.set_type(type_ as usize);
-                    drawable.set_layer_tweaker(layer_tweaker.as_ref().and_then(layer_tweaker_slot));
-                    drawable.set_binders(drawable_binders_slot(&render_data.bucket, &layer_id));
-                    drawable.set_render_tile(drawable_render_tile_slot(render_tiles.owner(), tile));
-                    tile_layer_group.add_drawable(render_pass, &tile_id, drawable);
-                    base_stats.drawables_added += 1;
-                }
-            };
+                    let mut group = layer_group.borrow_mut();
+                    let tile_layer_group = group.as_tile_layer_group_mut().expect("TileLayerGroup");
+                    for mut drawable in builder.clear_drawables() {
+                        drawable.set_tile_id(tile_id);
+                        drawable.set_type(type_ as usize);
+                        drawable.set_layer_tweaker(layer_tweaker.as_ref().and_then(layer_tweaker_slot));
+                        drawable.set_binders(drawable_binders_slot(&render_data.bucket, &layer_id));
+                        drawable.set_render_tile(drawable_render_tile_slot(render_tiles.owner(), tile));
+                        tile_layer_group.add_drawable(render_pass, &tile_id, drawable);
+                        base_stats.drawables_added += 1;
+                    }
+                };
 
             if self.unevaluated.get::<FillPattern>().is_undefined() {
                 // Simple fill
@@ -423,13 +469,17 @@ impl RenderLayer for RenderFillLayer {
                 let outline_triangulated_shader = if do_outline && !data_driven_outline {
                     let outline_properties_as_uniforms: StringIDSetsPair = (
                         ["a_color", "a_opacity", "a_width"].iter().map(|s| (*s).to_owned()).collect(),
-                        [ID_LINE_COLOR_VERTEX_ATTRIBUTE, ID_LINE_OPACITY_VERTEX_ATTRIBUTE, ID_LINE_WIDTH_VERTEX_ATTRIBUTE]
-                            .into_iter()
-                            .collect(),
+                        [
+                            ID_LINE_COLOR_VERTEX_ATTRIBUTE,
+                            ID_LINE_OPACITY_VERTEX_ATTRIBUTE,
+                            ID_LINE_WIDTH_VERTEX_ATTRIBUTE,
+                        ]
+                        .into_iter()
+                        .collect(),
                     );
-                    self.outline_triangulated_shader_group.as_ref().and_then(|group| {
-                        group.get_or_create_shader(context, &outline_properties_as_uniforms, "a_pos")
-                    })
+                    self.outline_triangulated_shader_group
+                        .as_ref()
+                        .and_then(|group| group.get_or_create_shader(context, &outline_properties_as_uniforms, "a_pos"))
                 } else {
                     None
                 };
@@ -459,7 +509,11 @@ impl RenderLayer for RenderFillLayer {
                     common_init(builder.as_mut());
                     builder.set_depth_type(DepthMaskType::ReadOnly);
                     builder.set_line_width(LINE_WIDTH);
-                    builder.set_sub_layer_index(if self.unevaluated.get::<FillOutlineColor>().is_undefined() { 2 } else { 0 });
+                    builder.set_sub_layer_index(if self.unevaluated.get::<FillOutlineColor>().is_undefined() {
+                        2
+                    } else {
+                        0
+                    });
                     builder.set_color_mode(&ColorMode::alpha_blended());
                     builder.set_render_pass(RenderPass::Translucent);
                     outline_builder = Some(builder);
@@ -488,9 +542,11 @@ impl RenderLayer for RenderFillLayer {
                 if do_outline {
                     if let Some(builder) = outline_builder.as_mut() {
                         if !data_driven_outline {
-                            builder.set_sub_layer_index(
-                                if self.unevaluated.get::<FillOutlineColor>().is_undefined() { 2 } else { 0 },
-                            );
+                            builder.set_sub_layer_index(if self.unevaluated.get::<FillOutlineColor>().is_undefined() {
+                                2
+                            } else {
+                                0
+                            });
                             // createOutlineTriangulated(outlineBuilder)
                             if line_vertex_count != 0 {
                                 builder.set_shader(outline_triangulated_shader.clone());

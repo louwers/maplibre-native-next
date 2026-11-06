@@ -349,10 +349,7 @@ fn load() {
     const CONCURRENCY: usize = 50;
     const MAX: i32 = 10000;
 
-    let state = Rc::new(LoadState {
-        reqs: (0..CONCURRENCY).map(|_| req()).collect(),
-        number: Cell::new(1),
-    });
+    let state = Rc::new(LoadState { reqs: (0..CONCURRENCY).map(|_| req()).collect(), number: Cell::new(1) });
     let base = server.url("/load/");
     let url: Rc<dyn Fn(i32) -> String> = Rc::new(move |n| format!("{base}{n}"));
 
@@ -481,9 +478,7 @@ fn network_status_online_offline() {
     NetworkStatus::set(Status::Offline);
 
     let online_timer = Timer::new();
-    online_timer.start(Duration::from_millis(100), Duration::zero(), || {
-        NetworkStatus::set(Status::Online)
-    });
+    online_timer.start(Duration::from_millis(100), Duration::zero(), || NetworkStatus::set(Status::Online));
 
     let req = req();
     let (r, stop) = (req.clone(), run_loop.clone());
@@ -598,9 +593,8 @@ fn change_tile_server_options() {
         .with_style_template("styleTemplateChanged", "styleDomainChanged", None)
         .with_tile_template("tileTemplateChanged", "tileDomainChanged", None)
         .with_uri_scheme_alias("uriSchemeAliasChanged");
-    let res_opts = ResourceOptions::new()
-        .with_api_key("changedAPIKey")
-        .with_tile_server_options(tile_server_opts_changed.clone());
+    let res_opts =
+        ResourceOptions::new().with_api_key("changedAPIKey").with_tile_server_options(tile_server_opts_changed.clone());
 
     fs.set_resource_options(res_opts.clone());
 

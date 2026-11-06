@@ -28,18 +28,13 @@ pub struct SourceLayer {
 
 impl SourceLayer {
     pub fn new(data: Arc<dyn GeometryTileData + Send + Sync>, name: impl Into<String>) -> Self {
-        SourceLayer {
-            data,
-            name: name.into(),
-        }
+        SourceLayer { data, name: name.into() }
     }
 
     /// The layer (`data->getLayer(name)`; the worker only creates layouts
     /// for layers the data has).
     pub fn layer(&self) -> Box<dyn GeometryTileLayer + '_> {
-        self.data
-            .get_layer(&self.name)
-            .expect("SourceLayer: the tile data has the layer")
+        self.data.get_layer(&self.name).expect("SourceLayer: the tile data has the layer")
     }
 }
 

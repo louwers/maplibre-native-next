@@ -23,11 +23,7 @@ fn angle_to(a: &GeometryCoordinate, b: &GeometryCoordinate) -> f64 {
 
 /// `getAngleWindowSize`.
 pub fn get_angle_window_size(text_left: f32, text_right: f32, glyph_size: f32, box_scale: f32) -> f32 {
-    if (text_left - text_right) != 0.0 {
-        3.0f32 / 5.0f32 * glyph_size * box_scale
-    } else {
-        0.0
-    }
+    if (text_left - text_right) != 0.0 { 3.0f32 / 5.0f32 * glyph_size * box_scale } else { 0.0 }
 }
 
 /// `getLineLength`.
@@ -104,16 +100,8 @@ fn resample(
         // overscaled tiles, since the initial offset used in overscaled tiles
         // is calculated to align labels with positions in parent tiles instead
         // of placing the label as close to the beginning as possible.
-        anchors = resample(
-            line,
-            distance / 2.0,
-            spacing,
-            angle_window_size,
-            max_angle,
-            label_length,
-            continued_line,
-            true,
-        );
+        anchors =
+            resample(line, distance / 2.0, spacing, angle_window_size, max_angle, label_length, continued_line, true);
     }
 
     anchors
@@ -147,10 +135,7 @@ pub fn get_anchors(
     let label_length = shaped_label_length * box_scale;
 
     // Is the line continued from outside the tile boundary?
-    let continued_line = line[0].x == 0
-        || line[0].x as i32 == EXTENT
-        || line[0].y == 0
-        || line[0].y as i32 == EXTENT;
+    let continued_line = line[0].x == 0 || line[0].x as i32 == EXTENT || line[0].y == 0 || line[0].y as i32 == EXTENT;
 
     // Is the label long, relative to the spacing?
     // If so, adjust the spacing so there is always a minimum space of `spacing / 4` between label edges.
@@ -275,11 +260,8 @@ mod tests {
             BOX_SCALE,
             OVERSCALING,
         );
-        let expected_anchors = vec![
-            anchor(1.0, 2.0, 1.570796371, 1),
-            anchor(1.0, 5.0, 1.570796371, 4),
-            anchor(1.0, 8.0, 1.570796371, 7),
-        ];
+        let expected_anchors =
+            vec![anchor(1.0, 2.0, 1.570796371, 1), anchor(1.0, 5.0, 1.570796371, 4), anchor(1.0, 8.0, 1.570796371, 7)];
 
         assert_eq!(anchors, expected_anchors);
     }
@@ -299,11 +281,8 @@ mod tests {
             BOX_SCALE,
             OVERSCALING,
         );
-        let expected_anchors = vec![
-            anchor(1.0, 2.0, 1.570796371, 1),
-            anchor(1.0, 5.0, 1.570796371, 3),
-            anchor(1.0, 7.0, 1.570796371, 6),
-        ];
+        let expected_anchors =
+            vec![anchor(1.0, 2.0, 1.570796371, 1), anchor(1.0, 5.0, 1.570796371, 3), anchor(1.0, 7.0, 1.570796371, 6)];
 
         assert_eq!(anchors, expected_anchors);
     }
@@ -323,11 +302,8 @@ mod tests {
             BOX_SCALE,
             OVERSCALING,
         );
-        let expected_anchors = vec![
-            anchor(1.0, 2.0, 1.570796371, 1),
-            anchor(1.0, 5.0, 1.570796371, 4),
-            anchor(1.0, 8.0, 1.570796371, 7),
-        ];
+        let expected_anchors =
+            vec![anchor(1.0, 2.0, 1.570796371, 1), anchor(1.0, 5.0, 1.570796371, 4), anchor(1.0, 8.0, 1.570796371, 7)];
 
         assert_eq!(anchors, expected_anchors);
     }
@@ -347,11 +323,8 @@ mod tests {
             BOX_SCALE,
             OVERSCALING,
         );
-        let expected_anchors = vec![
-            anchor(1.0, 1.0, 1.570796371, 1),
-            anchor(1.0, 4.0, 1.570796371, 3),
-            anchor(1.0, 6.0, 1.570796371, 6),
-        ];
+        let expected_anchors =
+            vec![anchor(1.0, 1.0, 1.570796371, 1), anchor(1.0, 4.0, 1.570796371, 3), anchor(1.0, 6.0, 1.570796371, 6)];
 
         assert_eq!(anchors, expected_anchors);
     }

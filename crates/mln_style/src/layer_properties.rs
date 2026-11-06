@@ -20,10 +20,7 @@ pub struct LayerPropertiesBase {
 
 impl LayerPropertiesBase {
     pub fn new(impl_: Immutable<dyn Impl>) -> Self {
-        LayerPropertiesBase {
-            base_impl: impl_,
-            render_passes: 0,
-        }
+        LayerPropertiesBase { base_impl: impl_, render_passes: 0 }
     }
 }
 

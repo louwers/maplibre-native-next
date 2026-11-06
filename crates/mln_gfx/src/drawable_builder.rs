@@ -136,14 +136,27 @@ impl DrawableBuilderImpl {
     }
 
     /// `layoutVertex(p, e, round, up, dir, linesofar)`.
-    pub fn layout_vertex(p: Point<i16>, e: Point<f64>, round: bool, up: bool, dir: i8, linesofar: i32) -> LineLayoutVertex {
+    pub fn layout_vertex(
+        p: Point<i16>,
+        e: Point<f64>,
+        round: bool,
+        up: bool,
+        dir: i8,
+        linesofar: i32,
+    ) -> LineLayoutVertex {
         // Scale the extrusion vector so that the normal length is this value.
         // Contains the "texture" normals (-1..1). This is distinct from the
         // extrude normals for line joins, because the x-value remains 0 for
         // the texture normal array, while the extrude normal actually moves
         // the vertex to create the acute/bevelled line join.
         const EXTRUDE_SCALE: f64 = 63.0;
-        let dir_value: i32 = if dir == 0 { 0 } else if dir < 0 { -1 } else { 1 };
+        let dir_value: i32 = if dir == 0 {
+            0
+        } else if dir < 0 {
+            -1
+        } else {
+            1
+        };
         LineLayoutVertex {
             a1: [((p.x as i32 * 2) | round as i32) as i16, ((p.y as i32 * 2) | up as i32) as i16],
             a2: [
@@ -251,11 +264,8 @@ pub trait DrawableBuilder {
                 _ => {}
             }
 
-            let new_vertex_attributes = if self.base().vertex_attrs.is_none() {
-                Some(context.create_vertex_attribute_array())
-            } else {
-                None
-            };
+            let new_vertex_attributes =
+                if self.base().vertex_attrs.is_none() { Some(context.create_vertex_attribute_array()) } else { None };
             self.get_current_drawable(true);
             let base = self.base_mut();
             let draw = base.current_drawable.as_mut().expect("current drawable");
@@ -549,8 +559,8 @@ pub trait DrawableBuilder {
             return;
         }
         let line_width = self.base().line_width;
-        let segment =
-            self.create_segment(DrawMode::Lines(line_width), SegmentBase::with_lengths(0, indexes.len(), 0, index_length));
+        let segment = self
+            .create_segment(DrawMode::Lines(line_width), SegmentBase::with_lengths(0, indexes.len(), 0, index_length));
         let impl_ = &mut self.base_mut().impl_;
         impl_.segments.push(segment);
         if impl_.build_indexes.is_empty() {
@@ -570,8 +580,8 @@ pub trait DrawableBuilder {
             let impl_ = &self.base().impl_;
             (impl_.build_indexes.len(), impl_.vertices.elements())
         };
-        let segment =
-            self.create_segment(DrawMode::Triangles(), SegmentBase::with_lengths(0, build_len, vertex_len, index_length));
+        let segment = self
+            .create_segment(DrawMode::Triangles(), SegmentBase::with_lengths(0, build_len, vertex_len, index_length));
         let impl_ = &mut self.base_mut().impl_;
         impl_.segments.push(segment);
         if impl_.build_indexes.is_empty() {

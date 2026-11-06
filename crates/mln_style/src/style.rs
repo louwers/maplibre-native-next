@@ -4,10 +4,10 @@ use crate::expression::GlobalStateMap;
 use crate::image;
 use crate::layer::Layer;
 use crate::light::Light;
+use crate::map::camera::CameraOptions;
 use crate::source::Source;
 use crate::transition_options::TransitionOptions;
 use feature::Value;
-use crate::map::camera::CameraOptions;
 use mln_util::exception::{ExceptionPtr, MisuseException};
 use mln_util::immutable::Immutable;
 
@@ -22,9 +22,7 @@ pub struct Style {
 impl Style {
     /// A style without a file source (see `Impl::new`).
     pub fn new(pixel_ratio: f32) -> Self {
-        Style {
-            impl_: Box::new(Impl::new(pixel_ratio)),
-        }
+        Style { impl_: Box::new(Impl::new(pixel_ratio)) }
     }
 
     /// `Style(std::shared_ptr<FileSource>, float pixelRatio, const TaggedScheduler&)`.
@@ -33,9 +31,7 @@ impl Style {
         pixel_ratio: f32,
         thread_pool: mln_actor::TaggedScheduler,
     ) -> Self {
-        Style {
-            impl_: Box::new(Impl::with_file_source(file_source, pixel_ratio, thread_pool)),
-        }
+        Style { impl_: Box::new(Impl::with_file_source(file_source, pixel_ratio, thread_pool)) }
     }
 
     pub fn load_json(&mut self, json: &str) {

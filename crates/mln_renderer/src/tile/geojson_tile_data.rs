@@ -23,10 +23,7 @@ pub struct GeoJSONTileFeature<'a> {
 
 impl<'a> GeoJSONTileFeature<'a> {
     pub fn new(feature: &'a Feature<i16>) -> Self {
-        GeoJSONTileFeature {
-            feature,
-            geometry: OnceCell::new(),
-        }
+        GeoJSONTileFeature { feature, geometry: OnceCell::new() }
     }
 }
 
@@ -96,9 +93,7 @@ pub struct GeoJSONTileData {
 
 impl GeoJSONTileData {
     pub fn new(features: TileFeatureCollection) -> Self {
-        GeoJSONTileData {
-            features: Arc::new(features),
-        }
+        GeoJSONTileData { features: Arc::new(features) }
     }
 
     pub fn from_shared(features: Arc<TileFeatureCollection>) -> Self {

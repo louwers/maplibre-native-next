@@ -8,8 +8,8 @@ use mln_storage::response::{Error, Reason};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_storage::{FileSource, Kind, Resource, Response};
 use mln_text::glyph::{
-    Glyph, GlyphDependencies, GlyphID, GlyphIDType, GlyphIDs, GlyphMap, GlyphMetrics, GlyphRange, HBShapeRequests,
-    GLYPH_RANGES_PER_FONT_STACK, GLYPHS_PER_GLYPH_RANGE, NON_IDEOGRAPH_GLYPH_RANGES_PER_FONT_STACK,
+    GLYPH_RANGES_PER_FONT_STACK, GLYPHS_PER_GLYPH_RANGE, Glyph, GlyphDependencies, GlyphID, GlyphIDType, GlyphIDs,
+    GlyphMap, GlyphMetrics, GlyphRange, HBShapeRequests, NON_IDEOGRAPH_GLYPH_RANGES_PER_FONT_STACK,
 };
 use mln_text::local_glyph_rasterizer::LocalGlyphRasterizer;
 use mln_text::tagged_string::font_stack_hash;
@@ -26,14 +26,7 @@ use std::sync::Arc;
 fn stub_glyph(glyph_id: GlyphID) -> Glyph {
     Glyph {
         id: glyph_id,
-        metrics: GlyphMetrics {
-            width: 24,
-            height: 24,
-            left: 0.0,
-            top: -8.0,
-            advance: 24,
-            ..Default::default()
-        },
+        metrics: GlyphMetrics { width: 24, height: 24, left: 0.0, top: -8.0, advance: 24, ..Default::default() },
         bitmap: AlphaImage::from_slice(Size::new(30, 30), &STUB_BITMAP).unwrap(),
     }
 }
@@ -145,8 +138,7 @@ impl GlyphManagerTest {
 
         self.glyph_manager.set_url(url);
         self.glyph_manager.set_observer(Some(self.observer.clone()));
-        self.glyph_manager
-            .get_glyphs(&self.requestor(), dependencies, Some(&self.file_source()));
+        self.glyph_manager.get_glyphs(&self.requestor(), dependencies, Some(&self.file_source()));
 
         self.run_loop.run();
     }
@@ -163,10 +155,7 @@ fn test_stack() -> FontStack {
 /// `GlyphDependencies{.glyphs = {{{{"Test Stack"}}, {chars...}}}, .shapes = {}}`.
 fn dependencies(chars: &[char]) -> GlyphDependencies {
     let ids: GlyphIDs = chars.iter().map(|c| GlyphID::new(*c as u32)).collect();
-    GlyphDependencies {
-        glyphs: BTreeMap::from([(test_stack(), ids)]),
-        shapes: Default::default(),
-    }
+    GlyphDependencies { glyphs: BTreeMap::from([(test_stack(), ids)]), shapes: Default::default() }
 }
 
 fn gid(c: char) -> GlyphID {
@@ -478,8 +467,7 @@ fn immediate_file_source() {
         ResponseType::Synchronous,
     );
 
-    test.file_source
-        .set_response(Kind::Glyphs, glyphs_response("test/fixtures/resources/glyphs.pbf"));
+    test.file_source.set_response(Kind::Glyphs, glyphs_response("test/fixtures/resources/glyphs.pbf"));
 
     *test.observer.glyphs_error.borrow_mut() = Some(Box::new(|_, _, _| panic!("glyphsError")));
 
@@ -507,8 +495,5 @@ fn glyph_range_local_generation_count_matches_constant() {
             locally_generated_ranges += 1;
         }
     }
-    assert_eq!(
-        GLYPH_RANGES_PER_FONT_STACK - locally_generated_ranges,
-        NON_IDEOGRAPH_GLYPH_RANGES_PER_FONT_STACK
-    );
+    assert_eq!(GLYPH_RANGES_PER_FONT_STACK - locally_generated_ranges, NON_IDEOGRAPH_GLYPH_RANGES_PER_FONT_STACK);
 }

@@ -42,20 +42,12 @@ pub struct Impl {
 impl Impl {
     /// `Impl(SourceType, std::string id, uint16_t tileSize)`.
     pub fn new(source_type: SourceType, id: String, tile_size: u16) -> Self {
-        Impl {
-            base: ImplBase::new(source_type, id),
-            tileset: None,
-            tile_size,
-        }
+        Impl { base: ImplBase::new(source_type, id), tileset: None, tile_size }
     }
 
     /// `Impl(const Impl&, Tileset)`.
     pub fn with_tileset(other: &Impl, tileset: Tileset) -> Self {
-        Impl {
-            base: other.base.clone(),
-            tileset: Some(tileset),
-            tile_size: other.tile_size,
-        }
+        Impl { base: other.base.clone(), tileset: Some(tileset), tile_size: other.tile_size }
     }
 
     pub fn get_tile_size(&self) -> u16 {
@@ -130,15 +122,16 @@ impl std::fmt::Debug for TileSource {
 
 impl TileSource {
     /// `TileSource(id, urlOrTileset, tileSize, sourceType)`.
-    fn new(id: String, url_or_tileset: UrlOrTileset, tile_size: u16, source_type: SourceType, overrides: Overrides) -> Self {
+    fn new(
+        id: String,
+        url_or_tileset: UrlOrTileset,
+        tile_size: u16,
+        source_type: SourceType,
+        overrides: Overrides,
+    ) -> Self {
         let impl_: Immutable<dyn source_impl::Impl> = Arc::new(Impl::new(source_type, id, tile_size));
         TileSource {
-            inner: Rc::new(Inner {
-                base: SourceBase::new(impl_),
-                url_or_tileset,
-                req: RefCell::new(None),
-                overrides,
-            }),
+            inner: Rc::new(Inner { base: SourceBase::new(impl_), url_or_tileset, req: RefCell::new(None), overrides }),
         }
     }
 
@@ -183,17 +176,10 @@ impl TileSource {
 /// VectorSource / RasterSource member).
 fn with_derived(this: &TileSource, f: impl FnOnce(&dyn Source)) {
     match this.inner.overrides.subclass {
-        Subclass::Vector(encoding) => f(&VectorSource {
-            tile_source: this.clone(),
-            encoding,
-        }),
-        Subclass::Raster => f(&RasterSource {
-            tile_source: this.clone(),
-        }),
+        Subclass::Vector(encoding) => f(&VectorSource { tile_source: this.clone(), encoding }),
+        Subclass::Raster => f(&RasterSource { tile_source: this.clone() }),
         // dem-heatmap
-        Subclass::RasterDEM => f(&RasterDEMSource {
-            tile_source: this.clone(),
-        }),
+        Subclass::RasterDEM => f(&RasterDEMSource { tile_source: this.clone() }),
     }
 }
 
@@ -273,10 +259,8 @@ impl Source for TileSource {
         let url = raw_url;
 
         let weak = Rc::downgrade(&self.inner);
-        let req = file_source.request(
-            &Resource::source(&url),
-            Box::new(move |res: Response| on_description_response(&weak, res)),
-        );
+        let req = file_source
+            .request(&Resource::source(&url), Box::new(move |res: Response| on_description_response(&weak, res)));
         *self.inner.req.borrow_mut() = Some(req);
     }
 

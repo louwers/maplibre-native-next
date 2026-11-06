@@ -38,12 +38,8 @@ fn polylabel_test() {
     assert_eq!(polylabel(&water2, 1.0).unwrap(), Point::new(3263.5, 3263.5));
 
     // works on degenerate polygons
-    let degenerate1: Polygon<f64> = vec![vec![
-        Point::new(0.0, 0.0),
-        Point::new(1.0, 0.0),
-        Point::new(2.0, 0.0),
-        Point::new(0.0, 0.0),
-    ]];
+    let degenerate1: Polygon<f64> =
+        vec![vec![Point::new(0.0, 0.0), Point::new(1.0, 0.0), Point::new(2.0, 0.0), Point::new(0.0, 0.0)]];
     assert_eq!(polylabel(&degenerate1, 1.0).unwrap(), Point::new(0.0, 0.0));
     let degenerate2: Polygon<f64> = vec![vec![
         Point::new(0.0, 0.0),

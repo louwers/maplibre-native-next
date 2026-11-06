@@ -14,12 +14,7 @@ pub struct Padding {
 
 impl Padding {
     pub const fn new(top: f32, right: f32, bottom: f32, left: f32) -> Self {
-        Padding {
-            top,
-            right,
-            bottom,
-            left,
-        }
+        Padding { top, right, bottom, left }
     }
 
     /// Same padding on all sides.
@@ -47,12 +42,7 @@ impl Padding {
     /// `toArray()`: the C++ returns `std::array<float, 4>`; this keeps the
     /// seed's `[f64; 4]` (exact promotions of the same floats).
     pub fn to_array(&self) -> [f64; 4] {
-        [
-            self.top as f64,
-            self.right as f64,
-            self.bottom as f64,
-            self.left as f64,
-        ]
+        [self.top as f64, self.right as f64, self.bottom as f64, self.left as f64]
     }
 
     /// `toArray()` with the C++ element type.

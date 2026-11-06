@@ -2,12 +2,12 @@
 // see COORDINATION.md).
 
 use crate::expression::{Dependency, ValueConverter};
-use mln_util::interpolate::Interpolate;
 use crate::property_expression::PropertyExpression;
 use crate::renderer::cross_faded_property_evaluator::Faded;
 use mln_expression::expression::FeatureState;
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::GeometryTileFeature;
+use mln_util::interpolate::Interpolate;
 use std::collections::BTreeSet;
 
 /// `PossiblyEvaluatedPropertyValue<T>`: `variant<T, PropertyExpression<T>>`.
@@ -185,10 +185,7 @@ impl<T: Clone> PossiblyEvaluatedFadedPropertyValue<T> {
                     Faded { from: min, to: max }
                 } else {
                     let evaluated = expression.evaluate_feature_images(feature, available_images, default_value);
-                    Faded {
-                        from: evaluated.clone(),
-                        to: evaluated,
-                    }
+                    Faded { from: evaluated.clone(), to: evaluated }
                 }
             }
         }

@@ -3,8 +3,8 @@
 // holes, degenerate grid polygons, and tile-sized polygons at the core's
 // precision (EXTENT / tileSize = 16) and others.
 
-use geometry_difftest_support::{Polygon, flatten, grid_polygon, run_cases, star_polygon};
 use geometry::Point;
+use geometry_difftest_support::{Polygon, flatten, grid_polygon, run_cases, star_polygon};
 use proptest::prelude::*;
 use proptest::test_runner::TestCaseResult;
 
@@ -20,13 +20,9 @@ fn cpp(polygon: &Polygon<f64>, precision: f64) -> Option<(u64, u64)> {
 }
 
 fn rust(polygon: &Polygon<f64>, precision: f64) -> Option<(u64, u64)> {
-    let polygon: geometry::Polygon<f64> = polygon
-        .iter()
-        .map(|r| r.iter().map(|&(x, y)| Point::new(x, y)).collect())
-        .collect();
-    polylabel::polylabel(&polygon, precision)
-        .ok()
-        .map(|p| (p.x.to_bits(), p.y.to_bits()))
+    let polygon: geometry::Polygon<f64> =
+        polygon.iter().map(|r| r.iter().map(|&(x, y)| Point::new(x, y)).collect()).collect();
+    polylabel::polylabel(&polygon, precision).ok().map(|p| (p.x.to_bits(), p.y.to_bits()))
 }
 
 fn check(polygon: &Polygon<f64>, precision: f64) -> TestCaseResult {

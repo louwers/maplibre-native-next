@@ -350,10 +350,7 @@ impl GLFWView {
 
     /// `setWindowTitle(const std::string&)`
     pub fn set_window_title(&self, title: &str) {
-        self.state
-            .borrow_mut()
-            .window
-            .set_title(&format!("MapLibre Native (GLFW): {title}"));
+        self.state.borrow_mut().window.set_title(&format!("MapLibre Native (GLFW): {title}"));
     }
 
     /// `invalidate()`
@@ -459,9 +456,8 @@ impl ViewState {
             match key {
                 Key::Escape => self.window.set_should_close(true),
                 Key::Tab => self.cycle_debug_options(),
-                Key::KpAdd | Key::Equal => self.with_map(|map| {
-                    map.scale_by(1.1, Some(ScreenCoordinate::new(last_x, last_y)), &animation_ms(500))
-                }),
+                Key::KpAdd | Key::Equal => self
+                    .with_map(|map| map.scale_by(1.1, Some(ScreenCoordinate::new(last_x, last_y)), &animation_ms(500))),
                 Key::KpSubtract | Key::Minus => self.with_map(|map| {
                     map.scale_by(1.0 / 1.1, Some(ScreenCoordinate::new(last_x, last_y)), &animation_ms(500))
                 }),
@@ -543,8 +539,20 @@ impl ViewState {
                 Key::F6 => self.cycle_tile_lod_profile(),
                 Key::F7 => self.tile_lod_zoom_shift(false),
                 Key::F8 => self.tile_lod_zoom_shift(true),
-                Key::Q | Key::C | Key::B | Key::K | Key::L | Key::R | Key::E | Key::T | Key::F | Key::F1 | Key::H
-                | Key::J | Key::G | Key::Y => {
+                Key::Q
+                | Key::C
+                | Key::B
+                | Key::K
+                | Key::L
+                | Key::R
+                | Key::E
+                | Key::T
+                | Key::F
+                | Key::F1
+                | Key::H
+                | Key::J
+                | Key::G
+                | Key::Y => {
                     Log::warning(Event::General, format!("Key {key:?}: not ported yet"));
                 }
                 _ => {}

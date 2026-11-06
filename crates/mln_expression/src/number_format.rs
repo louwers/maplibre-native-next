@@ -1,9 +1,7 @@
 // Ports include/mln/style/expression/number_format.hpp and
 // src/mln/style/expression/number_format.cpp.
 
-use crate::expression::{
-    EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{Value, to_string};
@@ -101,9 +99,7 @@ fn format_number(
     }
 
     // Integer and fraction digit strings.
-    let digit_at = |i: i64| -> u8 {
-        if i >= 0 && (i as usize) < digits.len() { digits[i as usize] } else { 0 }
-    };
+    let digit_at = |i: i64| -> u8 { if i >= 0 && (i as usize) < digits.len() { digits[i as usize] } else { 0 } };
     let mut int_part = String::new();
     if point <= 0 {
         int_part.push('0');
@@ -143,7 +139,6 @@ fn format_number(
     }
     result
 }
-
 
 /// Digits and decimal point position of a `{:e}` formatting.
 fn sci_digits(sci: &str) -> (Vec<u8>, i64) {
@@ -251,10 +246,7 @@ impl NumberFormat {
 
         let t = number_result.get_type();
         if *t != Type::Number {
-            ctx.error(format!(
-                "Expected argument of type number, but found {} instead.",
-                type_::to_string(t)
-            ));
+            ctx.error(format!("Expected argument of type number, but found {} instead.", type_::to_string(t)));
             return None;
         }
 
@@ -281,18 +273,12 @@ impl NumberFormat {
         let locale_result = parse_option(LOCALE_KEY, Type::String, "Number-format locale parsing failed.").ok()?;
         let currency_result =
             parse_option(CURRENCY_KEY, Type::String, "Number-format currency parsing failed.").ok()?;
-        let min_fraction_digits_result = parse_option(
-            MIN_FRACTION_DIGITS_KEY,
-            Type::Number,
-            "Number-format min-fraction-digits parsing failed.",
-        )
-        .ok()?;
-        let max_fraction_digits_result = parse_option(
-            MAX_FRACTION_DIGITS_KEY,
-            Type::Number,
-            "Number-format max-fraction-digits parsing failed.",
-        )
-        .ok()?;
+        let min_fraction_digits_result =
+            parse_option(MIN_FRACTION_DIGITS_KEY, Type::Number, "Number-format min-fraction-digits parsing failed.")
+                .ok()?;
+        let max_fraction_digits_result =
+            parse_option(MAX_FRACTION_DIGITS_KEY, Type::Number, "Number-format max-fraction-digits parsing failed.")
+                .ok()?;
 
         Some(Box::new(NumberFormat::new(
             number_result,
@@ -344,9 +330,8 @@ impl Expression for NumberFormat {
 
     fn each_child<'a>(&'a self, visit: &mut dyn FnMut(&'a dyn Expression)) {
         visit(&*self.number);
-        for e in [&self.locale, &self.currency, &self.min_fraction_digits, &self.max_fraction_digits]
-            .into_iter()
-            .flatten()
+        for e in
+            [&self.locale, &self.currency, &self.min_fraction_digits, &self.max_fraction_digits].into_iter().flatten()
         {
             visit(&**e);
         }

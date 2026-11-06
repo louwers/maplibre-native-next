@@ -83,11 +83,7 @@ impl SourceTest {
         let mut transform =
             Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default);
         transform.resize(Size::new(512, 512)).unwrap();
-        transform.jump_to(&CameraOptions {
-            center: Some(LatLng::default()),
-            zoom: Some(0.0),
-            ..Default::default()
-        });
+        transform.jump_to(&CameraOptions { center: Some(LatLng::default()), zoom: Some(0.0), ..Default::default() });
         SourceTest {
             run_loop: RunLoop::new(),
             transform,
@@ -99,11 +95,7 @@ impl SourceTest {
         self.tile_parameters_with(map_mode, None)
     }
 
-    fn tile_parameters_with(
-        &self,
-        map_mode: MapMode,
-        file_source: Option<Arc<dyn FileSource>>,
-    ) -> TileParameters<'_> {
+    fn tile_parameters_with(&self, map_mode: MapMode, file_source: Option<Arc<dyn FileSource>>) -> TileParameters<'_> {
         tile_parameters(self.transform.get_state(), &self.thread_pool, map_mode, file_source)
     }
 
@@ -180,9 +172,7 @@ impl Tiled {
             }
             Tiled::RasterDEM => {
                 let layer = HillshadeLayer::new("id", "source");
-                Arc::new(HillshadeLayerProperties::new(static_immutable_cast::<HillshadeLayerImpl>(
-                    &layer.base_impl(),
-                )))
+                Arc::new(HillshadeLayerProperties::new(static_immutable_cast::<HillshadeLayerImpl>(&layer.base_impl())))
             }
             Tiled::Vector => {
                 let mut layer = LineLayer::new("id", "source");
@@ -213,10 +203,7 @@ impl Tiled {
 }
 
 fn tiles_tileset() -> UrlOrTileset {
-    UrlOrTileset::Tileset(Tileset {
-        tiles: vec!["tiles".to_owned()],
-        ..Default::default()
-    })
+    UrlOrTileset::Tileset(Tileset { tiles: vec!["tiles".to_owned()], ..Default::default() })
 }
 
 /// The shared body of the `<Type>Tile<Case>` tests: a source of `kind`
@@ -235,7 +222,13 @@ fn run_tile_case(
     let mut render_source = render_source::create(&source.base_impl(), &test.thread_pool).unwrap();
     render_source.set_observer(observer);
     let fs: Arc<dyn FileSource> = file_source;
-    render_source.update(source.base_impl(), &layers, true, true, &test.tile_parameters_with(MapMode::Continuous, Some(fs)));
+    render_source.update(
+        source.base_impl(),
+        &layers,
+        true,
+        true,
+        &test.tile_parameters_with(MapMode::Continuous, Some(fs)),
+    );
 
     test.run();
     render_source.base().base_impl.type_
@@ -441,8 +434,7 @@ fn tile_attribution(kind: Tiled, attribution: &'static str) {
         assert_eq!("url", resource.url);
         let mut response = Response::new();
         response.data = Some(Arc::new(
-            format!(r#"{{ "tilejson": "2.1.0", "attribution": "{attribution}", "tiles": [ "tiles" ] }}"#)
-                .into_bytes(),
+            format!(r#"{{ "tilejson": "2.1.0", "attribution": "{attribution}", "tiles": [ "tiles" ] }}"#).into_bytes(),
         ));
         Some(response)
     });
@@ -465,7 +457,13 @@ fn tile_attribution(kind: Tiled, attribution: &'static str) {
 
     let mut render_source = render_source::create(&source.base_impl(), &test.thread_pool).unwrap();
     let fs: Arc<dyn FileSource> = file_source.clone();
-    render_source.update(source.base_impl(), &layers, true, true, &test.tile_parameters_with(MapMode::Continuous, Some(fs)));
+    render_source.update(
+        source.base_impl(),
+        &layers,
+        true,
+        true,
+        &test.tile_parameters_with(MapMode::Continuous, Some(fs)),
+    );
 
     test.run();
     assert!(*changed.borrow());
@@ -538,9 +536,8 @@ fn geojson_source_tiles_after_data_reset() {
     );
 
     let layer = CircleLayer::new("id", "source");
-    let layer_properties: Immutable<dyn LayerProperties> = Arc::new(CircleLayerProperties::new(
-        static_immutable_cast::<CircleLayerImpl>(&layer.base_impl()),
-    ));
+    let layer_properties: Immutable<dyn LayerProperties> =
+        Arc::new(CircleLayerProperties::new(static_immutable_cast::<CircleLayerImpl>(&layer.base_impl())));
     let layers = vec![layer_properties];
 
     let continuous = test.tile_parameters(MapMode::Continuous);
@@ -612,11 +609,7 @@ impl Drop for FixtureLog {
 #[test]
 fn set_max_parent_overscale_factor() {
     let mut test = SourceTest::new();
-    test.transform.jump_to(&CameraOptions {
-        center: Some(LatLng::default()),
-        zoom: Some(8.0),
-        ..Default::default()
-    });
+    test.transform.jump_to(&CameraOptions { center: Some(LatLng::default()), zoom: Some(8.0), ..Default::default() });
     let timer = Rc::new(Timer::new());
     let log = FixtureLog::new();
 
@@ -684,11 +677,7 @@ fn set_max_parent_overscale_factor() {
 #[test]
 fn raster_dem_tile_rounds_covering_zoom() {
     let mut test = SourceTest::new();
-    test.transform.jump_to(&CameraOptions {
-        center: Some(LatLng::default()),
-        zoom: Some(4.6),
-        ..Default::default()
-    });
+    test.transform.jump_to(&CameraOptions { center: Some(LatLng::default()), zoom: Some(4.6), ..Default::default() });
 
     let requested_zooms = Rc::new(RefCell::new(Vec::<i8>::new()));
     let file_source = Arc::new(StubFileSource::new(ResponseType::Asynchronous));
@@ -710,7 +699,13 @@ fn raster_dem_tile_rounds_covering_zoom() {
     let mut render_source = render_source::create(&source.base_impl(), &test.thread_pool).unwrap();
     render_source.set_observer(observer.clone());
     let fs: Arc<dyn FileSource> = file_source.clone();
-    render_source.update(source.base_impl(), &layers, true, true, &test.tile_parameters_with(MapMode::Continuous, Some(fs)));
+    render_source.update(
+        source.base_impl(),
+        &layers,
+        true,
+        true,
+        &test.tile_parameters_with(MapMode::Continuous, Some(fs)),
+    );
 
     {
         let end = test.end_handle();

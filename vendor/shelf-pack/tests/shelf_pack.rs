@@ -169,7 +169,7 @@ fn test_pack5() {
     options.in_place = true;
     bins.push(Bin::new(-1, 10, 10));
     bins.push(Bin::new(-1, 10, 10));
-    bins.push(Bin::new(-1, 10, 30));  // should skip
+    bins.push(Bin::new(-1, 10, 30)); // should skip
     bins.push(Bin::new(-1, 10, 10));
     results = sprite.pack(&mut bins, options);
     //  x: 0, y: 0, w: 10, h: 10
@@ -324,7 +324,7 @@ fn test_pack_one4() {
     assert_eq!(b(&sprite, bin2).h, 10);
     assert_eq!(b(&sprite, bin2).maxw, 10);
     assert_eq!(b(&sprite, bin2).maxh, 10);
-    assert_eq!(bin1, bin2);  // same bin
+    assert_eq!(bin1, bin2); // same bin
 }
 
 #[test]
@@ -397,7 +397,7 @@ fn test_pack_one7() {
     let bin1 = sprite.pack_one(-1, 10, 10);
     let bin2 = sprite.pack_one(-1, 10, 15);
     let bin3 = sprite.pack_one(-1, 10, 20);
-    let bin4 = sprite.pack_one(-1, 10,  9);
+    let bin4 = sprite.pack_one(-1, 10, 9);
     //  x: 0, y: 0, w: 10, h: 10
     assert_eq!(b(&sprite, bin1).id, 1);
     assert_eq!(b(&sprite, bin1).x, 0);
@@ -465,7 +465,7 @@ fn test_pack_one9() {
     assert_eq!(b(&sprite, bin4).h, 10);
     assert_eq!(b(&sprite, bin4).maxw, 10);
     assert_eq!(b(&sprite, bin4).maxh, 10);
-    assert_eq!(bin4, bin2);  // reused bin2
+    assert_eq!(bin4, bin2); // reused bin2
 }
 
 #[test]
@@ -487,7 +487,7 @@ fn test_pack_one10() {
     assert_eq!(b(&sprite, bin4).h, 13);
     assert_eq!(b(&sprite, bin4).maxw, 10);
     assert_eq!(b(&sprite, bin4).maxh, 15);
-    assert_eq!(bin4, bin2);  // reused bin2
+    assert_eq!(bin4, bin2); // reused bin2
 }
 
 #[test]
@@ -506,7 +506,7 @@ fn test_pack_one11() {
     assert_eq!(b(&sprite, bin3).h, 10);
     assert_eq!(b(&sprite, bin3).maxw, 10);
     assert_eq!(b(&sprite, bin3).maxh, 10);
-    assert_ne!(bin3, bin2);  // did not reuse bin2
+    assert_ne!(bin3, bin2); // did not reuse bin2
 }
 
 #[test]
@@ -524,7 +524,7 @@ fn test_pack_one12() {
     assert_eq!(b(&sprite, bin3).h, 13);
     assert_eq!(b(&sprite, bin3).maxw, 10);
     assert_eq!(b(&sprite, bin3).maxh, 15);
-    assert_eq!(bin3, bin2);  // reused bin2
+    assert_eq!(bin3, bin2); // reused bin2
     sprite.unref(bin3.unwrap());
     let bin4 = sprite.pack_one(4, 10, 14);
     //  x: 0, y: 10, w: 10, h: 14
@@ -535,8 +535,8 @@ fn test_pack_one12() {
     assert_eq!(b(&sprite, bin4).h, 14);
     assert_eq!(b(&sprite, bin4).maxw, 10);
     assert_eq!(b(&sprite, bin4).maxh, 15);
-    assert_eq!(bin4, bin2);  // reused bin2
-    assert_eq!(bin4, bin3);  // reused bin3
+    assert_eq!(bin4, bin2); // reused bin2
+    assert_eq!(bin4, bin3); // reused bin3
 }
 
 #[test]
@@ -602,8 +602,8 @@ fn test_unref2() {
     let bin = sprite.pack_one(1, 10, 10);
     assert_eq!(sprite.unref(bin.unwrap()), 0);
     assert_eq!(b(&sprite, bin).refcount(), 0);
-    assert_eq!(sprite.unref(bin.unwrap()), 0);  // still 0
-    assert_eq!(b(&sprite, bin).refcount(), 0);  // still 0
+    assert_eq!(sprite.unref(bin.unwrap()), 0); // still 0
+    assert_eq!(b(&sprite, bin).refcount(), 0); // still 0
 }
 
 #[test]
@@ -623,7 +623,7 @@ fn test_clear() {
     sprite.clear();
     let bin3 = sprite.pack_one(-1, 10, 10);
     //  x: 0, y: 0, w: 10, h: 10
-    assert_eq!(b(&sprite, bin3).id, 1);  // clear resets max id
+    assert_eq!(b(&sprite, bin3).id, 1); // clear resets max id
     assert_eq!(b(&sprite, bin3).x, 0);
     assert_eq!(b(&sprite, bin3).y, 0);
     assert_eq!(b(&sprite, bin3).w, 10);
@@ -655,7 +655,7 @@ fn test_resize1() {
     assert_eq!(b(&sprite, bin1).h, 10);
     assert_eq!(b(&sprite, bin1).maxw, 10);
     assert_eq!(b(&sprite, bin1).maxh, 10);
-    assert!(sprite.resize(20, 10));  // grow width
+    assert!(sprite.resize(20, 10)); // grow width
     assert_eq!(sprite.width(), 20);
     assert_eq!(sprite.height(), 10);
     let bin2 = sprite.pack_one(2, 10, 10);
@@ -667,7 +667,7 @@ fn test_resize1() {
     assert_eq!(b(&sprite, bin2).h, 10);
     assert_eq!(b(&sprite, bin2).maxw, 10);
     assert_eq!(b(&sprite, bin2).maxh, 10);
-    assert!(sprite.resize(20, 20));  // grow height
+    assert!(sprite.resize(20, 20)); // grow height
     assert_eq!(sprite.width(), 20);
     assert_eq!(sprite.height(), 20);
     let bin3 = sprite.pack_one(3, 10, 10);

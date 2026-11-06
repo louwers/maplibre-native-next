@@ -19,7 +19,8 @@ fn edt1d(f: &[f64], d: &mut [f64], v: &mut [i16], z: &mut [f64], n: u32) {
     for q in 1..n {
         let qf = q as f64;
         let vk = |v: &[i16], k: usize| v[k] as f64;
-        let mut s = ((f[q as usize] + qf * qf) - (f[v[k] as usize] + vk(v, k) * vk(v, k))) / (2.0 * qf - 2.0 * vk(v, k));
+        let mut s =
+            ((f[q as usize] + qf * qf) - (f[v[k] as usize] + vk(v, k) * vk(v, k))) / (2.0 * qf - 2.0 * vk(v, k));
         while s <= z[k] {
             k = k.wrapping_sub(1);
             s = ((f[q as usize] + qf * qf) - (f[v[k] as usize] + vk(v, k) * vk(v, k))) / (2.0 * qf - 2.0 * vk(v, k));

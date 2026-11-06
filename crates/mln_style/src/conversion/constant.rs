@@ -3,10 +3,10 @@
 
 use super::{Converter, Convertible, Error, convert};
 use mln_style_types::{
-    AlignmentType, AnchorOffsetPair, CirclePitchScaleType, HillshadeIlluminationAnchorType,
-    HillshadeMethodType, IconTextFitType, LightAnchorType, LineCapType, LineJoinType, RasterResamplingType,
-    SymbolAnchorType, SymbolPlacementType, SymbolZOrderType, TextJustifyType, TextTransformType,
-    TextWritingModeType, TranslateAnchorType, VariableAnchorOffsetCollection, VisibilityType,
+    AlignmentType, AnchorOffsetPair, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType,
+    IconTextFitType, LightAnchorType, LineCapType, LineJoinType, RasterResamplingType, SymbolAnchorType,
+    SymbolPlacementType, SymbolZOrderType, TextJustifyType, TextTransformType, TextWritingModeType,
+    TranslateAnchorType, VariableAnchorOffsetCollection, VisibilityType,
 };
 use mln_util::enum_::Enum;
 use mln_util::{Color, Padding};
@@ -171,8 +171,7 @@ impl Converter for Padding {
         }
 
         if result.is_none() {
-            error.message =
-                "value must be a number or an array of numbers (between 1 and 4 elements)".to_owned();
+            error.message = "value must be a number or an array of numbers (between 1 and 4 elements)".to_owned();
         }
         result
     }

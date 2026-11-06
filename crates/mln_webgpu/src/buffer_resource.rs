@@ -27,8 +27,16 @@ impl BufferResource {
         is_index_buffer: bool,
         persistent: bool,
     ) -> Self {
-        let mut res =
-            BufferResource { context, buffer: None, raw: Vec::new(), size, usage, version: 0, is_index_buffer, persistent };
+        let mut res = BufferResource {
+            context,
+            buffer: None,
+            raw: Vec::new(),
+            size,
+            usage,
+            version: 0,
+            is_index_buffer,
+            persistent,
+        };
         if size == 0 {
             return res;
         }

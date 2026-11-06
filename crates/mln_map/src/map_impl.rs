@@ -17,17 +17,17 @@
 use crate::map_observer::{CameraChangeMode, MapLoadError, MapObserver, RenderFrameStatus};
 use crate::map_options::MapOptions;
 use crate::transform::{Transform, TransformObserver};
+use mln_actor::{TaggedScheduler, scheduler};
 use mln_map_types::{CameraOptions, MapDebugOptions, MapMode, TileLodMode};
 use mln_renderer::{ExceptionPtr, RenderMode, RendererFrontend, RendererObserver, UpdateParameters};
+use mln_storage::FileSource;
+use mln_style::Style;
 use mln_style::observer::{Observer as StyleObserver, SourceObserver};
 use mln_style::source::Source;
 use mln_style::sprite::Sprite;
-use mln_actor::{TaggedScheduler, scheduler};
-use mln_storage::FileSource;
-use mln_style::Style;
 use mln_util::chrono::{Clock, TimePoint};
-use mln_util::identity::SimpleIdentity;
 use mln_util::exception::{NotFoundException, StyleLoadException, StyleParseException};
+use mln_util::identity::SimpleIdentity;
 use std::cell::{Cell, RefCell, RefMut};
 use std::ops::{Deref, DerefMut};
 use std::rc::{Rc, Weak};
@@ -168,9 +168,8 @@ impl MapImpl {
         file_source: Option<Arc<dyn FileSource>>,
         map_options: &MapOptions,
     ) -> Rc<MapImpl> {
-        let transform_observer: Rc<dyn TransformObserver> = Rc::new(MapTransformObserver {
-            observer: observer.clone(),
-        });
+        let transform_observer: Rc<dyn TransformObserver> =
+            Rc::new(MapTransformObserver { observer: observer.clone() });
         let pixel_ratio = map_options.pixel_ratio();
         // TODO(port): `frontend_.getThreadPool()` (RendererFrontend has no
         // thread pool yet); the background pool with a fresh tag instead.
@@ -206,12 +205,8 @@ impl MapImpl {
             tile_lod_mode: Cell::new(TileLodMode::Default),
             file_source,
         });
-        map.transform
-            .borrow_mut()
-            .set_north_orientation(map_options.north_orientation());
-        let style_observer: Rc<dyn StyleObserver> = Rc::new(MapStyleObserver {
-            map: Rc::downgrade(&map),
-        });
+        map.transform.borrow_mut().set_north_orientation(map_options.north_orientation());
+        let style_observer: Rc<dyn StyleObserver> = Rc::new(MapStyleObserver { map: Rc::downgrade(&map) });
         map.style.borrow_mut().impl_.set_observer(Some(style_observer));
         let weak: Weak<MapImpl> = Rc::downgrade(&map);
         map.renderer_frontend.set_observer(weak);
@@ -283,11 +278,7 @@ impl MapImpl {
             return;
         }
 
-        let time_point = if self.mode == MapMode::Continuous {
-            Clock::now()
-        } else {
-            TimePoint::max()
-        };
+        let time_point = if self.mode == MapMode::Continuous { Clock::now() } else { TimePoint::max() };
 
         self.transform.borrow_mut().update_transitions(time_point);
 
@@ -437,8 +428,7 @@ impl RendererObserver for MapImpl {
 
     fn on_did_finish_rendering_map(&self) {
         if self.mode == MapMode::Continuous && self.loading.get() {
-            self.observer
-                .on_did_finish_rendering_map(crate::map_observer::RenderMode::Full);
+            self.observer.on_did_finish_rendering_map(crate::map_observer::RenderMode::Full);
             if self.loading.get() {
                 self.loading.set(false);
                 self.observer.on_did_finish_loading_map();
@@ -479,10 +469,7 @@ pub struct StyleMut<'a> {
 
 impl<'a> StyleMut<'a> {
     pub(crate) fn new(map: &'a MapImpl) -> Self {
-        StyleMut {
-            map,
-            style: Some(map.style.borrow_mut()),
-        }
+        StyleMut { map, style: Some(map.style.borrow_mut()) }
     }
 }
 

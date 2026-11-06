@@ -94,9 +94,7 @@ fn evaluate_array() {
 
     let context = EvaluationContext::default().with_global_state(Some(&s));
     let result = expr.evaluate(&context).unwrap();
-    let Value::Array(array) = result else {
-        panic!("array expected")
-    };
+    let Value::Array(array) = result else { panic!("array expected") };
     assert_eq!(2, array.len());
     assert_eq!(Value::String("restaurant".into()), array[0]);
     assert_eq!(Value::String("hotel".into()), array[1]);
@@ -105,11 +103,9 @@ fn evaluate_array() {
 // gtest: GlobalStateExpression.EvaluateInComposition
 #[test]
 fn evaluate_in_composition() {
-    let expr = parse_expression(
-        r#"["case", ["to-boolean", ["global-state", "enabled"]], 10.0, 5.0]"#,
-        Some(Type::Number),
-    )
-    .unwrap();
+    let expr =
+        parse_expression(r#"["case", ["to-boolean", ["global-state", "enabled"]], 10.0, 5.0]"#, Some(Type::Number))
+            .unwrap();
     assert!(expr.has(Dependency::GLOBAL_STATE));
 
     let enabled = state(&[("enabled", MbglValue::Bool(true))]);
@@ -168,9 +164,7 @@ fn global_state_refs_intersect_() {
 #[test]
 fn serialize() {
     let expr = parse_expression(r#"["global-state", "showLabels"]"#, None).unwrap();
-    let MbglValue::Array(array) = expr.serialize() else {
-        panic!("array expected")
-    };
+    let MbglValue::Array(array) = expr.serialize() else { panic!("array expected") };
     assert_eq!(2, array.len());
     assert_eq!(MbglValue::String("global-state".into()), array[0]);
     assert_eq!(MbglValue::String("showLabels".into()), array[1]);

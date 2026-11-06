@@ -1,13 +1,13 @@
 // Ports test/style/property_expression.test.cpp.
 
 use super::util::{StubGeometryTileFeature, property_map};
+use crate::expression::EvaluationContext;
 use crate::expression::dsl::{get, get_str, image, interpolate, linear, literal, literal_str, number, step, zoom};
 use crate::expression::{Dependency, Image, Value};
 use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
 use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
 use crate::renderer::property_evaluator::PropertyEvaluator;
-use crate::expression::EvaluationContext;
 use feature::Value as MbglValue;
 use geometry::{Geometry, Point};
 use mln_expression::dsl::create_expression_from_str;
@@ -163,11 +163,7 @@ fn issue8460() {
     assert_near(600.0, fn1.evaluate_zoom_feature(16.0, &one_integer(), -1.0), 0.00);
 
     let fn2 = PropertyExpression::<f32>::from_box(
-        interpolate(
-            linear(),
-            zoom(),
-            vec![(15.0, inner(0.0)), (15.2, inner(300.0)), (18.0, inner(600.0))],
-        ),
+        interpolate(linear(), zoom(), vec![(15.0, inner(0.0)), (15.2, inner(300.0)), (18.0, inner(600.0))]),
         Some(0.0),
     );
 
@@ -396,7 +392,8 @@ fn within_expression_anti_meridian() {
         assert!(expression.is_some());
         let prop_expr = PropertyExpression::<bool>::from_box(expression.unwrap(), None);
 
-        let geo_line0 = convert_geometry(Geometry::LineString(pts(&[(-183.0, 5.0), (-179.0, 1.0)])), &canonical_tile_id);
+        let geo_line0 =
+            convert_geometry(Geometry::LineString(pts(&[(-183.0, 5.0), (-179.0, 1.0)])), &canonical_tile_id);
         let line_feature0 = StubGeometryTileFeature::with_geometry(FeatureType::LineString, geo_line0);
 
         let geo_line1 = convert_geometry(Geometry::LineString(pts(&[(183.0, 5.0), (181.0, 1.0)])), &canonical_tile_id);
@@ -487,8 +484,7 @@ fn distance_expression() {
             "type": "Point",
             "coordinates": [0, 0],
             }"#;
-        let expression =
-            create_expression_from_str(&format!(r#"["distance", {invalid_geo_source}, "ExtraArgument"]"#));
+        let expression = create_expression_from_str(&format!(r#"["distance", {invalid_geo_source}, "ExtraArgument"]"#));
         assert!(expression.is_none());
     }
 
@@ -714,14 +710,20 @@ fn distance_expression() {
         // lineString1 is within polygon
         let line_feature1 = feature(
             FeatureType::LineString,
-            Geometry::LineString(pts(&[(24.947097301483154, 60.16921520262075), (24.947311878204346, 60.1680197032483)])),
+            Geometry::LineString(pts(&[
+                (24.947097301483154, 60.16921520262075),
+                (24.947311878204346, 60.1680197032483),
+            ])),
         );
         expect_near(0.0, eval(&prop_expr, &line_feature1), 0.01);
 
         // lineString2 is intersecting the polygon but its points are outside the polygon
         let line_feature2 = feature(
             FeatureType::LineString,
-            Geometry::LineString(pts(&[(24.93999481201172, 60.17116846959888), (24.940037727355957, 60.16542574699484)])),
+            Geometry::LineString(pts(&[
+                (24.93999481201172, 60.17116846959888),
+                (24.940037727355957, 60.16542574699484),
+            ])),
         );
         expect_near(0.0, eval(&prop_expr, &line_feature2), 0.01);
     }

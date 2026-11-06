@@ -32,19 +32,11 @@ pub struct Error {
 impl Error {
     /// `Error(Reason, std::string = "", std::optional<Timestamp> = std::nullopt)`.
     pub fn new(reason: Reason, message: impl Into<String>) -> Self {
-        Error {
-            reason,
-            message: message.into(),
-            retry_after: None,
-        }
+        Error { reason, message: message.into(), retry_after: None }
     }
 
     pub fn with_retry_after(reason: Reason, message: impl Into<String>, retry_after: Option<Timestamp>) -> Self {
-        Error {
-            reason,
-            message: message.into(),
-            retry_after,
-        }
+        Error { reason, message: message.into(), retry_after }
     }
 }
 

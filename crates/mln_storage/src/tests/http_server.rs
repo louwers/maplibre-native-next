@@ -279,9 +279,7 @@ fn parse_target(target: &str) -> (String, BTreeMap<String, String>) {
         let mut pieces = pair.split('=');
         let key = pieces.next().unwrap_or("");
         let value = pieces.next_back().unwrap_or("");
-        params
-            .entry(decode_query_component(key))
-            .or_insert_with(|| decode_query_component(value));
+        params.entry(decode_query_component(key)).or_insert_with(|| decode_query_component(value));
     }
     (path.to_owned(), params)
 }
@@ -339,11 +337,7 @@ fn serve(state: Arc<State>, stream: TcpStream) {
 
         let (path, params) = parse_target(&target);
         let req = Request { path, params, headers };
-        let mut res = Response {
-            status: -1,
-            headers: Vec::new(),
-            content: None,
-        };
+        let mut res = Response { status: -1, headers: Vec::new(), content: None };
         let routed = route(&state, &req, &mut res);
         if !routed {
             res.status = 404;
@@ -418,11 +412,7 @@ impl HttpServer {
                 }
             })
             .expect("spawn test server");
-        HttpServer {
-            port,
-            stop,
-            thread: Some(thread),
-        }
+        HttpServer { port, stop, thread: Some(thread) }
     }
 
     #[allow(dead_code)]

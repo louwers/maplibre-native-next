@@ -31,9 +31,7 @@ pub struct EvaluationError {
 
 impl EvaluationError {
     pub fn new(message: impl Into<String>) -> Self {
-        EvaluationError {
-            message: message.into(),
-        }
+        EvaluationError { message: message.into() }
     }
 }
 
@@ -62,39 +60,22 @@ pub struct EvaluationContext<'a> {
 impl<'a> EvaluationContext<'a> {
     /// `EvaluationContext(float zoom)`.
     pub fn new(zoom: f32) -> Self {
-        EvaluationContext {
-            zoom: Some(zoom),
-            ..Default::default()
-        }
+        EvaluationContext { zoom: Some(zoom), ..Default::default() }
     }
 
     /// `EvaluationContext(GeometryTileFeature const*)`.
     pub fn from_feature(feature: Option<&'a dyn GeometryTileFeature>) -> Self {
-        EvaluationContext {
-            feature,
-            ..Default::default()
-        }
+        EvaluationContext { feature, ..Default::default() }
     }
 
     /// `EvaluationContext(float zoom, GeometryTileFeature const*)`.
     pub fn with_zoom_feature(zoom: f32, feature: Option<&'a dyn GeometryTileFeature>) -> Self {
-        EvaluationContext {
-            zoom: Some(zoom),
-            feature,
-            ..Default::default()
-        }
+        EvaluationContext { zoom: Some(zoom), feature, ..Default::default() }
     }
 
     /// `EvaluationContext(std::optional<mln::Value> accumulated, GeometryTileFeature const*)`.
-    pub fn from_accumulated(
-        accumulated: Option<&'a MbglValue>,
-        feature: Option<&'a dyn GeometryTileFeature>,
-    ) -> Self {
-        EvaluationContext {
-            accumulated,
-            feature,
-            ..Default::default()
-        }
+    pub fn from_accumulated(accumulated: Option<&'a MbglValue>, feature: Option<&'a dyn GeometryTileFeature>) -> Self {
+        EvaluationContext { accumulated, feature, ..Default::default() }
     }
 
     /// `EvaluationContext(float zoom, GeometryTileFeature const*, const FeatureState*)`.
@@ -103,12 +84,7 @@ impl<'a> EvaluationContext<'a> {
         feature: Option<&'a dyn GeometryTileFeature>,
         state: Option<&'a FeatureState>,
     ) -> Self {
-        EvaluationContext {
-            zoom: Some(zoom),
-            feature,
-            feature_state: state,
-            ..Default::default()
-        }
+        EvaluationContext { zoom: Some(zoom), feature, feature_state: state, ..Default::default() }
     }
 
     /// `EvaluationContext(std::optional<float> zoom, GeometryTileFeature const*,
@@ -118,12 +94,7 @@ impl<'a> EvaluationContext<'a> {
         feature: Option<&'a dyn GeometryTileFeature>,
         color_ramp_parameter: Option<f64>,
     ) -> Self {
-        EvaluationContext {
-            zoom,
-            feature,
-            color_ramp_parameter,
-            ..Default::default()
-        }
+        EvaluationContext { zoom, feature, color_ramp_parameter, ..Default::default() }
     }
 
     /// The four-argument constructor with `elevation`.
@@ -133,13 +104,7 @@ impl<'a> EvaluationContext<'a> {
         color_ramp_parameter: Option<f64>,
         elevation: Option<f32>,
     ) -> Self {
-        EvaluationContext {
-            zoom,
-            feature,
-            color_ramp_parameter,
-            elevation,
-            ..Default::default()
-        }
+        EvaluationContext { zoom, feature, color_ramp_parameter, elevation, ..Default::default() }
     }
 
     pub fn with_formatted_section(mut self, formatted_section: Option<&'a Value>) -> Self {
@@ -299,11 +264,7 @@ pub struct ExpressionBase {
 
 impl ExpressionBase {
     pub fn new(kind: Kind, type_: Type, dependencies: Dependency) -> Self {
-        ExpressionBase {
-            dependencies,
-            kind,
-            type_,
-        }
+        ExpressionBase { dependencies, kind, type_ }
     }
 }
 
@@ -399,9 +360,7 @@ where
     I: IntoIterator<Item = &'a E>,
     E: std::ops::Deref<Target = dyn Expression> + 'a,
 {
-    container
-        .into_iter()
-        .fold(Dependency::NONE, |a, e| a | e.dependencies())
+    container.into_iter().fold(Dependency::NONE, |a, e| a | e.dependencies())
 }
 
 /// `Expression::childrenEqual` for vectors of expressions.
@@ -444,10 +403,7 @@ pub fn collect_global_state_refs(expression: &dyn Expression, refs: &mut BTreeSe
 /// Whether any of the global-state keys referenced by an expression is among
 /// the changed keys. A null set on either side means "unknown" and is
 /// conservatively treated as a match.
-pub fn global_state_refs_intersect(
-    refs: Option<&BTreeSet<String>>,
-    changed_keys: Option<&BTreeSet<String>>,
-) -> bool {
+pub fn global_state_refs_intersect(refs: Option<&BTreeSet<String>>, changed_keys: Option<&BTreeSet<String>>) -> bool {
     match (refs, changed_keys) {
         (Some(refs), Some(changed_keys)) => refs.iter().any(|key| changed_keys.contains(key)),
         _ => true,
@@ -468,10 +424,7 @@ struct GeoJSONFeature<'a> {
 
 impl<'a> GeoJSONFeature<'a> {
     fn new(feature: &'a Feature<f64>) -> Self {
-        GeoJSONFeature {
-            feature,
-            geometry: GeometryCollection::default(),
-        }
+        GeoJSONFeature { feature, geometry: GeometryCollection::default() }
     }
 
     fn with_canonical(feature: &'a Feature<f64>, canonical: &CanonicalTileID) -> Self {

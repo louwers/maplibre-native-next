@@ -4,7 +4,9 @@
 // spaces). MLN_USE_SYMBOL_INSTANCING is off: four dynamic vertices per
 // glyph.
 
-use crate::buckets::symbol_bucket::{PlacedSymbol, SymbolBucket, SymbolDynamicLayoutVertex, SymbolSizeBinder, ZoomEvaluatedSize};
+use crate::buckets::symbol_bucket::{
+    PlacedSymbol, SymbolBucket, SymbolDynamicLayoutVertex, SymbolSizeBinder, ZoomEvaluatedSize,
+};
 use crate::render_tile::RenderTile;
 use geometry::Point;
 use mln_map_types::TransformState;
@@ -276,17 +278,11 @@ fn project_truncated_line_segment(
     // all the way out from within the viewport to a (very distant) point near
     // the plane of the camera. We wouldn't be able to render the label anyway
     // once it crossed the plane of the camera.
-    let projected_unit_vertex = project(
-        add(previous_tile_point, unit_f32(sub(previous_tile_point, current_tile_point))),
-        projection_matrix,
-    )
-    .0;
+    let projected_unit_vertex =
+        project(add(previous_tile_point, unit_f32(sub(previous_tile_point, current_tile_point))), projection_matrix).0;
     let projected_unit_segment = sub(previous_projected_point, projected_unit_vertex);
 
-    add(
-        previous_projected_point,
-        mul(projected_unit_segment, minimum_length / mag_f32(projected_unit_segment)),
-    )
+    add(previous_projected_point, mul(projected_unit_segment, minimum_length / mag_f32(projected_unit_segment)))
 }
 
 /// `placeGlyphAlongLine(...)`.
@@ -406,7 +402,8 @@ pub fn place_first_and_last_glyph(
     label_plane_matrix: &Mat4,
     return_tile_distance: bool,
 ) -> Option<(PlacedGlyph, PlacedGlyph)> {
-    let (Some(&first_glyph_offset), Some(&last_glyph_offset)) = (symbol.glyph_offsets.first(), symbol.glyph_offsets.last())
+    let (Some(&first_glyph_offset), Some(&last_glyph_offset)) =
+        (symbol.glyph_offsets.first(), symbol.glyph_offsets.last())
     else {
         debug_assert!(false);
         return None;
@@ -540,11 +537,9 @@ fn place_glyphs_along_line(
             );
             match placed_glyph {
                 Some(placed_glyph) => placed_glyphs.push(placed_glyph),
-                None => placed_glyphs.push(PlacedGlyph::new(
-                    Point::new(f32::NEG_INFINITY, f32::NEG_INFINITY),
-                    0.0,
-                    None,
-                )),
+                None => {
+                    placed_glyphs.push(PlacedGlyph::new(Point::new(f32::NEG_INFINITY, f32::NEG_INFINITY), 0.0, None))
+                }
             }
         }
         placed_glyphs.push(first_and_last_glyph.1);
@@ -619,8 +614,7 @@ pub fn reproject_line_labels(
     let partially_evaluated_size = size_binder.evaluate_for_zoom(state.get_zoom() as f32);
 
     let size = state.get_size();
-    let clipping_buffer: [f64; 2] =
-        [256.0 / size.width as f64 * 2.0 + 1.0, 256.0 / size.height as f64 * 2.0 + 1.0];
+    let clipping_buffer: [f64; 2] = [256.0 / size.width as f64 * 2.0 + 1.0, 256.0 / size.height as f64 * 2.0 + 1.0];
 
     let pixels_to_tile_units = tile.id.pixels_to_tile_units(1.0, state.get_zoom() as f32);
 

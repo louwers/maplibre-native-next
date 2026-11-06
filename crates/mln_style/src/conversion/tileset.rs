@@ -18,22 +18,16 @@ impl Converter for SourceOptions {
         if let Some(encoding_value) = value.object_member("encoding") {
             let encoding = encoding_value.to_string();
             return match encoding.as_deref() {
-                Some("terrarium") => Some(SourceOptions {
-                    raster_encoding: Some(RasterEncoding::Terrarium),
-                    ..Default::default()
-                }),
-                Some("mapbox") => Some(SourceOptions {
-                    raster_encoding: Some(RasterEncoding::Mapbox),
-                    ..Default::default()
-                }),
-                Some("mvt") => Some(SourceOptions {
-                    vector_encoding: Some(VectorEncoding::Mapbox),
-                    ..Default::default()
-                }),
-                Some("mlt") => Some(SourceOptions {
-                    vector_encoding: Some(VectorEncoding::MLT),
-                    ..Default::default()
-                }),
+                Some("terrarium") => {
+                    Some(SourceOptions { raster_encoding: Some(RasterEncoding::Terrarium), ..Default::default() })
+                }
+                Some("mapbox") => {
+                    Some(SourceOptions { raster_encoding: Some(RasterEncoding::Mapbox), ..Default::default() })
+                }
+                Some("mvt") => {
+                    Some(SourceOptions { vector_encoding: Some(VectorEncoding::Mapbox), ..Default::default() })
+                }
+                Some("mlt") => Some(SourceOptions { vector_encoding: Some(VectorEncoding::MLT), ..Default::default() }),
                 _ => {
                     error.message = "invalid encoding - valid types are 'mapbox' and 'terrarium' for raster \
                                      sources, 'mvt' and 'mlt' for vector sources"

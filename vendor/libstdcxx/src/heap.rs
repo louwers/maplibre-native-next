@@ -36,10 +36,7 @@ pub(crate) fn adjust_heap_range<T: Copy, F: FnMut(&T, &T) -> bool>(
     let mut second_child = hole_index;
     while second_child < (len - 1) / 2 {
         second_child = 2 * (second_child + 1);
-        if comp(
-            &v[first + second_child as usize],
-            &v[first + (second_child - 1) as usize],
-        ) {
+        if comp(&v[first + second_child as usize], &v[first + (second_child - 1) as usize]) {
             second_child -= 1;
         }
         v[first + hole_index as usize] = v[first + second_child as usize];
@@ -68,12 +65,7 @@ fn pop_heap_impl<T: Copy, F: FnMut(&T, &T) -> bool>(
 }
 
 /// `__make_heap(first, last)`.
-pub(crate) fn make_heap_range<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    first: usize,
-    last: usize,
-    comp: &mut F,
-) {
+pub(crate) fn make_heap_range<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], first: usize, last: usize, comp: &mut F) {
     if last - first < 2 {
         return;
     }

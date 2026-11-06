@@ -20,7 +20,7 @@ use mln_util::constants;
 use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds, ScreenCoordinate, WrapMode};
 use mln_util::interpolate::interpolate;
 use mln_util::logging::{Event, Log};
-use mln_util::mat4::{matrix, Mat4};
+use mln_util::mat4::{Mat4, matrix};
 use mln_util::projection::Projection;
 use mln_util::quaternion::Quaternion;
 use mln_util::size::Size;
@@ -378,13 +378,7 @@ impl TransformState {
             0.0,
         );
         let a = *matrix;
-        matrix::scale(
-            matrix,
-            &a,
-            s / constants::EXTENT as f64,
-            s / constants::EXTENT as f64,
-            1.0,
-        );
+        matrix::scale(matrix, &a, s / constants::EXTENT as f64, s / constants::EXTENT as f64, 1.0);
     }
 
     /// `getProjMatrix(mat4&, uint16_t nearZ = 1, bool aligned = false)`.
@@ -525,11 +519,7 @@ impl TransformState {
             -forward[1] * camera_to_center_distance,
             -forward[2] * camera_to_center_distance,
         ];
-        let mut camera_position: Vec3 = [
-            dx + orbit_position[0],
-            dy + orbit_position[1],
-            self.z + orbit_position[2],
-        ];
+        let mut camera_position: Vec3 = [dx + orbit_position[0], dy + orbit_position[1], self.z + orbit_position[2]];
 
         camera_position[0] /= world_size;
         camera_position[1] /= world_size;
@@ -586,10 +576,7 @@ impl TransformState {
         self.update_camera_state();
 
         let camera = self.camera.get();
-        FreeCameraOptions {
-            position: Some(camera.get_position()),
-            orientation: Some(camera.get_orientation().m()),
-        }
+        FreeCameraOptions { position: Some(camera.get_position()), orientation: Some(camera.get_orientation().m()) }
     }
 
     fn set_camera_position(&mut self, position: &Vec3) -> bool {
@@ -827,11 +814,7 @@ impl TransformState {
 
     /// `getLatLng(LatLng::WrapMode = LatLng::Unwrapped)`.
     pub fn get_lat_lng(&self, wrap_mode: WrapMode) -> LatLng {
-        lat_lng(
-            mln_math::rad2deg(2.0 * (self.y / self.cc).exp().atan() - 0.5 * PI),
-            -self.x / self.bc,
-            wrap_mode,
-        )
+        lat_lng(mln_math::rad2deg(2.0 * (self.y / self.cc).exp().atan() - 0.5 * PI), -self.x / self.bc, wrap_mode)
     }
 
     pub fn get_center_altitude(&self) -> f64 {
@@ -911,10 +894,7 @@ impl TransformState {
         if pitch <= self.max_pitch {
             self.min_pitch = mln_math::clamp_f64(pitch, constants::PITCH_MIN, self.max_pitch);
         } else {
-            Log::warning(
-                Event::General,
-                "Trying to set minimum pitch to larger than maximum pitch, no changes made.",
-            );
+            Log::warning(Event::General, "Trying to set minimum pitch to larger than maximum pitch, no changes made.");
         }
     }
 
@@ -926,10 +906,7 @@ impl TransformState {
         if pitch >= self.min_pitch {
             self.max_pitch = mln_math::clamp_f64(pitch, self.min_pitch, PITCH_MAX);
         } else {
-            Log::warning(
-                Event::General,
-                "Trying to set maximum pitch to smaller than minimum pitch, no changes made.",
-            );
+            Log::warning(Event::General, "Trying to set maximum pitch to smaller than minimum pitch, no changes made.");
         }
     }
 
@@ -1151,10 +1128,7 @@ impl TransformState {
     /// Implements mapbox-gl-js pointCoordinate() : MercatorCoordinate.
     pub fn screen_coordinate_to_tile_coordinate(&self, point: &ScreenCoordinate, at_zoom: u8) -> TileCoordinate {
         if self.size.is_empty() {
-            return TileCoordinate {
-                p: Point::new(0.0, 0.0),
-                z: 0.0,
-            };
+            return TileCoordinate { p: Point::new(0.0, 0.0), z: 0.0 };
         }
 
         let target_z: f32 = 0.0;
@@ -1186,10 +1160,7 @@ impl TransformState {
         let p = interpolate(&p0, &p1, t);
         // C++ `static_cast<double>(1 << atZoom)`: an int shift.
         let factor = 1i32.wrapping_shl(at_zoom as u32) as f64;
-        TileCoordinate {
-            p: Point::new(p.x / self.scale * factor, p.y / self.scale * factor),
-            z: at_zoom as f64,
-        }
+        TileCoordinate { p: Point::new(p.x / self.scale * factor, p.y / self.scale * factor), z: at_zoom as f64 }
     }
 
     /// `screenCoordinateToLatLng(const ScreenCoordinate&, LatLng::WrapMode = LatLng::Unwrapped)`.
@@ -1211,13 +1182,7 @@ impl TransformState {
         let mut m: Mat4 = [0.0; 16];
         matrix::identity(&mut m);
         let a = m;
-        matrix::scale(
-            &mut m,
-            &a,
-            self.size.width as f64 / 2.0,
-            -(self.size.height as f64) / 2.0,
-            1.0,
-        );
+        matrix::scale(&mut m, &a, self.size.width as f64 / 2.0, -(self.size.height as f64) / 2.0, 1.0);
         let a = m;
         matrix::translate(&mut m, &a, 1.0, -1.0, 0.0);
         m
@@ -1400,11 +1365,8 @@ impl TransformState {
         if result_x != start_x || result_y != start_y {
             // If we made changes just drop any anchor point
             requested_camera.anchor = None;
-            requested_camera.center = Some(unproject(
-                &Point::new(result_x, result_y),
-                requested_scale,
-                WrapMode::Unwrapped,
-            ));
+            requested_camera.center =
+                Some(unproject(&Point::new(result_x, result_y), requested_scale, WrapMode::Unwrapped));
         }
     }
 
@@ -1422,10 +1384,8 @@ impl TransformState {
     pub fn move_lat_lng(&mut self, lat_lng: &LatLng, anchor: &ScreenCoordinate) {
         let center_coord = Projection::project(&self.get_lat_lng(WrapMode::Unwrapped), self.scale);
         let lat_lng_coord = Projection::project(lat_lng, self.scale);
-        let anchor_coord = Projection::project(
-            &self.screen_coordinate_to_lat_lng(anchor, WrapMode::Unwrapped),
-            self.scale,
-        );
+        let anchor_coord =
+            Projection::project(&self.screen_coordinate_to_lat_lng(anchor, WrapMode::Unwrapped), self.scale);
         let center = unproject(
             &Point::new(
                 center_coord.x + lat_lng_coord.x - anchor_coord.x,
@@ -1436,11 +1396,7 @@ impl TransformState {
         );
         // Wrapped, as easeTo and GL JS's setLocationAtPoint leave it, unless
         // bounds keep it in their range.
-        let target = if self.bounds == LatLngBounds::default() {
-            center.wrapped()
-        } else {
-            center
-        };
+        let target = if self.bounds == LatLngBounds::default() { center.wrapped() } else { center };
         let zoom = self.get_zoom();
         self.set_lat_lng_zoom(&target, zoom);
     }
@@ -1456,10 +1412,8 @@ impl TransformState {
         let m = 1.0 - 1e-15;
         let f = mln_math::clamp_f64(mln_math::deg2rad(constrained.latitude()).sin(), -m, m);
 
-        let point = ScreenCoordinate::new(
-            -constrained.longitude() * self.bc,
-            0.5 * self.cc * ((1.0 + f) / (1.0 - f)).ln(),
-        );
+        let point =
+            ScreenCoordinate::new(-constrained.longitude() * self.bc, 0.5 * self.cc * ((1.0 + f) / (1.0 - f)).ln());
         self.set_scale_point(new_scale, &point);
     }
 

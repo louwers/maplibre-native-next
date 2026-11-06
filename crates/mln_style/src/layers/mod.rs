@@ -6,68 +6,89 @@
 //! generates `<type>_layer.{hpp,cpp}` and `<type>_layer_properties.{hpp,cpp}`;
 //! `//tools/style-codegen:generated_code_test` checks them. The
 //! `<type>_layer_impl.rs` files are ported by hand, as their C++ files are
-//! written by hand.
+//! written by hand. rustfmt skips the generated ones (scripts/fmt).
 
+#[rustfmt::skip]
 pub mod background_layer;
 pub mod background_layer_impl;
+#[rustfmt::skip]
 pub mod background_layer_properties;
+#[rustfmt::skip]
 pub mod circle_layer;
 pub mod circle_layer_impl;
+#[rustfmt::skip]
 pub mod circle_layer_properties;
+#[rustfmt::skip]
 pub mod color_relief_layer;
 pub mod color_relief_layer_impl;
+#[rustfmt::skip]
 pub mod color_relief_layer_properties;
+#[rustfmt::skip]
 pub mod fill_layer;
 pub mod fill_layer_impl;
+#[rustfmt::skip]
 pub mod fill_layer_properties;
+#[rustfmt::skip]
 pub mod fill_extrusion_layer;
 pub mod fill_extrusion_layer_impl;
+#[rustfmt::skip]
 pub mod fill_extrusion_layer_properties;
+#[rustfmt::skip]
 pub mod heatmap_layer;
 pub mod heatmap_layer_impl;
+#[rustfmt::skip]
 pub mod heatmap_layer_properties;
+#[rustfmt::skip]
 pub mod hillshade_layer;
 pub mod hillshade_layer_impl;
+#[rustfmt::skip]
 pub mod hillshade_layer_properties;
+#[rustfmt::skip]
 pub mod line_layer;
 pub mod line_layer_impl;
+#[rustfmt::skip]
 pub mod line_layer_properties;
+#[rustfmt::skip]
 pub mod location_indicator_layer;
 pub mod location_indicator_layer_impl;
+#[rustfmt::skip]
 pub mod location_indicator_layer_properties;
+#[rustfmt::skip]
 pub mod raster_layer;
 pub mod raster_layer_impl;
+#[rustfmt::skip]
 pub mod raster_layer_properties;
+#[rustfmt::skip]
 pub mod symbol_layer;
 pub mod symbol_layer_impl;
+#[rustfmt::skip]
 pub mod symbol_layer_properties;
 
 pub use background_layer::BackgroundLayer;
-pub use circle_layer::CircleLayer;
-pub use color_relief_layer::ColorReliefLayer;
-pub use fill_layer::FillLayer;
-pub use fill_extrusion_layer::FillExtrusionLayer;
-pub use heatmap_layer::HeatmapLayer;
-pub use hillshade_layer::HillshadeLayer;
-pub use line_layer::LineLayer;
-pub use location_indicator_layer::LocationIndicatorLayer;
-pub use raster_layer::RasterLayer;
-pub use symbol_layer::SymbolLayer;
 pub use background_layer_properties::{
-    BackgroundColor, BackgroundLayerProperties, BackgroundOpacity, BackgroundPaintProperties,
-    BackgroundPattern,
+    BackgroundColor, BackgroundLayerProperties, BackgroundOpacity, BackgroundPaintProperties, BackgroundPattern,
 };
+pub use circle_layer::CircleLayer;
 pub use circle_layer_properties::{CircleLayerProperties, CircleLayoutProperties, CirclePaintProperties};
+pub use color_relief_layer::ColorReliefLayer;
 pub use color_relief_layer_properties::{ColorReliefLayerProperties, ColorReliefPaintProperties};
+pub use fill_extrusion_layer::FillExtrusionLayer;
 pub use fill_extrusion_layer_properties::{
     FillExtrusionLayerProperties, FillExtrusionLayoutProperties, FillExtrusionPaintProperties,
 };
+pub use fill_layer::FillLayer;
 pub use fill_layer_properties::{FillLayerProperties, FillLayoutProperties, FillPaintProperties};
+pub use heatmap_layer::HeatmapLayer;
 pub use heatmap_layer_properties::{HeatmapLayerProperties, HeatmapPaintProperties};
+pub use hillshade_layer::HillshadeLayer;
 pub use hillshade_layer_properties::{HillshadeLayerProperties, HillshadePaintProperties};
+pub use line_layer::LineLayer;
 pub use line_layer_properties::{LineLayerProperties, LineLayoutProperties, LinePaintProperties};
+pub use location_indicator_layer::LocationIndicatorLayer;
 pub use location_indicator_layer_properties::{
     LocationIndicatorLayerProperties, LocationIndicatorLayoutProperties, LocationIndicatorPaintProperties,
 };
+pub use raster_layer::RasterLayer;
 pub use raster_layer_properties::{RasterLayerProperties, RasterPaintProperties};
+pub use symbol_layer::SymbolLayer;
 pub use symbol_layer_properties::{SymbolLayerProperties, SymbolLayoutProperties, SymbolPaintProperties};

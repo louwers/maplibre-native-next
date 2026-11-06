@@ -30,10 +30,6 @@ pub struct Feature<T = f64> {
 
 impl<T> Feature<T> {
     pub fn new(geometry: Geometry<T>) -> Self {
-        Feature {
-            geometry,
-            properties: PropertyMap::new(),
-            id: Identifier::Null,
-        }
+        Feature { geometry, properties: PropertyMap::new(), id: Identifier::Null }
     }
 }

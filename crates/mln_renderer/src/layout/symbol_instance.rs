@@ -344,9 +344,7 @@ impl SymbolInstance {
     }
 
     pub fn get_default_horizontal_placed_text_index(&self) -> Option<usize> {
-        self.placed_right_text_index
-            .or(self.placed_center_text_index)
-            .or(self.placed_left_text_index)
+        self.placed_right_text_index.or(self.placed_center_text_index).or(self.placed_left_text_index)
     }
 
     pub fn line(&self) -> &GeometryCoordinates {

@@ -138,10 +138,7 @@ mod tests {
     fn messages_run_on_the_thread_in_order() {
         let total = Arc::new(AtomicUsize::new(0));
         let t = total.clone();
-        let thread = Thread::new("Test", move |_| Counter {
-            count: Cell::new(0),
-            total: t,
-        });
+        let thread = Thread::new("Test", move |_| Counter { count: Cell::new(0), total: t });
         let main = std::thread::current().id();
         for i in 0..100 {
             thread.actor().invoke(move |counter: &Counter| {
@@ -158,10 +155,7 @@ mod tests {
     fn pause_resume() {
         let total = Arc::new(AtomicUsize::new(0));
         let t = total.clone();
-        let thread = Thread::new("Test", move |_| Counter {
-            count: Cell::new(0),
-            total: t,
-        });
+        let thread = Thread::new("Test", move |_| Counter { count: Cell::new(0), total: t });
         thread.pause();
         let seen = Arc::new(AtomicUsize::new(0));
         let s = seen.clone();

@@ -1,9 +1,7 @@
 // Ports include/mln/style/expression/literal.hpp and
 // src/mln/style/expression/literal.cpp.
 
-use crate::expression::{
-    Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
-};
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{ObjectType, Value, from_mbgl_value, to_mbgl_value, type_of};
@@ -16,11 +14,7 @@ pub struct Literal {
 }
 
 fn check_number(n: f64) -> Option<Value> {
-    if n > f64::MAX {
-        Some(Value::Number(f64::INFINITY))
-    } else {
-        Some(Value::Number(n))
-    }
+    if n > f64::MAX { Some(Value::Number(f64::INFINITY)) } else { Some(Value::Number(n)) }
 }
 
 /// `parseValue` of literal.cpp.
@@ -69,17 +63,11 @@ pub(crate) fn parse_value(value: &Convertible<'_>, ctx: &mut ParsingContext) -> 
 
 impl Literal {
     pub fn new(value: Value) -> Self {
-        Literal {
-            base: ExpressionBase::new(Kind::Literal, type_of(&value), Dependency::NONE),
-            value,
-        }
+        Literal { base: ExpressionBase::new(Kind::Literal, type_of(&value), Dependency::NONE), value }
     }
 
     pub fn with_array_type(type_: type_::Array, value: Vec<Value>) -> Self {
-        Literal {
-            base: ExpressionBase::new(Kind::Literal, type_.into(), Dependency::NONE),
-            value: Value::Array(value),
-        }
+        Literal { base: ExpressionBase::new(Kind::Literal, type_.into(), Dependency::NONE), value: Value::Array(value) }
     }
 
     pub fn get_value(&self) -> &Value {
@@ -103,9 +91,7 @@ impl Literal {
 
             // special case: infer the item type if possible for zero-length
             // arrays
-            if let (Some(Type::Array(expected)), Value::Array(items)) =
-                (ctx.get_expected(), &parsed_value)
-            {
+            if let (Some(Type::Array(expected)), Value::Array(items)) = (ctx.get_expected(), &parsed_value) {
                 if let Type::Array(t) = type_of(&parsed_value) {
                     if t.n == Some(0) && (expected.n.is_none() || expected.n == Some(0)) {
                         return Some(Box::new(Literal::with_array_type(*expected, items.clone())));
@@ -147,10 +133,7 @@ impl Expression for Literal {
 
     fn serialize(&self) -> MbglValue {
         if self.get_type().is_array() || *self.get_type() == Type::Object {
-            MbglValue::Array(vec![
-                MbglValue::String(self.get_operator()),
-                to_mbgl_value(&self.value),
-            ])
+            MbglValue::Array(vec![MbglValue::String(self.get_operator()), to_mbgl_value(&self.value)])
         } else {
             to_mbgl_value(&self.value)
         }

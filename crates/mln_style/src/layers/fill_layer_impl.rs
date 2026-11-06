@@ -5,7 +5,7 @@
 
 use crate::expression::Dependency;
 use crate::layer::{self, ImplBase, LayerTypeInfo};
-use crate::layers::fill_layer_properties::{FillPattern, FillLayoutProperties, FillPaintProperties};
+use crate::layers::fill_layer_properties::{FillLayoutProperties, FillPaintProperties, FillPattern};
 use std::collections::BTreeSet;
 
 /// `FillLayer::Impl`.

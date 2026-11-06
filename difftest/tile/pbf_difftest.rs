@@ -6,8 +6,8 @@
 // (glyph PBFs, protozero's test data, tiles), random bytes and generated
 // messages with random (sometimes malformed) fields.
 
-use protozero::{Exception, FixedValue, IteratorRange, PbfReader, PbfWireType};
 use proptest::prelude::*;
+use protozero::{Exception, FixedValue, IteratorRange, PbfReader, PbfWireType};
 use std::fmt::Write;
 use std::os::raw::c_char;
 use std::path::{Path, PathBuf};
@@ -225,7 +225,12 @@ fn rust_varint(data: &[u8]) -> String {
 fn first_difference(a: &str, b: &str) -> String {
     for (i, (la, lb)) in a.lines().zip(b.lines()).enumerate() {
         if la != lb {
-            return format!("line {}:\n  C++:  {}\n  Rust: {}", i + 1, &la[..la.len().min(300)], &lb[..lb.len().min(300)]);
+            return format!(
+                "line {}:\n  C++:  {}\n  Rust: {}",
+                i + 1,
+                &la[..la.len().min(300)],
+                &lb[..lb.len().min(300)]
+            );
         }
     }
     format!("length differs: {} vs {} lines", a.lines().count(), b.lines().count())

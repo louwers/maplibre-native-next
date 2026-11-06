@@ -126,7 +126,11 @@ impl BiDi {
     /// Given text in logical ordering and a set of line break points,
     /// return a set of lines in visual order with bidi and line breaking
     /// applied.
-    pub fn process_text(&mut self, input: &[u16], mut line_break_points: BTreeSet<usize>) -> Result<Vec<Vec<u16>>, String> {
+    pub fn process_text(
+        &mut self,
+        input: &[u16],
+        mut line_break_points: BTreeSet<usize>,
+    ) -> Result<Vec<Vec<u16>>, String> {
         let info = BidiInfo::new(input, None);
 
         // BiDi::getLine will error if called across a paragraph boundary,
@@ -166,7 +170,8 @@ impl BiDi {
         let mut line_start_index = 0usize;
 
         for line_break_point in line_break_points {
-            let mut line: StyledText = (Vec::new(), Vec::with_capacity(line_break_point.saturating_sub(line_start_index)));
+            let mut line: StyledText =
+                (Vec::new(), Vec::with_capacity(line_break_point.saturating_sub(line_start_index)));
 
             let Some(para) = line_paragraph(&info, line_start_index, line_break_point) else {
                 return Err("BiDi::processStyledText (setLine): U_ILLEGAL_ARGUMENT_ERROR".to_string());
@@ -316,8 +321,8 @@ mod bidi_test {
         let input: StyledText = (
             apply_arabic_shaping(&u("مكتبة الإسكندرية\u{200E}\u{200E} Maktabat al-Iskandarīyah")),
             vec![
-                0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6,
-                6, 6, 6, 6, 7, 7, 7,
+                0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6,
+                6, 6, 6, 6, 6, 7, 7, 7,
             ],
         );
 

@@ -4,8 +4,8 @@ use crate::bound::{Bound, BoundPtr, EdgeSide};
 use crate::edge::{Edge, is_horizontal};
 use crate::point::{GPoint, NIL, PointPtr, RingPtr};
 use crate::ring::{
-    GBox, R, RingManager, create_new_point, create_new_point_before, create_new_ring, reverse_ring,
-    ring_is_hole, ring1_replaces_ring2,
+    GBox, R, RingManager, create_new_point, create_new_point_before, create_new_ring, reverse_ring, ring_is_hole,
+    ring1_replaces_ring2,
 };
 use crate::util::{cpp_max, cpp_min, greater_than_or_equal, llround, value_is_zero, values_are_equal};
 
@@ -183,7 +183,13 @@ pub(crate) fn sort_hot_pixels(rings: &mut RingManager) {
 }
 
 /// `insert_hot_pixels_in_path`.
-pub(crate) fn insert_hot_pixels_in_path(bnd: BoundPtr, end_pt: GPoint, b: &mut [Bound], rings: &mut RingManager, add_end_point: bool) {
+pub(crate) fn insert_hot_pixels_in_path(
+    bnd: BoundPtr,
+    end_pt: GPoint,
+    b: &mut [Bound],
+    rings: &mut RingManager,
+    add_end_point: bool,
+) {
     if end_pt == b[bnd].last_point {
         return;
     }
@@ -263,7 +269,13 @@ pub(crate) fn add_point_to_ring(bnd: BoundPtr, pt: GPoint, b: &mut [Bound], ring
 }
 
 /// `add_point`.
-pub(crate) fn add_point(bnd: BoundPtr, active_bounds: &[BoundPtr], pt: GPoint, b: &mut [Bound], rings: &mut RingManager) {
+pub(crate) fn add_point(
+    bnd: BoundPtr,
+    active_bounds: &[BoundPtr],
+    pt: GPoint,
+    b: &mut [Bound],
+    rings: &mut RingManager,
+) {
     if b[bnd].ring == NIL {
         add_first_point(bnd, active_bounds, pt, b, rings);
     } else {
@@ -438,8 +450,7 @@ fn append_ring(b1: BoundPtr, b2: BoundPtr, active_bounds: &[BoundPtr], b: &mut [
     let out_rec1 = b[b1].ring;
     let out_rec2 = b[b2].ring;
 
-    let (keep_ring, keep_bound, remove_ring, remove_bound) = if ring1_child_below_ring2(out_rec1, out_rec2, manager)
-    {
+    let (keep_ring, keep_bound, remove_ring, remove_bound) = if ring1_child_below_ring2(out_rec1, out_rec2, manager) {
         (out_rec2, b2, out_rec1, b1)
     } else if ring1_child_below_ring2(out_rec2, out_rec1, manager) {
         (out_rec1, b1, out_rec2, b2)
@@ -617,7 +628,8 @@ fn point_in_polygon_f(pt: (f64, f64), mut op: PointPtr, rings: &RingManager) -> 
         let op_next_x = f64::from(nx);
         let op_next_y = f64::from(ny);
         if values_are_equal(op_next_y, pty)
-            && (values_are_equal(op_next_x, ptx) || (values_are_equal(op_y, pty) && ((op_next_x > ptx) == (op_x < ptx))))
+            && (values_are_equal(op_next_x, ptx)
+                || (values_are_equal(op_y, pty) && ((op_next_x > ptx) == (op_x < ptx))))
         {
             return OnPolygon;
         }
@@ -665,11 +677,7 @@ fn is_convex(edge: PointPtr, rings: &mut RingManager) -> bool {
     let v2y = ny.wrapping_sub(ey);
     let cross = v1x.wrapping_mul(v2y).wrapping_sub(v2x.wrapping_mul(v1y));
     let ring = rings.ring_of(edge);
-    if cross < 0 && rings.area(ring) > 0.0 {
-        true
-    } else {
-        cross > 0 && rings.area(ring) < 0.0
-    }
+    if cross < 0 && rings.area(ring) > 0.0 { true } else { cross > 0 && rings.area(ring) < 0.0 }
 }
 
 /// `centroid_of_points`.
@@ -677,14 +685,15 @@ fn centroid_of_points(edge: PointPtr, rings: &RingManager) -> (f64, f64) {
     let (px, py) = rings.xy(rings.prev(edge));
     let (ex, ey) = rings.xy(edge);
     let (nx, ny) = rings.xy(rings.next(edge));
-    (
-        f64::from(px.wrapping_add(ex).wrapping_add(nx)) / 3.0,
-        f64::from(py.wrapping_add(ey).wrapping_add(ny)) / 3.0,
-    )
+    (f64::from(px.wrapping_add(ex).wrapping_add(nx)) / 3.0, f64::from(py.wrapping_add(ey).wrapping_add(ny)) / 3.0)
 }
 
 /// `inside_or_outside_special`.
-fn inside_or_outside_special(first_pt: PointPtr, other_poly: PointPtr, rings: &mut RingManager) -> R<PointInPolygonResult> {
+fn inside_or_outside_special(
+    first_pt: PointPtr,
+    other_poly: PointPtr,
+    rings: &mut RingManager,
+) -> R<PointInPolygonResult> {
     // We are going to loop through all the points
     // of the original triangle. The goal is to find a convex edge
     // that with its next and previous forms a triangle with its centroid

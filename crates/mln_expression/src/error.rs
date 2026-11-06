@@ -1,8 +1,7 @@
 // Ports include/mln/style/expression/error.hpp.
 
 use crate::expression::{
-    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase,
-    Kind,
+    Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
 };
 use crate::type_::Type;
 use crate::value::Value;
@@ -14,10 +13,7 @@ pub struct Error {
 
 impl Error {
     pub fn new(message: String) -> Self {
-        Error {
-            base: ExpressionBase::new(Kind::Error, Type::Error, Dependency::NONE),
-            message,
-        }
+        Error { base: ExpressionBase::new(Kind::Error, Type::Error, Dependency::NONE), message }
     }
 }
 

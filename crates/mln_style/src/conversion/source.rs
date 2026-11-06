@@ -194,7 +194,7 @@ pub fn convert_source(value: &Convertible<'_>, error: &mut Error, id: &str) -> O
         "vector" => convert_vector_source(id, value, error),
         "geojson" => convert_geojson_source(id, value, error),
         "raster-dem" => convert_raster_dem_source(id, value, error), // dem-heatmap
-        "image" => convert_image_source(id, value, error), // conformance
+        "image" => convert_image_source(id, value, error),           // conformance
         _ => {
             error.message = "invalid source type".to_owned();
             None

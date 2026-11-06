@@ -17,16 +17,8 @@ impl Default for TransitionOptions {
 }
 
 impl TransitionOptions {
-    pub fn new(
-        duration: Option<Duration>,
-        delay: Option<Duration>,
-        enable_placement_transitions: bool,
-    ) -> Self {
-        TransitionOptions {
-            duration,
-            delay,
-            enable_placement_transitions,
-        }
+    pub fn new(duration: Option<Duration>, delay: Option<Duration>, enable_placement_transitions: bool) -> Self {
+        TransitionOptions { duration, delay, enable_placement_transitions }
     }
 
     /// `TransitionOptions{{duration}}`.
@@ -36,16 +28,8 @@ impl TransitionOptions {
 
     pub fn reverse_merge(&self, defaults: &TransitionOptions) -> TransitionOptions {
         TransitionOptions::new(
-            if self.duration.is_some() {
-                self.duration
-            } else {
-                defaults.duration
-            },
-            if self.delay.is_some() {
-                self.delay
-            } else {
-                defaults.delay
-            },
+            if self.duration.is_some() { self.duration } else { defaults.duration },
+            if self.delay.is_some() { self.delay } else { defaults.delay },
             self.enable_placement_transitions,
         )
     }

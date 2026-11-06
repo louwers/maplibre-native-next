@@ -107,7 +107,10 @@ fn process_horizontal_left_to_right(
     } // end while (bnd != active_bounds.end())
 
     if b[h].ring != NIL {
-        while hp_itr != hp_len && rings.hot_pixels[hp_itr].y == scanline_y && rings.hot_pixels[hp_itr].x < b[h].cur().top.x {
+        while hp_itr != hp_len
+            && rings.hot_pixels[hp_itr].y == scanline_y
+            && rings.hot_pixels[hp_itr].x < b[h].cur().top.x
+        {
             let hp = rings.hot_pixels[hp_itr];
             add_point_to_ring(h, hp, b, rings);
             hp_itr += 1;

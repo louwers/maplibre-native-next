@@ -5,8 +5,8 @@
 use crate::run_loop::{AsyncHandle, Core, RunLoop};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// `util::AsyncTask`.
 pub struct AsyncTask {
@@ -38,10 +38,7 @@ impl AsyncTask {
     /// calls `AsyncTask::send` from other threads through a pointer (e.g.
     /// `NetworkStatus` observers).
     pub fn sender(&self) -> AsyncTaskSender {
-        AsyncTaskSender {
-            pending: self.handle.pending.clone(),
-            core: self.handle.core.clone(),
-        }
+        AsyncTaskSender { pending: self.handle.pending.clone(), core: self.handle.core.clone() }
     }
 }
 

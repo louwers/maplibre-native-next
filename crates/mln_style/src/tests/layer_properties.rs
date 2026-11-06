@@ -14,11 +14,7 @@ fn background_properties() -> Immutable<dyn LayerProperties> {
     let mut evaluated = BackgroundPaintProperties::PossiblyEvaluated::default();
     evaluated.background_color = Color::new(0.25, 0.5, 0.75, 1.0);
     evaluated.background_opacity = 0.5;
-    let crossfade = CrossfadeParameters {
-        from_scale: 2.0,
-        to_scale: 1.0,
-        t: 0.25,
-    };
+    let crossfade = CrossfadeParameters { from_scale: 2.0, to_scale: 1.0, t: 0.25 };
     let impl_ = Arc::new(BackgroundLayerImpl::new("background".to_owned(), String::new()));
     Arc::new(BackgroundLayerProperties::with_evaluated(impl_, crossfade, evaluated))
 }

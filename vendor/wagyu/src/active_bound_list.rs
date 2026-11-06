@@ -42,11 +42,13 @@ fn bound_insert_location(bound2: &Bound, bound1: &Bound) -> bool {
 }
 
 /// `insert_bound_into_ABL`: returns the position of `left` (`right` follows).
-pub(crate) fn insert_bound_into_abl(left: BoundPtr, right: BoundPtr, active_bounds: &mut Vec<BoundPtr>, b: &[Bound]) -> usize {
-    let itr = active_bounds
-        .iter()
-        .position(|&x| bound_insert_location(&b[left], &b[x]))
-        .unwrap_or(active_bounds.len());
+pub(crate) fn insert_bound_into_abl(
+    left: BoundPtr,
+    right: BoundPtr,
+    active_bounds: &mut Vec<BoundPtr>,
+    b: &[Bound],
+) -> usize {
+    let itr = active_bounds.iter().position(|&x| bound_insert_location(&b[left], &b[x])).unwrap_or(active_bounds.len());
     active_bounds.insert(itr, right);
     active_bounds.insert(itr, left);
     itr

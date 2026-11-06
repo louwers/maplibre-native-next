@@ -25,12 +25,7 @@ pub struct Color {
 
 impl Default for Color {
     fn default() -> Self {
-        Color {
-            r: 0,
-            g: 0,
-            b: 0,
-            a: 1.0,
-        }
+        Color { r: 0, g: 0, b: 0, a: 1.0 }
     }
 }
 
@@ -56,10 +51,7 @@ impl Color {
 impl PartialEq for Color {
     fn eq(&self, rhs: &Color) -> bool {
         // ::fabs(lhs.a - rhs.a) < 0.0001f: the float difference, promoted.
-        self.r == rhs.r
-            && self.g == rhs.g
-            && self.b == rhs.b
-            && ((self.a - rhs.a) as f64).abs() < 0.0001f32 as f64
+        self.r == rhs.r && self.g == rhs.g && self.b == rhs.b && ((self.a - rhs.a) as f64).abs() < 0.0001f32 as f64
     }
 }
 
@@ -218,11 +210,7 @@ const NAMED_COLORS: [(&str, [u8; 3], f32); 148] = [
 /// x86-64 `cvttsd2si`: what a double -> int64_t conversion compiles to; out
 /// of range (UB in C++) gives INT64_MIN.
 fn double_to_int64(d: f64) -> i64 {
-    if d.is_nan() || !(-9.223372036854775808e18..9.223372036854775808e18).contains(&d) {
-        i64::MIN
-    } else {
-        d as i64
-    }
+    if d.is_nan() || !(-9.223372036854775808e18..9.223372036854775808e18).contains(&d) { i64::MIN } else { d as i64 }
 }
 
 /// `clamp_css_byte<float>`: clamp to integer 0 .. 255.
@@ -280,11 +268,7 @@ fn parse_css_int(s: &[u8]) -> u8 {
 
 /// float or percentage.
 fn parse_css_float(s: &[u8]) -> f32 {
-    if s.last() == Some(&b'%') {
-        clamp_css_float(parse_float(s) / 100.0f32)
-    } else {
-        clamp_css_float(parse_float(s))
-    }
+    if s.last() == Some(&b'%') { clamp_css_float(parse_float(s) / 100.0f32) } else { clamp_css_float(parse_float(s)) }
 }
 
 fn css_hue_to_rgb(m1: f32, m2: f32, mut h: f32) -> f32 {
@@ -331,11 +315,7 @@ fn modf(x: f32) -> f32 {
 pub fn parse(css_str: &str) -> Option<Color> {
     // Remove all whitespace, not compliant, but should just be more accepting.
     // Convert to lowercase (::tolower in the C locale only maps A-Z).
-    let str: Vec<u8> = css_str
-        .bytes()
-        .filter(|&c| c != b' ')
-        .map(|c| c.to_ascii_lowercase())
-        .collect();
+    let str: Vec<u8> = css_str.bytes().filter(|&c| c != b' ').map(|c| c.to_ascii_lowercase()).collect();
 
     for (name, [r, g, b], a) in NAMED_COLORS.iter() {
         if str == name.as_bytes() {

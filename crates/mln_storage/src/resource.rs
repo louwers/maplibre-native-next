@@ -106,10 +106,7 @@ fn get_quad_key(x: i32, y: i32, z: i8) -> String {
 
 fn get_merc_coord(x: i32, y: i32, z: i8) -> (f64, f64) {
     let resolution = (M2PI * EARTH_RADIUS_M / 256.0) / 2f64.powi(z as i32);
-    (
-        x as f64 * resolution - M2PI * EARTH_RADIUS_M / 2.0,
-        y as f64 * resolution - M2PI * EARTH_RADIUS_M / 2.0,
-    )
+    (x as f64 * resolution - M2PI * EARTH_RADIUS_M / 2.0, y as f64 * resolution - M2PI * EARTH_RADIUS_M / 2.0)
 }
 
 fn get_tile_bbox(x: i32, y: i32, z: i8) -> String {
@@ -248,9 +245,7 @@ impl Resource {
                 "bbox-epsg-3857" => Some(get_tile_bbox(x, y, z)),
                 // C++ indexes with `x % 16` (UB for negative x).
                 "prefix" => Some(
-                    [hex[x.rem_euclid(16) as usize] as char, hex[y.rem_euclid(16) as usize] as char]
-                        .iter()
-                        .collect(),
+                    [hex[x.rem_euclid(16) as usize] as char, hex[y.rem_euclid(16) as usize] as char].iter().collect(),
                 ),
                 "ratio" => Some(if pixel_ratio > 1.0 { "@2x".to_owned() } else { String::new() }),
                 _ => None,

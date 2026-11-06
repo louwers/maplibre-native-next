@@ -125,17 +125,11 @@ mod tests {
                 let base = TileBase::new(Kind::Geometry, OverscaledTileID::from_zxy(0, 0, 0), String::new(), None);
                 // `usedByRenderedLayers = true`
                 base.used_by_rendered_layers.set(true);
-                FakeTile {
-                    base,
-                    mask: RefCell::new(TileMask::new()),
-                }
+                FakeTile { base, mask: RefCell::new(TileMask::new()) }
             })
             .collect();
-        let renderables: Vec<(UnwrappedTileID, &dyn Tile)> = expected
-            .iter()
-            .zip(tiles.iter())
-            .map(|((id, _), tile)| (*id, tile as &dyn Tile))
-            .collect();
+        let renderables: Vec<(UnwrappedTileID, &dyn Tile)> =
+            expected.iter().zip(tiles.iter()).map(|((id, _), tile)| (*id, tile as &dyn Tile)).collect();
         update_tile_masks(&renderables);
         for ((id, mask), tile) in expected.iter().zip(tiles.iter()) {
             let expected_mask: TileMask = mask.iter().copied().collect();
@@ -182,10 +176,7 @@ mod tests {
     #[test]
     fn complex() {
         validate(vec![
-            (
-                u(0, 0, 0),
-                vec![c(1, 0, 1), c(1, 1, 0), c(2, 2, 3), c(2, 3, 2), c(3, 6, 7), c(3, 7, 6)],
-            ),
+            (u(0, 0, 0), vec![c(1, 0, 1), c(1, 1, 0), c(2, 2, 3), c(2, 3, 2), c(3, 6, 7), c(3, 7, 6)]),
             (UnwrappedTileID::with_wrap(0, c(1, 0, 0)), vec![c(0, 0, 0)]),
             (UnwrappedTileID::with_wrap(0, c(2, 2, 2)), vec![c(0, 0, 0)]),
             (UnwrappedTileID::with_wrap(0, c(3, 7, 7)), vec![c(0, 0, 0)]),

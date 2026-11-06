@@ -117,10 +117,7 @@ fn color_ramp() {
 fn property_expression_global_state_refs() {
     let expr = parse_expression(r#"["to-number", ["global-state", "width"]]"#, Some(Type::Number)).unwrap();
     let property_expression = PropertyExpression::<f32>::from_box(expr, None);
-    assert_eq!(
-        Some(&BTreeSet::from(["width".to_owned()])),
-        property_expression.get_global_state_refs()
-    );
+    assert_eq!(Some(&BTreeSet::from(["width".to_owned()])), property_expression.get_global_state_refs());
 
     let plain = parse_expression(r#"["to-number", ["get", "width"]]"#, Some(Type::Number)).unwrap();
     let plain_expression = PropertyExpression::<f32>::from_box(plain, None);

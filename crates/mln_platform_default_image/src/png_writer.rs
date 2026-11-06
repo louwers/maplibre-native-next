@@ -113,36 +113,23 @@ mod tests {
         assert_eq!(&png[..8], &[0x89, b'P', b'N', b'G', b'\r', b'\n', 0x1a, b'\n']);
         let decoded = decode_image(&png).unwrap();
         assert_eq!(decoded.size, size);
-        let expected =
-            mln_util::premultiply::premultiply(unpremultiply(pre.clone()));
+        let expected = mln_util::premultiply::premultiply(unpremultiply(pre.clone()));
         assert_eq!(decoded, expected);
     }
 
     #[test]
     fn png_reader_errors() {
-        assert_eq!(
-            crate::png_reader::decode_png(b"\x89PNG").unwrap_err(),
-            "PNG reader: Could not read image"
-        );
-        assert_eq!(
-            crate::png_reader::decode_png(b"\x89PNGxxxxxxxx").unwrap_err(),
-            "File or stream is not a png"
-        );
+        assert_eq!(crate::png_reader::decode_png(b"\x89PNG").unwrap_err(), "PNG reader: Could not read image");
+        assert_eq!(crate::png_reader::decode_png(b"\x89PNGxxxxxxxx").unwrap_err(), "File or stream is not a png");
         let truncated = &encode_png(&PremultipliedImage::new(Size::new(4, 4)))[..40];
-        assert!(
-            crate::png_reader::decode_png(truncated)
-                .unwrap_err()
-                .starts_with("failed to read invalid png: '")
-        );
+        assert!(crate::png_reader::decode_png(truncated).unwrap_err().starts_with("failed to read invalid png: '"));
     }
 
     // Decodes every expected.png of the M1 render tests: they are 8-bit RGBA
     // images of the declared size, and re-encoding them is lossless.
     #[test]
     fn render_test_expectations_round_trip() {
-        let root = std::env::var_os("RUNFILES_DIR")
-            .or_else(|| std::env::var_os("TEST_SRCDIR"))
-            .expect("runfiles");
+        let root = std::env::var_os("RUNFILES_DIR").or_else(|| std::env::var_os("TEST_SRCDIR")).expect("runfiles");
         let base = std::path::Path::new(&root).join("maplibre+/metrics/integration/render-tests");
         for test in [
             "background-color/default",
@@ -161,11 +148,7 @@ mod tests {
             assert!(image.valid(), "{test}");
             let again = decode_image(&encode_png(&image)).unwrap();
             assert_eq!(again.size, image.size, "{test}");
-            assert_eq!(
-                again,
-                mln_util::premultiply::premultiply(unpremultiply(image.clone())),
-                "{test}"
-            );
+            assert_eq!(again, mln_util::premultiply::premultiply(unpremultiply(image.clone())), "{test}");
         }
     }
 }

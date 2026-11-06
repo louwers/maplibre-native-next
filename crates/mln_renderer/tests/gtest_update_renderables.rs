@@ -59,13 +59,7 @@ struct MockTileData {
 impl MockTileData {
     fn new(tile_id: OverscaledTileID, next_serial: &mut u64) -> Self {
         *next_serial += 1;
-        MockTileData {
-            renderable: false,
-            tried_optional: false,
-            loaded: false,
-            tile_id,
-            serial: *next_serial,
-        }
+        MockTileData { renderable: false, tried_optional: false, loaded: false, tile_id, serial: *next_serial }
     }
 }
 
@@ -100,10 +94,7 @@ impl MockSource {
     /// `source.dataTiles[id].get()`.
     fn existing_tile(&self, tile_id: OverscaledTileID) -> TileRef {
         let tile = &self.data_tiles[&tile_id];
-        TileRef {
-            tile_id,
-            serial: tile.serial,
-        }
+        TileRef { tile_id, serial: tile.serial }
     }
 
     /// `tile->...`: the tile must still be the object `tile` points to.
@@ -124,11 +115,8 @@ impl MockSource {
     fn update_renderables(&mut self, max_parent_overscale_factor: Option<u8>) {
         let ideal_tiles: Vec<OverscaledTileID> = self.ideal_tiles.iter().copied().collect();
         let zoom_range = self.zoom_range;
-        let mut ctx = Callbacks {
-            data_tiles: &mut self.data_tiles,
-            log: &mut self.log,
-            next_serial: &mut self.next_serial,
-        };
+        let mut ctx =
+            Callbacks { data_tiles: &mut self.data_tiles, log: &mut self.log, next_serial: &mut self.next_serial };
         update_renderables(&mut ctx, &ideal_tiles, &zoom_range, max_parent_overscale_factor);
     }
 }
@@ -162,13 +150,7 @@ impl RenderablesContext for Callbacks<'_> {
 
     fn render_tile(&mut self, id: &UnwrappedTileID, tile: &OverscaledTileID) {
         let tile_data = &self.data_tiles[tile];
-        self.log.push(RenderTileAction(
-            *id,
-            TileRef {
-                tile_id: tile_data.tile_id,
-                serial: tile_data.serial,
-            },
-        ));
+        self.log.push(RenderTileAction(*id, TileRef { tile_id: tile_data.tile_id, serial: tile_data.serial }));
     }
 
     fn prefetched_tiles(&self) -> Vec<PrefetchedTile> {
@@ -228,14 +210,14 @@ fn single_tile() {
     assert_eq!(
         vec![
             GetTileDataAction(oid(1, 0, (1, 0, 1)), NotFound), // missing ideal tile
-            CreateTileDataAction(oid(1, 0, (1, 0, 1))), // create ideal tile
+            CreateTileDataAction(oid(1, 0, (1, 0, 1))),        // create ideal tile
             RetainTileDataAction(oid(1, 0, (1, 0, 1)), TileNecessity::Required),
             GetTileDataAction(oid(2, 0, (2, 0, 2)), NotFound), // four child tiles
             GetTileDataAction(oid(2, 0, (2, 0, 3)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 2)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 3)), NotFound), // ...
             GetTileDataAction(oid(0, 0, (0, 0, 0)), NotFound), // parent tile
-            GetTileDataAction(oid(1, 0, (1, 1, 1)), Found), // found ideal tile
+            GetTileDataAction(oid(1, 0, (1, 1, 1)), Found),    // found ideal tile
             RetainTileDataAction(oid(1, 0, (1, 1, 1)), TileNecessity::Required),
             RenderTileAction(uid(1, 1, 1), tile_1_1_1_1), // render found tile
         ],
@@ -255,7 +237,7 @@ fn single_tile() {
             GetTileDataAction(oid(2, 0, (2, 1, 2)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 3)), NotFound), // ...
             GetTileDataAction(oid(0, 0, (0, 0, 0)), NotFound), // parent tile
-            CreateTileDataAction(oid(0, 0, (0, 0, 0))), // load parent tile
+            CreateTileDataAction(oid(0, 0, (0, 0, 0))),        // load parent tile
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(1, 0, (1, 1, 1)), Found), // found ideal tile
             RetainTileDataAction(oid(1, 0, (1, 1, 1)), TileNecessity::Required),
@@ -296,7 +278,7 @@ fn single_tile() {
             GetTileDataAction(oid(2, 0, (2, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found), // parent tile
+            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found),    // parent tile
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             // optional parent tile was already created before, but is not renderable
             GetTileDataAction(oid(1, 0, (1, 0, 1)), Found), // ideal tile
@@ -351,7 +333,7 @@ fn use_parent_tile() {
             GetTileDataAction(oid(2, 0, (2, 0, 3)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 2)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 3)), NotFound), // ...
-            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found), // parent found!
+            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found),    // parent found!
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             RenderTileAction(uid(0, 0, 0), tile_0_0_0_0), // render parent
             GetTileDataAction(oid(1, 0, (1, 1, 0)), NotFound), // missing ideal tile
@@ -411,7 +393,7 @@ fn dont_use_wrong_parent_tile() {
             GetTileDataAction(oid(3, 0, (3, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(3, 0, (3, 1, 1)), NotFound), // ...
             GetTileDataAction(oid(1, 0, (1, 0, 0)), NotFound), // parent tile, missing
-            CreateTileDataAction(oid(1, 0, (1, 0, 0))), // find optional parent
+            CreateTileDataAction(oid(1, 0, (1, 0, 0))),        // find optional parent
             RetainTileDataAction(oid(1, 0, (1, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(0, 0, (0, 0, 0)), NotFound), // parent tile, missing
         ],
@@ -431,7 +413,7 @@ fn dont_use_wrong_parent_tile() {
             GetTileDataAction(oid(3, 0, (3, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(3, 0, (3, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(3, 0, (3, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(1, 0, (1, 0, 0)), Found), // parent tile not ready
+            GetTileDataAction(oid(1, 0, (1, 0, 0)), Found),    // parent tile not ready
             RetainTileDataAction(oid(1, 0, (1, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(0, 0, (0, 0, 0)), NotFound), // missing parent tile
             GetTileDataAction(oid(2, 0, (2, 2, 0)), NotFound), // missing ideal tile
@@ -441,7 +423,7 @@ fn dont_use_wrong_parent_tile() {
             GetTileDataAction(oid(3, 0, (3, 4, 1)), NotFound), // ...
             GetTileDataAction(oid(3, 0, (3, 5, 0)), NotFound), // ...
             GetTileDataAction(oid(3, 0, (3, 5, 1)), NotFound), // ...
-            GetTileDataAction(oid(1, 0, (1, 1, 0)), Found), // found parent tile
+            GetTileDataAction(oid(1, 0, (1, 1, 0)), Found),    // found parent tile
             RetainTileDataAction(oid(1, 0, (1, 1, 0)), TileNecessity::Optional),
             RenderTileAction(uid(1, 1, 0), tile_1_1_1_0), // render parent tile
         ],
@@ -472,7 +454,7 @@ fn use_parent_tile_when_child_not_ready() {
             GetTileDataAction(oid(2, 0, (2, 0, 3)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 2)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 3)), NotFound), // ...
-            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found), // parent tile, ready
+            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found),    // parent tile, ready
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             RenderTileAction(uid(0, 0, 0), tile_0_0_0_0), // render parent tile
         ],
@@ -517,7 +499,7 @@ fn use_overlapping_parent_tile() {
             GetTileDataAction(oid(2, 0, (2, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found), // parent tile found
+            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found),    // parent tile found
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             RenderTileAction(uid(0, 0, 0), tile_0_0_0_0),
             GetTileDataAction(oid(1, 0, (1, 0, 1)), Found), // ideal tile found
@@ -554,7 +536,7 @@ fn use_child_tiles() {
             RetainTileDataAction(oid(1, 0, (1, 1, 0)), TileNecessity::Optional),
             RenderTileAction(uid(1, 1, 0), tile_1_1_1_0), // render child tile
             GetTileDataAction(oid(1, 0, (1, 1, 1)), NotFound), // child tile not found
-            // no parent tile of 0 to consider
+                                                          // no parent tile of 0 to consider
         ],
         source.log
     );
@@ -612,7 +594,7 @@ fn prefer_child_tiles() {
             GetTileDataAction(oid(2, 0, (2, 0, 1)), NotFound), // child tile, not found
             GetTileDataAction(oid(2, 0, (2, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(2, 0, (2, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found), // parent tile, found
+            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found),    // parent tile, found
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             RenderTileAction(uid(0, 0, 0), tile_0_0_0_0),
         ],
@@ -638,7 +620,7 @@ fn prefer_child_tiles() {
             RenderTileAction(uid(2, 0, 1), tile_2_2_0_1),
             GetTileDataAction(oid(2, 0, (2, 1, 0)), NotFound), // child tile, not found
             GetTileDataAction(oid(2, 0, (2, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found), // parent tile, found
+            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found),    // parent tile, found
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             RenderTileAction(uid(0, 0, 0), tile_0_0_0_0),
         ],
@@ -664,7 +646,7 @@ fn prefer_child_tiles() {
             RetainTileDataAction(oid(2, 0, (2, 1, 0)), TileNecessity::Optional),
             RenderTileAction(uid(2, 1, 0), tile_2_2_1_0),
             GetTileDataAction(oid(2, 0, (2, 1, 1)), NotFound), // child tile, not found
-            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found), // parent tile, found
+            GetTileDataAction(oid(0, 0, (0, 0, 0)), Found),    // parent tile, found
             RetainTileDataAction(oid(0, 0, (0, 0, 0)), TileNecessity::Optional),
             RenderTileAction(uid(0, 0, 0), tile_0_0_0_0),
         ],
@@ -1000,7 +982,7 @@ fn do_not_ascend_multiple_times_if_not_found() {
             GetTileDataAction(oid(9, 0, (9, 2, 1)), NotFound), // ...
             GetTileDataAction(oid(9, 0, (9, 3, 0)), NotFound), // ...
             GetTileDataAction(oid(9, 0, (9, 3, 1)), NotFound), // ...
-            // no second ascent to 0
+                                                               // no second ascent to 0
         ],
         source.log
     );
@@ -1022,7 +1004,7 @@ fn do_not_ascend_multiple_times_if_not_found() {
             GetTileDataAction(oid(7, 0, (7, 0, 0)), NotFound), // ascent
             GetTileDataAction(oid(6, 0, (6, 0, 0)), NotFound), // ...
             GetTileDataAction(oid(5, 0, (5, 0, 0)), NotFound), // ...
-            GetTileDataAction(oid(4, 0, (4, 0, 0)), Found), // stops ascent
+            GetTileDataAction(oid(4, 0, (4, 0, 0)), Found),    // stops ascent
             RetainTileDataAction(oid(4, 0, (4, 0, 0)), TileNecessity::Optional),
             RenderTileAction(uid(4, 0, 0), tile_4_0_0_0),
             GetTileDataAction(oid(8, 0, (8, 1, 0)), Found), // ideal tile, not ready
@@ -1031,7 +1013,7 @@ fn do_not_ascend_multiple_times_if_not_found() {
             GetTileDataAction(oid(9, 0, (9, 2, 1)), NotFound), // ...
             GetTileDataAction(oid(9, 0, (9, 3, 0)), NotFound), // ...
             GetTileDataAction(oid(9, 0, (9, 3, 1)), NotFound), // ...
-            // no second ascent to 0
+                                                               // no second ascent to 0
         ],
         source.log
     );
@@ -1094,7 +1076,7 @@ fn wrapped_tiles() {
             GetTileDataAction(oid(2, -1, (2, 3, 0)), NotFound),
             GetTileDataAction(oid(2, -1, (2, 3, 1)), NotFound),
             GetTileDataAction(oid(0, -1, (0, 0, 0)), NotFound), // { 0, 0, 0 } exists, but not the version wrapped to -1
-            GetTileDataAction(oid(1, 0, (1, 0, 0)), NotFound), // ideal tile 1/0/0
+            GetTileDataAction(oid(1, 0, (1, 0, 0)), NotFound),  // ideal tile 1/0/0
             CreateTileDataAction(oid(1, 0, (1, 0, 0))),
             RetainTileDataAction(oid(1, 0, (1, 0, 0)), TileNecessity::Required),
             GetTileDataAction(oid(2, 0, (2, 0, 0)), NotFound),
@@ -1208,7 +1190,7 @@ fn repeated_render_with_missing_optionals() {
             GetTileDataAction(oid(7, 0, (7, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found), // ascent
+            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found),    // ascent
             RetainTileDataAction(oid(5, 0, (5, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(4, 0, (4, 0, 0)), NotFound), // ...
             GetTileDataAction(oid(3, 0, (3, 0, 0)), NotFound), // ...
@@ -1231,7 +1213,7 @@ fn repeated_render_with_missing_optionals() {
             GetTileDataAction(oid(7, 0, (7, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found), // ascent
+            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found),    // ascent
             RetainTileDataAction(oid(5, 0, (5, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(4, 0, (4, 0, 0)), NotFound), // ...
             CreateTileDataAction(oid(4, 0, (4, 0, 0))),
@@ -1256,7 +1238,7 @@ fn repeated_render_with_missing_optionals() {
             GetTileDataAction(oid(7, 0, (7, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found), // ascent
+            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found),    // ascent
             RetainTileDataAction(oid(5, 0, (5, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(4, 0, (4, 0, 0)), Found), // ...
             RetainTileDataAction(oid(4, 0, (4, 0, 0)), TileNecessity::Optional),
@@ -1282,7 +1264,7 @@ fn repeated_render_with_missing_optionals() {
             GetTileDataAction(oid(7, 0, (7, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found), // ascent
+            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found),    // ascent
             RetainTileDataAction(oid(5, 0, (5, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(4, 0, (4, 0, 0)), Found), // ...
             RetainTileDataAction(oid(4, 0, (4, 0, 0)), TileNecessity::Optional),
@@ -1310,7 +1292,7 @@ fn repeated_render_with_missing_optionals() {
             GetTileDataAction(oid(7, 0, (7, 0, 1)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 0)), NotFound), // ...
             GetTileDataAction(oid(7, 0, (7, 1, 1)), NotFound), // ...
-            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found), // ascent
+            GetTileDataAction(oid(5, 0, (5, 0, 0)), Found),    // ascent
             RetainTileDataAction(oid(5, 0, (5, 0, 0)), TileNecessity::Optional),
             GetTileDataAction(oid(4, 0, (4, 0, 0)), Found), // ...
             RetainTileDataAction(oid(4, 0, (4, 0, 0)), TileNecessity::Optional),
@@ -1465,4 +1447,3 @@ fn max_parent_overscale_factor() {
         source.log
     );
 }
-

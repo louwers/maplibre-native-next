@@ -1,19 +1,10 @@
 // Ports vendor/maplibre-native-base/deps/geojson-vt-cpp/include/mapbox/geojsonvt/tile.hpp.
 
 use crate::types::*;
-use geojson::FeatureCollection;
-use libstdcxx::cvt::f64_to_i16;
 use feature::{Feature, Identifier, PropertyMap, Value};
-use geometry::{
-    Geometry,
-    LineString,
-    LinearRing,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-};
+use geojson::FeatureCollection;
+use geometry::{Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
+use libstdcxx::cvt::f64_to_i16;
 
 /// `Tile`
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -43,15 +34,7 @@ pub struct InternalTile {
 }
 
 impl InternalTile {
-    pub fn new(
-        source: &VtFeatures,
-        z: u8,
-        x: u32,
-        y: u32,
-        extent: u16,
-        tolerance: f64,
-        line_metrics: bool,
-    ) -> Self {
+    pub fn new(source: &VtFeatures, z: u8, x: u32, y: u32, extent: u16, tolerance: f64, line_metrics: bool) -> Self {
         let mut t = InternalTile {
             extent,
             z,
@@ -85,11 +68,7 @@ impl InternalTile {
     }
 
     fn emplace(&mut self, geometry: Geometry<i16>, properties: PropertyMap, id: &Identifier) {
-        self.tile.features.push(Feature {
-            geometry,
-            properties,
-            id: id.clone(),
-        });
+        self.tile.features.push(Feature { geometry, properties, id: id.clone() });
     }
 
     /// The `addFeature` overloads.

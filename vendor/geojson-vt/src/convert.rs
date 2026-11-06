@@ -2,8 +2,8 @@
 
 use crate::simplify::simplify;
 use crate::types::*;
-use geojson::FeatureCollection;
 use feature::Identifier;
+use geojson::FeatureCollection;
 use geometry::{Geometry, LineString, LinearRing, Point};
 use std::f64::consts::PI;
 

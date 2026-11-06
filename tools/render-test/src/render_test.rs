@@ -124,9 +124,10 @@ pub fn parse_arguments(args: &[String]) -> Result<Arguments, i32> {
                 "self-check" => self_check = true,
                 "seed" => {
                     let value = take_value("--seed")?;
-                    seed = Some(value.parse().map_err(|_| {
-                        parse_error(format!("Argument 'seed' received invalid value type '{value}'"))
-                    })?);
+                    seed =
+                        Some(value.parse().map_err(|_| {
+                            parse_error(format!("Argument 'seed' received invalid value type '{value}'"))
+                        })?);
                 }
                 "manifestPath" => manifest_path = Some(take_value("--manifestPath")?),
                 "filter" => test_filter = Some(take_value("--filter")?),
@@ -171,9 +172,7 @@ pub fn parse_arguments(args: &[String]) -> Result<Arguments, i32> {
                             i += 1;
                             args[i - 1].clone()
                         } else {
-                            return Err(parse_error(format!(
-                                "Flag '{c}' requires an argument but received none"
-                            )));
+                            return Err(parse_error(format!("Flag '{c}' requires an argument but received none")));
                         };
                         match c {
                             'p' => manifest_path = Some(value),
@@ -186,7 +185,9 @@ pub fn parse_arguments(args: &[String]) -> Result<Arguments, i32> {
             }
             continue;
         }
-        return Err(parse_error(format!("Passed in argument, but no positional arguments were ready to receive it: {arg}")));
+        return Err(parse_error(format!(
+            "Passed in argument, but no positional arguments were ready to receive it: {arg}"
+        )));
     }
 
     let update_results = match update.as_deref() {
@@ -205,10 +206,7 @@ pub fn parse_arguments(args: &[String]) -> Result<Arguments, i32> {
     };
 
     if !filesystem::exists(&manifest_path) || filesystem::filename(&manifest_path).is_empty() {
-        log::error(
-            Event::General,
-            &format!("Provided test manifest file path '{manifest_path}' does not exist"),
-        );
+        log::error(Event::General, &format!("Provided test manifest file path '{manifest_path}' does not exist"));
         return Err(3);
     }
 
@@ -261,10 +259,9 @@ fn run_with_alternate_sources(
 
     // Each item in the source replacements array...
     for entry in &replaces_element {
-        let (Some(target_name), Some(source_name)) = (
-            entry.get(TARGET_KEY).and_then(|v| v.as_str()),
-            entry.get(SOURCE_KEY).and_then(|v| v.as_str()),
-        ) else {
+        let (Some(target_name), Some(source_name)) =
+            (entry.get(TARGET_KEY).and_then(|v| v.as_str()), entry.get(SOURCE_KEY).and_then(|v| v.as_str()))
+        else {
             continue;
         };
         let swappable = |document: &serde_json::Value| {
@@ -297,9 +294,7 @@ fn run_with_alternate_sources(
         metadata.document_json = original_json;
 
         // stop if the test fails
-        *errored = metadata.metrics_errored != 0
-            || metadata.render_errored != 0
-            || metadata.label_cut_off_found != 0;
+        *errored = metadata.metrics_errored != 0 || metadata.render_errored != 0 || metadata.label_cut_off_found != 0;
         *passed = !*errored && metadata.metrics_failed == 0 && metadata.render_failed == 0;
         if !*passed {
             break;
@@ -343,15 +338,10 @@ pub fn run_render_tests(args: &[String], factory: Option<ImplFactory>) -> i32 {
 /// `runRenderTests` after argument parsing.
 pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>) -> RunResult {
     let mut return_code = 0;
-    let early = |return_code: i32| RunResult {
-        return_code,
-        stats: TestStatistics::default(),
-        metadatas: Vec::new(),
-    };
+    let early = |return_code: i32| RunResult { return_code, stats: TestStatistics::default(), metadatas: Vec::new() };
 
-    let Arguments {
-        recycle_map, shuffle, online, seed, manifest_path, update_results, test_filter, ..
-    } = arguments.clone();
+    let Arguments { recycle_map, shuffle, online, seed, manifest_path, update_results, test_filter, .. } =
+        arguments.clone();
 
     crate::file_source::ProxyFileSource::set_offline(!online);
     // TODO(port): NetworkStatus::Set(online ? Online : Offline) (online file
@@ -362,22 +352,13 @@ pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>
     };
 
     let Some(output_path) = output_directory(arguments.output.as_deref()) else {
-        log::error(
-            Event::General,
-            "No output directory: pass --output <dir> (or run under `bazel test`)",
-        );
+        log::error(Event::General, "No output directory: pass --output <dir> (or run under `bazel test`)");
         return early(1);
     };
 
     // mln::util::RunLoop runLoop: created by the map factory
     // (render_test_map::factory), which this crate does not depend on.
-    let mut runner = TestRunner::new(
-        manifest_data,
-        update_results,
-        factory,
-        arguments.self_check,
-        output_path.clone(),
-    );
+    let mut runner = TestRunner::new(manifest_data, update_results, factory, arguments.self_check, output_path.clone());
     if !arguments.self_check && arguments.timeout_millis > 0 {
         runner.set_test_timeout(Some(std::time::Duration::from_millis(arguments.timeout_millis)));
     }
@@ -428,9 +409,8 @@ pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>
             runner.run(&mut metadata);
         }
 
-        let mut errored = metadata.metrics_errored != 0
-            || metadata.render_errored != 0
-            || metadata.label_cut_off_found != 0;
+        let mut errored =
+            metadata.metrics_errored != 0 || metadata.render_errored != 0 || metadata.label_cut_off_found != 0;
         let mut passed = !errored && metadata.metrics_failed == 0 && metadata.render_failed == 0;
 
         if passed {
@@ -517,10 +497,7 @@ pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>
             stats.ignore_passed_tests,
             percent(stats.ignore_passed_tests)
         );
-        log::info(
-            Event::General,
-            &format!("{} passed tests but were ignored", stats.ignore_passed_tests),
-        );
+        log::info(Event::General, &format!("{} passed tests but were ignored", stats.ignore_passed_tests));
     }
     if stats.ignore_failed_tests != 0 {
         println!(

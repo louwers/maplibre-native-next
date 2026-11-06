@@ -17,8 +17,7 @@ fn point() {
 // gtest: calculateTileDistances.Line
 #[test]
 fn line() {
-    let line: GeometryCoordinates =
-        vec![Point::new(1i16, 1), Point::new(1, 2), Point::new(1, 3), Point::new(1, 4)];
+    let line: GeometryCoordinates = vec![Point::new(1i16, 1), Point::new(1, 2), Point::new(1, 3), Point::new(1, 4)];
     let distances = SymbolLayout::calculate_tile_distances(&line, &Anchor::new(1.0, 3.0, 0.0, Some(2)));
     assert_eq!(distances, vec![2.0f32, 1.0, 0.0, 1.0]);
 }

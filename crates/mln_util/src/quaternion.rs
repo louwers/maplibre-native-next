@@ -28,12 +28,7 @@ impl Quaternion {
 
     /// `Quaternion(const vec4&)`.
     pub const fn from_vec4(vec: &Vec4) -> Self {
-        Quaternion {
-            x: vec[0],
-            y: vec[1],
-            z: vec[2],
-            w: vec[3],
-        }
+        Quaternion { x: vec[0], y: vec[1], z: vec[2], w: vec[3] }
     }
 
     /// The `vec4 m` member of the C++ union.

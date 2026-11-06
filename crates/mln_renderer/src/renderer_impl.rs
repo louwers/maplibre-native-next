@@ -227,9 +227,11 @@ impl RendererImpl {
             map_zoom: parameters.state.get_zoom() as f32,
             pad1: 0.0,
         };
-        context
-            .mutable_global_uniform_buffers()
-            .create_or_update_pod(ID_GLOBAL_PAINT_PARAMS_UBO, &global_paint_params_ubo, context);
+        context.mutable_global_uniform_buffers().create_or_update_pod(
+            ID_GLOBAL_PAINT_PARAMS_UBO,
+            &global_paint_params_ubo,
+            context,
+        );
 
         let num_sublayers = PaintParameters::NUM_SUBLAYERS as usize;
         let depth_epsilon = PaintParameters::DEPTH_EPSILON;
@@ -346,11 +348,7 @@ impl RendererImpl {
 
         let start_rendering = std::time::Instant::now();
         // present submits render commands
-        parameters
-            .encoder
-            .as_ref()
-            .expect("encoder")
-            .present(backend.get_default_renderable());
+        parameters.encoder.as_ref().expect("encoder").present(backend.get_default_renderable());
         context.rendering_stats().rendering_time = start_rendering.elapsed().as_secs_f64();
 
         parameters.encoder = None;
@@ -366,11 +364,7 @@ impl RendererImpl {
 
         if let Some(observer) = &observer {
             observer.on_did_finish_rendering_frame(
-                if render_tree_parameters.loaded {
-                    RenderMode::Full
-                } else {
-                    RenderMode::Partial
-                },
+                if render_tree_parameters.loaded { RenderMode::Full } else { RenderMode::Partial },
                 render_tree_parameters.needs_repaint,
                 render_tree_parameters.placement_changed,
             );

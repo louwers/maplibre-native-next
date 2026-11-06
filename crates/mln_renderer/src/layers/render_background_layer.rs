@@ -1,8 +1,9 @@
 // Ports src/mln/renderer/layers/render_background_layer.hpp and
 // src/mln/renderer/layers/render_background_layer.cpp (drawable path).
 
+use super::{background_crossfade, background_layer_properties};
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::layer_tweaker::{layer_tweaker_slot, LayerTweakerPtr};
+use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
 use crate::layers::background_layer_tweaker::BackgroundLayerTweaker;
 use crate::paint_parameters::PaintParameters;
 use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
@@ -10,29 +11,28 @@ use crate::render_pass::RenderPass;
 use crate::render_static_data::RenderStaticData;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
-use crate::util::tile_cover::{tile_cover, TileCoverParameters};
+use crate::util::tile_cover::{TileCoverParameters, tile_cover};
 use mln_gfx::shaders::shader_defines::ID_BACKGROUND_POS_VERTEX_ATTRIBUTE;
 use mln_gfx::{AttributeDataType, ColorMode, Context, DepthMaskType, DrawMode, ShaderProgramBasePtr, ShaderRegistry};
 use mln_map_types::TransformState;
 use mln_style::layer;
 use mln_style::layer::static_immutable_cast;
 use mln_style::layer_properties::LayerProperties;
-use super::{background_crossfade, background_layer_properties};
 use mln_style::layers::background_layer_impl::Impl as BackgroundLayerImpl;
-use mln_style::layers::{BackgroundColor, BackgroundLayerProperties, BackgroundOpacity, BackgroundPaintProperties, BackgroundPattern};
+use mln_style::layers::{
+    BackgroundColor, BackgroundLayerProperties, BackgroundOpacity, BackgroundPaintProperties, BackgroundPattern,
+};
 use mln_style::{PropertyEvaluationParameters, TransitionParameters};
+use mln_util::Color;
 use mln_util::immutable::Immutable;
 use mln_util::range::Range;
-use mln_util::Color;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &BackgroundLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), BackgroundLayerImpl::static_type_info()));
-    impl_
-        .downcast_ref::<BackgroundLayerImpl>()
-        .expect("RenderBackgroundLayer: not a background layer impl")
+    impl_.downcast_ref::<BackgroundLayerImpl>().expect("RenderBackgroundLayer: not a background layer impl")
 }
 
 const BACKGROUND_PLAIN_SHADER_NAME: &str = "BackgroundShader";
@@ -60,12 +60,7 @@ impl RenderBackgroundLayer {
         let properties: Immutable<dyn LayerProperties> = Arc::new(BackgroundLayerProperties::new(impl_));
         let mut base = RenderLayerBase::new(properties);
         base.style_dependencies = unevaluated.get_dependencies();
-        RenderBackgroundLayer {
-            base,
-            unevaluated,
-            plain_shader: None,
-            pattern_shader: None,
-        }
+        RenderBackgroundLayer { base, unevaluated, plain_shader: None, pattern_shader: None }
     }
 
     /// The `drawPasses` / `passes` expression shared by `evaluate` and
@@ -115,9 +110,7 @@ impl RenderLayer for RenderBackgroundLayer {
         self.base.evaluated_properties = Arc::new(properties);
 
         if let Some(layer_tweaker) = &self.base.layer_tweaker {
-            layer_tweaker
-                .borrow_mut()
-                .update_properties(self.base.evaluated_properties.clone());
+            layer_tweaker.borrow_mut().update_properties(self.base.evaluated_properties.clone());
         }
     }
 
@@ -195,7 +188,11 @@ impl RenderLayer for RenderBackgroundLayer {
         }
 
         if self.base.layer_group.is_none() {
-            match context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned()) {
+            match context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 Some(layer_group) => self.set_layer_group(Some(layer_group), changes),
                 None => return,
             }
@@ -226,11 +223,7 @@ impl RenderLayer for RenderBackgroundLayer {
 
         let layer_tweaker = self.base.layer_tweaker.clone().expect("layer tweaker");
 
-        let cur_shader = if has_pattern {
-            self.pattern_shader.clone()
-        } else {
-            self.plain_shader.clone()
-        };
+        let cur_shader = if has_pattern { self.pattern_shader.clone() } else { self.plain_shader.clone() };
         if cur_shader.is_none() {
             self.remove_all_drawables();
             return;
@@ -251,9 +244,7 @@ impl RenderLayer for RenderBackgroundLayer {
         let mut builder: Option<mln_gfx::UniqueDrawableBuilder> = None;
 
         let mut group = layer_group.borrow_mut();
-        let tile_layer_group = group
-            .as_tile_layer_group_mut()
-            .expect("background layer group is a TileLayerGroup");
+        let tile_layer_group = group.as_tile_layer_group_mut().expect("background layer group is a TileLayerGroup");
 
         // Remove drawables for tiles that are no longer in the cover set.
         // (Note that `RenderTiles` is empty, and this layer does not use it)

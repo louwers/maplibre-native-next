@@ -49,8 +49,8 @@ pub mod value;
 pub mod within;
 
 pub use expression::{
-    Dependency, EvalResult, EvaluationContext, EvaluationError, EvaluationResult, Expression,
-    ExpressionBase, Kind, downcast,
+    Dependency, EvalResult, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind,
+    downcast,
 };
 pub use find_zoom_curve::{ZoomCurve, ZoomCurvePtr, find_zoom_curve, find_zoom_curve_checked};
 pub use formatted::{Formatted, FormattedSection};
@@ -64,10 +64,7 @@ pub use parsing_context::{ParseResult, ParsingContext, ParsingError, TypeAnnotat
 pub use step::Step;
 pub use stops::Stops;
 pub use type_::Type;
-pub use value::{
-    Value, ValueConverter, from_expression_value, to_expression_value,
-    value_type_to_expression_type,
-};
+pub use value::{Value, ValueConverter, from_expression_value, to_expression_value, value_type_to_expression_type};
 
 #[cfg(test)]
 mod tests;

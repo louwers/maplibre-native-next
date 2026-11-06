@@ -261,9 +261,8 @@ fn observer() {
 }
 
 fn fixture(path: &str) -> String {
-    let base = std::env::var("RUNFILES_DIR")
-        .or_else(|_| std::env::var("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
+    let base =
+        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
     let path = PathBuf::from(base).join("maplibre+").join(path);
     std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
@@ -276,9 +275,7 @@ fn duplicate_layer() {
     style.load_json(&fixture("test/fixtures/resources/style-unused-sources.json"));
 
     // Add initial layer
-    style
-        .add_layer(Box::new(LineLayer::new("line", "unusedsource")), None)
-        .expect("first add");
+    style.add_layer(Box::new(LineLayer::new("line", "unusedsource")), None).expect("first add");
 
     // Try to add duplicate
     match style.add_layer(Box::new(LineLayer::new("line", "unusedsource")), None) {

@@ -23,14 +23,12 @@
 // glyphs in onGlyphsAvailable.
 
 use crate::bucket::BucketPtr;
+use crate::geometry::feature_index::FeatureIndex;
 use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlasPtr, GlyphAtlas, ImageAtlas, ImageVersionMap};
 use crate::image_manager::{ImageManager, ImageRequestPair, ImageRequestor, ImageRequestorBase, requestor_key};
-use crate::text::glyph_manager::{GlyphManager, GlyphRequestor, HBShapeResults, glyph_requestor_key};
-use mln_storage::FileSource;
-use mln_text::glyph::{GlyphDependencies, GlyphMap, HBShapeRequests};
-use crate::geometry::feature_index::FeatureIndex;
 use crate::render_layer::LayerRenderData;
 use crate::render_source::SourcePrepareParameters;
+use crate::text::glyph_manager::{GlyphManager, GlyphRequestor, HBShapeResults, glyph_requestor_key};
 use crate::tile::geometry_tile_worker::{GeometryTileWorker, ParentRef, SharedTileData};
 use crate::tile::tile::{Kind, Tile, TileBase, TileOperation};
 use crate::tile::tile_observer::TileObserver;
@@ -40,12 +38,14 @@ use mln_actor::actor::{Actor, PoolActorRef};
 use mln_actor::{ActorRef, LocalObject, Mailbox, scheduler};
 use mln_gfx::UploadPass;
 use mln_map_types::{MapDebugOptions, MapMode};
+use mln_storage::FileSource;
 use mln_style::expression::GlobalStateMap;
 use mln_style::layer;
 use mln_style::layer::layer_type_info;
 use mln_style::layer_properties::LayerProperties;
 use mln_style_types::VisibilityType;
 use mln_style_types::image::{ImageMap, ImagePosition};
+use mln_text::glyph::{GlyphDependencies, GlyphMap, HBShapeRequests};
 use mln_tile_id::OverscaledTileID;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
@@ -108,10 +108,7 @@ impl LayoutResult {
     /// `getLayerRenderData(const style::Layer::Impl&)`.
     pub fn get_layer_render_data(&self, layer_impl: &dyn layer::Impl) -> Option<&LayerRenderData> {
         let result = self.layer_render_data.get(&layer_impl.id)?;
-        if !std::ptr::eq(
-            result.layer_properties.base_impl.get_type_info(),
-            layer_impl.get_type_info(),
-        ) {
+        if !std::ptr::eq(result.layer_properties.base_impl.get_type_info(), layer_impl.get_type_info()) {
             // Layer data might be outdated, see issue #12432.
             return None;
         }
@@ -137,9 +134,7 @@ impl TileRenderData for GeometryTileRenderData {
     }
 
     fn get_layer_render_data(&self, layer_impl: &dyn layer::Impl) -> Option<&LayerRenderData> {
-        self.layout_result
-            .as_ref()
-            .and_then(|result| result.get_layer_render_data(layer_impl))
+        self.layout_result.as_ref().and_then(|result| result.get_layer_render_data(layer_impl))
     }
 
     fn get_bucket(&self, layer_impl: &dyn layer::Impl) -> Option<&BucketPtr> {
@@ -304,9 +299,8 @@ impl GeometryTileInner {
         self.correlation_id.set(self.correlation_id.get() + 1);
         let correlation_id = self.correlation_id.get();
         let available_images = self.available_images();
-        self.worker.invoke(move |worker: &mut GeometryTileWorker| {
-            worker.set_data(data, available_images, correlation_id)
-        });
+        self.worker
+            .invoke(move |worker: &mut GeometryTileWorker| worker.set_data(data, available_images, correlation_id));
     }
 
     /// `reset()`: resets the tile's data and layers and leaves the tile in
@@ -326,8 +320,7 @@ impl GeometryTileInner {
         // Reset the worker to the `NeedsParse` state.
         self.correlation_id.set(self.correlation_id.get() + 1);
         let correlation_id = self.correlation_id.get();
-        self.worker
-            .invoke(move |worker: &mut GeometryTileWorker| worker.reset(correlation_id));
+        self.worker.invoke(move |worker: &mut GeometryTileWorker| worker.reset(correlation_id));
     }
 
     /// `onLayout(std::shared_ptr<LayoutResult>, correlationID)`.
@@ -381,10 +374,7 @@ impl GeometryTileInner {
 
     /// `getFeatureIndex()`.
     pub fn get_feature_index(&self) -> Option<Arc<FeatureIndex>> {
-        self.layout_result
-            .borrow()
-            .as_ref()
-            .map(|result| result.feature_index.clone())
+        self.layout_result.borrow().as_ref().map(|result| result.feature_index.clone())
     }
 }
 
@@ -397,8 +387,7 @@ impl GlyphRequestor for GeometryTileInner {
                 for str_ in strs {
                     let mut shaped_glyph_ids = Vec::new();
                     let mut shaped_adjusts = Vec::new();
-                    self.glyph_manager
-                        .hb_shaping(str_, font_stack, *type_, &mut shaped_glyph_ids, &mut shaped_adjusts);
+                    self.glyph_manager.hb_shaping(str_, font_stack, *type_, &mut shaped_glyph_ids, &mut shaped_adjusts);
                     let mut shaped_str: Vec<u16> = Vec::with_capacity(shaped_glyph_ids.len());
                     for glyph_id in &shaped_glyph_ids {
                         shaped_str.push(glyph_id.code);
@@ -422,9 +411,7 @@ impl GlyphRequestor for GeometryTileInner {
                 }
             }
         }
-        self.worker.invoke(move |worker: &mut GeometryTileWorker| {
-            worker.on_glyphs_available(glyph_map, results)
-        });
+        self.worker.invoke(move |worker: &mut GeometryTileWorker| worker.on_glyphs_available(glyph_map, results));
     }
 }
 
@@ -714,10 +701,7 @@ impl Tile for GeometryTile {
 
     fn hold_for_fade(&self) -> bool {
         self.inner.mode == MapMode::Continuous
-            && matches!(
-                self.inner.fade_state.get(),
-                FadeState::NeedsFirstPlacement | FadeState::NeedsSecondPlacement
-            )
+            && matches!(self.inner.fade_state.get(), FadeState::NeedsFirstPlacement | FadeState::NeedsSecondPlacement)
     }
 
     fn mark_rendered_ideal(&self) {
@@ -743,9 +727,8 @@ impl Tile for GeometryTile {
         let layout_result = self.inner.layout_result.borrow();
         let mut query_padding: f32 = 0.0;
         for layer in layers.values() {
-            let Some(data) = layout_result
-                .as_ref()
-                .and_then(|result| result.get_layer_render_data(&*layer.base().base_impl))
+            let Some(data) =
+                layout_result.as_ref().and_then(|result| result.get_layer_render_data(&*layer.base().base_impl))
             else {
                 continue;
             };
@@ -858,9 +841,11 @@ pub fn query_layer_source_features(
 
         // Apply filter, if any
         if let Some(filter) = &options.filter {
-            let context =
-                mln_style::expression::EvaluationContext::with_zoom_feature(f32::from(id.overscaled_z), Some(&*feature))
-                    .with_global_state(global_state);
+            let context = mln_style::expression::EvaluationContext::with_zoom_feature(
+                f32::from(id.overscaled_z),
+                Some(&*feature),
+            )
+            .with_global_state(global_state);
             if !filter.evaluate(&context) {
                 continue;
             }
@@ -876,10 +861,6 @@ pub fn query_layer_source_features(
 impl GeometryTile {
     /// `getData()`: the tile data of the latest layout, if any.
     pub fn has_data(&self) -> bool {
-        self.inner
-            .layout_result
-            .borrow()
-            .as_ref()
-            .is_some_and(|result| result.feature_index.get_data().is_some())
+        self.inner.layout_result.borrow().as_ref().is_some_and(|result| result.feature_index.get_data().is_some())
     }
 }

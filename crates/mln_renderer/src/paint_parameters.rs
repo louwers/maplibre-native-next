@@ -2,22 +2,25 @@
 // (non-OpenGL backend branches; the port's backend is WebGPU).
 
 use crate::line_atlas::LineAtlas;
-use mln_gfx::shaders::clipping_mask_ubo::ClipUBO;
 use crate::pattern_atlas::PatternAtlas;
 use crate::render_pass::RenderPass;
 use crate::render_static_data::RenderStaticData;
+use mln_gfx::color_mode::{BlendFunction, LinearBlend, Mask};
 use mln_gfx::paint_parameters::PaintParameters as GfxPaintParameters;
 use mln_gfx::render_pass::RenderPass as GfxRenderPass;
-use mln_gfx::color_mode::{BlendFunction, LinearBlend, Mask};
+use mln_gfx::shaders::clipping_mask_ubo::ClipUBO;
 use mln_gfx::stencil_mode::Test;
 use mln_gfx::types::ColorBlendFactorType;
-use mln_util::Color;
 use mln_gfx::types::{DepthFunctionType, StencilOpType};
-use mln_gfx::{ColorMode, CommandEncoder, Context, DepthMaskType, DepthMode, RendererBackend, ScissorRect, ShaderRegistry, StencilMode};
+use mln_gfx::{
+    ColorMode, CommandEncoder, Context, DepthMaskType, DepthMode, RendererBackend, ScissorRect, ShaderRegistry,
+    StencilMode,
+};
 use mln_map_types::{MapDebugOptions, MapMode, TileLodMode, TransformState, ViewportMode};
 use mln_tile_id::UnwrappedTileID;
+use mln_util::Color;
 use mln_util::chrono::TimePoint;
-use mln_util::mat4::{matrix, Mat4};
+use mln_util::mat4::{Mat4, matrix};
 use mln_util::size::Size;
 use std::cell::RefCell;
 use std::collections::BTreeMap;
@@ -55,12 +58,7 @@ impl TransformParameters {
         let near_z = (0.1 * state.get_camera_to_center_distance() as f64) as u16;
         state.get_proj_matrix(&mut near_clipped_proj_matrix, near_z, false);
 
-        TransformParameters {
-            proj_matrix,
-            aligned_proj_matrix,
-            near_clipped_proj_matrix,
-            state,
-        }
+        TransformParameters { proj_matrix, aligned_proj_matrix, near_clipped_proj_matrix, state }
     }
 }
 
@@ -138,10 +136,7 @@ impl<'a> PaintParameters<'a> {
         capture_rendered_features: bool,
     ) -> Self {
         let state = &transform_params.state;
-        let mut pixels_to_gl_units = [
-            2.0f32 / state.get_size().width as f32,
-            -2.0f32 / state.get_size().height as f32,
-        ];
+        let mut pixels_to_gl_units = [2.0f32 / state.get_size().width as f32, -2.0f32 / state.get_size().height as f32];
 
         if state.get_viewport_mode() == ViewportMode::FlippedY {
             pixels_to_gl_units[1] *= -1.0;
@@ -191,11 +186,7 @@ impl<'a> PaintParameters<'a> {
         let b = m;
         matrix::multiply(
             &mut m,
-            if aligned {
-                &self.transform_params.aligned_proj_matrix
-            } else {
-                &self.transform_params.proj_matrix
-            },
+            if aligned { &self.transform_params.aligned_proj_matrix } else { &self.transform_params.proj_matrix },
             &b,
         );
         m
@@ -205,17 +196,11 @@ impl<'a> PaintParameters<'a> {
         if self.current_layer < self.opaque_pass_cutoff {
             return DepthMode::disabled();
         }
-        DepthMode {
-            func: DepthFunctionType::LessEqual,
-            mask,
-        }
+        DepthMode { func: DepthFunctionType::LessEqual, mask }
     }
 
     pub fn depth_mode_for_3d(&self) -> DepthMode {
-        DepthMode {
-            func: DepthFunctionType::LessEqual,
-            mask: DepthMaskType::ReadWrite,
-        }
+        DepthMode { func: DepthFunctionType::LessEqual, mask: DepthMaskType::ReadWrite }
     }
 
     pub fn color_mode_for_render_pass(&self) -> ColorMode {
@@ -227,12 +212,7 @@ impl<'a> PaintParameters<'a> {
                     dst_factor: ColorBlendFactorType::One,
                 }),
                 blend_color: Color::new_unchecked(overdraw, overdraw, overdraw, 0.0),
-                mask: Mask {
-                    r: true,
-                    g: true,
-                    b: true,
-                    a: true,
-                },
+                mask: Mask { r: true, g: true, b: true, a: true },
             }
         } else if self.pass == RenderPass::Translucent {
             ColorMode::alpha_blended()

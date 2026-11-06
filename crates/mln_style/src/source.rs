@@ -51,11 +51,7 @@ impl SourceObserver for NullSourceObserver {}
 impl SourceBase {
     /// `Source(Immutable<Impl>)`.
     pub fn new(impl_: Immutable<dyn Impl>) -> Self {
-        SourceBase {
-            base_impl: RefCell::new(impl_),
-            observer: RefCell::new(None),
-            loaded: Cell::new(false),
-        }
+        SourceBase { base_impl: RefCell::new(impl_), observer: RefCell::new(None), loaded: Cell::new(false) }
     }
 
     pub fn base_impl(&self) -> Immutable<dyn Impl> {
@@ -147,10 +143,7 @@ pub trait Source: std::fmt::Debug {
 
     fn dump_debug_logs(&self) {
         Log::info(Event::General, format!("Source::id: {}", self.get_id()));
-        Log::info(
-            Event::General,
-            format!("Source::loaded: {}", i32::from(self.loaded())),
-        );
+        Log::info(Event::General, format!("Source::loaded: {}", i32::from(self.loaded())));
     }
 }
 
@@ -193,7 +186,5 @@ pub fn set_max_overscale_factor_for_parent_tiles(source: &dyn Source, overscale_
     if source.get_max_overscale_factor_for_parent_tiles() == overscale_factor {
         return;
     }
-    mutate_impl(source, |impl_| {
-        impl_.base_mut().set_max_overscale_factor_for_parent_tiles(overscale_factor)
-    });
+    mutate_impl(source, |impl_| impl_.base_mut().set_max_overscale_factor_for_parent_tiles(overscale_factor));
 }

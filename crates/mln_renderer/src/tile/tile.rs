@@ -177,18 +177,9 @@ impl TileBase {
         };
         Log::info(Event::General, format!("Tile::Kind: {kind_string}"));
         Log::info(Event::General, format!("Tile::id: {}", self.id()));
-        Log::info(
-            Event::General,
-            format!("Tile::renderable: {}", if self.is_renderable() { "yes" } else { "no" }),
-        );
-        Log::info(
-            Event::General,
-            format!("Tile::complete: {}", if self.is_complete() { "yes" } else { "no" }),
-        );
-        Log::info(
-            Event::General,
-            format!("Tile::loaded: {}", if self.is_loaded() { "yes" } else { "no" }),
-        );
+        Log::info(Event::General, format!("Tile::renderable: {}", if self.is_renderable() { "yes" } else { "no" }));
+        Log::info(Event::General, format!("Tile::complete: {}", if self.is_complete() { "yes" } else { "no" }));
+        Log::info(Event::General, format!("Tile::loaded: {}", if self.is_loaded() { "yes" } else { "no" }));
     }
 
     /// `onTileAction(TileOperation)` (TileLoaderObserver).

@@ -31,7 +31,9 @@ fn get_cant_load_tile_error() -> ExceptionPtr {
 pub enum VectorTileEncoding {
     Mvt,
     /// `VectorMLTTile` with `fastPFOREnabled`.
-    Mlt { fast_pfor_enabled: bool },
+    Mlt {
+        fast_pfor_enabled: bool,
+    },
 }
 
 /// What a loader does with the tile it loads (`T` in C++).
@@ -59,7 +61,11 @@ impl LoaderTile for GeometryTileInner {
     }
 
     /// `VectorTile::setMetadata(modified, expires)`.
-    fn set_metadata(&self, modified: Option<mln_util::chrono::Timestamp>, expires: Option<mln_util::chrono::Timestamp>) {
+    fn set_metadata(
+        &self,
+        modified: Option<mln_util::chrono::Timestamp>,
+        expires: Option<mln_util::chrono::Timestamp>,
+    ) {
         self.base.modified.set(modified);
         self.base.expires.set(expires);
     }
@@ -123,10 +129,7 @@ impl TileLoader {
             resource,
             file_source: parameters.file_source.clone(),
             request: None,
-            update_parameters: TileUpdateParameters {
-                minimum_update_interval: Duration::zero(),
-                is_volatile: false,
-            },
+            update_parameters: TileUpdateParameters { minimum_update_interval: Duration::zero(), is_volatile: false },
         }));
         let loader = TileLoader { state };
 
@@ -290,7 +293,7 @@ fn loaded_data(state_rc: &Rc<RefCell<State>>, res: &Response, method: LoadingMet
     if let Some(error) = &res.error {
         if error.reason != Reason::NotFound {
             if let Some(tile) = &tile {
-                tile.set_error( RuntimeError::ptr(error.message.clone()));
+                tile.set_error(RuntimeError::ptr(error.message.clone()));
                 tile.on_tile_action(TileOperation::Error);
             }
             return;
@@ -322,7 +325,7 @@ fn loaded_data(state_rc: &Rc<RefCell<State>>, res: &Response, method: LoadingMet
         if let Some(tile) = &tile {
             tile.set_metadata(res.modified, res.expires);
             let encoding = state_rc.borrow().encoding;
-            tile.set_data( if res.no_content { None } else { res.data.clone() }, encoding);
+            tile.set_data(if res.no_content { None } else { res.data.clone() }, encoding);
         }
     }
 }
@@ -346,11 +349,8 @@ fn load_from_network(state_rc: &Rc<RefCell<State>>) {
         let mut state = state_rc.borrow_mut();
         state.resource.loading_method = LoadingMethod::NetworkOnly;
         state.resource.minimum_update_interval = state.update_parameters.minimum_update_interval;
-        state.resource.storage_policy = if state.update_parameters.is_volatile {
-            StoragePolicy::Volatile
-        } else {
-            StoragePolicy::Permanent
-        };
+        state.resource.storage_policy =
+            if state.update_parameters.is_volatile { StoragePolicy::Volatile } else { StoragePolicy::Permanent };
         state.resource.clone()
     };
     let weak = Rc::downgrade(state_rc);

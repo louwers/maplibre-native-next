@@ -46,5 +46,7 @@ fn unicode_version_differences_report() {
             first.push(format!("{u:#x}"));
         }
     }
-    report!("HarfRust vs HarfBuzz 8.2.0: {script} codepoints differ in script, {ccc} in combining class; first: {first:?}");
+    report!(
+        "HarfRust vs HarfBuzz 8.2.0: {script} codepoints differ in script, {ccc} in combining class; first: {first:?}"
+    );
 }

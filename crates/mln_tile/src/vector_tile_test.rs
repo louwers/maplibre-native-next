@@ -12,9 +12,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 fn read_file(path: &str) -> Vec<u8> {
-    let base = std::env::var("RUNFILES_DIR")
-        .or_else(|_| std::env::var("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
+    let base =
+        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
     std::fs::read(PathBuf::from(base).join("maplibre+").join(path)).unwrap()
 }
 

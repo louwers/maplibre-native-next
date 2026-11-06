@@ -12,8 +12,8 @@ use crate::render_layer::RenderLayerPtr;
 use crate::render_pass::RenderPass;
 use mln_gfx::{LayerGroupBasePtr, UploadPass}; // layers: debug
 use mln_map_types::{MapDebugOptions, MapMode, TransformState};
-use mln_util::chrono::TimePoint;
 use mln_util::Color;
+use mln_util::chrono::TimePoint;
 use std::cell::RefCell; // layers: debug
 use std::collections::BTreeMap;
 use std::rc::Weak; // layers: debug
@@ -96,7 +96,12 @@ pub struct RenderTreeParameters {
 }
 
 impl RenderTreeParameters {
-    pub fn new(state: &TransformState, map_mode: MapMode, debug_options: MapDebugOptions, time_point: TimePoint) -> Self {
+    pub fn new(
+        state: &TransformState,
+        map_mode: MapMode,
+        debug_options: MapDebugOptions,
+        time_point: TimePoint,
+    ) -> Self {
         RenderTreeParameters {
             transform_params: TransformParameters::new(state),
             map_mode,

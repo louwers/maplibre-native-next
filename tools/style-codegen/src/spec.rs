@@ -113,10 +113,7 @@ fn remove(spec: &mut Value, path: &[&str], key: &str) -> Result<(), String> {
         node = node.get_mut(*p).ok_or_else(|| format!("spec has no {}", path.join(".")))?;
     }
     let object = node.as_object_mut().ok_or_else(|| format!("{} is not an object", path.join(".")))?;
-    object
-        .shift_remove(key)
-        .map(|_| ())
-        .ok_or_else(|| format!("spec has no {}.{key}", path.join(".")))
+    object.shift_remove(key).map(|_| ()).ok_or_else(|| format!("spec has no {}.{key}", path.join(".")))
 }
 
 /// JSON doesn't have a defined order, so generate-style-code.mjs sorts the
@@ -144,11 +141,7 @@ fn properties_of(spec: &Value, key: &str, skip_visibility: bool) -> Result<Vec<P
             continue;
         }
         let spec = value.as_object().ok_or_else(|| format!("{key}.{name} is not an object"))?.clone();
-        result.push(Property {
-            name: name.clone(),
-            spec,
-            light: false,
-        });
+        result.push(Property { name: name.clone(), spec, light: false });
     }
     sort_like_collator(&mut result);
     Ok(result)

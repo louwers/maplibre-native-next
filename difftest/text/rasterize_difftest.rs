@@ -64,14 +64,29 @@ fn rasterized_glyphs_match_within_tolerance() {
             let r = rust.rasterize_glyph(&GlyphID::with_type(gid as u16, GlyphIDType(type_)));
             s.glyphs += 1;
             let metrics_equal = (c.width, c.height, c.left.to_bits(), c.top.to_bits(), c.advance)
-                == (r.metrics.width, r.metrics.height, r.metrics.left.to_bits(), r.metrics.top.to_bits(), r.metrics.advance);
+                == (
+                    r.metrics.width,
+                    r.metrics.height,
+                    r.metrics.left.to_bits(),
+                    r.metrics.top.to_bits(),
+                    r.metrics.advance,
+                );
             if metrics_equal {
                 s.metrics_equal += 1;
             } else if metric_examples.len() < 40 {
                 metric_examples.push(format!(
                     "{} gid {gid}: C++ {}x{} left {} top {} adv {}, Rust {}x{} left {} top {} adv {}",
-                    font.name, c.width, c.height, c.left, c.top, c.advance, r.metrics.width, r.metrics.height,
-                    r.metrics.left, r.metrics.top, r.metrics.advance
+                    font.name,
+                    c.width,
+                    c.height,
+                    c.left,
+                    c.top,
+                    c.advance,
+                    r.metrics.width,
+                    r.metrics.height,
+                    r.metrics.left,
+                    r.metrics.top,
+                    r.metrics.advance
                 ));
             }
             if (c.bitmap_width, c.bitmap_height) != (r.bitmap.size.width, r.bitmap.size.height) {

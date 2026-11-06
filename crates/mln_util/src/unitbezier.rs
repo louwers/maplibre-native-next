@@ -24,14 +24,7 @@ impl UnitBezier {
         let cy = 3.0 * p1y;
         let by = 3.0 * (p2y - p1y) - cy;
         let ay = 1.0 - cy - by;
-        UnitBezier {
-            cx,
-            bx,
-            ax,
-            cy,
-            by,
-            ay,
-        }
+        UnitBezier { cx, bx, ax, cy, by, ay }
     }
 
     /// `getP1()`.
@@ -49,10 +42,7 @@ impl UnitBezier {
     }
 
     pub fn p2(&self) -> (f64, f64) {
-        (
-            (self.bx + (3.0 * self.cx / 3.0) + self.cx) / 3.0,
-            (self.by + (3.0 * self.cy / 3.0) + self.cy) / 3.0,
-        )
+        ((self.bx + (3.0 * self.cx / 3.0) + self.cx) / 3.0, (self.by + (3.0 * self.cy / 3.0) + self.cy) / 3.0)
     }
 
     pub fn sample_curve_x(&self, t: f64) -> f64 {

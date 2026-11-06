@@ -1,8 +1,8 @@
 // Ports src/mln/renderer/render_static_data.hpp and src/mln/renderer/render_static_data.cpp
 // (the static geometry the background layer uses).
 
-use mln_gfx::shaders::segment::SegmentBase;
 use mln_gfx::ShaderRegistry;
+use mln_gfx::shaders::segment::SegmentBase;
 use mln_util::constants;
 
 pub struct RenderStaticData {

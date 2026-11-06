@@ -13,19 +13,19 @@
 //
 
 use super::raster_layer_tweaker::{ImageDrawableData, RasterLayerTweaker};
-use crate::sources::render_image_source::ImageSourceRenderData;
-use crate::render_layer::{activate_layer_group, change_layer_index};
-use mln_gfx::LayerGroupBasePtr;
 use super::{TileDrawables, drawable_has_layer_tweaker, shared_vertices};
 use crate::buckets::raster_bucket::{RasterBucket, RasterLayoutVertex};
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
 use crate::paint_parameters::PaintParameters;
 use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
+use crate::render_layer::{activate_layer_group, change_layer_index};
 use crate::render_pass::RenderPass;
 use crate::render_static_data::RenderStaticData;
 use crate::render_tree::RenderTree;
+use crate::sources::render_image_source::ImageSourceRenderData;
 use crate::update_parameters::UpdateParameters;
+use mln_gfx::LayerGroupBasePtr;
 use mln_gfx::index_vector::{IndexVectorBase, IndexVectorBasePtr};
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_gfx::shaders::shader_defines::*;
@@ -34,8 +34,8 @@ use mln_gfx::types::{TextureFilterType, TextureWrapType};
 use mln_gfx::vertex_attribute::VertexAttributeArrayPtr;
 use mln_gfx::vertex_vector::VertexVectorBasePtr;
 use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableBuilder, ShaderProgramBasePtr,
-    ShaderRegistry,
+    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableBuilder,
+    ShaderProgramBasePtr, ShaderRegistry,
 };
 use mln_map_types::TransformState;
 use mln_style::layer;
@@ -157,9 +157,11 @@ impl RenderRasterLayer {
         let layer_tweaker = self.base.layer_tweaker.clone();
         if self.image_layer_group.is_none() {
             // Set up a layer group
-            let Some(group) =
-                context.create_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned())
-            else {
+            let Some(group) = context.create_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) else {
                 return;
             };
             if let Some(tweaker) = &layer_tweaker {
@@ -393,9 +395,11 @@ impl RenderLayer for RenderRasterLayer {
             }
         } else {
             // Set up a tile layer group
-            if let Some(layer_group) =
-                context.create_tile_layer_group(self.base.layer_index, /*initial_capacity=*/ 64, self.get_id().to_owned())
-            {
+            if let Some(layer_group) = context.create_tile_layer_group(
+                self.base.layer_index,
+                /*initial_capacity=*/ 64,
+                self.get_id().to_owned(),
+            ) {
                 if let Some(tweaker) = &layer_tweaker {
                     changes.push(ChangeRequest::AddLayerTweaker(layer_group.clone(), Rc::downgrade(tweaker)));
                 }
@@ -422,10 +426,8 @@ impl RenderLayer for RenderRasterLayer {
         let mut static_attrs: Option<VertexAttributeArrayPtr> = None;
 
         // Drop the textures of buckets that are no longer rendered.
-        let live_buckets: std::collections::HashSet<SimpleIdentity> = render_tiles
-            .iter()
-            .filter_map(|tile| tile.get_bucket(&*self.base.base_impl).map(|b| b.get_id()))
-            .collect();
+        let live_buckets: std::collections::HashSet<SimpleIdentity> =
+            render_tiles.iter().filter_map(|tile| tile.get_bucket(&*self.base.base_impl).map(|b| b.get_id())).collect();
         self.textures.retain(|id, _| live_buckets.contains(id));
 
         for tile in render_tiles.iter() {
@@ -536,9 +538,8 @@ impl RenderLayer for RenderRasterLayer {
                         &geometry.segments,
                     );
                 } else {
-                    let attrs = static_attrs
-                        .get_or_insert_with(|| raster_vertex_attributes(context, &static_vertices))
-                        .clone();
+                    let attrs =
+                        static_attrs.get_or_insert_with(|| raster_vertex_attributes(context, &static_vertices)).clone();
                     builder.set_vertex_attributes(Some(attrs));
                     builder.set_raw_vertices(Vec::new(), 4, AttributeDataType::Short2);
                     builder.set_segments_shared(DrawMode::Triangles(), Some(static_indices.clone()), &static_segments);

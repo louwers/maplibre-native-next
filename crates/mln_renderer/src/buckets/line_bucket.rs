@@ -5,28 +5,26 @@ use crate::layout::pattern_layout::PatternLayerMap;
 use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
 use crate::render_layer::RenderLayer;
 use geometry::Point;
-use mln_gfx::polyline_generator::{
-    dist, PolylineGenerator, PolylineGeneratorDistances, PolylineGeneratorOptions,
-};
-use mln_gfx::shaders::segment::SegmentBase;
 use mln_gfx::UploadPass;
+use mln_gfx::polyline_generator::{PolylineGenerator, PolylineGeneratorDistances, PolylineGeneratorOptions, dist};
+use mln_gfx::shaders::segment::SegmentBase;
 use mln_style::expression::{Image, Value};
-use mln_style::layer_properties::{get_evaluated, LayerProperties};
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::line_layer_properties::*;
 use mln_style::properties::Property;
 use mln_style_types::image::ImagePositions;
 use mln_style_types::{LineCapType, LineJoinType};
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinates, GeometryTileFeature};
 use mln_tile_id::CanonicalTileID;
+use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinates, GeometryTileFeature};
+use mln_util::Color;
 use mln_util::exception::ExceptionPtr;
 use mln_util::feature::numeric_value_f64;
 use mln_util::geometry::FeatureType;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use mln_util::Color;
 use std::collections::BTreeMap;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::RwLock;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 crate::paint_property_binders!(
     /// `LineBinders = PaintPropertyBinders<LinePaintProperties::DataDrivenProperties>`.
@@ -84,9 +82,9 @@ impl LineBucket {
     ) -> Self {
         let mut paint_property_binders = BTreeMap::new();
         for (id, properties) in layer_paint_properties {
-            paint_property_binders
-                .entry(id.clone())
-                .or_insert_with(|| RwLock::new(LineBinders::new(get_evaluated::<LineLayerProperties>(properties), zoom)));
+            paint_property_binders.entry(id.clone()).or_insert_with(|| {
+                RwLock::new(LineBinders::new(get_evaluated::<LineLayerProperties>(properties), zoom))
+            });
         }
         LineBucket {
             base: BucketBase::default(),
@@ -107,12 +105,25 @@ impl LineBucket {
     /// @param round whether the vertex uses a round line cap
     /// @param up whether the line normal points up or down
     /// @param dir direction of the line cap (-1/0/1)
-    pub fn layout_vertex(p: Point<i16>, e: Point<f64>, round: bool, up: bool, dir: i8, linesofar: i32) -> LineLayoutVertex {
+    pub fn layout_vertex(
+        p: Point<i16>,
+        e: Point<f64>,
+        round: bool,
+        up: bool,
+        dir: i8,
+        linesofar: i32,
+    ) -> LineLayoutVertex {
         let extrude = |v: f64| -> u8 {
             // add 128 to store a byte in an unsigned byte
             mln_math::clamp_f64((EXTRUDE_SCALE as f64 * v).round() + 128.0, 0.0, 255.0) as u8
         };
-        let dir_value: i32 = if dir == 0 { 0 } else if dir < 0 { -1 } else { 1 };
+        let dir_value: i32 = if dir == 0 {
+            0
+        } else if dir < 0 {
+            -1
+        } else {
+            1
+        };
         LineLayoutVertex {
             a1: [((p.x as i32 * 2) | round as i32) as i16, ((p.y as i32 * 2) | up as i32) as i16],
             a2: [
@@ -131,7 +142,12 @@ impl LineBucket {
         }
     }
 
-    fn add_geometry(&mut self, coordinates: &GeometryCoordinates, feature: &dyn GeometryTileFeature, canonical: &CanonicalTileID) {
+    fn add_geometry(
+        &mut self,
+        coordinates: &GeometryCoordinates,
+        feature: &dyn GeometryTileFeature,
+        canonical: &CanonicalTileID,
+    ) {
         // Ignore empty coordinates.
         if coordinates.is_empty() {
             return;

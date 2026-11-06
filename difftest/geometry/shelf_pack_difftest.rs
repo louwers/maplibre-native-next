@@ -42,7 +42,9 @@ impl Op {
     fn request(&self) -> Json {
         match self {
             Op::PackOne(id, w, h) => json!(["packOne", id, w, h]),
-            Op::Pack(bins, in_place) => json!(["pack", bins.iter().map(|b| json!([b.0, b.1, b.2])).collect::<Vec<_>>(), in_place]),
+            Op::Pack(bins, in_place) => {
+                json!(["pack", bins.iter().map(|b| json!([b.0, b.1, b.2])).collect::<Vec<_>>(), in_place])
+            }
             Op::Ref(k) => json!(["ref", k]),
             Op::Unref(k) => json!(["unref", k]),
             Op::GetBin(id) => json!(["getBin", id]),

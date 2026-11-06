@@ -17,10 +17,7 @@ fn test_cases() -> Vec<(&'static str, Option<Color>)> {
         ("#123", Some(Color::new(0.067, 0.133, 0.2, 1.0))), // Short hex format
         ("rgb(-10, 0, 0)", Some(Color::new(0.0, 0.0, 0.0, 1.0))), // Clamped to 0
         ("rgba(300, 0, 0, 1.0)", Some(Color::new(1.0, 0.0, 0.0, 1.0))), // Clamped to 1
-        (
-            "rgba(100,100,100,0.2)",
-            Some(Color::new(20.0 / 255.0, 20.0 / 255.0, 20.0 / 255.0, 0.2)),
-        ),
+        ("rgba(100,100,100,0.2)", Some(Color::new(20.0 / 255.0, 20.0 / 255.0, 20.0 / 255.0, 0.2))),
         ("hsl(120,100%,25%)", Some(Color::new(0.0, 0.5, 0.0, 1.0))),
         ("hsl(240,0%,55%,0.2)", Some(Color::new(0.11, 0.11, 0.11, 0.2))),
         // 4-digit hex with alpha (#RGBA)

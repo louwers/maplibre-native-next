@@ -37,9 +37,7 @@ pub fn serial() -> MutexGuard<'static, ()> {
 
 /// A path in the runfiles tree of the C++ repository (`maplibre+`).
 pub fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR")
-        .or_else(|_| std::env::var("RUNFILES_DIR"))
-        .expect("TEST_SRCDIR");
+    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
     PathBuf::from(base).join("maplibre+").join(relative)
 }
 
@@ -64,15 +62,7 @@ struct Recorder(Arc<Mutex<Vec<(Message, bool)>>>);
 
 impl Observer for Recorder {
     fn on_record(&self, severity: EventSeverity, event: Event, code: i64, msg: &str) -> bool {
-        self.0.lock().unwrap().push((
-            Message {
-                severity,
-                event,
-                code,
-                msg: msg.to_owned(),
-            },
-            false,
-        ));
+        self.0.lock().unwrap().push((Message { severity, event, code, msg: msg.to_owned() }, false));
         true
     }
 }
@@ -113,13 +103,7 @@ impl FixtureLog {
     }
 
     pub fn unchecked(&self) -> Vec<Message> {
-        self.messages
-            .lock()
-            .unwrap()
-            .iter()
-            .filter(|(_, checked)| !checked)
-            .map(|(m, _)| m.clone())
-            .collect()
+        self.messages.lock().unwrap().iter().filter(|(_, checked)| !checked).map(|(m, _)| m.clone()).collect()
     }
 }
 
@@ -130,21 +114,11 @@ impl Drop for FixtureLog {
 }
 
 pub fn error(code: i32, msg: &str) -> Message {
-    Message {
-        severity: EventSeverity::Error,
-        event: Event::Database,
-        code: code as i64,
-        msg: msg.to_owned(),
-    }
+    Message { severity: EventSeverity::Error, event: Event::Database, code: code as i64, msg: msg.to_owned() }
 }
 
 pub fn warning(code: i64, msg: &str) -> Message {
-    Message {
-        severity: EventSeverity::Warning,
-        event: Event::Database,
-        code,
-        msg: msg.to_owned(),
-    }
+    Message { severity: EventSeverity::Warning, event: Event::Database, code, msg: msg.to_owned() }
 }
 
 /// `std::mt19937` (default seed 5489), for the C++ tests' `randomString`.

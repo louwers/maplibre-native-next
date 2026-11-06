@@ -43,11 +43,7 @@ pub fn run(metrics: &Path, test_names: &[String], filter: Option<&str>, verbose:
     let mut stats = TestStats::default();
     for path in &test_paths {
         let expectation = path.parent().expect("test directory");
-        let id = expectation
-            .strip_prefix(&root_path)
-            .expect("test under the root")
-            .to_string_lossy()
-            .into_owned();
+        let id = expectation.strip_prefix(&root_path).expect("test under the root").to_string_lossy().into_owned();
         stats.ids.push(id.clone());
 
         let ignore_name = format!("expression-tests/{id}");
@@ -58,15 +54,13 @@ pub fn run(metrics: &Path, test_names: &[String], filter: Option<&str>, verbose:
                 // A panic is reported as an error for this test (C++ asserts
                 // abort the whole run).
                 let id2 = id.clone();
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || {
-                    run_expression_test(&mut data, &id2)
-                }))
-                .map_err(|e| {
-                    e.downcast_ref::<String>()
-                        .cloned()
-                        .or_else(|| e.downcast_ref::<&str>().map(|s| (*s).to_owned()))
-                        .unwrap_or_default()
-                })
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(move || run_expression_test(&mut data, &id2)))
+                    .map_err(|e| {
+                        e.downcast_ref::<String>()
+                            .cloned()
+                            .or_else(|| e.downcast_ref::<&str>().map(|s| (*s).to_owned()))
+                            .unwrap_or_default()
+                    })
             }
             Err(e) => Err(e),
         };
@@ -74,11 +68,7 @@ pub fn run(metrics: &Path, test_names: &[String], filter: Option<&str>, verbose:
         let test_run = match test_run {
             Ok(r) => r,
             Err(e) => {
-                let output = TestRunOutput {
-                    id: id.clone(),
-                    text: e,
-                    ..Default::default()
-                };
+                let output = TestRunOutput { id: id.clone(), text: e, ..Default::default() };
                 if ignore.is_some() {
                     stats.ignore_failed.push(output);
                 } else {

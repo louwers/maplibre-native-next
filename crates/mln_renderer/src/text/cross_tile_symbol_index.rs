@@ -55,12 +55,8 @@ impl TileLayerIndex {
         bucket_instance_id: u32,
         bucket_leader_id: String,
     ) -> Self {
-        let mut index = TileLayerIndex {
-            coord,
-            bucket_instance_id,
-            bucket_leader_id,
-            indexed_symbol_instances: BTreeMap::new(),
-        };
+        let mut index =
+            TileLayerIndex { coord, bucket_instance_id, bucket_leader_id, indexed_symbol_instances: BTreeMap::new() };
         for symbol_instance in symbol_instances {
             if symbol_instance.get_cross_tile_id() == SymbolInstance::INVALID_CROSS_TILE_ID {
                 continue;
@@ -76,11 +72,14 @@ impl TileLayerIndex {
     }
 
     /// `getScaledCoordinates(symbolInstance, childTileCoord)`.
-    pub fn get_scaled_coordinates(&self, symbol_instance: &SymbolInstance, child_tile_coord: &OverscaledTileID) -> Point<i64> {
+    pub fn get_scaled_coordinates(
+        &self,
+        symbol_instance: &SymbolInstance,
+        child_tile_coord: &OverscaledTileID,
+    ) -> Point<i64> {
         // Round anchor positions to roughly 4 pixel grid
         let rounding_factor: f64 = 512.0 / EXTENT as f64 / 2.0;
-        let scale = rounding_factor
-            / 2f64.powi(child_tile_coord.canonical.z as i32 - self.coord.canonical.z as i32);
+        let scale = rounding_factor / 2f64.powi(child_tile_coord.canonical.z as i32 - self.coord.canonical.z as i32);
         // `childTileCoord.canonical.x * util::EXTENT` is uint32_t arithmetic;
         // adding the float anchor makes it a float, the scale a double.
         let anchor = symbol_instance.get_anchor().point;
@@ -421,10 +420,10 @@ impl SymbolBucket {
 mod tests {
     // Ports test/text/cross_tile_symbol_index.test.cpp.
     use super::*;
+    use crate::buckets::symbol_bucket::SortKeyRange;
     use crate::geometry::anchor::Anchor;
     use crate::geometry::feature_index::IndexedSubfeature;
     use crate::layout::symbol_instance::{ShapedTextOrientations, SymbolContent, SymbolInstanceSharedData};
-    use crate::buckets::symbol_bucket::SortKeyRange;
     use mln_map_types::TransformState;
     use mln_style::layers::symbol_layer_properties::SymbolLayoutProperties;
     use mln_style::property_value::PropertyValue;

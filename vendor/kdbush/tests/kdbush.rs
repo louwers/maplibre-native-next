@@ -34,10 +34,7 @@ fn initializer<'a>(source: &'a str, marker: &str) -> &'a str {
 }
 
 fn numbers(s: &str) -> Vec<i64> {
-    s.split(|c: char| !(c.is_ascii_digit() || c == '-'))
-        .filter(|t| !t.is_empty())
-        .map(|t| t.parse().unwrap())
-        .collect()
+    s.split(|c: char| !(c.is_ascii_digit() || c == '-')).filter(|t| !t.is_empty()).map(|t| t.parse().unwrap()).collect()
 }
 
 fn points() -> Vec<TPoint> {

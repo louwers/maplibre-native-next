@@ -9,23 +9,24 @@
 // `mln_map::Map` + `mln_platform_default::HeadlessFrontend`, and
 // `--self-check` replaces rendering with the test's expected image.
 
+use crate::file_source::ProxyFileSource;
 use crate::filesystem;
 use crate::log::{self, Event};
 use crate::manifest_parser::Manifest;
-use crate::file_source::ProxyFileSource;
 use crate::metadata::{
     GfxProbe, MapMode, MemoryProbe, NetworkProbe, RenderedQueryOptions, ScreenBox, TestMetadata, check_value,
 };
 use crate::parser::{
     TileLodMode, parse_test_operations, read_expected_image_entries, read_expected_json_entries,
-    read_expected_metric_entries, read_expected_metrics, read_json, to_json_features, to_json_value,
+    read_expected_metric_entries, read_expected_metrics, read_json,
     test_operation_names::{GFX_PROBE_OP, MEMORY_PROBE_OP, NETWORK_PROBE_OP},
+    to_json_features, to_json_value,
 };
 use crate::test_runner_common::{deep_equal, tokenize};
 use feature::Value;
 use geometry::Point;
-use mln_util::feature::Feature;
 use mln_platform_default_image::{decode_image, encode_png};
+use mln_util::feature::Feature;
 use mln_util::geo::LatLng;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
@@ -109,13 +110,7 @@ pub trait TestRunnerImpl {
     /// `decodeImage` it and `style.addImage(std::make_unique<style::Image>(
     /// name, image, pixel_ratio, sdf))`. `LoadFailed` when the request
     /// returned no data.
-    fn add_image(
-        &mut self,
-        _name: &str,
-        _image_path: &str,
-        _pixel_ratio: f32,
-        _sdf: bool,
-    ) -> Result<(), MapError> {
+    fn add_image(&mut self, _name: &str, _image_path: &str, _pixel_ratio: f32, _sdf: bool) -> Result<(), MapError> {
         not_ported("Style::addImage + render-test file source")
     }
     /// `style.removeImage(name)`.
@@ -124,11 +119,7 @@ pub trait TestRunnerImpl {
     }
     /// `convert<Filter>(filter)` (`Conversion` on failure, checked first),
     /// then `style.getLayer(layer)` (`LayerNotFound`), then `setFilter`.
-    fn set_layer_filter(
-        &mut self,
-        _layer: &str,
-        _filter: &serde_json::Value,
-    ) -> Result<(), MapError> {
+    fn set_layer_filter(&mut self, _layer: &str, _filter: &serde_json::Value) -> Result<(), MapError> {
         not_ported("Layer::setFilter")
     }
     /// `layer->setMinZoom(min)`, `layer->setMaxZoom(max)`.
@@ -159,12 +150,7 @@ pub trait TestRunnerImpl {
     }
     /// `style.getLayer(layer)` (`LayerNotFound`), then
     /// `layer->setProperty(name, value)` (its error is ignored by the runner).
-    fn set_layer_property(
-        &mut self,
-        _layer: &str,
-        _name: &str,
-        _value: &serde_json::Value,
-    ) -> Result<(), MapError> {
+    fn set_layer_property(&mut self, _layer: &str, _name: &str, _value: &serde_json::Value) -> Result<(), MapError> {
         not_ported("Layer::setProperty")
     }
     /// `style.setGlobalStateProperty(name, value)`.
@@ -282,8 +268,7 @@ pub enum QueryGeometry {
 /// `Map(frontend, observer, MapOptions().withMapMode(..).withSize(..)
 /// .withPixelRatio(..).withCrossSourceCollisions(..), resourceOptions)`, plus
 /// `map.setBounds(BoundOptions().withMaxPitch(..))` when `maxPitch` is set.
-pub type ImplFactory =
-    Box<dyn Fn(&TestMetadata, &ResourceOptions) -> Result<Box<dyn TestRunnerImpl>, String>>;
+pub type ImplFactory = Box<dyn Fn(&TestMetadata, &ResourceOptions) -> Result<Box<dyn TestRunnerImpl>, String>>;
 
 /// `TestContext` (metadata.hpp).
 pub struct TestContext<'a> {
@@ -378,15 +363,7 @@ impl TestRunner {
         output_path: PathBuf,
     ) -> Self {
         crate::file_source::register_proxy_file_source();
-        TestRunner {
-            maps: HashMap::new(),
-            manifest,
-            update_results,
-            factory,
-            self_check,
-            output_path,
-            watchdog: None,
-        }
+        TestRunner { maps: HashMap::new(), manifest, update_results, factory, self_check, output_path, watchdog: None }
     }
 
     /// Port-only: errors a test that runs longer than `limit` (`None`: no
@@ -415,10 +392,7 @@ impl TestRunner {
     /// failed write (uncaught); the port logs it.
     fn write_output(&self, metadata: &TestMetadata, file: &str, data: &[u8]) {
         let path = self.test_output_path(metadata, file);
-        let result = path
-            .parent()
-            .map_or(Ok(()), std::fs::create_dir_all)
-            .and_then(|()| std::fs::write(&path, data));
+        let result = path.parent().map_or(Ok(()), std::fs::create_dir_all).and_then(|()| std::fs::write(&path, data));
         if let Err(e) = result {
             log::error(Event::General, &format!("Failed to write file {}: {e}", path.display()));
         }
@@ -480,8 +454,7 @@ impl TestRunner {
             };
 
             let Ok(actual) = serde_json::from_str::<serde_json::Value>(&metadata.actual_json) else {
-                metadata.error_message =
-                    format!("Error parsing actual JSON for: {}", metadata.paths.style_path);
+                metadata.error_message = format!("Error parsing actual JSON for: {}", metadata.paths.style_path);
                 metadata.render_errored += 1;
                 return;
             };
@@ -533,8 +506,7 @@ impl TestRunner {
             }
 
             if expected_images_paths.is_empty() {
-                metadata.error_message =
-                    format!("Failed to find expectations for: {}", metadata.paths.style_path);
+                metadata.error_message = format!("Failed to find expectations for: {}", metadata.paths.style_path);
                 metadata.render_errored += 1;
                 return;
             }
@@ -550,8 +522,7 @@ impl TestRunner {
                 let expected_image = match decode_image(&maybe_expected_image) {
                     Ok(image) => image,
                     Err(e) => {
-                        metadata.error_message =
-                            format!("Failed to decode expected image {entry}: {e}");
+                        metadata.error_message = format!("Failed to decode expected image {entry}: {e}");
                         metadata.render_errored += 1;
                         return;
                     }
@@ -652,10 +623,8 @@ impl TestRunner {
         }
 
         if result_metadata.expected_metrics.is_empty() {
-            result_metadata.error_message = format!(
-                "Failed to find metric expectations for: {}",
-                result_metadata.paths.style_path
-            );
+            result_metadata.error_message =
+                format!("Failed to find metric expectations for: {}", result_metadata.paths.style_path);
             if self.update_results == UpdateResults::Rebaseline && !result_metadata.ignored_test {
                 write_metrics(result_metadata, ". Created baseline for missing metrics.");
             }
@@ -975,8 +944,7 @@ impl TestRunner {
                         return;
                     }
                     Err(panic) => {
-                        ctx.metadata.error_message =
-                            format!("Creating the map panicked: {}", panic_message(&panic));
+                        ctx.metadata.error_message = format!("Creating the map panicked: {}", panic_message(&panic));
                         ctx.metadata.render_errored += 1;
                         return;
                     }
@@ -1117,14 +1085,7 @@ fn get_image_tile_offset(dims: &std::collections::BTreeSet<u32>, dim: u32, pixel
 
 /// `util::toString(UnwrappedTileID)`.
 fn tile_id_string(tile_id: &TileId) -> String {
-    format!(
-        "{}/{}/{}{}{}",
-        tile_id.z,
-        tile_id.x,
-        tile_id.y,
-        if tile_id.wrap >= 0 { "+" } else { "" },
-        tile_id.wrap
-    )
+    format!("{}/{}/{}{}{}", tile_id.z, tile_id.x, tile_id.y, if tile_id.wrap >= 0 { "+" } else { "" }, tile_id.wrap)
 }
 
 /// `SymbolLocationAndStatus`.
@@ -1189,8 +1150,7 @@ fn render_tiles(
         if !result_for_tile.valid() {
             // C++ returns from `run` here without checking the results (the
             // test then counts as passed); the port errors it.
-            ctx.metadata.error_message =
-                format!("Failed rendering tile: {}/{}/{}", tile_id.z, tile_id.x, tile_id.y);
+            ctx.metadata.error_message = format!("Failed rendering tile: {}/{}/{}", tile_id.z, tile_id.x, tile_id.y);
             ctx.metadata.render_errored += 1;
             return PremultipliedImage::default();
         }
@@ -1372,14 +1332,9 @@ fn get_before_operations(manifest: &Manifest) -> TestOperations {
             result.push(Box::new(|ctx: &mut TestContext<'_>| {
                 assert!(!ProxyFileSource::is_tracking_active());
                 ProxyFileSource::set_tracking_active(true);
-                ctx.get_metadata()
-                    .metrics
-                    .network
-                    .entry(format!("{NETWORK_PROBE_OP} - default - start"))
-                    .or_insert(NetworkProbe::new(
-                        ProxyFileSource::get_request_count(),
-                        ProxyFileSource::get_transferred_size(),
-                    ));
+                ctx.get_metadata().metrics.network.entry(format!("{NETWORK_PROBE_OP} - default - start")).or_insert(
+                    NetworkProbe::new(ProxyFileSource::get_request_count(), ProxyFileSource::get_transferred_size()),
+                );
                 true
             }));
             continue;
@@ -1402,14 +1357,9 @@ fn get_after_operations(manifest: &Manifest) -> TestOperations {
     for probe in manifest.get_probes() {
         if probe == NETWORK_PROBE_OP {
             result.push(Box::new(|ctx: &mut TestContext<'_>| {
-                ctx.get_metadata()
-                    .metrics
-                    .network
-                    .entry(format!("{NETWORK_PROBE_OP} - default - end"))
-                    .or_insert(NetworkProbe::new(
-                        ProxyFileSource::get_request_count(),
-                        ProxyFileSource::get_transferred_size(),
-                    ));
+                ctx.get_metadata().metrics.network.entry(format!("{NETWORK_PROBE_OP} - default - end")).or_insert(
+                    NetworkProbe::new(ProxyFileSource::get_request_count(), ProxyFileSource::get_transferred_size()),
+                );
                 ProxyFileSource::set_tracking_active(false);
                 true
             }));
@@ -1478,19 +1428,10 @@ pub fn ostream_float(v: f64) -> String {
     let (mantissa, exponent) = scientific.split_once('e').expect("exponent");
     let exponent: i32 = exponent.parse().expect("exponent");
     let trim = |s: &str| -> String {
-        if s.contains('.') {
-            s.trim_end_matches('0').trim_end_matches('.').to_string()
-        } else {
-            s.to_string()
-        }
+        if s.contains('.') { s.trim_end_matches('0').trim_end_matches('.').to_string() } else { s.to_string() }
     };
     if !(-4..6).contains(&exponent) {
-        format!(
-            "{}e{}{:02}",
-            trim(mantissa),
-            if exponent < 0 { '-' } else { '+' },
-            exponent.abs()
-        )
+        format!("{}e{}{:02}", trim(mantissa), if exponent < 0 { '-' } else { '+' }, exponent.abs())
     } else {
         let decimals = (5 - exponent) as usize;
         trim(&format!("{v:.decimals$}"))

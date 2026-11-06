@@ -123,9 +123,7 @@ impl StubFileSource {
         }
         let weak = Rc::downgrade(&state);
         Rc::new(move |resource: &Resource| {
-            let responder = weak
-                .upgrade()
-                .and_then(|state| state.borrow().responders.get(&resource.kind).cloned());
+            let responder = weak.upgrade().and_then(|state| state.borrow().responders.get(&resource.kind).cloned());
             match responder {
                 Some(responder) => responder(resource),
                 None => unexpected(resource),
@@ -180,20 +178,14 @@ impl FileSource for StubFileSource {
             s.next_id += 1;
             s.next_id
         };
-        let req = StubFileRequest {
-            id,
-            state: Rc::downgrade(&state),
-        };
+        let req = StubFileRequest { id, state: Rc::downgrade(&state) };
         let responder = self.response();
         if self.type_ == ResponseType::Synchronous {
             if let Some(res) = responder(resource) {
                 callback(res);
             }
         } else {
-            state
-                .borrow_mut()
-                .pending
-                .insert(id, (resource.clone(), responder, Rc::new(RefCell::new(callback))));
+            state.borrow_mut().pending.insert(id, (resource.clone(), responder, Rc::new(RefCell::new(callback))));
             Self::schedule_poll(&state);
         }
         Box::new(req)

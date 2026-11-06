@@ -10,11 +10,7 @@ use mln_conversion::Convertible;
 fn parse_semiliteral(json: &str, ctx: &mut ParsingContext, property: bool) -> ParseResult {
     let document: serde_json::Value = serde_json::from_str(json).unwrap();
     let value = Convertible::from(&document);
-    if property {
-        ctx.parse_layer_property_expression(&value)
-    } else {
-        ctx.parse_expression(&value, None)
-    }
+    if property { ctx.parse_layer_property_expression(&value) } else { ctx.parse_expression(&value, None) }
 }
 
 // gtest: Semiliteral.ConstantFolding
@@ -60,12 +56,9 @@ fn invalid() {
 #[test]
 fn first_error() {
     let mut errors = ParsingContext::new();
-    let failing = parse_semiliteral(
-        r#"["semiliteral", [["number", ["get", "x"]], ["error", "second"]]]"#,
-        &mut errors,
-        false,
-    )
-    .unwrap();
+    let failing =
+        parse_semiliteral(r#"["semiliteral", [["number", ["get", "x"]], ["error", "second"]]]"#, &mut errors, false)
+            .unwrap();
     let feature = Feature::<f64>::default();
     let error = evaluate_feature(&*failing, Some(0.0), &feature, None).unwrap_err();
     assert!(error.message.contains("number"));

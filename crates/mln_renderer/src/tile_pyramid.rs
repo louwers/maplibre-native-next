@@ -327,21 +327,11 @@ impl TilePyramid {
         if !pan_tiles.is_empty() {
             // `[](const UnwrappedTileID&, Tile&) {}` and no prefetched tiles.
             ctx.render = false;
-            update_renderables(
-                &mut ctx,
-                &pan_tiles,
-                &zoom_range,
-                max_parent_tile_overscale_factor,
-            );
+            update_renderables(&mut ctx, &pan_tiles, &zoom_range, max_parent_tile_overscale_factor);
         }
 
         ctx.render = true;
-        update_renderables(
-            &mut ctx,
-            &ideal_tiles,
-            &zoom_range,
-            max_parent_tile_overscale_factor,
-        );
+        update_renderables(&mut ctx, &ideal_tiles, &zoom_range, max_parent_tile_overscale_factor);
 
         let previously_rendered: Vec<(UnwrappedTileID, OverscaledTileID)> =
             ctx.previously_rendered_tiles.iter().map(|(id, key)| (*id, *key)).collect();
@@ -376,12 +366,7 @@ impl TilePyramid {
         // Remove stale tiles. This goes through the (sorted!) tiles map and
         // retain set in lockstep and removes items from tiles that don't
         // have the corresponding key in the retain set.
-        let stale: Vec<OverscaledTileID> = self
-            .tiles
-            .keys()
-            .filter(|key| !retain.contains(key))
-            .copied()
-            .collect();
+        let stale: Vec<OverscaledTileID> = self.tiles.keys().filter(|key| !retain.contains(key)).copied().collect();
         for key in stale {
             // Remove the tile from the map. If it requires re-layout,
             // discard it asynchronously, otherwise keep it in the cache
@@ -423,9 +408,7 @@ impl TilePyramid {
 
     /// `getRenderedTiles()`: the rendered tiles, sorted by tile id.
     pub fn get_rendered_tiles(&self) -> impl Iterator<Item = (&UnwrappedTileID, &dyn Tile)> + '_ {
-        self.rendered_tiles
-            .iter()
-            .map(|(id, key)| (id, self.tiles[key].as_ref()))
+        self.rendered_tiles.iter().map(|(id, key)| (id, self.tiles[key].as_ref()))
     }
 
     pub fn rendered_tile_count(&self) -> usize {
@@ -488,7 +471,12 @@ impl TilePyramid {
         // Sorted by (z, y, wrap, x).
         let mut sorted_tiles: Vec<(&UnwrappedTileID, &OverscaledTileID)> = self.rendered_tiles.iter().collect();
         sorted_tiles.sort_by(|(a, _), (b, _)| {
-            (a.canonical.z, a.canonical.y, a.wrap, a.canonical.x).cmp(&(b.canonical.z, b.canonical.y, b.wrap, b.canonical.x))
+            (a.canonical.z, a.canonical.y, a.wrap, a.canonical.x).cmp(&(
+                b.canonical.z,
+                b.canonical.y,
+                b.wrap,
+                b.canonical.x,
+            ))
         });
 
         let max_pitch_scale_factor = transform_state.max_pitch_scale_factor();
@@ -498,10 +486,10 @@ impl TilePyramid {
 
             // equivalent to std::pow(2, transformState.getZoom() - id.canonical.z);
             let scale = (transform_state.get_scale() / f64::from(1u32 << id.canonical.z)) as f32;
-            let query_padding = f64::from(
-                max_pitch_scale_factor * tile.get_query_padding(layers) * constants::EXTENT as f32,
-            ) / constants::TILE_SIZE_D
-                / f64::from(scale);
+            let query_padding =
+                f64::from(max_pitch_scale_factor * tile.get_query_padding(layers) * constants::EXTENT as f32)
+                    / constants::TILE_SIZE_D
+                    / f64::from(scale);
 
             let tile_space_bounds_min = TileCoordinate::to_geometry_coordinate(id, &box_min);
             if f64::from(tile_space_bounds_min.x) - query_padding >= f64::from(constants::EXTENT)
@@ -517,10 +505,8 @@ impl TilePyramid {
                 continue;
             }
 
-            let tile_space_query_geometry: mln_tile_id::geometry_tile_data::GeometryCoordinates = query_geometry
-                .iter()
-                .map(|c| TileCoordinate::to_geometry_coordinate(id, c))
-                .collect();
+            let tile_space_query_geometry: mln_tile_id::geometry_tile_data::GeometryCoordinates =
+                query_geometry.iter().map(|c| TileCoordinate::to_geometry_coordinate(id, c)).collect();
 
             tile.query_rendered_features(
                 &mut result,
@@ -554,9 +540,7 @@ impl TilePyramid {
 
     /// `getRenderedTile(tileID)`.
     pub fn get_rendered_tile(&self, tile_id: &UnwrappedTileID) -> Option<&dyn Tile> {
-        self.rendered_tiles
-            .get(tile_id)
-            .map(|key| self.tiles[key].as_ref())
+        self.rendered_tiles.get(tile_id).map(|key| self.tiles[key].as_ref())
     }
 
     /// `handleWrapJump(lng)`.

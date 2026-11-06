@@ -140,10 +140,8 @@ impl<M: AlphaMode> Image<M> {
         let mut new_image = Image::<M>::new(size);
         if !size.is_empty() && self.valid() {
             new_image.fill(0);
-            let copy_size = Size::new(
-                std::cmp::min(self.size.width, size.width),
-                std::cmp::min(self.size.height, size.height),
-            );
+            let copy_size =
+                Size::new(std::cmp::min(self.size.width, size.width), std::cmp::min(self.size.height, size.height));
             // Both rectangles are in bounds by construction, as in C++.
             Self::copy(self, &mut new_image, Point::new(0, 0), Point::new(0, 0), copy_size)
                 .expect("resize copy is in bounds");
@@ -166,9 +164,7 @@ impl<M: AlphaMode> Image<M> {
             || pt.x > dst_img.size.width - size.width
             || pt.y > dst_img.size.height - size.height
         {
-            return Err(ImageError::OutOfRange(
-                "out of range destination coordinates for image clear",
-            ));
+            return Err(ImageError::OutOfRange("out of range destination coordinates for image clear"));
         }
 
         let stride = dst_img.stride();
@@ -216,9 +212,7 @@ impl<M: AlphaMode> Image<M> {
             || dst_pt.x > dst_img.size.width - size.width
             || dst_pt.y > dst_img.size.height - size.height
         {
-            return Err(ImageError::OutOfRange(
-                "out of range destination coordinates for image copy",
-            ));
+            return Err(ImageError::OutOfRange("out of range destination coordinates for image copy"));
         }
 
         let src_stride = src_img.stride();
@@ -227,8 +221,7 @@ impl<M: AlphaMode> Image<M> {
         for y in 0..size.height {
             let src_offset = (src_pt.y + y) as usize * src_stride + src_pt.x as usize * M::CHANNELS;
             let dst_offset = (dst_pt.y + y) as usize * dst_stride + dst_pt.x as usize * M::CHANNELS;
-            dst_img.data[dst_offset..dst_offset + row]
-                .copy_from_slice(&src_img.data[src_offset..src_offset + row]);
+            dst_img.data[dst_offset..dst_offset + row].copy_from_slice(&src_img.data[src_offset..src_offset + row]);
         }
         Ok(())
     }
@@ -359,10 +352,7 @@ mod tests {
             PremultipliedImage::from_slice(Size::new(1, 1), &[1, 2, 3]),
             Err(ImageError::InvalidArgument("mismatched image size"))
         );
-        assert_eq!(
-            PremultipliedImage::from_slice(Size::new(1, 1), &[1, 2, 3, 4]).unwrap().data,
-            vec![1, 2, 3, 4]
-        );
+        assert_eq!(PremultipliedImage::from_slice(Size::new(1, 1), &[1, 2, 3, 4]).unwrap().data, vec![1, 2, 3, 4]);
 
         let mut image = PremultipliedImage::new(Size::new(3, 3));
         image.fill(7);
@@ -385,8 +375,7 @@ mod tests {
         let mut src = UnassociatedImage::new(Size::new(4, 4));
         let mut dst = UnassociatedImage::new(Size::new(4, 4));
         src.fill(0xFF);
-        UnassociatedImage::copy(&src, &mut dst, Point::new(0, 0), Point::new(1, 1), Size::new(2, 2))
-            .unwrap();
+        UnassociatedImage::copy(&src, &mut dst, Point::new(0, 0), Point::new(1, 1), Size::new(2, 2)).unwrap();
         for y in 0..4usize {
             for x in 0..4usize {
                 let inside = (1..3).contains(&x) && (1..3).contains(&y);

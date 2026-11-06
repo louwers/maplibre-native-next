@@ -67,7 +67,8 @@ impl PolylineGeneratorDistances {
             debug_assert!(false);
             relative_tile_distance = 0.0;
         }
-        (relative_tile_distance * (self.clip_end - self.clip_start) + self.clip_start) * (MAX_LINE_DISTANCE - 1.0) as f64
+        (relative_tile_distance * (self.clip_end - self.clip_start) + self.clip_start)
+            * (MAX_LINE_DISTANCE - 1.0) as f64
     }
 }
 
@@ -466,7 +467,8 @@ impl<'a, V, S> PolylineGenerator<'a, V, S> {
                     &mut triangle_store,
                     options.clip_distances,
                 );
-            } else if middle_vertex && (current_join == LineJoinType::Bevel || current_join == LineJoinType::FakeRound) {
+            } else if middle_vertex && (current_join == LineJoinType::Bevel || current_join == LineJoinType::FakeRound)
+            {
                 let line_turns_left = (prev_n.x * next_n.y - prev_n.y * next_n.x) > 0.0;
                 let offset = -(miter_length * miter_length - 1.0).sqrt() as f32;
                 let offset_a: f32;
@@ -608,7 +610,11 @@ impl<'a, V, S> PolylineGenerator<'a, V, S> {
                         options.clip_distances,
                     );
                 }
-            } else if if middle_vertex { current_join == LineJoinType::Round } else { current_cap == LineCapType::Round } {
+            } else if if middle_vertex {
+                current_join == LineJoinType::Round
+            } else {
+                current_cap == LineCapType::Round
+            } {
                 if !start_of_line {
                     // Close previous segment with a butt
                     self.add_current_vertex(

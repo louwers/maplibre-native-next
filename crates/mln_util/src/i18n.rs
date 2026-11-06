@@ -6,6 +6,7 @@
 // these take `u16`. The ICU general category tables (`i18n/uchar_props.rs`)
 // are generated from the ICU 78.3 data the Linux C++ build links.
 
+#[rustfmt::skip]
 mod uchar_props;
 
 /// `isInRange` and the `DEFINE_IS_IN_UNICODE_BLOCK` helpers.
@@ -350,7 +351,9 @@ pub fn allows_vertical_writing_mode(string: &[u16]) -> bool {
 /// always drawn upright. An uprightly oriented character causes an adjacent
 /// “neutral” character to be drawn upright as well.
 pub fn has_upright_vertical_orientation(chr: u16) -> bool {
-    if chr == 0x02EA /* ˪ */ || chr == 0x02EB /* ˫ */ {
+    if chr == 0x02EA /* ˪ */ || chr == 0x02EB
+    /* ˫ */
+    {
         return true;
     }
 
@@ -363,7 +366,7 @@ pub fn has_upright_vertical_orientation(chr: u16) -> bool {
     if is_in_bopomofo(chr) || is_in_bopomofo_extended(chr) {
         return true;
     }
-    if is_in_cjk_compatibility_forms(chr) && (chr < 0xFE49 /* ﹉ */ || chr > 0xFE4F /* ﹏ */) {
+    if is_in_cjk_compatibility_forms(chr) && (chr < 0xFE49 /* ﹉ */ || chr > 0xFE4F/* ﹏ */) {
         return true;
     }
     if is_in_cjk_compatibility(chr)
@@ -374,8 +377,8 @@ pub fn has_upright_vertical_orientation(chr: u16) -> bool {
         return true;
     }
     if is_in_cjk_symbols_and_punctuation(chr)
-        && (chr < 0x3008 /* 〈 */ || chr > 0x3011 /* 】 */)
-        && (chr < 0x3014 /* 〔 */ || chr > 0x301F /* 〟 */)
+        && (chr < 0x3008 /* 〈 */ || chr > 0x3011/* 】 */)
+        && (chr < 0x3014 /* 〔 */ || chr > 0x301F/* 〟 */)
         && chr != 0x3030
     /* 〰 */
     {
@@ -419,8 +422,8 @@ pub fn has_upright_vertical_orientation(chr: u16) -> bool {
         return true;
     }
     if is_in_small_form_variants(chr)
-        && (chr < 0xFE58 /* ﹘ */ || chr > 0xFE5E /* ﹞ */)
-        && (chr < 0xFE63 /* ﹣ */ || chr > 0xFE66 /* ﹦ */)
+        && (chr < 0xFE58 /* ﹘ */ || chr > 0xFE5E/* ﹞ */)
+        && (chr < 0xFE63 /* ﹣ */ || chr > 0xFE66/* ﹦ */)
     {
         return true;
     }
@@ -506,8 +509,8 @@ pub fn has_neutral_vertical_orientation(chr: u16) -> bool {
     // Quirk kept: these ranges (⬒..⬯ etc.) lie outside the Miscellaneous
     // Symbols block they are tested in, so this branch is never taken.
     if is_in_miscellaneous_symbols(chr)
-        && ((chr >= 0x2B12 /* ⬒ */ && chr <= 0x2B2F /* ⬯ */)
-            || (chr >= 0x2B50 /* ⭐ */ && chr <= 0x2B59 /* heavy circled saltire */)
+        && ((chr >= 0x2B12 /* ⬒ */ && chr <= 0x2B2F/* ⬯ */)
+            || (chr >= 0x2B50 /* ⭐ */ && chr <= 0x2B59/* heavy circled saltire */)
             || (chr >= 0x2BB8 /* upwards white arrow from bar with horizontal bar */ && chr <= 0x2BEB))
     {
         return true;

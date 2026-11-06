@@ -5,10 +5,10 @@
 // several keys, whose C++ order is std::unordered_map's) and the number
 // formatting of stringify for any double.
 
-use geojson_canonical::*;
-use geometry_difftest_support::run_cases;
 use feature::{Feature, Value};
+use geojson_canonical::*;
 use geometry::{Geometry, Point};
+use geometry_difftest_support::run_cases;
 use proptest::prelude::*;
 use proptest::test_runner::TestCaseResult;
 use serde_json::{Value as Json, json};
@@ -140,10 +140,9 @@ fn precondition_free(doc: &Json) -> bool {
         f.get("geometry").is_none_or(geometry_ok)
     }
     match doc.get("type").and_then(Json::as_str) {
-        Some("FeatureCollection") => doc
-            .get("features")
-            .and_then(Json::as_array)
-            .is_none_or(|f| f.iter().all(feature_ok)),
+        Some("FeatureCollection") => {
+            doc.get("features").and_then(Json::as_array).is_none_or(|f| f.iter().all(feature_ok))
+        }
         Some("Feature") => feature_ok(doc),
         _ => geometry_ok(doc),
     }
@@ -209,11 +208,9 @@ fn max_object_len(j: &Json) -> usize {
     }
     match j {
         Json::Array(a) => a.iter().map(max_object_len).max().unwrap_or(0),
-        Json::Object(o) => o
-            .iter()
-            .map(|(k, v)| if k == "properties" { all_objects(v) } else { max_object_len(v) })
-            .max()
-            .unwrap_or(0),
+        Json::Object(o) => {
+            o.iter().map(|(k, v)| if k == "properties" { all_objects(v) } else { max_object_len(v) }).max().unwrap_or(0)
+        }
         _ => 0,
     }
 }
@@ -245,11 +242,7 @@ fn stringify_matches_cpp() {
 fn rust_stringify_doubles(x: f64, y: f64, property: f64) -> String {
     let mut f = Feature::new(Geometry::Point(Point::new(x, y)));
     f.properties.insert("v".to_owned(), Value::Double(property));
-    format!(
-        "{}|{}",
-        geojson::stringify_geometry(&Geometry::Point(Point::new(x, y))),
-        geojson::stringify_feature(&f)
-    )
+    format!("{}|{}", geojson::stringify_geometry(&Geometry::Point(Point::new(x, y))), geojson::stringify_feature(&f))
 }
 
 #[test]

@@ -16,10 +16,7 @@ pub struct Impl {
 impl Impl {
     /// `using Layer::Impl::Impl;` (`Impl(std::string layerID, std::string sourceID)`).
     pub fn new(layer_id: String, source_id: String) -> Self {
-        Impl {
-            base: ImplBase::new(layer_id, source_id),
-            paint: HeatmapPaintProperties::Transitionable::default(),
-        }
+        Impl { base: ImplBase::new(layer_id, source_id), paint: HeatmapPaintProperties::Transitionable::default() }
     }
 }
 
@@ -55,8 +52,7 @@ impl layer::Impl for Impl {
             || self.paint.has_data_driven_property_difference(&impl_.paint)
     }
 
-    fn stringify_layout(&self, _writer: &mut String) {
-    }
+    fn stringify_layout(&self, _writer: &mut String) {}
 
     fn get_type_info(&self) -> &'static LayerTypeInfo {
         Impl::static_type_info()

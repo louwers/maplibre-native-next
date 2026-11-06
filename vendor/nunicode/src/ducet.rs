@@ -37,9 +37,5 @@ pub fn nu_ducet_weight(codepoint: u32, weight: Option<&mut i32>) -> i32 {
     // defined in ducet would have weight under a value of
     // _nu_ducet_weights_count(), all undefined codepoints would have weight
     // under 0x10FFFF + _nu_ducet_weights_count() - 1.
-    if mph_value != 0 {
-        mph_value as i32
-    } else {
-        (codepoint as usize + _nu_ducet_weights_count()) as i32
-    }
+    if mph_value != 0 { mph_value as i32 } else { (codepoint as usize + _nu_ducet_weights_count()) as i32 }
 }

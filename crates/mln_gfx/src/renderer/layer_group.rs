@@ -190,9 +190,8 @@ impl TileLayerGroup {
     pub fn add_drawable(&mut self, pass: RenderPass, id: &OverscaledTileID, mut drawable: UniqueDrawable) {
         init_drawable_tweakers(drawable.as_mut());
         let key = sort_key(drawable.as_ref());
-        let previous = self
-            .drawables
-            .insert(key, (TileLayerGroupTileKey { render_pass: pass, tile_id: *id }, drawable));
+        let previous =
+            self.drawables.insert(key, (TileLayerGroupTileKey { render_pass: pass, tile_id: *id }, drawable));
         debug_assert!(previous.is_none());
     }
 

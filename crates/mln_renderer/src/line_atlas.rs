@@ -5,9 +5,9 @@
 // the port keys by the values themselves (the float bits), which is the same
 // map without the collisions. The hash is only a cache key.
 
-use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
-use mln_gfx::texture2d::{SamplerState, Texture2DPtr};
 use mln_gfx::UploadPass;
+use mln_gfx::texture2d::{SamplerState, Texture2DPtr};
+use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
 use mln_util::image::AlphaImage;
 use mln_util::logging::{Event, Log};
 use mln_util::size::Size;
@@ -167,7 +167,12 @@ fn add_regular_dash(ranges: &mut Vec<DashRange>, y_offset: u32, image: &mut Alph
     }
 }
 
-fn add_dash_pattern(image: &mut AlphaImage, y_offset: u32, dasharray: &[f32], pattern_cap: LinePatternCap) -> LinePatternPos {
+fn add_dash_pattern(
+    image: &mut AlphaImage,
+    y_offset: u32,
+    dasharray: &[f32],
+    pattern_cap: LinePatternCap,
+) -> LinePatternPos {
     let n: u8 = if pattern_cap == LinePatternCap::Round { 7 } else { 0 };
 
     if dasharray.len() < 2 {
@@ -303,7 +308,12 @@ impl LineAtlas {
     }
 
     /// Obtains or creates a texture that has both line patterns in it
-    pub fn get_dash_pattern_texture(&mut self, from: &[f32], to: &[f32], cap: LinePatternCap) -> &mut DashPatternTexture {
+    pub fn get_dash_pattern_texture(
+        &mut self,
+        from: &[f32],
+        to: &[f32],
+        cap: LinePatternCap,
+    ) -> &mut DashPatternTexture {
         let key = dash_key(from, to, cap);
         if !self.textures.contains_key(&key) {
             self.textures.insert(key.clone(), DashPatternTexture::new(from, to, cap));

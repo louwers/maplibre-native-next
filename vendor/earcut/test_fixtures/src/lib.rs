@@ -28,10 +28,7 @@ impl Fixture {
     /// The `Polygon<std::pair<short, short>>` of a `Fixture<short>`.
     pub fn short_polygon(&self) -> Vec<Vec<(i16, i16)>> {
         assert_eq!(self.coord_type, CoordType::Short);
-        self.polygon
-            .iter()
-            .map(|r| r.iter().map(|&(x, y)| (x as i16, y as i16)).collect())
-            .collect()
+        self.polygon.iter().map(|r| r.iter().map(|&(x, y)| (x as i16, y as i16)).collect()).collect()
     }
 }
 
@@ -123,12 +120,5 @@ pub fn parse(source: &str) -> Fixture {
     }
     assert_eq!(depth, 0, "{name}: unterminated polygon");
 
-    Fixture {
-        name,
-        coord_type,
-        expected_triangles,
-        expected_earcut_deviation,
-        expected_libtess_deviation,
-        polygon,
-    }
+    Fixture { name, coord_type, expected_triangles, expected_earcut_deviation, expected_libtess_deviation, polygon }
 }

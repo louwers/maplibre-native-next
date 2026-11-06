@@ -6,11 +6,7 @@ use reference_ffi as cpp;
 use reference_ffi::{same_f32, same_f64};
 
 fn config(cases: u32) -> ProptestConfig {
-    ProptestConfig {
-        cases,
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    }
+    ProptestConfig { cases, failure_persistence: None, ..ProptestConfig::default() }
 }
 
 fn arr(c: &Color) -> [f32; 4] {
@@ -58,9 +54,23 @@ fn check_interpolate(from: [f32; 4], to: [f32; 4], t: f64) {
 }
 
 const PARSE_CASES: &[&str] = &[
-    "red", "white", "black", "transparent", "#fff", "#0000", "#12345678", "rgba(255, 0, 0, 0.5)",
-    "rgba(255, 51, 0, 1)", "rgba(1, 2, 3, 0.1)", "rgba(254, 253, 252, 0.333)", "rgba(255,255,255,-0)",
-    "hsla(120, 50%, 50%, 0.25)", "rgba(0,0,0,nan)", "rgba(10,20,30,1e-45)", "not-a-color", "",
+    "red",
+    "white",
+    "black",
+    "transparent",
+    "#fff",
+    "#0000",
+    "#12345678",
+    "rgba(255, 0, 0, 0.5)",
+    "rgba(255, 51, 0, 1)",
+    "rgba(1, 2, 3, 0.1)",
+    "rgba(254, 253, 252, 0.333)",
+    "rgba(255,255,255,-0)",
+    "hsla(120, 50%, 50%, 0.25)",
+    "rgba(0,0,0,nan)",
+    "rgba(10,20,30,1e-45)",
+    "not-a-color",
+    "",
 ];
 
 #[test]
@@ -133,8 +143,18 @@ proptest! {
 #[test]
 fn interpolate_edge_cases() {
     let colors: Vec<[f32; 4]> = [
-        "black", "white", "red", "green", "blue", "transparent", "rgba(255,0,0,0.5)", "rgba(0,0,0,0)",
-        "rgba(128,128,128,1)", "rgba(10,200,30,0.01)", "#ff00ff", "hsl(200, 50%, 50%)",
+        "black",
+        "white",
+        "red",
+        "green",
+        "blue",
+        "transparent",
+        "rgba(255,0,0,0.5)",
+        "rgba(0,0,0,0)",
+        "rgba(128,128,128,1)",
+        "rgba(10,200,30,0.01)",
+        "#ff00ff",
+        "hsl(200, 50%, 50%)",
     ]
     .iter()
     .map(|s| arr(&Color::parse(s).unwrap()))

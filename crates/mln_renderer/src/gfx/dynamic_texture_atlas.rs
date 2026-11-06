@@ -8,13 +8,13 @@
 // dynamic_texture.rs).
 
 use super::dynamic_texture::{DynamicTexture, DynamicTexturePtr, TextureHandle};
+use geometry::Point;
 use mln_gfx::types::TexturePixelType;
 use mln_style_types::image::{ImageMap, ImagePosition, ImagePositions, ImageType, Impl as ImageImpl, RectU16};
-use mln_text::glyph::{GlyphMap, GlyphPosition, GlyphPositions, Glyph};
+use mln_text::glyph::{Glyph, GlyphMap, GlyphPosition, GlyphPositions};
 use mln_util::image::{AlphaImage, PremultipliedImage};
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
-use geometry::Point;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -352,10 +352,34 @@ impl DynamicTextureAtlas {
                 let h = src.size.height;
 
                 // Add 1 pixel wrapped padding on each side of the image.
-                let _ = PremultipliedImage::copy(src, &mut padded_image, Point::new(0, h - 1), Point::new(x, y - 1), Size::new(w, 1)); // T
-                let _ = PremultipliedImage::copy(src, &mut padded_image, Point::new(0, 0), Point::new(x, y + h), Size::new(w, 1)); // B
-                let _ = PremultipliedImage::copy(src, &mut padded_image, Point::new(w - 1, 0), Point::new(x - 1, y), Size::new(1, h)); // L
-                let _ = PremultipliedImage::copy(src, &mut padded_image, Point::new(0, 0), Point::new(x + w, y), Size::new(1, h)); // R
+                let _ = PremultipliedImage::copy(
+                    src,
+                    &mut padded_image,
+                    Point::new(0, h - 1),
+                    Point::new(x, y - 1),
+                    Size::new(w, 1),
+                ); // T
+                let _ = PremultipliedImage::copy(
+                    src,
+                    &mut padded_image,
+                    Point::new(0, 0),
+                    Point::new(x, y + h),
+                    Size::new(w, 1),
+                ); // B
+                let _ = PremultipliedImage::copy(
+                    src,
+                    &mut padded_image,
+                    Point::new(w - 1, 0),
+                    Point::new(x - 1, y),
+                    Size::new(1, h),
+                ); // L
+                let _ = PremultipliedImage::copy(
+                    src,
+                    &mut padded_image,
+                    Point::new(0, 0),
+                    Point::new(x + w, y),
+                    Size::new(1, h),
+                ); // R
 
                 texture.upload_image(&padded_image.data, &mut tex_handle);
             }
@@ -377,11 +401,9 @@ impl DynamicTextureAtlas {
         image: &Immutable<ImageImpl>,
         type_: ImageType,
     ) -> Option<TextureHandle> {
-        let size = Size::new(
-            image.image.size.width + 2 * PADDING as u32,
-            image.image.size.height + 2 * PADDING as u32,
-        );
-        let key = ImageAllocationKey { dynamic_texture: dynamic_texture.id(), image: Arc::as_ptr(image) as usize, type_ };
+        let size = Size::new(image.image.size.width + 2 * PADDING as u32, image.image.size.height + 2 * PADDING as u32);
+        let key =
+            ImageAllocationKey { dynamic_texture: dynamic_texture.id(), image: Arc::as_ptr(image) as usize, type_ };
 
         // Reuse the bin of this exact revision; otherwise let the shelf pack
         // assign a fresh id.
@@ -392,10 +414,9 @@ impl DynamicTextureAtlas {
                 state
                     .image_allocations
                     .insert(key, ImageAllocation { _image: image.clone(), bin_id: tex_handle.get_id() });
-                state.image_allocation_keys.insert(
-                    BinKey { dynamic_texture: dynamic_texture.id(), bin_id: tex_handle.get_id() },
-                    key,
-                );
+                state
+                    .image_allocation_keys
+                    .insert(BinKey { dynamic_texture: dynamic_texture.id(), bin_id: tex_handle.get_id() }, key);
             }
         }
         tex_handle

@@ -43,10 +43,7 @@ fn interpolate_expression() {
             Arc::from(interpolate(
                 linear(),
                 zoom(),
-                vec![
-                    (0.0, literal(Padding::uniform(0.0).into())),
-                    (1.0, literal(Padding::uniform(8.0).into())),
-                ],
+                vec![(0.0, literal(Padding::uniform(0.0).into())), (1.0, literal(Padding::uniform(8.0).into()))],
             )),
             None,
         );
@@ -99,7 +96,8 @@ fn function() {
     }
     // categorical
     {
-        let expr = from_function(r#"{"type": "categorical", "property": "foo", "stops": [[0, 2], [1, 4]], "default": 6}"#);
+        let expr =
+            from_function(r#"{"type": "categorical", "property": "foo", "stops": [[0, 2], [1, 4]], "default": 6}"#);
         assert_eq!(Padding::uniform(2.0), eval_in_context(&expr, &[("foo", MbglValue::Int(0))]));
         assert_eq!(Padding::uniform(4.0), eval_in_context(&expr, &[("foo", MbglValue::Int(1))]));
         assert_eq!(Padding::uniform(6.0), eval_in_context(&expr, &[("foo", MbglValue::Int(2))]));

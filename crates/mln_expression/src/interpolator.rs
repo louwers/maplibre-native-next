@@ -31,18 +31,13 @@ pub struct CubicBezierInterpolator {
 
 impl CubicBezierInterpolator {
     pub fn new(x1: f64, y1: f64, x2: f64, y2: f64) -> Self {
-        CubicBezierInterpolator {
-            ub: UnitBezier::new(x1, y1, x2, y2),
-        }
+        CubicBezierInterpolator { ub: UnitBezier::new(x1, y1, x2, y2) }
     }
 
     pub fn interpolation_factor(&self, input_levels: Range<f64>, input: f64) -> f64 {
         self.ub.solve(
-            interpolation_factor(
-                1.0,
-                Range::new(input_levels.min as f32, input_levels.max as f32),
-                input as f32,
-            ) as f64,
+            interpolation_factor(1.0, Range::new(input_levels.min as f32, input_levels.max as f32), input as f32)
+                as f64,
             1e-6,
         )
     }

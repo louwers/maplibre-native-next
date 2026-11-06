@@ -37,9 +37,8 @@ pub fn decode_png(data: &[u8]) -> Result<PremultipliedImage, String> {
         (info.width, info.height)
     };
 
-    let buffer_size = reader
-        .output_buffer_size()
-        .ok_or_else(|| "failed to read invalid png: 'image too large'".to_string())?;
+    let buffer_size =
+        reader.output_buffer_size().ok_or_else(|| "failed to read invalid png: 'image too large'".to_string())?;
     let mut buffer = vec![0u8; buffer_size];
     let output = reader.next_frame(&mut buffer).map_err(invalid)?;
     debug_assert_eq!(output.bit_depth, png::BitDepth::Eight);

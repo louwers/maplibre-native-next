@@ -206,9 +206,7 @@ pub fn strtod(s: &[u8]) -> (f64, usize, bool) {
 pub fn strtoll(s: &[u8], base: u32) -> (i64, usize, bool) {
     let mut consumed = 0;
     let mut erange = 0;
-    let v = unsafe {
-        ffi::ref_strtoll(s.as_ptr() as *const c_char, s.len(), base as i32, &mut consumed, &mut erange)
-    };
+    let v = unsafe { ffi::ref_strtoll(s.as_ptr() as *const c_char, s.len(), base as i32, &mut consumed, &mut erange) };
     (v, consumed, erange != 0)
 }
 
@@ -273,9 +271,8 @@ pub fn to_string_u64(v: u64) -> String {
 /// op's return value.
 pub fn writer(prog: &[u8], ops: usize) -> (String, Vec<bool>) {
     let mut results = vec![0u8; ops];
-    let s = read_string(|buf, cap| unsafe {
-        ffi::ref_writer(prog.as_ptr(), prog.len(), buf, cap, results.as_mut_ptr())
-    });
+    let s =
+        read_string(|buf, cap| unsafe { ffi::ref_writer(prog.as_ptr(), prog.len(), buf, cap, results.as_mut_ptr()) });
     (s, results.into_iter().map(|r| r != 0).collect())
 }
 

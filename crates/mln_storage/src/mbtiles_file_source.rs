@@ -57,9 +57,7 @@ impl Document {
         // `Parse(const char*)` stops at the first NUL.
         let end = json.iter().position(|&b| b == 0).unwrap_or(json.len());
         match serde_json::from_slice::<Json>(&json[..end]) {
-            Ok(Json::Object(object)) => Document {
-                members: object.into_iter().collect(),
-            },
+            Ok(Json::Object(object)) => Document { members: object.into_iter().collect() },
             _ => Document::default(),
         }
     }
@@ -210,8 +208,8 @@ impl MBTilesFileSourceThread {
         let mut doc = Document::default();
 
         let mut values: BTreeMap<String, String> = BTreeMap::new();
-        let db = Database::open(path.to_str().ok_or("Invalid UTF-8 in path")?, OpenFlag::ReadOnly)
-            .map_err(|e| e.message)?;
+        let db =
+            Database::open(path.to_str().ok_or("Invalid UTF-8 in path")?, OpenFlag::ReadOnly).map_err(|e| e.message)?;
         let conn = db.conn();
 
         {
@@ -257,8 +255,8 @@ impl MBTilesFileSourceThread {
             minz = min.clone();
             maxz = max.clone();
         } else {
-            let mut zoom_stmt = Statement::new(&conn, "SELECT MIN(zoom_level),MAX(zoom_level) from tiles")
-                .map_err(|e| e.message)?;
+            let mut zoom_stmt =
+                Statement::new(&conn, "SELECT MIN(zoom_level),MAX(zoom_level) from tiles").map_err(|e| e.message)?;
             let mut q = Query::new(&mut zoom_stmt);
             let (mut min, mut max) = (String::new(), String::new());
             while q.run().map_err(|e| e.message)? {
@@ -295,10 +293,7 @@ impl MBTilesFileSourceThread {
                     doc.add_member("bounds", Json::Array(bounds_values.iter().map(|&v| json_double(v)).collect()));
                 }
 
-                doc.add_member(
-                    "center",
-                    Json::Array(vec![json_double(c_lon), json_double(c_lat), Json::from(c_zoom)]),
-                );
+                doc.add_member("center", Json::Array(vec![json_double(c_lon), json_double(c_lat), Json::from(c_zoom)]));
             } else {
                 doc.add_member(name.clone(), Json::String(value.clone()));
             }
@@ -329,7 +324,8 @@ impl MBTilesFileSourceThread {
         let y = ((2f64.powi(iz) - 1.0) as i32 - iy).to_string();
         let z = iz.to_string();
 
-        let sql = format!("SELECT tile_data FROM tiles where zoom_level = {z} AND tile_column = {x} AND tile_row = {y}");
+        let sql =
+            format!("SELECT tile_data FROM tiles where zoom_level = {z} AND tile_column = {x} AND tile_row = {y}");
 
         let mut response = Response::new();
         response.no_content = true;
@@ -395,22 +391,16 @@ impl FileSource for MBTilesFileSource {
         // validated
         if resource.kind == Kind::Tile {
             let resource = resource.clone();
-            self.thread
-                .actor()
-                .invoke(move |t: &MBTilesFileSourceThread| t.request_tile(&resource, &req_ref));
+            self.thread.actor().invoke(move |t: &MBTilesFileSourceThread| t.request_tile(&resource, &req_ref));
             return Box::new(req);
         }
 
         let scheme_end = resource.url.find("://");
-        if scheme_end.is_none()
-            || !std::path::Path::new(&resource.url[scheme_end.unwrap() + 3..]).is_absolute()
-        {
+        if scheme_end.is_none() || !std::path::Path::new(&resource.url[scheme_end.unwrap() + 3..]).is_absolute() {
             let mut response = Response::new();
             response.no_content = true;
-            response.error = Some(Box::new(Error::new(
-                Reason::Other,
-                "MBTilesFileSource only supports absolute path urls",
-            )));
+            response.error =
+                Some(Box::new(Error::new(Reason::Other, "MBTilesFileSource only supports absolute path urls")));
             req_ref.invoke(move |request: &FileSourceRequestState| request.set_response(response));
             return Box::new(req);
         }
@@ -434,9 +424,7 @@ impl FileSource for MBTilesFileSource {
 
         // return TileJSON
         let resource = resource.clone();
-        self.thread
-            .actor()
-            .invoke(move |t: &MBTilesFileSourceThread| t.request_tilejson(&resource, &req_ref));
+        self.thread.actor().invoke(move |t: &MBTilesFileSourceThread| t.request_tilejson(&resource, &req_ref));
         Box::new(req)
     }
 

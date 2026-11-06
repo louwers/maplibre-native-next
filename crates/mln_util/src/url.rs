@@ -148,12 +148,7 @@ impl URL {
             }
             (path_pos, query.0.wrapping_sub(path_pos))
         };
-        URL {
-            query,
-            scheme,
-            domain,
-            path,
-        }
+        URL { query, scheme, domain, path }
     }
 }
 
@@ -186,8 +181,7 @@ impl Path {
             // Count a preceding @2x to the file extension as well.
             let factor = b"@2x";
             let factor_len = factor.len();
-            if dot_pos >= factor_len && dot_pos < end_pos && s.get(dot_pos - factor_len..dot_pos) == Some(&factor[..])
-            {
+            if dot_pos >= factor_len && dot_pos < end_pos && s.get(dot_pos - factor_len..dot_pos) == Some(&factor[..]) {
                 dot_pos -= factor_len;
             }
             if dot_pos == NPOS || dot_pos < directory.0 + directory.1 {
@@ -200,11 +194,7 @@ impl Path {
             let file_pos = directory.0 + directory.1;
             (file_pos, extension.0 - file_pos)
         };
-        Path {
-            directory,
-            extension,
-            filename,
-        }
+        Path { directory, extension, filename }
     }
 }
 

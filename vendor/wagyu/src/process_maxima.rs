@@ -1,8 +1,8 @@
 // Ports vendor/wagyu/include/mapbox/geometry/wagyu/process_maxima.hpp.
 
 use crate::active_bound_list::{
-    current_edge_is_horizontal, get_maxima_pair, insert_horizontal_local_minima_into_abl, is_intermediate,
-    is_maxima, next_edge_in_bound, next_edge_is_horizontal,
+    current_edge_is_horizontal, get_maxima_pair, insert_horizontal_local_minima_into_abl, is_intermediate, is_maxima,
+    next_edge_in_bound, next_edge_is_horizontal,
 };
 use crate::bound::{Bound, BoundPtr};
 use crate::config::{ClipType, FillType};

@@ -93,11 +93,7 @@ fn assert_vec3_near_1e5(arg: &Vec3, vec: &Vec3) {
 
 fn rotated_frame(quaternion: &Vec4) -> (Vec3, Vec3, Vec3) {
     let q = Quaternion::from_vec4(quaternion);
-    (
-        q.transform(&[1.0, 0.0, 0.0]),
-        q.transform(&[0.0, -1.0, 0.0]),
-        q.transform(&[0.0, 0.0, -1.0]),
-    )
+    (q.transform(&[1.0, 0.0, 0.0]), q.transform(&[0.0, -1.0, 0.0]), q.transform(&[0.0, 0.0, -1.0]))
 }
 
 /// Records the AnimationOptions callbacks (see the file comment).
@@ -108,10 +104,7 @@ struct CallbackLog {
 
 impl CallbackLog {
     fn install(options: &mut AnimationOptions) -> CallbackLog {
-        let log = CallbackLog {
-            frames: Rc::default(),
-            finishes: Rc::default(),
-        };
+        let log = CallbackLog { frames: Rc::default(), finishes: Rc::default() };
         let frames = log.frames.clone();
         options.transition_frame_fn = Some(Rc::new(move |t: f64| frames.borrow_mut().push(t)));
         let finishes = log.finishes.clone();
@@ -270,17 +263,15 @@ fn perspective_projection() {
     assert_near(point.y, 0.0, 1e-4);
 
     let mut p: Vec4 = [0.0; 4];
-    let point = transform
-        .get_state()
-        .lat_lng_to_screen_coordinate_with(&ll(37.692872969426375, -76.75823239205641), &mut p);
+    let point =
+        transform.get_state().lat_lng_to_screen_coordinate_with(&ll(37.692872969426375, -76.75823239205641), &mut p);
     assert_near(point.x, 1000.0, 1e-5);
     assert_near(point.y, 0.0, 1e-4);
     assert!(p[3] > 0.0);
 
     transform.jump_to(&cam().with_center(Some(ll(38.0, -77.0))).with_zoom(Some(18.0)).with_pitch(Some(51.56620156)));
-    let _point = transform
-        .get_state()
-        .lat_lng_to_screen_coordinate_with(&ll(7.692872969426375, -76.75823239205641), &mut p);
+    let _point =
+        transform.get_state().lat_lng_to_screen_coordinate_with(&ll(7.692872969426375, -76.75823239205641), &mut p);
     assert!(p[3] < 0.0);
 }
 
@@ -303,19 +294,15 @@ fn unwrapped_lat_lng() {
     assert_near(from_screen_coordinate.latitude(), 38.0, 1e-8);
     assert_near(from_screen_coordinate.longitude(), -77.0, 1e-8);
 
-    let mut wrapped_rightwards = state.screen_coordinate_to_lat_lng(
-        &state.lat_lng_to_screen_coordinate(&ll(38.0, 283.0)),
-        WrapMode::Unwrapped,
-    );
+    let mut wrapped_rightwards =
+        state.screen_coordinate_to_lat_lng(&state.lat_lng_to_screen_coordinate(&ll(38.0, 283.0)), WrapMode::Unwrapped);
     assert_near(wrapped_rightwards.latitude(), 38.0, 1e-8);
     assert_near(wrapped_rightwards.longitude(), 283.0, 1e-8);
     wrapped_rightwards.wrap();
     assert_near(wrapped_rightwards.longitude(), -77.0, 1e-8);
 
-    let mut wrapped_leftwards = state.screen_coordinate_to_lat_lng(
-        &state.lat_lng_to_screen_coordinate(&ll(38.0, -437.0)),
-        WrapMode::Unwrapped,
-    );
+    let mut wrapped_leftwards =
+        state.screen_coordinate_to_lat_lng(&state.lat_lng_to_screen_coordinate(&ll(38.0, -437.0)), WrapMode::Unwrapped);
     assert_double_eq(wrapped_leftwards.latitude(), wrapped_rightwards.latitude());
     assert_near(wrapped_leftwards.longitude(), -437.0, 1e-8);
     wrapped_leftwards.wrap();
@@ -325,7 +312,8 @@ fn unwrapped_lat_lng() {
 // gtest: Transform.ConstrainHeightOnly
 #[test]
 fn constrain_height_only() {
-    let mut transform = Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default);
+    let mut transform =
+        Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default);
     transform.resize(Size::new(2, 2)).unwrap();
 
     transform.jump_to(&cam().with_center(Some(LatLngBounds::world().southwest())).with_zoom(Some(MAX_ZOOM)));
@@ -488,7 +476,8 @@ fn padding() {
     assert_near(screen_center.longitude(), padded_lower_half_screen_center.longitude(), 1e-10);
 
     // LatLng previously in upper half center, should now be under screen center.
-    let padded_screen_center = transform.screen_coordinate_to_lat_lng(&sc(1000.0 / 2.0, 1000.0 / 2.0), WrapMode::Wrapped);
+    let padded_screen_center =
+        transform.screen_coordinate_to_lat_lng(&sc(1000.0 / 2.0, 1000.0 / 2.0), WrapMode::Wrapped);
     assert_near(upper_half_center.latitude(), padded_screen_center.latitude(), 1e-10);
     assert_near(upper_half_center.longitude(), padded_screen_center.longitude(), 1e-10);
 }
@@ -1114,13 +1103,21 @@ fn constrain_screen_to_bounds() {
     assert_near(transform.get_lat_lng(WrapMode::Wrapped).latitude(), 56.0, 1e-4);
 
     // Fly to impossible center
-    transform.fly_to(&cam().with_center(Some(ll(56.0, -65.0))).with_zoom(Some(4.0)), &AnimationOptions::default(), false);
+    transform.fly_to(
+        &cam().with_center(Some(ll(56.0, -65.0))).with_zoom(Some(4.0)),
+        &AnimationOptions::default(),
+        false,
+    );
     assert_near(transform.get_zoom(), 4.0, 1e-4);
     assert_near(transform.get_lat_lng(WrapMode::Wrapped).longitude(), 0.98632, 1e-4);
     assert_near(transform.get_lat_lng(WrapMode::Wrapped).latitude(), 56.0, 1e-4);
 
     // Fly to impossible center and zoom
-    transform.fly_to(&cam().with_center(Some(ll(56.0, -65.0))).with_zoom(Some(2.0)), &AnimationOptions::default(), false);
+    transform.fly_to(
+        &cam().with_center(Some(ll(56.0, -65.0))).with_zoom(Some(2.0)),
+        &AnimationOptions::default(),
+        false,
+    );
     assert_near(transform.get_zoom(), 4.0, 1e-4);
     assert_near(transform.get_lat_lng(WrapMode::Wrapped).longitude(), 0.98632, 1e-4);
     assert_near(transform.get_lat_lng(WrapMode::Wrapped).latitude(), 56.0, 1e-4);

@@ -3,9 +3,9 @@
 // Simplify.Points, Clip.* and GeoJSONVT.ClipVertexOnTileBorder.
 // tests/fixtures.rs has the rest.
 
+use feature::Value;
 use geojson_vt::detail::{Clipper, VtGeometry, VtLineString, VtLinearRing, VtPoint, simplify};
 use geojson_vt::{GeoJSONVT, Options};
-use feature::Value;
 use geometry::{Geometry, Point};
 
 fn p(x: f64, y: f64) -> VtPoint {
@@ -24,10 +24,7 @@ fn ring(points: &[(f64, f64)]) -> VtLinearRing {
 fn assert_double_eq(a: f64, b: f64) {
     let (ia, ib) = (a.to_bits() as i64, b.to_bits() as i64);
     let to_biased = |i: i64| if i < 0 { i64::MIN - i } else { i };
-    assert!(
-        a == b || (to_biased(ia) - to_biased(ib)).abs() <= 4,
-        "{a} != {b}"
-    );
+    assert!(a == b || (to_biased(ia) - to_biased(ib)).abs() <= 4, "{a} != {b}");
 }
 
 /// The test's `operator==(vt_point, vt_point)` (EXPECT_DOUBLE_EQ on x and
@@ -116,8 +113,20 @@ fn simplify_points() {
 #[test]
 fn clip_polylines() {
     let points1 = line(&[
-        (0.0, 0.0), (50.0, 0.0), (50.0, 10.0), (20.0, 10.0), (20.0, 20.0), (30.0, 20.0), (30.0, 30.0),
-        (50.0, 30.0), (50.0, 40.0), (25.0, 40.0), (25.0, 50.0), (0.0, 50.0), (0.0, 60.0), (25.0, 60.0),
+        (0.0, 0.0),
+        (50.0, 0.0),
+        (50.0, 10.0),
+        (20.0, 10.0),
+        (20.0, 20.0),
+        (30.0, 20.0),
+        (30.0, 30.0),
+        (50.0, 30.0),
+        (50.0, 40.0),
+        (25.0, 40.0),
+        (25.0, 50.0),
+        (0.0, 50.0),
+        (0.0, 60.0),
+        (25.0, 60.0),
         (30.0, 60.0),
     ]);
     let points2 = line(&[(0.0, 0.0), (50.0, 0.0), (50.0, 10.0), (0.0, 10.0)]);
@@ -134,10 +143,8 @@ fn clip_polylines() {
         line(&[(10.0, 60.0), (25.0, 60.0), (30.0, 60.0)]),
     ]);
 
-    let expected2 = VtGeometry::MultiLineString(vec![
-        line(&[(10.0, 0.0), (40.0, 0.0)]),
-        line(&[(40.0, 10.0), (10.0, 10.0)]),
-    ]);
+    let expected2 =
+        VtGeometry::MultiLineString(vec![line(&[(10.0, 0.0), (40.0, 0.0)]), line(&[(40.0, 10.0), (10.0, 10.0)])]);
 
     assert_geometry_eq(&expected1, &clipped1);
     assert_geometry_eq(&expected2, &clipped2);
@@ -146,15 +153,25 @@ fn clip_polylines() {
 #[test]
 fn clip_polylines_line_metrics() {
     let points1 = line(&[
-        (0.0, 0.0), (50.0, 0.0), (50.0, 10.0), (20.0, 10.0), (20.0, 20.0), (30.0, 20.0), (30.0, 30.0),
-        (50.0, 30.0), (50.0, 40.0), (25.0, 40.0), (25.0, 50.0), (0.0, 50.0), (0.0, 60.0), (25.0, 60.0),
+        (0.0, 0.0),
+        (50.0, 0.0),
+        (50.0, 10.0),
+        (20.0, 10.0),
+        (20.0, 20.0),
+        (30.0, 20.0),
+        (30.0, 30.0),
+        (50.0, 30.0),
+        (50.0, 40.0),
+        (25.0, 40.0),
+        (25.0, 50.0),
+        (0.0, 50.0),
+        (0.0, 60.0),
+        (25.0, 60.0),
     ]);
 
     let clip = Clipper::<0>::new(10.0, 40.0, true /*lineMetrics*/);
 
-    let VtGeometry::MultiLineString(clipped) = clip.line_string(&points1) else {
-        panic!("not a multi line string")
-    };
+    let VtGeometry::MultiLineString(clipped) = clip.line_string(&points1) else { panic!("not a multi line string") };
 
     assert_eq!(clipped[0].seg_start, 10.0);
     assert_eq!(clipped[0].seg_end, 40.0);
@@ -172,8 +189,20 @@ fn clip_polylines_line_metrics() {
 #[test]
 fn clip_polygons() {
     let points1 = vec![ring(&[
-        (0.0, 0.0), (50.0, 0.0), (50.0, 10.0), (20.0, 10.0), (20.0, 20.0), (30.0, 20.0), (30.0, 30.0),
-        (50.0, 30.0), (50.0, 40.0), (25.0, 40.0), (25.0, 50.0), (0.0, 50.0), (0.0, 60.0), (25.0, 60.0),
+        (0.0, 0.0),
+        (50.0, 0.0),
+        (50.0, 10.0),
+        (20.0, 10.0),
+        (20.0, 20.0),
+        (30.0, 20.0),
+        (30.0, 30.0),
+        (50.0, 30.0),
+        (50.0, 40.0),
+        (25.0, 40.0),
+        (25.0, 50.0),
+        (0.0, 50.0),
+        (0.0, 60.0),
+        (25.0, 60.0),
         (0.0, 0.0),
     ])];
     let points2 = vec![ring(&[(0.0, 0.0), (50.0, 0.0), (50.0, 10.0), (0.0, 10.0), (0.0, 0.0)])];
@@ -184,14 +213,26 @@ fn clip_polygons() {
     let clipped2 = clip.polygon(&points2);
 
     let expected1 = VtGeometry::Polygon(vec![ring(&[
-        (10.0, 0.0), (40.0, 0.0), (40.0, 10.0), (20.0, 10.0), (20.0, 20.0), (30.0, 20.0), (30.0, 30.0),
-        (40.0, 30.0), (40.0, 40.0), (25.0, 40.0), (25.0, 50.0), (10.0, 50.0), (10.0, 60.0), (25.0, 60.0),
-        (10.0, 24.0), (10.0, 0.0),
+        (10.0, 0.0),
+        (40.0, 0.0),
+        (40.0, 10.0),
+        (20.0, 10.0),
+        (20.0, 20.0),
+        (30.0, 20.0),
+        (30.0, 30.0),
+        (40.0, 30.0),
+        (40.0, 40.0),
+        (25.0, 40.0),
+        (25.0, 50.0),
+        (10.0, 50.0),
+        (10.0, 60.0),
+        (25.0, 60.0),
+        (10.0, 24.0),
+        (10.0, 0.0),
     ])]);
 
-    let expected2 = VtGeometry::Polygon(vec![ring(&[
-        (10.0, 0.0), (40.0, 0.0), (40.0, 10.0), (10.0, 10.0), (10.0, 0.0),
-    ])]);
+    let expected2 =
+        VtGeometry::Polygon(vec![ring(&[(10.0, 0.0), (40.0, 0.0), (40.0, 10.0), (10.0, 10.0), (10.0, 0.0)])]);
 
     assert_geometry_eq(&expected1, &clipped1);
     assert_geometry_eq(&expected2, &clipped2);
@@ -201,8 +242,20 @@ fn clip_polygons() {
 fn clip_points() {
     let pts = |v: &[(f64, f64)]| -> Vec<VtPoint> { v.iter().map(|&(x, y)| p(x, y)).collect() };
     let points1 = pts(&[
-        (0.0, 0.0), (50.0, 0.0), (50.0, 10.0), (20.0, 10.0), (20.0, 20.0), (30.0, 20.0), (30.0, 30.0),
-        (50.0, 30.0), (50.0, 40.0), (25.0, 40.0), (25.0, 50.0), (0.0, 50.0), (0.0, 60.0), (25.0, 60.0),
+        (0.0, 0.0),
+        (50.0, 0.0),
+        (50.0, 10.0),
+        (20.0, 10.0),
+        (20.0, 20.0),
+        (30.0, 20.0),
+        (30.0, 30.0),
+        (50.0, 30.0),
+        (50.0, 40.0),
+        (25.0, 40.0),
+        (25.0, 50.0),
+        (0.0, 50.0),
+        (0.0, 60.0),
+        (25.0, 60.0),
     ]);
     let points2 = pts(&[(0.0, 0.0), (50.0, 0.0), (50.0, 10.0), (0.0, 10.0)]);
 
@@ -212,7 +265,13 @@ fn clip_points() {
     let clipped2 = clip.multi_point(&points2);
 
     let expected1 = VtGeometry::MultiPoint(pts(&[
-        (20.0, 10.0), (20.0, 20.0), (30.0, 20.0), (30.0, 30.0), (25.0, 40.0), (25.0, 50.0), (25.0, 60.0),
+        (20.0, 10.0),
+        (20.0, 20.0),
+        (30.0, 20.0),
+        (30.0, 30.0),
+        (25.0, 40.0),
+        (25.0, 50.0),
+        (25.0, 60.0),
     ]));
     let expected2 = VtGeometry::MultiPoint(vec![]);
 

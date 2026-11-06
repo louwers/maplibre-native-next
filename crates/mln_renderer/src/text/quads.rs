@@ -517,14 +517,8 @@ mod tests {
     // gtest: getGlyphQuads.DoubleResolutionGlyphPreservesLogicalQuadSize
     #[test]
     fn get_glyph_quads_double_resolution_glyph_preserves_logical_quad_size() {
-        let metrics1x = GlyphMetrics {
-            width: 24,
-            height: 24,
-            left: 0.0,
-            top: -8.0,
-            advance: 24,
-            is_double_resolution: false,
-        };
+        let metrics1x =
+            GlyphMetrics { width: 24, height: 24, left: 0.0, top: -8.0, advance: 24, is_double_resolution: false };
 
         let mut metrics2x = metrics1x;
         metrics2x.left += 0.5;

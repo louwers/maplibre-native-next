@@ -9,20 +9,12 @@ use reference_ffi as cpp;
 use reference_ffi::{same_f32, same_f64, special_f64};
 
 fn config(cases: u32) -> ProptestConfig {
-    ProptestConfig {
-        cases,
-        failure_persistence: None,
-        ..ProptestConfig::default()
-    }
+    ProptestConfig { cases, failure_persistence: None, ..ProptestConfig::default() }
 }
 
 /// Any f64 bit pattern, or a "nice" value.
 fn any_f64() -> impl Strategy<Value = f64> {
-    prop_oneof![
-        any::<u64>().prop_map(f64::from_bits),
-        prop::sample::select(special_f64()),
-        -1000.0f64..1000.0,
-    ]
+    prop_oneof![any::<u64>().prop_map(f64::from_bits), prop::sample::select(special_f64()), -1000.0f64..1000.0,]
 }
 
 fn any_f32() -> impl Strategy<Value = f32> {

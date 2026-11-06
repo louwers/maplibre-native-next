@@ -34,10 +34,7 @@ impl LayerManager {
 
     /// `LayerManagerDefault::LayerManagerDefault()`.
     fn new_default() -> Self {
-        let mut manager = LayerManager {
-            factories: Vec::new(),
-            type_to_factory: BTreeMap::new(),
-        };
+        let mut manager = LayerManager { factories: Vec::new(), type_to_factory: BTreeMap::new() };
         manager.add_layer_type(Box::new(FillLayerFactory));
         manager.add_layer_type(Box::new(LineLayerFactory));
         manager.add_layer_type(Box::new(CircleLayerFactory));
@@ -71,10 +68,7 @@ impl LayerManager {
 
     /// `getFactory(const LayerTypeInfo*)`: by address, as C++.
     pub fn get_factory_by_type_info(&self, info: &LayerTypeInfo) -> Option<&dyn LayerFactory> {
-        self.factories
-            .iter()
-            .find(|f| std::ptr::eq(f.get_type_info(), info))
-            .map(|f| f.as_ref())
+        self.factories.iter().find(|f| std::ptr::eq(f.get_type_info(), info)).map(|f| f.as_ref())
     }
 
     pub fn has_layer_type(&self, type_: &str) -> bool {

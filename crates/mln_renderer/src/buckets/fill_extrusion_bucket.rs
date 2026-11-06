@@ -383,7 +383,10 @@ impl PatternLayoutSpec for FillExtrusionLayoutSpec {
     type Bucket = FillExtrusionBucket;
     type Layout = FillExtrusionLayoutProperties::PossiblyEvaluated;
 
-    fn evaluate_layout(properties: &Immutable<dyn LayerProperties>, parameters: &PropertyEvaluationParameters) -> Self::Layout {
+    fn evaluate_layout(
+        properties: &Immutable<dyn LayerProperties>,
+        parameters: &PropertyEvaluationParameters,
+    ) -> Self::Layout {
         let properties = (**properties)
             .as_any()
             .downcast_ref::<FillExtrusionLayerProperties>()
@@ -399,7 +402,12 @@ impl PatternLayoutSpec for FillExtrusionLayoutSpec {
         FillExtrusionPattern::default_value()
     }
 
-    fn sort_key(_layout: &Self::Layout, _feature: &dyn GeometryTileFeature, _zoom: f32, _canonical: &CanonicalTileID) -> f32 {
+    fn sort_key(
+        _layout: &Self::Layout,
+        _feature: &dyn GeometryTileFeature,
+        _zoom: f32,
+        _canonical: &CanonicalTileID,
+    ) -> f32 {
         // SortKeyPropertyType = void
         0.0
     }

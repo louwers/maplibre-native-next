@@ -3,21 +3,12 @@
 // The gtest groups `TileCover`, `TileCoverStream` and `TileCount` are the
 // modules `tile_cover`, `tile_cover_stream` and `tile_count`.
 
-use geometry::{
-    Geometry,
-    LineString,
-    LinearRing,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-};
+use geometry::{Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
 use mln_map::transform::{NullTransformObserver, Transform};
 use mln_map_types::{CameraOptions, ConstrainMode, TileLodMode, ViewportMode};
 use mln_renderer::util::tile_cover::{
-    TileCover, TileCoverParameters, covering_zoom_level, tile_count_bounds, tile_cover,
-    tile_cover_bounds, tile_cover_geometry,
+    TileCover, TileCoverParameters, covering_zoom_level, tile_count_bounds, tile_cover, tile_cover_bounds,
+    tile_cover_geometry,
 };
 use mln_style_types::SourceType;
 use mln_tile_id::{CanonicalTileID, OverscaledTileID, UnwrappedTileID};
@@ -58,7 +49,8 @@ fn points(coords: &[(f64, f64)]) -> Vec<Point<f64>> {
 
 /// `Transform transform; transform.resize({width, height});`
 fn transform(width: u32, height: u32) -> Transform {
-    let mut transform = Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default);
+    let mut transform =
+        Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default);
     transform.resize(Size::new(width, height)).unwrap();
     transform
 }
@@ -142,10 +134,7 @@ mod tile_cover {
 
         let mut params = params(&transform);
         params.tile_lod_mode = TileLodMode::Distance;
-        assert_eq!(
-            vec![os(2, 1, 2), os(2, 2, 2), os(2, 1, 1), os(2, 2, 1)],
-            tile_cover(&params, 2, ZOOM_RANGE, None)
-        );
+        assert_eq!(vec![os(2, 1, 2), os(2, 2, 2), os(2, 1, 1), os(2, 2, 1)], tile_cover(&params, 2, ZOOM_RANGE, None));
     }
 
     // gtest: TileCover.PitchIssue15442
@@ -236,10 +225,7 @@ mod tile_cover {
 
         let mut params = params(&transform);
         params.tile_lod_mode = TileLodMode::Distance;
-        assert_eq!(
-            vec![os(3, 3, 4), os(3, 3, 3), os(3, 4, 4), os(3, 4, 3)],
-            tile_cover(&params, 3, ZOOM_RANGE, None)
-        );
+        assert_eq!(vec![os(3, 3, 4), os(3, 3, 3), os(3, 4, 4), os(3, 4, 3)], tile_cover(&params, 3, ZOOM_RANGE, None));
     }
 
     // gtest: TileCover.PitchWithLargerResultSet
@@ -350,10 +336,7 @@ mod tile_cover {
     fn different_overscaled_z_with_pitch() {
         let mut transform = transform(512, 512);
         transform.jump_to(
-            &CameraOptions::default()
-                .with_center(Some(ll(30.0, -10.0)))
-                .with_zoom(Some(3.5))
-                .with_pitch(Some(61.0)),
+            &CameraOptions::default().with_center(Some(ll(30.0, -10.0))).with_zoom(Some(3.5)).with_pitch(Some(61.0)),
         );
 
         let expected = vec![
@@ -405,10 +388,7 @@ mod tile_cover {
 
         let mut params = params(&transform);
         params.tile_lod_mode = TileLodMode::Distance;
-        assert_eq!(
-            vec![os(1, 0, 0), os(1, 1, 0), os(1, 0, 1), os(1, 1, 1)],
-            tile_cover(&params, 1, ZOOM_RANGE, None)
-        );
+        assert_eq!(vec![os(1, 0, 0), os(1, 1, 0), os(1, 0, 1), os(1, 1, 1)], tile_cover(&params, 1, ZOOM_RANGE, None));
     }
 
     // gtest: TileCover.FlippedYPitch
@@ -431,10 +411,7 @@ mod tile_cover {
 
         let mut params = params(&transform);
         params.tile_lod_mode = TileLodMode::Distance;
-        assert_eq!(
-            vec![os(2, 1, 2), os(2, 2, 2), os(2, 1, 1), os(2, 2, 1)],
-            tile_cover(&params, 2, ZOOM_RANGE, None)
-        );
+        assert_eq!(vec![os(2, 1, 2), os(2, 2, 2), os(2, 1, 1), os(2, 2, 1)], tile_cover(&params, 2, ZOOM_RANGE, None));
     }
 
     // gtest: TileCover.FlippedYHelsinki
@@ -442,11 +419,8 @@ mod tile_cover {
     fn flipped_y_helsinki() {
         let mut transform = transform(512, 512);
         transform.set_viewport_mode(ViewportMode::FlippedY);
-        transform.jump_to(
-            &CameraOptions::default()
-                .with_center(Some(ll(60.167231, 24.942063)))
-                .with_zoom(Some(11.447425)),
-        );
+        transform
+            .jump_to(&CameraOptions::default().with_center(Some(ll(60.167231, 24.942063))).with_zoom(Some(11.447425)));
 
         assert_eq!(
             vec![os(11, 1165, 592), os(11, 1166, 592), os(11, 1165, 593), os(11, 1166, 593)],
@@ -550,10 +524,8 @@ mod tile_cover {
     // gtest: TileCover.GeomMultiLineString
     #[test]
     fn geom_multi_line_string() {
-        let geom: MultiLineString<f64> = vec![
-            points(&[(-122.5, 37.76), (-122.4, 37.76)]),
-            points(&[(-122.5, 37.72), (-122.4, 37.72)]),
-        ];
+        let geom: MultiLineString<f64> =
+            vec![points(&[(-122.5, 37.76), (-122.4, 37.76)]), points(&[(-122.5, 37.72), (-122.4, 37.72)])];
 
         assert_eq!(
             vec![

@@ -31,12 +31,7 @@ pub struct Collator {
 
 impl Collator {
     pub fn new(case_sensitive: bool, diacritic_sensitive: bool, _locale: Option<String>) -> Self {
-        Collator {
-            collator: PlatformCollator {
-                case_sensitive,
-                diacritic_sensitive,
-            },
-        }
+        Collator { collator: PlatformCollator { case_sensitive, diacritic_sensitive } }
     }
 
     pub fn compare(&self, lhs: &str, rhs: &str) -> i32 {

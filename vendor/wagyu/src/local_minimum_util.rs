@@ -238,8 +238,7 @@ fn add_ring_to_local_minima_list(
         }
 
         if lm_minimum_has_horizontal {
-            if to_maximum.edges[to_max_first_non_horizontal].bot.x
-                > to_minimum.edges[to_min_first_non_horizontal].bot.x
+            if to_maximum.edges[to_max_first_non_horizontal].bot.x > to_minimum.edges[to_min_first_non_horizontal].bot.x
             {
                 minimum_is_left = true;
                 move_horizontals_on_left_to_right(&mut to_minimum, &mut to_maximum);
@@ -248,8 +247,8 @@ fn add_ring_to_local_minima_list(
                 move_horizontals_on_left_to_right(&mut to_maximum, &mut to_minimum);
             }
         } else {
-            minimum_is_left = !(to_maximum.edges[to_max_first_non_horizontal].dx
-                > to_minimum.edges[to_min_first_non_horizontal].dx);
+            minimum_is_left =
+                !(to_maximum.edges[to_max_first_non_horizontal].dx > to_minimum.edges[to_min_first_non_horizontal].dx);
         }
         debug_assert!(!to_minimum.edges.is_empty());
         debug_assert!(!to_maximum.edges.is_empty());

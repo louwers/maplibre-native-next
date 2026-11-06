@@ -19,21 +19,17 @@ use crate::buckets::line_bucket::LineBucket;
 use crate::geometry::feature_index::FeatureIndex;
 use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
 use crate::render_layer::LayerRenderData;
+use mln_style::PropertyEvaluationParameters;
 use mln_style::expression::{EvaluationContext, Image};
-use mln_style::layer_properties::{get_evaluated, LayerProperties};
-use mln_style::layers::fill_layer_properties::{
-    FillLayerProperties, FillLayoutProperties, FillPattern, FillSortKey,
-};
-use mln_style::layers::line_layer_properties::{
-    LineLayerProperties, LineLayoutProperties, LinePattern, LineSortKey,
-};
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
+use mln_style::layers::fill_layer_properties::{FillLayerProperties, FillLayoutProperties, FillPattern, FillSortKey};
+use mln_style::layers::line_layer_properties::{LineLayerProperties, LineLayoutProperties, LinePattern, LineSortKey};
 use mln_style::properties::Property;
 use mln_style::renderer::cross_faded_property_evaluator::Faded;
 use mln_style::renderer::possibly_evaluated_property_value::PossiblyEvaluatedFadedPropertyValue;
-use mln_style::PropertyEvaluationParameters;
 use mln_style_types::image::{ImageDependencies, ImagePositions, ImageType};
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
 use mln_tile_id::CanonicalTileID;
+use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
@@ -73,13 +69,21 @@ pub trait PatternLayoutSpec: 'static {
     type Layout: Clone + Send + Sync;
 
     /// `leaderLayerProperties->layerImpl().layout.evaluate(parameters)`.
-    fn evaluate_layout(properties: &Immutable<dyn LayerProperties>, parameters: &PropertyEvaluationParameters) -> Self::Layout;
+    fn evaluate_layout(
+        properties: &Immutable<dyn LayerProperties>,
+        parameters: &PropertyEvaluationParameters,
+    ) -> Self::Layout;
     /// `getEvaluated<LayerPropertiesType>(p).get<PatternPropertyType>()`.
     fn pattern_property(properties: &Immutable<dyn LayerProperties>) -> &PossiblyEvaluatedFadedPropertyValue<Image>;
     /// `PatternPropertyType::defaultValue()`.
     fn pattern_default() -> Image;
     /// `layout.get<SortKeyPropertyType>().evaluate(feature, zoom, canonical, default)`.
-    fn sort_key(layout: &Self::Layout, feature: &dyn GeometryTileFeature, zoom: f32, canonical: &CanonicalTileID) -> f32;
+    fn sort_key(
+        layout: &Self::Layout,
+        feature: &dyn GeometryTileFeature,
+        zoom: f32,
+        canonical: &CanonicalTileID,
+    ) -> f32;
     /// `std::make_shared<BucketType>(layout, layerPropertiesMap, zoom, overscaling)`.
     fn create_bucket(
         layout: &Self::Layout,
@@ -176,11 +180,27 @@ impl<S: PatternLayoutSpec> PatternLayout<S> {
                             // properties, evaluate their expression and add
                             // the patterns to the dependency vector
                             let canonical = &parameters.tile_id.canonical;
-                            let min =
-                                pattern_property.evaluate(&*feature, zoom - 1.0, available_images, canonical, S::pattern_default());
-                            let mid = pattern_property.evaluate(&*feature, zoom, available_images, canonical, S::pattern_default());
-                            let max =
-                                pattern_property.evaluate(&*feature, zoom + 1.0, available_images, canonical, S::pattern_default());
+                            let min = pattern_property.evaluate(
+                                &*feature,
+                                zoom - 1.0,
+                                available_images,
+                                canonical,
+                                S::pattern_default(),
+                            );
+                            let mid = pattern_property.evaluate(
+                                &*feature,
+                                zoom,
+                                available_images,
+                                canonical,
+                                S::pattern_default(),
+                            );
+                            let max = pattern_property.evaluate(
+                                &*feature,
+                                zoom + 1.0,
+                                available_images,
+                                canonical,
+                                S::pattern_default(),
+                            );
 
                             image_dependencies.entry(min.to.id().to_owned()).or_insert(ImageType::Pattern);
                             image_dependencies.entry(mid.to.id().to_owned()).or_insert(ImageType::Pattern);
@@ -313,7 +333,10 @@ impl PatternLayoutSpec for FillLayoutSpec {
     type Bucket = FillBucket;
     type Layout = FillLayoutProperties::PossiblyEvaluated;
 
-    fn evaluate_layout(properties: &Immutable<dyn LayerProperties>, parameters: &PropertyEvaluationParameters) -> Self::Layout {
+    fn evaluate_layout(
+        properties: &Immutable<dyn LayerProperties>,
+        parameters: &PropertyEvaluationParameters,
+    ) -> Self::Layout {
         let properties = (**properties).as_any().downcast_ref::<FillLayerProperties>().expect("FillLayerProperties");
         properties.layer_impl().layout.evaluate(parameters)
     }
@@ -323,7 +346,12 @@ impl PatternLayoutSpec for FillLayoutSpec {
     fn pattern_default() -> Image {
         FillPattern::default_value()
     }
-    fn sort_key(layout: &Self::Layout, feature: &dyn GeometryTileFeature, zoom: f32, canonical: &CanonicalTileID) -> f32 {
+    fn sort_key(
+        layout: &Self::Layout,
+        feature: &dyn GeometryTileFeature,
+        zoom: f32,
+        canonical: &CanonicalTileID,
+    ) -> f32 {
         layout.get::<FillSortKey>().evaluate_feature_canonical(feature, zoom, canonical, FillSortKey::default_value())
     }
     fn create_bucket(
@@ -344,7 +372,10 @@ impl PatternLayoutSpec for LineLayoutSpec {
     type Bucket = LineBucket;
     type Layout = LineLayoutProperties::PossiblyEvaluated;
 
-    fn evaluate_layout(properties: &Immutable<dyn LayerProperties>, parameters: &PropertyEvaluationParameters) -> Self::Layout {
+    fn evaluate_layout(
+        properties: &Immutable<dyn LayerProperties>,
+        parameters: &PropertyEvaluationParameters,
+    ) -> Self::Layout {
         let properties = (**properties).as_any().downcast_ref::<LineLayerProperties>().expect("LineLayerProperties");
         properties.layer_impl().layout.evaluate(parameters)
     }
@@ -354,7 +385,12 @@ impl PatternLayoutSpec for LineLayoutSpec {
     fn pattern_default() -> Image {
         LinePattern::default_value()
     }
-    fn sort_key(layout: &Self::Layout, feature: &dyn GeometryTileFeature, zoom: f32, canonical: &CanonicalTileID) -> f32 {
+    fn sort_key(
+        layout: &Self::Layout,
+        feature: &dyn GeometryTileFeature,
+        zoom: f32,
+        canonical: &CanonicalTileID,
+    ) -> f32 {
         layout.get::<LineSortKey>().evaluate_feature_canonical(feature, zoom, canonical, LineSortKey::default_value())
     }
     fn create_bucket(

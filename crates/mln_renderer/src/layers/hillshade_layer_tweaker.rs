@@ -172,9 +172,9 @@ impl LayerTweaker for HillshadeLayerTweaker {
 
         let context = parameters.context;
         if self.evaluated_props_uniform_buffer.is_none() || self.base.properties_updated {
-            let evaluated_props_ubo =
-                pack_evaluated_props(&illumination, evaluated.get::<HillshadeAccentColor>());
-            context.emplace_or_update_uniform_buffer_pod(&mut self.evaluated_props_uniform_buffer, &evaluated_props_ubo);
+            let evaluated_props_ubo = pack_evaluated_props(&illumination, evaluated.get::<HillshadeAccentColor>());
+            context
+                .emplace_or_update_uniform_buffer_pod(&mut self.evaluated_props_uniform_buffer, &evaluated_props_ubo);
             self.base.properties_updated = false;
         }
         layer_group

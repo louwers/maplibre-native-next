@@ -9,16 +9,7 @@
 
 use crate::stl_algo::nth_element;
 use feature::Feature;
-use geometry::{
-    Geometry,
-    LineString,
-    LinearRing,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-};
+use geometry::{Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
 use mln_tile_id::{CanonicalTileID, GeometryCollection, GeometryCoordinates, GeometryTileFeature};
 use mln_util::constants::EXTENT;
 use mln_util::geometry::FeatureType;
@@ -78,12 +69,7 @@ pub fn fixup_polygons(rings: &GeometryCollection) -> Result<GeometryCollection, 
 
     let mut multipolygon: MultiPolygon<i16> = MultiPolygon::new();
     clipper
-        .execute(
-            wagyu::ClipType::Union,
-            &mut multipolygon,
-            wagyu::FillType::EvenOdd,
-            wagyu::FillType::EvenOdd,
-        )
+        .execute(wagyu::ClipType::Union, &mut multipolygon, wagyu::FillType::EvenOdd, wagyu::FillType::EvenOdd)
         .map_err(Error::Runtime)?;
 
     Ok(multipolygon_to_geometry_collection(multipolygon))
@@ -153,10 +139,7 @@ pub fn convert_geometry(
 
     let tile_coordinates_to_lat_lng = |p: &Point<i16>| {
         let y2 = 180.0 - (f64::from(p.y) + y0) * 360.0 / size;
-        Point::new(
-            (f64::from(p.x) + x0) * 360.0 / size - 180.0,
-            (y2 * PI / 180.0).exp().atan() * 360.0 / PI - 90.0,
-        )
+        Point::new((f64::from(p.x) + x0) * 360.0 / size - 180.0, (y2 * PI / 180.0).exp().atan() * 360.0 / PI - 90.0)
     };
 
     let geometries = geometry_tile_feature.get_geometries();
@@ -245,7 +228,8 @@ pub fn convert_geometry_to_tile(geometry: &Geometry<f64>, tile_id: &CanonicalTil
         Point::new(px, py)
     };
 
-    let ring = |points: &[Point<f64>]| -> GeometryCoordinates { points.iter().map(&lat_lon_to_tile_coodinates).collect() };
+    let ring =
+        |points: &[Point<f64>]| -> GeometryCoordinates { points.iter().map(&lat_lon_to_tile_coodinates).collect() };
 
     match geometry {
         Geometry::Point(point) => GeometryCollection::from(vec![vec![lat_lon_to_tile_coodinates(point)]]),
@@ -255,9 +239,9 @@ pub fn convert_geometry_to_tile(geometry: &Geometry<f64>, tile_id: &CanonicalTil
             GeometryCollection::from(line_strings.iter().map(|line| ring(line)).collect::<Vec<_>>())
         }
         Geometry::Polygon(polygon) => GeometryCollection::from(polygon.iter().map(|r| ring(r)).collect::<Vec<_>>()),
-        Geometry::MultiPolygon(polygons) => GeometryCollection::from(
-            polygons.iter().flat_map(|pg| pg.iter().map(|r| ring(r))).collect::<Vec<_>>(),
-        ),
+        Geometry::MultiPolygon(polygons) => {
+            GeometryCollection::from(polygons.iter().flat_map(|pg| pg.iter().map(|r| ring(r))).collect::<Vec<_>>())
+        }
         Geometry::Empty | Geometry::GeometryCollection(_) => GeometryCollection::new(),
     }
 }
@@ -376,12 +360,48 @@ mod tests {
         // area not signed
         let mut polygon = collection(&[
             &[
-                (7336, -248), (7304, -248), (7272, -168), (7176, -200), (7080, -136), (7048, -56), (7128, -8),
-                (7176, -56), (7288, -56), (7316, 0), (6918, 0), (6904, -40), (6984, -72), (6952, -88),
-                (6952, -168), (6888, -88), (6856, -88), (6856, -8), (6872, 0), (6170, 0), (6184, -40),
-                (6136, -72), (6104, -56), (6132, 0), (6028, 0), (6104, -152), (6184, -200), (6206, -256),
-                (6272, -256), (6264, -248), (6248, -120), (6280, -136), (6280, -232), (6288, -256), (6790, -256),
-                (6792, -248), (6800, -256), (7058, -256), (7064, -248), (7096, -256), (7338, -256), (7336, -248),
+                (7336, -248),
+                (7304, -248),
+                (7272, -168),
+                (7176, -200),
+                (7080, -136),
+                (7048, -56),
+                (7128, -8),
+                (7176, -56),
+                (7288, -56),
+                (7316, 0),
+                (6918, 0),
+                (6904, -40),
+                (6984, -72),
+                (6952, -88),
+                (6952, -168),
+                (6888, -88),
+                (6856, -88),
+                (6856, -8),
+                (6872, 0),
+                (6170, 0),
+                (6184, -40),
+                (6136, -72),
+                (6104, -56),
+                (6132, 0),
+                (6028, 0),
+                (6104, -152),
+                (6184, -200),
+                (6206, -256),
+                (6272, -256),
+                (6264, -248),
+                (6248, -120),
+                (6280, -136),
+                (6280, -232),
+                (6288, -256),
+                (6790, -256),
+                (6792, -248),
+                (6800, -256),
+                (7058, -256),
+                (7064, -248),
+                (7096, -256),
+                (7338, -256),
+                (7336, -248),
             ],
             &[(6344, -104), (6264, -8), (6392, -72), (6360, -200), (6344, -104)],
             &[(6744, -24), (6760, -72), (6728, -104), (6744, -24)],

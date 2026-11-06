@@ -44,12 +44,7 @@ impl Mailbox {
     /// `Mailbox()`: not open yet; messages queue until `open`.
     pub fn new() -> Arc<Mailbox> {
         Arc::new_cyclic(|weak_self| Mailbox {
-            state: Mutex::new(State {
-                queue: VecDeque::new(),
-                closed: false,
-                scheduler: None,
-                scheduler_tag: None,
-            }),
+            state: Mutex::new(State { queue: VecDeque::new(), closed: false, scheduler: None, scheduler_tag: None }),
             id: local_object::next_id(),
             weak_self: weak_self.clone(),
         })

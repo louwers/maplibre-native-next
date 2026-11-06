@@ -180,7 +180,10 @@ enum PropertyVec {
     F32(Vec<Option<f32>>),
     F64(Vec<Option<f64>>),
     /// The strings back to back, and each feature's byte range in them.
-    Str { data: String, spans: Vec<Option<(u32, u32)>> },
+    Str {
+        data: String,
+        spans: Vec<Option<(u32, u32)>>,
+    },
 }
 
 impl PropertyVec {
@@ -423,11 +426,7 @@ impl Layer {
         let features = geometries
             .into_iter()
             .enumerate()
-            .map(|(i, geometry)| Feature {
-                id: if ids.is_empty() { None } else { ids[i] },
-                index: i as u32,
-                geometry,
-            })
+            .map(|(i, geometry)| Feature { id: if ids.is_empty() { None } else { ids[i] }, index: i as u32, geometry })
             .collect();
 
         let mut names = parsed.iterate_prop_names().map(|name| name.to_string());
@@ -458,10 +457,9 @@ impl Layer {
                 ParsedProperty::U64(s) => (ScalarType::UInt64, PropertyVec::U64(s.iter_optional().collect())),
                 ParsedProperty::F32(s) => (ScalarType::Float, PropertyVec::F32(s.iter_optional().collect())),
                 ParsedProperty::F64(s) => (ScalarType::Double, PropertyVec::F64(s.iter_optional().collect())),
-                ParsedProperty::Str(s) => (
-                    ScalarType::String,
-                    PropertyVec::strings(s.feature_count(), |i| s.get(i as u32), true),
-                ),
+                ParsedProperty::Str(s) => {
+                    (ScalarType::String, PropertyVec::strings(s.feature_count(), |i| s.get(i as u32), true))
+                }
                 ParsedProperty::SharedDict(dict) => {
                     // StringDecoder::decodeSharedDictionary: one column per
                     // child, named prefix + suffix.

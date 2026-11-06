@@ -107,11 +107,7 @@ fn string_to_type(t: &str) -> Type {
 
 fn to_expression_type(spec: &PropertySpec) -> Option<Type> {
     if spec.type_ == "array" {
-        let item_type = if spec.value.is_empty() {
-            Type::Value
-        } else {
-            string_to_type(&spec.value)
-        };
+        let item_type = if spec.value.is_empty() { Type::Value } else { string_to_type(&spec.value) };
         if spec.length != 0 {
             return Some(Type::array_n(item_type, spec.length));
         }
@@ -122,11 +118,7 @@ fn to_expression_type(spec: &PropertySpec) -> Option<Type> {
         return Some(Type::String);
     }
 
-    if spec.type_.is_empty() {
-        None
-    } else {
-        Some(string_to_type(&spec.type_))
-    }
+    if spec.type_.is_empty() { None } else { Some(string_to_type(&spec.type_)) }
 }
 
 fn as_str(v: &serde_json::Value) -> String {
@@ -211,41 +203,27 @@ fn convert_point(json: &serde_json::Value) -> Result<Point<f64>, String> {
 }
 
 fn convert_points(json: &serde_json::Value) -> Result<Vec<Point<f64>>, String> {
-    json.as_array()
-        .ok_or("coordinates must be an array")?
-        .iter()
-        .map(convert_point)
-        .collect()
+    json.as_array().ok_or("coordinates must be an array")?.iter().map(convert_point).collect()
 }
 
 fn convert_polygon(json: &serde_json::Value) -> Result<Polygon<f64>, String> {
-    json.as_array()
-        .ok_or("coordinates must be an array")?
-        .iter()
-        .map(convert_points)
-        .collect()
+    json.as_array().ok_or("coordinates must be an array")?.iter().map(convert_points).collect()
 }
 
 /// `mapbox::geojson::convert<mapbox::geometry::geometry<double>>`.
 // TODO(port): a full port of mapbox/geojson.hpp's parser (error messages,
 // null geometries) with GeoJSON sources in M3.
 fn convert_geometry(json: &serde_json::Value) -> Result<Geometry<f64>, String> {
-    let t = json
-        .get("type")
-        .and_then(|t| t.as_str())
-        .ok_or("Geometry must have a type property")?;
+    let t = json.get("type").and_then(|t| t.as_str()).ok_or("Geometry must have a type property")?;
     if t == "GeometryCollection" {
         let geometries = json
             .get("geometries")
             .and_then(|g| g.as_array())
             .ok_or("GeometryCollection must have a geometries property")?;
-        return Ok(Geometry::GeometryCollection(
-            geometries.iter().map(convert_geometry).collect::<Result<_, _>>()?,
-        ));
+        return Ok(Geometry::GeometryCollection(geometries.iter().map(convert_geometry).collect::<Result<_, _>>()?));
     }
-    let coordinates = json
-        .get("coordinates")
-        .ok_or_else(|| format!("{t} geometry must have a coordinates property"))?;
+    let coordinates =
+        json.get("coordinates").ok_or_else(|| format!("{t} geometry must have a coordinates property"))?;
     Ok(match t {
         "Point" => Geometry::Point(convert_point(coordinates)?),
         "MultiPoint" => Geometry::MultiPoint(convert_points(coordinates)?),
@@ -294,14 +272,10 @@ fn parse_inputs(inputs_value: &serde_json::Value, data: &mut TestData) -> Result
 
         // Parse evaluation context, zoom.
         let evaluation_context = &input[0];
-        let zoom = evaluation_context
-            .get("zoom")
-            .map(|z| z.as_f64().expect("number") as f32);
+        let zoom = evaluation_context.get("zoom").map(|z| z.as_f64().expect("number") as f32);
 
         // Parse heatmap density
-        let heatmap_density = evaluation_context
-            .get("heatmapDensity")
-            .map(|h| h.as_f64().expect("number"));
+        let heatmap_density = evaluation_context.get("heatmapDensity").map(|h| h.as_f64().expect("number"));
 
         // Parse canonicalID
         let canonical = evaluation_context.get("canonicalID").map(|c| {
@@ -334,13 +308,7 @@ fn parse_inputs(inputs_value: &serde_json::Value, data: &mut TestData) -> Result
             feature.id = convert_identifier(id);
         }
 
-        data.inputs.push(Input {
-            zoom,
-            heatmap_density,
-            canonical,
-            available_images,
-            feature,
-        });
+        data.inputs.push(Input { zoom, heatmap_density, canonical, available_images, feature });
     }
     Ok(())
 }
@@ -393,10 +361,7 @@ pub fn parse_expression_ignores(ignores_path: &Path) -> Ignores {
         if !id.starts_with("expression-tests") {
             continue;
         }
-        ignores.push(Ignore {
-            id: id.clone(),
-            reason: reason.as_str().unwrap_or_default().to_owned(),
-        });
+        ignores.push(Ignore { id: id.clone(), reason: reason.as_str().unwrap_or_default().to_owned() });
     }
     ignores
 }
@@ -415,10 +380,7 @@ pub fn parse_test_data(path: &Path) -> Result<TestData, String> {
 
     // Check that mandatory test data members are present.
     if document.get("expression").is_none() || document.get("expected").is_none() {
-        return Err(format!(
-            "Test fixture '{}' does not contain required data.",
-            path.display()
-        ));
+        return Err(format!("Test fixture '{}' does not contain required data.", path.display()));
     }
 
     // Parse propertySpec
@@ -431,8 +393,7 @@ pub fn parse_test_data(path: &Path) -> Result<TestData, String> {
 
     // Parse inputs
     if let Some(inputs) = document.get("inputs") {
-        parse_inputs(inputs, &mut data)
-            .map_err(|e| format!("Cannot load test data from '{}': {e}", path.display()))?;
+        parse_inputs(inputs, &mut data).map_err(|e| format!("Cannot load test data from '{}': {e}", path.display()))?;
     }
 
     data.document = document;
@@ -455,11 +416,9 @@ fn mbgl_to_json_for_display(value: &Value) -> serde_json::Value {
             .unwrap_or_else(|| serde_json::Value::String(d.to_string())),
         Value::String(s) => serde_json::Value::String(s.clone()),
         Value::Array(a) => serde_json::Value::Array(a.iter().map(mbgl_to_json_for_display).collect()),
-        Value::Object(o) => serde_json::Value::Object(
-            o.iter()
-                .map(|(k, v)| (k.clone(), mbgl_to_json_for_display(v)))
-                .collect(),
-        ),
+        Value::Object(o) => {
+            serde_json::Value::Object(o.iter().map(|(k, v)| (k.clone(), mbgl_to_json_for_display(v))).collect())
+        }
     }
 }
 
@@ -489,26 +448,17 @@ pub fn to_document(value: &Value) -> serde_json::Value {
             Value::Double(d) => {
                 if *d == d.floor() {
                     // static_cast<int64_t>(d) as x86-64 computes it.
-                    let i = if *d >= -9223372036854775808.0 && *d < 9223372036854775808.0 {
-                        *d as i64
-                    } else {
-                        i64::MIN
-                    };
+                    let i =
+                        if *d >= -9223372036854775808.0 && *d < 9223372036854775808.0 { *d as i64 } else { i64::MIN };
                     // A non-negative integer reads back as uint64.
-                    if i >= 0 {
-                        serde_json::Value::from(i as u64)
-                    } else {
-                        serde_json::Value::from(i)
-                    }
+                    if i >= 0 { serde_json::Value::from(i as u64) } else { serde_json::Value::from(i) }
                 } else {
                     serde_json::Value::Number(serde_json::Number::from_f64(*d).unwrap())
                 }
             }
             Value::String(s) => serde_json::Value::String(s.clone()),
             Value::Array(a) => serde_json::Value::Array(a.iter().map(convert).collect()),
-            Value::Object(o) => serde_json::Value::Object(
-                o.iter().map(|(k, v)| (k.clone(), convert(v))).collect(),
-            ),
+            Value::Object(o) => serde_json::Value::Object(o.iter().map(|(k, v)| (k.clone(), convert(v))).collect()),
         }
     }
     convert(value)
@@ -517,10 +467,8 @@ pub fn to_document(value: &Value) -> serde_json::Value {
 /// `toValue(const Compiled&)`.
 pub fn compiled_to_value(compiled: &Compiled) -> Value {
     let mut compiled_object = ValueObject::new();
-    compiled_object.insert(
-        "result".to_owned(),
-        Value::String(if compiled.success { "success" } else { "error" }.to_owned()),
-    );
+    compiled_object
+        .insert("result".to_owned(), Value::String(if compiled.success { "success" } else { "error" }.to_owned()));
     if compiled.success {
         compiled_object.insert("isFeatureConstant".to_owned(), Value::Bool(compiled.is_feature_constant));
         compiled_object.insert("isZoomConstant".to_owned(), Value::Bool(compiled.is_zoom_constant));
@@ -544,12 +492,9 @@ pub fn expression_value_to_value(expr_value: &mln_expression::Value) -> Option<V
         ]),
         mln_expression::Value::Formatted(formatted) => formatted.to_object(),
         mln_expression::Value::Array(values) => Value::Array(values.iter().map(to_mbgl_value).collect()),
-        mln_expression::Value::Object(value_map) => Value::Object(
-            value_map
-                .iter()
-                .map(|(k, v)| (k.clone(), to_mbgl_value(v)))
-                .collect(),
-        ),
+        mln_expression::Value::Object(value_map) => {
+            Value::Object(value_map.iter().map(|(k, v)| (k.clone(), to_mbgl_value(v))).collect())
+        }
         v => to_mbgl_value(v),
     })
 }

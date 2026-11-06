@@ -32,11 +32,7 @@ pub fn stable_sort_by<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], mut comp: 
     merge_adaptive(v, middle, &mut buffer, &mut comp);
 }
 
-fn merge_sort_with_buffer<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    buffer: &mut [T],
-    comp: &mut F,
-) {
+fn merge_sort_with_buffer<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], buffer: &mut [T], comp: &mut F) {
     let len = v.len();
     let mut step_size = S_CHUNK_SIZE;
     chunk_insertion_sort(v, step_size, comp);
@@ -48,11 +44,7 @@ fn merge_sort_with_buffer<T: Copy, F: FnMut(&T, &T) -> bool>(
     }
 }
 
-fn chunk_insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    chunk_size: usize,
-    comp: &mut F,
-) {
+fn chunk_insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], chunk_size: usize, comp: &mut F) {
     let last = v.len();
     let mut first = 0;
     while last - first >= chunk_size {
@@ -63,34 +55,18 @@ fn chunk_insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(
 }
 
 /// `__merge_sort_loop(src.begin(), src.end(), dst.begin(), step_size)`.
-fn merge_sort_loop<T: Copy, F: FnMut(&T, &T) -> bool>(
-    src: &[T],
-    dst: &mut [T],
-    mut step_size: usize,
-    comp: &mut F,
-) {
+fn merge_sort_loop<T: Copy, F: FnMut(&T, &T) -> bool>(src: &[T], dst: &mut [T], mut step_size: usize, comp: &mut F) {
     let two_step = 2 * step_size;
     let last = src.len();
     let mut first = 0;
     let mut result = 0;
     while last - first >= two_step {
-        result = move_merge(
-            &src[first..first + step_size],
-            &src[first + step_size..first + two_step],
-            dst,
-            result,
-            comp,
-        );
+        result =
+            move_merge(&src[first..first + step_size], &src[first + step_size..first + two_step], dst, result, comp);
         first += two_step;
     }
     step_size = step_size.min(last - first);
-    move_merge(
-        &src[first..first + step_size],
-        &src[first + step_size..last],
-        dst,
-        result,
-        comp,
-    );
+    move_merge(&src[first..first + step_size], &src[first + step_size..last], dst, result, comp);
 }
 
 /// `__move_merge(a, b, dst + result)`; returns the new `result`.
@@ -125,12 +101,7 @@ fn move_merge<T: Copy, F: FnMut(&T, &T) -> bool>(
 
 /// `__merge_adaptive(first, middle, last, len1, len2, buffer)` with a buffer
 /// that holds the smaller half.
-fn merge_adaptive<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    middle: usize,
-    buffer: &mut [T],
-    comp: &mut F,
-) {
+fn merge_adaptive<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], middle: usize, buffer: &mut [T], comp: &mut F) {
     let len1 = middle;
     let len2 = v.len() - middle;
     if len1 <= len2 {

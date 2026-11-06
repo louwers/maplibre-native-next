@@ -7,8 +7,8 @@
 // which of several cells with the same `max` comes first decides the
 // result. The debug printing is not ported.
 
-use libstdcxx::PriorityQueue;
 use geometry::{LinearRing, Point, Polygon};
+use libstdcxx::PriorityQueue;
 
 /// `polygon.at(0)` / `ring.at(0)` on an empty vector (std::out_of_range).
 const OUT_OF_RANGE: &str = "vector::_M_range_check: __n (which is 0) >= this->size() (which is 0)";
@@ -84,12 +84,7 @@ pub struct Cell {
 impl Cell {
     pub fn new(c: Point<f64>, h: f64, polygon: &Polygon<f64>) -> Self {
         let d = point_to_polygon_dist(&c, polygon);
-        Cell {
-            c,
-            h,
-            d,
-            max: d + h * std::f64::consts::SQRT_2,
-        }
+        Cell { c, h, d, max: d + h * std::f64::consts::SQRT_2 }
     }
 }
 
@@ -111,11 +106,7 @@ pub fn get_centroid_cell(polygon: &Polygon<f64>) -> Result<Cell, String> {
         j = i;
     }
 
-    let centre = if area == 0.0 {
-        *ring.first().ok_or(OUT_OF_RANGE)?
-    } else {
-        Point::new(c.x / area, c.y / area)
-    };
+    let centre = if area == 0.0 { *ring.first().ok_or(OUT_OF_RANGE)? } else { Point::new(c.x / area, c.y / area) };
     Ok(Cell::new(centre, 0.0, polygon))
 }
 

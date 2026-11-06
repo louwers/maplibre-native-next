@@ -36,8 +36,7 @@ pub mod varint;
 pub use data_view::DataView;
 pub use exception::Exception;
 pub use iterators::{
-    ConstFixedIterator, ConstSvarintIterator, ConstVarintIterator, FixedValue, IteratorRange, SvarintValue,
-    VarintValue,
+    ConstFixedIterator, ConstSvarintIterator, ConstVarintIterator, FixedValue, IteratorRange, SvarintValue, VarintValue,
 };
 pub use pbf_reader::PbfReader;
 pub use types::{PbfLengthType, PbfTagType, PbfWireType, tag_and_type};

@@ -281,10 +281,7 @@ pub fn rfc1123(timestamp: Timestamp) -> String {
     const WEEK: [&str; 7] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const MONTHS: [&str; 12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     let (wday, mday, month, year, hour, min, sec) = gmtime(timestamp.secs_since_epoch());
-    format!(
-        "{}, {:02} {} {:4} {:02}:{:02}:{:02} GMT",
-        WEEK[wday], mday, MONTHS[month], year, hour, min, sec
-    )
+    format!("{}, {:02} {} {:4} {:02}:{:02}:{:02} GMT", WEEK[wday], mday, MONTHS[month], year, hour, min, sec)
 }
 
 /// `util::parseTimestamp(const char*)`: vendor/parsedate's `parse_date`

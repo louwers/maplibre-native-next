@@ -60,10 +60,8 @@ mod tests {
     // Not in the C++ suite.
     #[test]
     fn unpremultiply_() {
-        let image = PremultipliedImage::from_vec(
-            Size::new(3, 1),
-            vec![128, 127, 127, 128, 10, 20, 30, 0, 200, 0, 0, 100],
-        );
+        let image =
+            PremultipliedImage::from_vec(Size::new(3, 1), vec![128, 127, 127, 128, 10, 20, 30, 0, 200, 0, 0, 100]);
         let rgba = unpremultiply(image);
         // (255 * 128 + 64) / 128 = 255, (255 * 127 + 64) / 128 = 253
         assert_eq!(&rgba.data[0..4], &[255, 253, 253, 128]);

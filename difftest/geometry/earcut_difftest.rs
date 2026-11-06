@@ -6,8 +6,8 @@
 // polygons large enough for z-order hashing, extreme coordinates).
 // earcut_fixtures_difftest.rs covers earcut.hpp's own fixtures.
 
-use geometry_difftest_support::{Polygon, flatten, grid_polygon, run_cases, star_polygon, to_f32, to_i16};
 use geometry::Point;
+use geometry_difftest_support::{Polygon, flatten, grid_polygon, run_cases, star_polygon, to_f32, to_i16};
 use proptest::prelude::*;
 use proptest::test_runner::TestCaseResult;
 
@@ -33,10 +33,7 @@ fn reference<T: Copy>(f: RefEarcut<T>, polygon: &Polygon<T>) -> Vec<u32> {
 }
 
 fn points<T: Copy>(polygon: &Polygon<T>) -> Vec<Vec<Point<T>>> {
-    polygon
-        .iter()
-        .map(|r| r.iter().map(|&(x, y)| Point::new(x, y)).collect())
-        .collect()
+    polygon.iter().map(|r| r.iter().map(|&(x, y)| Point::new(x, y)).collect()).collect()
 }
 
 fn check_i16(polygon: &Polygon<i16>) -> TestCaseResult {
@@ -135,9 +132,7 @@ fn extreme_coordinates() {
         star_polygon(3..=200, 4, 32767.0),
         grid_polygon(4)
             .prop_map(|p| {
-                p.into_iter()
-                    .map(|r| r.into_iter().map(|(x, y)| (x * 300.0, y * 300.0)).collect())
-                    .collect()
+                p.into_iter().map(|r| r.into_iter().map(|(x, y)| (x * 300.0, y * 300.0)).collect()).collect()
             })
             .prop_map(separate_rings),
     ];
@@ -169,4 +164,3 @@ fn edge_cases() {
     }
     println!("earcut edge cases: {} cases x 3 point types, 0 mismatches", cases.len());
 }
-

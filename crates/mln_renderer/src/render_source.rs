@@ -8,6 +8,7 @@
 // by the orchestrator), which forwards to the source's observer exactly as
 // RenderSource::onTileChanged etc. do.
 
+use crate::image_manager::ImageManager;
 use crate::paint_parameters::TransformParameters;
 use crate::render_tile::RenderTile;
 use crate::render_tree::RenderItem;
@@ -17,7 +18,6 @@ use crate::sources::render_vector_source::RenderVectorSource;
 use crate::tile::tile::{TileBase, TileOperation};
 use crate::tile::tile_observer::TileObserver;
 use crate::tile_parameters::TileParameters;
-use crate::image_manager::ImageManager;
 use mln_actor::TaggedScheduler;
 use mln_map_types::MapDebugOptions;
 use mln_style::layer_properties::LayerProperties;
@@ -51,10 +51,7 @@ pub struct RenderTiles {
 
 impl RenderTiles {
     pub fn new(owner: Rc<Vec<RenderTile>>, indices: Vec<usize>) -> Self {
-        RenderTiles {
-            owner,
-            indices: Rc::new(indices),
-        }
+        RenderTiles { owner, indices: Rc::new(indices) }
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &RenderTile> + '_ {
@@ -84,7 +81,8 @@ impl RenderTiles {
 pub trait RenderSourceObserver {
     fn on_tile_changed(&self, _source_id: &str, _tile_id: &OverscaledTileID) {}
     fn on_tile_error(&self, _source_id: &str, _tile_id: &OverscaledTileID, _error: ExceptionPtr) {}
-    fn on_tile_action(&self, _source_id: &str, _op: TileOperation, _tile_id: &OverscaledTileID, _tile_source_id: &str) {}
+    fn on_tile_action(&self, _source_id: &str, _op: TileOperation, _tile_id: &OverscaledTileID, _tile_source_id: &str) {
+    }
     // TODO(port): onSymbolError (M5).
 }
 

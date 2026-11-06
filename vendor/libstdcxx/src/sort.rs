@@ -117,13 +117,7 @@ fn partial_sort<T: Copy, F: FnMut(&T, &T) -> bool>(
 }
 
 /// `__heap_select(first, middle, last)`.
-fn heap_select<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    first: usize,
-    middle: usize,
-    last: usize,
-    comp: &mut F,
-) {
+fn heap_select<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], first: usize, middle: usize, last: usize, comp: &mut F) {
     make_heap_range(v, first, middle, comp);
     for i in middle..last {
         if comp(&v[i], &v[first]) {
@@ -135,12 +129,7 @@ fn heap_select<T: Copy, F: FnMut(&T, &T) -> bool>(
     }
 }
 
-fn final_insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    first: usize,
-    last: usize,
-    comp: &mut F,
-) {
+fn final_insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], first: usize, last: usize, comp: &mut F) {
     if last - first > S_THRESHOLD {
         insertion_sort(v, first, first + S_THRESHOLD, comp);
         // `__unguarded_insertion_sort(first + threshold, last)`
@@ -153,12 +142,7 @@ fn final_insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(
 }
 
 /// `__insertion_sort(first, last)`; also used by `std::stable_sort`.
-pub(crate) fn insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    first: usize,
-    last: usize,
-    comp: &mut F,
-) {
+pub(crate) fn insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], first: usize, last: usize, comp: &mut F) {
     if first == last {
         return;
     }
@@ -173,11 +157,7 @@ pub(crate) fn insertion_sort<T: Copy, F: FnMut(&T, &T) -> bool>(
     }
 }
 
-fn unguarded_linear_insert<T: Copy, F: FnMut(&T, &T) -> bool>(
-    v: &mut [T],
-    mut last: usize,
-    comp: &mut F,
-) {
+fn unguarded_linear_insert<T: Copy, F: FnMut(&T, &T) -> bool>(v: &mut [T], mut last: usize, comp: &mut F) {
     let val = v[last];
     let mut next = last.wrapping_sub(1);
     while comp(&val, &v[next]) {

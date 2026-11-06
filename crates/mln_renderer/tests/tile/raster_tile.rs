@@ -48,8 +48,7 @@ fn on_error() {
 fn on_parsed() {
     let test = RasterTileTest::new();
     let tile = tile(&test);
-    tile.inner()
-        .on_parsed(Some(Arc::new(RasterBucket::new(PremultipliedImage::new(Size::new(0, 0))))), 0);
+    tile.inner().on_parsed(Some(Arc::new(RasterBucket::new(PremultipliedImage::new(Size::new(0, 0))))), 0);
     assert!(tile.is_renderable());
     assert!(tile.is_loaded());
     assert!(tile.is_complete());

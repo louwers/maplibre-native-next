@@ -264,9 +264,7 @@ impl Impl {
         }));
         let req_ref = req.actor();
         let resource = resource.clone();
-        self.thread
-            .actor()
-            .invoke(move |t: &MainResourceLoaderThread| t.request(req_id, &resource, &req_ref));
+        self.thread.actor().invoke(move |t: &MainResourceLoaderThread| t.request(req_id, &resource, &req_ref));
         Box::new(req)
     }
 
@@ -293,9 +291,7 @@ impl Impl {
     }
 
     fn can_request(&self, resource: &Resource) -> bool {
-        self.all()
-            .iter()
-            .any(|fs| fs.as_ref().is_some_and(|fs| fs.can_request(resource)))
+        self.all().iter().any(|fs| fs.as_ref().is_some_and(|fs| fs.can_request(resource)))
     }
 }
 

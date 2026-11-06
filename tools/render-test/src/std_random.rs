@@ -50,8 +50,7 @@ impl SeedSeq {
         let tt = |x: u32| x ^ (x >> 27);
 
         for k in 0..m {
-            let r1 = 1664525u32
-                .wrapping_mul(tt(out[k % n] ^ out[(k + p) % n] ^ out[(k + n - 1) % n]));
+            let r1 = 1664525u32.wrapping_mul(tt(out[k % n] ^ out[(k + p) % n] ^ out[(k + n - 1) % n]));
             let r2 = if k == 0 {
                 r1.wrapping_add(s as u32)
             } else if k <= s {
@@ -64,9 +63,8 @@ impl SeedSeq {
             out[k % n] = r2;
         }
         for k in m..m + n {
-            let r3 = 1566083941u32.wrapping_mul(tt(
-                out[k % n].wrapping_add(out[(k + p) % n]).wrapping_add(out[(k + n - 1) % n]),
-            ));
+            let r3 = 1566083941u32
+                .wrapping_mul(tt(out[k % n].wrapping_add(out[(k + p) % n]).wrapping_add(out[(k + n - 1) % n])));
             let r4 = r3.wrapping_sub((k % n) as u32);
             out[(k + p) % n] ^= r3;
             out[(k + q) % n] ^= r4;
@@ -96,9 +94,7 @@ impl Mt19937 {
         let mut state = [0u32; Self::N];
         state[0] = value;
         for i in 1..Self::N {
-            state[i] = 1812433253u32
-                .wrapping_mul(state[i - 1] ^ (state[i - 1] >> 30))
-                .wrapping_add(i as u32);
+            state[i] = 1812433253u32.wrapping_mul(state[i - 1] ^ (state[i - 1] >> 30)).wrapping_add(i as u32);
         }
         Mt19937 { state, index: Self::N }
     }

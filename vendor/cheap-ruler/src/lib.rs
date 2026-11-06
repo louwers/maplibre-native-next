@@ -33,11 +33,7 @@ pub fn remainder(x: f64, y: f64) -> f64 {
     // Round the quotient to nearest; on a tie, to even (the truncated
     // quotient is odd iff |fmod(x, 2y)| >= |y|; 2y = inf also works).
     let past_half = 2.0 * ar > ay || (2.0 * ar == ay && (x % (2.0 * y)).abs() >= ay);
-    if past_half {
-        if r > 0.0 { r - ay } else { r + ay }
-    } else {
-        r
-    }
+    if past_half { if r > 0.0 { r - ay } else { r + ay } } else { r }
 }
 
 /// glibc `fmin`: the non-NaN argument; the first one when equal.
@@ -116,7 +112,7 @@ impl CheapRuler {
         // multipliers for converting longitude and latitude degrees into
         // distance
         CheapRuler {
-            kx: mul * w * coslat,        // based on normal radius of curvature
+            kx: mul * w * coslat,          // based on normal radius of curvature
             ky: mul * w * w2 * (1.0 - E2), // based on meridonal radius of curvature
         }
     }
@@ -362,10 +358,7 @@ impl CheapRuler {
         let v = buffer / self.ky;
         let h = buffer / self.kx;
 
-        Box::new(
-            Point::new(bbox.min.x - h, bbox.min.y - v),
-            Point::new(bbox.max.x + h, bbox.max.y + v),
-        )
+        Box::new(Point::new(bbox.min.x - h, bbox.min.y - v), Point::new(bbox.max.x + h, bbox.max.y + v))
     }
 
     /// Returns true if the given point is inside in the given bounding box,

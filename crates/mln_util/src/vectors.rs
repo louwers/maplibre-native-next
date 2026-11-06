@@ -13,19 +13,14 @@ pub type Vec3i = [i32; 3];
 pub type Vec4 = [f64; 4];
 
 /// `concatenate(a, b)` for two arrays (the only arity used in the tree).
-pub fn concatenate<T: Copy, const A: usize, const B: usize, const N: usize>(
-    a: &[T; A],
-    b: &[T; B],
-) -> [T; N] {
+pub fn concatenate<T: Copy, const A: usize, const B: usize, const N: usize>(a: &[T; A], b: &[T; B]) -> [T; N] {
     const { assert!(A + B == N, "concatenate: output size must be A + B") };
     std::array::from_fn(|i| if i < A { a[i] } else { b[i - A] })
 }
 
 /// Extract a portion of an array. `slice::<0, 2, _, 4>(&v)` is equivalent to
 /// OpenGL `vec4.xy`.
-pub fn slice<const START: usize, const COUNT: usize, T: Copy, const N: usize>(
-    array: &[T; N],
-) -> [T; COUNT] {
+pub fn slice<const START: usize, const COUNT: usize, T: Copy, const N: usize>(array: &[T; N]) -> [T; COUNT] {
     const { assert!(START + COUNT <= N, "Slice out of bounds") };
     std::array::from_fn(|i| array[START + i])
 }
@@ -61,10 +56,7 @@ impl<T: Copy, const M: usize> AsArray<T> for [T; M] {
 
 /// `vector::vec<T>(a, b)`: OpenGL-style construction, e.g.
 /// `vec_from2::<f64, _, _, 3>(&vec2, &1.0)`.
-pub fn vec_from2<T: Copy + Default, A: AsArray<T>, B: AsArray<T>, const N: usize>(
-    a: &A,
-    b: &B,
-) -> [T; N] {
+pub fn vec_from2<T: Copy + Default, A: AsArray<T>, B: AsArray<T>, const N: usize>(a: &A, b: &B) -> [T; N] {
     const { assert!(A::LEN + B::LEN == N, "vec: output size must match the arguments") };
     let mut result = [T::default(); N];
     a.write_to(&mut result[..A::LEN]);
@@ -78,9 +70,7 @@ pub fn vec_from3<T: Copy + Default, A: AsArray<T>, B: AsArray<T>, C: AsArray<T>,
     b: &B,
     c: &C,
 ) -> [T; N] {
-    const {
-        assert!(A::LEN + B::LEN + C::LEN == N, "vec: output size must match the arguments")
-    };
+    const { assert!(A::LEN + B::LEN + C::LEN == N, "vec: output size must match the arguments") };
     let mut result = [T::default(); N];
     a.write_to(&mut result[..A::LEN]);
     b.write_to(&mut result[A::LEN..A::LEN + B::LEN]);
@@ -89,25 +79,13 @@ pub fn vec_from3<T: Copy + Default, A: AsArray<T>, B: AsArray<T>, C: AsArray<T>,
 }
 
 /// `vector::vec<T>(a, b, c, d)`.
-pub fn vec_from4<
-    T: Copy + Default,
-    A: AsArray<T>,
-    B: AsArray<T>,
-    C: AsArray<T>,
-    D: AsArray<T>,
-    const N: usize,
->(
+pub fn vec_from4<T: Copy + Default, A: AsArray<T>, B: AsArray<T>, C: AsArray<T>, D: AsArray<T>, const N: usize>(
     a: &A,
     b: &B,
     c: &C,
     d: &D,
 ) -> [T; N] {
-    const {
-        assert!(
-            A::LEN + B::LEN + C::LEN + D::LEN == N,
-            "vec: output size must match the arguments"
-        )
-    };
+    const { assert!(A::LEN + B::LEN + C::LEN + D::LEN == N, "vec: output size must match the arguments") };
     let mut result = [T::default(); N];
     a.write_to(&mut result[..A::LEN]);
     b.write_to(&mut result[A::LEN..A::LEN + B::LEN]);
