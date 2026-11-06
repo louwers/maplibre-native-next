@@ -13,5 +13,6 @@ name = "vector_tile"
 doctest = false
 
 [dependencies]
-maplibre_native_base.workspace = true
+feature.workspace = true
+geometry.workspace = true
 protozero.workspace = true

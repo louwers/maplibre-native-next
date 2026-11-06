@@ -4,7 +4,7 @@ use crate::expression::{EvaluationContext, Kind, evaluate_feature};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use maplibre_native_base::Feature;
+use feature::Feature;
 use mln_conversion::Convertible;
 
 fn parse_semiliteral(json: &str, ctx: &mut ParsingContext, property: bool) -> ParseResult {

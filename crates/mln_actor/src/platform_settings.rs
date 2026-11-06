@@ -3,7 +3,7 @@
 // because its C++ users are the thread priority setters of util::Thread and
 // the thread pools (still TODO(port) here).
 
-use maplibre_native_base::{Value, ValueObject};
+use feature::{Value, ValueObject};
 use std::sync::{Mutex, OnceLock};
 
 // The value for EXPERIMENTAL_THREAD_PRIORITY_* keys, must be a double.

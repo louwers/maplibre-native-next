@@ -58,7 +58,7 @@ rust_test(
         "//crates/mln_sprite",
         "//crates/mln_storage",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "@next_crates//:proptest",
         "@next_crates//:rusqlite",
     ],

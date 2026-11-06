@@ -16,9 +16,10 @@ name = "geojson_vt"
 doctest = false
 
 [dependencies]
+feature.workspace = true
 geojson.workspace = true
+geometry.workspace = true
 libstdcxx.workspace = true
-maplibre_native_base.workspace = true
 
 [[test]]
 name = "geojsonvt_test"

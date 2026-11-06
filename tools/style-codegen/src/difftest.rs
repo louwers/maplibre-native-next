@@ -341,7 +341,7 @@ pub fn generate(spec_text: &str) -> Result<(String, String), String> {
     rs.line("// style spec: the per-property Rust calls and the cases of");
     rs.line("// //difftest/style_codegen.");
     rs.blank();
-    rs.line("use maplibre_native_base::Value;");
+    rs.line("use feature::Value;");
     rs.line("use mln_style::conversion_impl::{make_color_ramp_style_property, make_style_property, make_value};");
     rs.line("use mln_style::layer::Layer;");
     rs.line("use mln_style::layers::{");

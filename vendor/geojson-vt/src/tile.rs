@@ -3,9 +3,16 @@
 use crate::types::*;
 use geojson::FeatureCollection;
 use libstdcxx::cvt::f64_to_i16;
-use maplibre_native_base::{
-    Feature, Geometry, Identifier, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point,
-    Polygon, PropertyMap, Value,
+use feature::{Feature, Identifier, PropertyMap, Value};
+use geometry::{
+    Geometry,
+    LineString,
+    LinearRing,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
 };
 
 /// `Tile`

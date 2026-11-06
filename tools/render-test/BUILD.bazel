@@ -16,8 +16,9 @@ rust_library(
         "//crates/mln_storage",
         "//crates/mln_util",
         "//vendor/csscolorparser",
+        "//vendor/feature",
         "//vendor/geojson",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "//vendor/pixelmatch",
         "@next_crates//:regex",
         "@next_crates//:serde",
@@ -84,7 +85,7 @@ rust_library(
         "//crates/mln_conversion",
         "//crates/mln_map_types",
         "//crates/mln_style",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "@next_crates//:serde_json",
     ],
 )
@@ -117,7 +118,7 @@ rust_library(
         "//crates/mln_storage",
         "//crates/mln_style",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "@next_crates//:serde_json",
     ],
 )

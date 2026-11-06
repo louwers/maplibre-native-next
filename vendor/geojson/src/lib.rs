@@ -18,9 +18,17 @@ pub use geojson_impl::{
     parse_geometry, stringify, stringify_feature, stringify_feature_collection, stringify_geometry,
     to_json, to_json_feature, to_json_feature_collection, to_json_geometry,
 };
-pub use maplibre_native_base::{
-    Feature, Geometry, GeometryCollection, Identifier, LineString, LinearRing, MultiLineString,
-    MultiPoint, MultiPolygon, Point, Polygon, PropertyMap, Value,
+pub use feature::{Feature, Identifier, PropertyMap, Value};
+pub use geometry::{
+    Geometry,
+    GeometryCollection,
+    LineString,
+    LinearRing,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
 };
 
 /// `mapbox::feature::feature_collection<T>` (a `std::vector` of features).

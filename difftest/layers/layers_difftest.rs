@@ -14,7 +14,8 @@
 // Both sides print the same text report; the comparison is on that text
 // (floats as bit patterns).
 
-use maplibre_native_base::{Identifier, Point, PropertyMap, Value};
+use feature::{Identifier, PropertyMap, Value};
+use geometry::Point;
 use mln_conversion::Convertible;
 use mln_gfx::polyline_generator::{PolylineGenerator, PolylineGeneratorDistances, PolylineGeneratorOptions};
 use mln_gfx::shaders::segment::SegmentBase;

@@ -6,7 +6,7 @@
 mod dump;
 
 use dump::*;
-use maplibre_native_base::{Geometry, MultiPolygon, Point};
+use geometry::{Geometry, MultiPolygon, Point};
 use mln_tile_id::{CanonicalTileID, GeometryCollection, GeometryTileFeature};
 use mln_util::geometry::FeatureType;
 use proptest::prelude::*;
@@ -102,7 +102,7 @@ impl GeometryTileFeature for TestFeature {
     fn get_type(&self) -> FeatureType {
         self.type_
     }
-    fn get_value(&self, _key: &str) -> Option<maplibre_native_base::Value> {
+    fn get_value(&self, _key: &str) -> Option<feature::Value> {
         None
     }
     fn get_geometries(&self) -> &GeometryCollection {

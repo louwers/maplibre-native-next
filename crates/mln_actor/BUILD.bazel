@@ -8,7 +8,7 @@ rust_library(
     visibility = ["//visibility:public"],
     deps = [
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
     ],
 )
 
@@ -30,6 +30,6 @@ rust_test(
     deps = [
         ":mln_actor",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
     ],
 )

@@ -2,7 +2,7 @@
 // `featureIDtoString`). `mln::Feature` arrives with queries.
 
 use crate::string::{to_string_double, to_string_i64, to_string_u64};
-use maplibre_native_base::{Identifier, Value};
+use feature::{Identifier, Value};
 
 /// `numericValue<double>(const Value&)`.
 pub fn numeric_value_f64(value: &Value) -> Option<f64> {
@@ -29,24 +29,24 @@ pub fn feature_id_to_string(id: &Identifier) -> Option<String> {
 /// plus the source, source layer and feature state a query fills in.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Feature {
-    pub geometry: maplibre_native_base::Geometry<f64>,
-    pub properties: maplibre_native_base::PropertyMap,
+    pub geometry: geometry::Geometry<f64>,
+    pub properties: feature::PropertyMap,
     pub id: Identifier,
     pub source: String,
     pub source_layer: String,
-    pub state: maplibre_native_base::PropertyMap,
+    pub state: feature::PropertyMap,
 }
 
-impl From<maplibre_native_base::Feature<f64>> for Feature {
+impl From<feature::Feature<f64>> for Feature {
     /// `Feature(const GeoJSONFeature&)`.
-    fn from(f: maplibre_native_base::Feature<f64>) -> Self {
+    fn from(f: feature::Feature<f64>) -> Self {
         Feature { geometry: f.geometry, properties: f.properties, id: f.id, ..Default::default() }
     }
 }
 
 impl Feature {
     /// The `GeoJSONFeature` base.
-    pub fn to_geojson_feature(&self) -> maplibre_native_base::Feature<f64> {
-        maplibre_native_base::Feature { geometry: self.geometry.clone(), properties: self.properties.clone(), id: self.id.clone() }
+    pub fn to_geojson_feature(&self) -> feature::Feature<f64> {
+        feature::Feature { geometry: self.geometry.clone(), properties: self.properties.clone(), id: self.id.clone() }
     }
 }

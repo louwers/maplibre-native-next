@@ -3,7 +3,7 @@
 // the query tests. Same code as //tools/expression-test's port (that crate
 // depends on the style crates; this runner core must not).
 
-use maplibre_native_base::Value;
+use feature::Value;
 
 /// `numericValue<double>`.
 fn numeric_value(value: &Value) -> Option<f64> {

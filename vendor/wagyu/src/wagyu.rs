@@ -10,7 +10,7 @@ use crate::ring::RingManager;
 use crate::snap_rounding::build_hot_pixels;
 use crate::topology_correction::correct_topology;
 use crate::vatti::execute_vatti;
-use maplibre_native_base::{LinearRing, MultiPolygon, Polygon};
+use geometry::{LinearRing, MultiPolygon, Polygon};
 
 /// `mapbox::geometry::wagyu::wagyu<int32_t>`: a polygon clipper (Vatti with
 /// snap rounding and topology correction). Errors are the C++

@@ -14,7 +14,7 @@ use crate::render_source::{RenderSource, RenderSourceBase, SourcePrepareParamete
 use crate::render_tree::RenderItem;
 use crate::tile_parameters::TileParameters;
 use crate::util::tile_cover::{TileCoverParameters, tile_cover, tile_cover_bounds};
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_map_types::TileCoordinate;
 use mln_map_types::tile_coordinate::TileCoordinatePoint;

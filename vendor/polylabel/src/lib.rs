@@ -8,7 +8,7 @@
 // result. The debug printing is not ported.
 
 use libstdcxx::PriorityQueue;
-use maplibre_native_base::{LinearRing, Point, Polygon};
+use geometry::{LinearRing, Point, Polygon};
 
 /// `polygon.at(0)` / `ring.at(0)` on an empty vector (std::out_of_range).
 const OUT_OF_RANGE: &str = "vector::_M_range_check: __n (which is 0) >= this->size() (which is 0)";

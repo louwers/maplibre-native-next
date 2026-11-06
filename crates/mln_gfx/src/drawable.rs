@@ -21,7 +21,7 @@ use crate::texture2d::Texture2DPtr;
 use crate::types::DepthMaskType;
 use crate::uniform_buffer::UniformBufferArray;
 use crate::vertex_attribute::VertexAttributeArrayPtr;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_tile_id::OverscaledTileID;
 use mln_util::identity::SimpleIdentity;
 use std::any::Any;

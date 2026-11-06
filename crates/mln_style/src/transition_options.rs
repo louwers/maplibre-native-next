@@ -1,6 +1,6 @@
 // Ports include/mln/style/transition_options.hpp.
 
-use maplibre_native_base::{Value, ValueObject};
+use feature::{Value, ValueObject};
 use mln_util::chrono::Duration;
 
 #[derive(Clone, Copy, Debug, PartialEq)]

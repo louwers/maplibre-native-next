@@ -4,9 +4,8 @@
 // The C++ runner reads the fixtures with rapidjson's full-precision parser
 // (correctly rounded, like serde_json).
 
-use maplibre_native_base::{
-    Feature, Geometry, Identifier, LineString, Point, Polygon, Value, ValueObject,
-};
+use feature::{Feature, Identifier, Value, ValueObject};
+use geometry::{Geometry, LineString, Point, Polygon};
 use mln_conversion::Convertible;
 use mln_expression::type_::{self, Type};
 use mln_expression::{Expression, ParsingContext, is_feature_constant, is_zoom_constant};

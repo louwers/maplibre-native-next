@@ -14,7 +14,7 @@ rust_library(
         "//crates/mln_storage",
         "//crates/mln_style",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
     ],
 )
 

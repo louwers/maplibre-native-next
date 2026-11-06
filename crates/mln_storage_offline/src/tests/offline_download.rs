@@ -4,7 +4,7 @@
 
 use super::cpp_path;
 use crate::offline_download::{OfflineDownload, WeakOfflineDownload};
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::{AsyncTask, LocalObject, RunLoop};
 use mln_platform_default_image::compression::compress;
 use mln_storage::file_source::MAX_CONCURRENT_REQUESTS_KEY;

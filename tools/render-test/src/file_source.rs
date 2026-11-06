@@ -2,7 +2,7 @@
 // (`ProxyFileSource`), plus `TestRunner::registerProxyFileSource`
 // (render-test/runner.cpp).
 
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_storage::file_source::READ_ONLY_MODE_KEY;
 use mln_storage::{
     AsyncRequest, Callback, ClientOptions, FileSource, FileSourceManager, FileSourceType, Kind, LoadingMethod,

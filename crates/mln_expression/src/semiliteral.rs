@@ -9,7 +9,7 @@ use crate::literal::Literal;
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::Value;
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_conversion::Convertible;
 
 fn array_type(elements: &[Box<dyn Expression>]) -> type_::Array {

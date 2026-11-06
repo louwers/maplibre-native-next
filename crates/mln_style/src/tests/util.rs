@@ -107,8 +107,8 @@ pub fn parse_json(json: &str) -> serde_json::Value {
 }
 
 /// rapidjson `stringify(writer, Value)` for the round-trip tests.
-pub fn value_to_json(value: &maplibre_native_base::Value) -> serde_json::Value {
-    use maplibre_native_base::Value;
+pub fn value_to_json(value: &feature::Value) -> serde_json::Value {
+    use feature::Value;
     match value {
         Value::Null => serde_json::Value::Null,
         Value::Bool(b) => serde_json::Value::Bool(*b),
@@ -125,17 +125,17 @@ pub fn value_to_json(value: &maplibre_native_base::Value) -> serde_json::Value {
 
 /// Ports test/include/mln/test/stub_geometry_tile_feature.hpp.
 pub struct StubGeometryTileFeature {
-    pub properties: maplibre_native_base::PropertyMap,
-    pub id: maplibre_native_base::Identifier,
+    pub properties: feature::PropertyMap,
+    pub id: feature::Identifier,
     pub type_: mln_util::geometry::FeatureType,
     pub geometry: mln_tile_id::geometry_tile_data::GeometryCollection,
 }
 
 impl StubGeometryTileFeature {
-    pub fn new(properties: maplibre_native_base::PropertyMap) -> Self {
+    pub fn new(properties: feature::PropertyMap) -> Self {
         StubGeometryTileFeature {
             properties,
-            id: maplibre_native_base::Identifier::Null,
+            id: feature::Identifier::Null,
             type_: mln_util::geometry::FeatureType::Point,
             geometry: Default::default(),
         }
@@ -148,7 +148,7 @@ impl StubGeometryTileFeature {
     ) -> Self {
         StubGeometryTileFeature {
             properties: Default::default(),
-            id: maplibre_native_base::Identifier::Null,
+            id: feature::Identifier::Null,
             type_,
             geometry,
         }
@@ -156,9 +156,9 @@ impl StubGeometryTileFeature {
 
     /// `StubGeometryTileFeature(id, type, geometry, properties)` (no geometry).
     pub fn with_id_type(
-        id: maplibre_native_base::Identifier,
+        id: feature::Identifier,
         type_: mln_util::geometry::FeatureType,
-        properties: maplibre_native_base::PropertyMap,
+        properties: feature::PropertyMap,
     ) -> Self {
         StubGeometryTileFeature {
             properties,
@@ -174,15 +174,15 @@ impl mln_tile_id::geometry_tile_data::GeometryTileFeature for StubGeometryTileFe
         self.type_
     }
 
-    fn get_value(&self, key: &str) -> Option<maplibre_native_base::Value> {
+    fn get_value(&self, key: &str) -> Option<feature::Value> {
         self.properties.get(key).cloned()
     }
 
-    fn get_properties(&self) -> &maplibre_native_base::PropertyMap {
+    fn get_properties(&self) -> &feature::PropertyMap {
         &self.properties
     }
 
-    fn get_id(&self) -> maplibre_native_base::Identifier {
+    fn get_id(&self) -> feature::Identifier {
         self.id.clone()
     }
 
@@ -192,6 +192,6 @@ impl mln_tile_id::geometry_tile_data::GeometryTileFeature for StubGeometryTileFe
 }
 
 /// `PropertyMap{{key, value}}`.
-pub fn property_map(entries: &[(&str, maplibre_native_base::Value)]) -> maplibre_native_base::PropertyMap {
+pub fn property_map(entries: &[(&str, feature::Value)]) -> feature::PropertyMap {
     entries.iter().map(|(k, v)| ((*k).to_owned(), v.clone())).collect()
 }

@@ -11,7 +11,7 @@ use crate::render_layer::LayerRenderData;
 use crate::render_source::SourcePrepareParameters;
 use crate::tile::tile::Tile;
 use crate::tile_render_data::{TileAtlasTextures, TileRenderData};
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_map_types::{MapDebugOptions, TransformState};
 use mln_style::layer;

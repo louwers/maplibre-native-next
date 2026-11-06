@@ -6,7 +6,7 @@
 
 use crate::buckets::symbol_bucket::{PlacedSymbol, SymbolBucket, SymbolDynamicLayoutVertex, SymbolSizeBinder, ZoomEvaluatedSize};
 use crate::render_tile::RenderTile;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_map_types::TransformState;
 use mln_text::glyph::WritingModeType;
 use mln_tile_id::geometry_tile_data::GeometryCoordinates;

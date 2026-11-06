@@ -12,7 +12,7 @@ use crate::formatted::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::{Value, from_expression_value, to_string, type_of};
-use maplibre_native_base::{Value as MbglValue, ValueObject};
+use feature::{Value as MbglValue, ValueObject};
 use mln_conversion::Convertible;
 use mln_util::Color;
 use std::sync::Arc;

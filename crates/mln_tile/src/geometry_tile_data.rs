@@ -8,8 +8,16 @@
 // util/math.hpp dist/normal/perp/crossProduct/angle_between).
 
 use crate::stl_algo::nth_element;
-use maplibre_native_base::{
-    Feature, Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon,
+use feature::Feature;
+use geometry::{
+    Geometry,
+    LineString,
+    LinearRing,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
 };
 use mln_tile_id::{CanonicalTileID, GeometryCollection, GeometryCoordinates, GeometryTileFeature};
 use mln_util::constants::EXTENT;

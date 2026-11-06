@@ -16,7 +16,7 @@ use crate::file_source::{Callback, FileSource};
 use crate::resource::{Kind, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::Response;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::{AsyncTask, LocalObject};
 use mln_util::client_options::ClientOptions;
 use std::cell::RefCell;

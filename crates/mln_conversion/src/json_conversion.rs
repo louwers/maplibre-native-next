@@ -8,7 +8,7 @@
 // iterates object members in key order (rapidjson: document order).
 
 use crate::conversion::{ConversionTraits, Convertible, Error};
-use maplibre_native_base::Value;
+use feature::Value;
 
 impl ConversionTraits for serde_json::Value {
     fn is_undefined(&self) -> bool {

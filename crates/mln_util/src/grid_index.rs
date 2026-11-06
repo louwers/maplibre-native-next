@@ -9,7 +9,7 @@
 
 use std::collections::HashSet;
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_math::{fmax, fmin};
 
 /// `mapbox::geometry::box<T>`.

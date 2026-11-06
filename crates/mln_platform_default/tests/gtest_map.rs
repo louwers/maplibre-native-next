@@ -11,7 +11,7 @@ mod gtest_prefetch;
 mod support;
 
 use geojson::{Feature, GeoJSON, Geometry, Point};
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::{RunLoop, Timer};
 use mln_gfx::{BackendScope, ScopeType};
 use mln_map::{

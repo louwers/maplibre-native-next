@@ -169,7 +169,7 @@ fn possibly_evaluated_evaluate_per_feature() {
     use mln_style_types::{AlignmentType, LineJoinType};
     use mln_tile_id::CanonicalTileID;
 
-    let feature = StubGeometryTileFeature::new(property_map(&[("r", maplibre_native_base::Value::Double(7.5))]));
+    let feature = StubGeometryTileFeature::new(property_map(&[("r", feature::Value::Double(7.5))]));
 
     let mut paint = CirclePaintProperties::PossiblyEvaluated::default();
     // A constant.

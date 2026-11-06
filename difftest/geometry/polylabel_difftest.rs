@@ -4,7 +4,7 @@
 // precision (EXTENT / tileSize = 16) and others.
 
 use geometry_difftest_support::{Polygon, flatten, grid_polygon, run_cases, star_polygon};
-use maplibre_native_base::Point;
+use geometry::Point;
 use proptest::prelude::*;
 use proptest::test_runner::TestCaseResult;
 
@@ -20,7 +20,7 @@ fn cpp(polygon: &Polygon<f64>, precision: f64) -> Option<(u64, u64)> {
 }
 
 fn rust(polygon: &Polygon<f64>, precision: f64) -> Option<(u64, u64)> {
-    let polygon: maplibre_native_base::Polygon<f64> = polygon
+    let polygon: geometry::Polygon<f64> = polygon
         .iter()
         .map(|r| r.iter().map(|&(x, y)| Point::new(x, y)).collect())
         .collect();

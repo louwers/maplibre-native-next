@@ -1,6 +1,6 @@
 // Ports src/mln/text/quads.hpp and src/mln/text/quads.cpp.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_math::{deg2radf, max_f32, min_f32};
 use mln_style::layers::symbol_layer_properties::SymbolLayoutProperties;
 use mln_style_types::image::{ImageMap, ImagePosition, ImageStretches, RectU16};

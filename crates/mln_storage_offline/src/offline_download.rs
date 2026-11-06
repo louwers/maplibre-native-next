@@ -38,7 +38,7 @@ use mln_util::constants::{DEFAULT_MAXIMUM_CONCURRENT_REQUESTS, TILE_SIZE_I};
 use mln_util::i18n::glyph_range_is_entirely_locally_generated;
 use mln_util::range::Range;
 use mln_util::tileset::Tileset;
-use maplibre_native_base::Value;
+use feature::Value;
 use std::cell::{Cell, RefCell};
 use std::collections::{BTreeMap, HashSet, VecDeque};
 use std::rc::{Rc, Weak};

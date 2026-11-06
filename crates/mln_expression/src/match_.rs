@@ -9,7 +9,7 @@ use crate::expression::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_conversion::Convertible;
 use std::collections::BTreeMap;
 use std::sync::Arc;

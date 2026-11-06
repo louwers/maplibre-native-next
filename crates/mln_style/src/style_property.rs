@@ -1,6 +1,6 @@
 // Ports include/mln/style/style_property.hpp.
 
-use maplibre_native_base::Value;
+use feature::Value;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[repr(u8)]

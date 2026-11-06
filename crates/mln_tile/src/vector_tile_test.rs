@@ -5,7 +5,7 @@
 // crates/mln_renderer/tests/vector_tile_test.rs.
 
 use crate::{VectorMLTTileData, VectorMVTTileData};
-use maplibre_native_base::Identifier;
+use feature::Identifier;
 use mln_tile_id::GeometryTileData;
 use mln_util::geometry::FeatureType;
 use std::path::PathBuf;

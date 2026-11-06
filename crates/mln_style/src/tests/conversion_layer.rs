@@ -6,7 +6,7 @@ use crate::filter::Filter;
 use crate::layer::Layer;
 use crate::layers::background_layer::BackgroundLayer;
 use crate::layers::BackgroundColor;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_conversion::{Convertible, Error};
 use mln_util::chrono::milliseconds;
 

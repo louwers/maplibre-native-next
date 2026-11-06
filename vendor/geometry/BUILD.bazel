@@ -1,0 +1,14 @@
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+
+# Ports mapbox::geometry (geometry.hpp, in the C++ core's
+# vendor/maplibre-native-base/deps).
+rust_library(
+    name = "geometry",
+    srcs = glob(["src/**/*.rs"]),
+    visibility = ["//visibility:public"],
+)
+
+rust_test(
+    name = "geometry_test",
+    crate = ":geometry",
+)

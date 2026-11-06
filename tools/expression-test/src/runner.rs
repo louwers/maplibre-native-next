@@ -6,7 +6,7 @@ use crate::parser::{
     to_document, to_json,
 };
 use crate::test_runner_common::{deep_equal_opt, tokenize};
-use maplibre_native_base::{Value, ValueObject};
+use feature::{Value, ValueObject};
 use mln_expression::Expression;
 use mln_expression::expression::{evaluate_feature_with_canonical, evaluate_feature_with_images};
 

@@ -1,6 +1,6 @@
 // Ports src/mln/geometry/anchor.hpp.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 
 /// `Anchor`.
 #[derive(Clone, Copy, Debug, PartialEq)]

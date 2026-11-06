@@ -9,7 +9,7 @@
 // constructor does.
 
 use crate::shaders::segment::SegmentBase;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_style_types::{LineCapType, LineJoinType};
 use mln_tile_id::geometry_tile_data::{GeometryCoordinate, GeometryCoordinates};
 use mln_util::constants::{EXTENT, TILE_SIZE_D};

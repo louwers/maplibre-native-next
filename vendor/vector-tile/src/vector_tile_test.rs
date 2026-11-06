@@ -3,7 +3,7 @@
 
 use crate::config::{FeatureType, LayerType, TileType, ValueType};
 use crate::*;
-use maplibre_native_base::{Identifier, Value};
+use feature::{Identifier, Value};
 use std::path::PathBuf;
 
 fn open_tile(path: &str) -> Vec<u8> {

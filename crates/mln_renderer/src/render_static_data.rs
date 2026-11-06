@@ -48,7 +48,7 @@ impl RenderStaticData {
     /// `rasterVertices()`.
     pub fn raster_vertices() -> Vec<crate::buckets::raster_bucket::RasterLayoutVertex> {
         use crate::buckets::raster_bucket::RasterBucket;
-        use maplibre_native_base::Point;
+        use geometry::Point;
         let e = constants::EXTENT as i16;
         let t = constants::EXTENT as u16;
         vec![
@@ -73,7 +73,7 @@ impl RenderStaticData {
     /// `heatmapTextureVertices()`.
     pub fn heatmap_texture_vertices() -> Vec<crate::buckets::heatmap_bucket::HeatmapTextureLayoutVertex> {
         use crate::buckets::heatmap_bucket::HeatmapBucket;
-        use maplibre_native_base::Point;
+        use geometry::Point;
         vec![
             HeatmapBucket::texture_vertex(Point::new(0, 0)),
             HeatmapBucket::texture_vertex(Point::new(1, 0)),

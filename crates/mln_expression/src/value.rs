@@ -7,7 +7,7 @@ use crate::formatted::Formatted;
 use crate::image::Image;
 use crate::json_writer::Writer;
 use crate::type_::{self, Type};
-use maplibre_native_base::{Value as MbglValue, ValueObject};
+use feature::{Value as MbglValue, ValueObject};
 use mln_style_types::{
     AlignmentType, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType,
     IconTextFitType, LightAnchorType, LineCapType, LineJoinType, Position, RasterResamplingType,

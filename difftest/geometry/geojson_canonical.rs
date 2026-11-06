@@ -4,7 +4,8 @@
 
 use geojson::GeoJSON;
 use geojson_vt::Tile;
-use maplibre_native_base::{Feature, Geometry, Identifier, Point, PropertyMap, Value};
+use feature::{Feature, Identifier, PropertyMap, Value};
+use geometry::{Geometry, Point};
 use proptest::prelude::*;
 use serde_json::{Value as Json, json};
 

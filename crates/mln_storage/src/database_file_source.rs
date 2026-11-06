@@ -23,7 +23,7 @@ use crate::offline_database::OfflineDatabase;
 use crate::resource::{LoadingMethod, Resource, StoragePolicy};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Error, Reason, Response};
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::{ActorRef, Thread, scheduler};
 use mln_util::client_options::ClientOptions;
 use mln_util::constants::{ASSET_PROTOCOL, FILE_PROTOCOL};

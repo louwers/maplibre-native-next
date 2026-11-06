@@ -11,7 +11,7 @@ use crate::range::Range;
 use crate::stops::{Stops, get_covering_stops};
 use crate::type_::Type;
 use crate::value::Value;
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_conversion::Convertible;
 
 pub struct Step {

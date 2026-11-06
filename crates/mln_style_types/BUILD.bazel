@@ -10,7 +10,7 @@ rust_library(
     deps = [
         "//crates/mln_math",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "//vendor/rapidjson",
     ],
 )

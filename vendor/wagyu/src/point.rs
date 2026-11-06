@@ -6,7 +6,7 @@
 // following NIL panics where C++ would dereference nullptr.
 
 /// `mapbox::geometry::point<int32_t>`.
-pub(crate) type GPoint = maplibre_native_base::Point<i32>;
+pub(crate) type GPoint = geometry::Point<i32>;
 
 /// nullptr for `point_ptr`, `ring_ptr` and `bound_ptr`.
 pub(crate) const NIL: usize = usize::MAX;

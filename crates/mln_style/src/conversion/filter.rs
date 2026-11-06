@@ -4,7 +4,7 @@
 use super::{Converter, Convertible, Error};
 use crate::expression::{Expression, Literal, ParseResult, ParsingContext, Type, Value};
 use crate::filter::Filter;
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_expression::boolean_operator::{All, Any};
 use mln_expression::compound_expression::create_compound_expression;
 use std::sync::Arc;

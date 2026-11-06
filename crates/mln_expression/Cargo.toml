@@ -13,8 +13,9 @@ name = "mln_expression"
 doctest = false
 
 [dependencies]
+feature.workspace = true
 geojson.workspace = true
-maplibre_native_base.workspace = true
+geometry.workspace = true
 mln_conversion.workspace = true
 mln_math.workspace = true
 mln_style_types.workspace = true

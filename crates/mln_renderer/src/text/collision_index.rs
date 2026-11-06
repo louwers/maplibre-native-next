@@ -6,7 +6,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_map_types::{MapMode, TransformState};
 use mln_tile_id::geometry_tile_data::GeometryCoordinates;
 use mln_util::constants::EXTENT;

@@ -9,7 +9,7 @@ use crate::conversion::{Converter, Error, convert_property_value};
 use crate::expression::{Dependency, EvaluationContext, Expression, GlobalStateMap, ParsingContext, Type};
 use crate::filter::Filter;
 use crate::property_expression::PropertyExpression;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_conversion::Convertible;
 use mln_util::Color;
 use std::collections::BTreeSet;

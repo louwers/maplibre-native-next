@@ -5,7 +5,8 @@
 
 use geojson_vt::detail::{Clipper, VtGeometry, VtLineString, VtLinearRing, VtPoint, simplify};
 use geojson_vt::{GeoJSONVT, Options};
-use maplibre_native_base::{Geometry, Point, Value};
+use feature::Value;
+use geometry::{Geometry, Point};
 
 fn p(x: f64, y: f64) -> VtPoint {
     VtPoint::xy(x, y)

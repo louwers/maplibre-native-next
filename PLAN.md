@@ -80,7 +80,8 @@ all). Cutting there gives this layering, bottom to top:
 
 | Crate | Ports | Notes |
 |---|---|---|
-| `//vendor/maplibre-native-base` | `mapbox::geometry`, `mapbox::feature`, `mapbox::base::Value` | own types, not `geo-types`: the `u64`/`i64`/`f64` distinction is load-bearing |
+| `//vendor/geometry` | `mapbox::geometry` (geometry.hpp, in maplibre-native-base) | own types, not `geo-types`: the generic coordinate type matches C++ |
+| `//vendor/feature` | `mapbox::feature` (`value`, which is `mapbox::base::Value`; `identifier`, `feature`) | the `u64`/`i64`/`f64` distinction in `Value` is load-bearing |
 | `//vendor/csscolorparser` | `vendor/csscolorparser` | port of the C++ parser; the Rust crate of the same name accepts different input |
 | `//vendor/rapidjson` | `rapidjson/internal/{dtoa,diyfp,ieee754}.h` only | number formatting for `util::toString(double)`; JSON itself is serde_json |
 | `//vendor/pixelmatch` | the pixelmatch used by `render-test/` | image diff metric |

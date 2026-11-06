@@ -18,7 +18,7 @@ name = "cheap_ruler"
 doctest = false
 
 [dependencies]
-maplibre_native_base.workspace = true
+geometry.workspace = true
 
 [[test]]
 name = "cheap_ruler_fixtures_test"

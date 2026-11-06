@@ -1,7 +1,8 @@
 // Ports test/gl/bucket.test.cpp (the Buckets.* tests; the OpenGL headless
 // backend is the WebGPU one here) and test/renderer/fill_bucket.test.cpp.
 
-use maplibre_native_base::{Identifier, Point, PropertyMap, Value};
+use feature::{Identifier, PropertyMap, Value};
+use geometry::Point;
 use mln_gfx::backend_scope::{BackendScope, ScopeType};
 use mln_gfx::renderer_backend::RendererBackend;
 use mln_gfx::shaders::segment::SegmentBase;

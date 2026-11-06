@@ -248,7 +248,7 @@ impl TestRunnerImpl for Impl {
         style_ops::set_layer_filter(&mut self.map.get_style_mut(), layer, filter)
     }
 
-    fn set_global_state_property(&mut self, name: &str, value: &maplibre_native_base::Value) -> Result<(), MapError> {
+    fn set_global_state_property(&mut self, name: &str, value: &feature::Value) -> Result<(), MapError> {
         style_ops::set_global_state_property(&mut self.map.get_style_mut(), name, value)
     }
 
@@ -257,7 +257,7 @@ impl TestRunnerImpl for Impl {
         source_id: &str,
         source_layer: Option<&str>,
         feature_id: &str,
-        state: &maplibre_native_base::PropertyMap,
+        state: &feature::PropertyMap,
     ) -> Result<bool, MapError> {
         if self.frontend.render(&mut self.map).is_err() {
             return Ok(false);

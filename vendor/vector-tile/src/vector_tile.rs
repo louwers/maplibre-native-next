@@ -2,7 +2,8 @@
 
 use crate::config::{CommandType, FeatureType, GeomType, LayerType, TileType, ValueType};
 use crate::error::{Error, at};
-use maplibre_native_base::{Identifier, Point, PropertyMap, Value};
+use feature::{Identifier, PropertyMap, Value};
+use geometry::Point;
 use protozero::{ConstVarintIterator, DataView, IteratorRange, PbfReader, decode_zigzag32};
 use std::collections::BTreeMap;
 

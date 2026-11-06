@@ -15,7 +15,7 @@ use crate::metadata::{
     TestMetadata, TestMetrics, TestPaths, TestStatistics,
 };
 use crate::runner::{CameraOptions, MapError, TestContext, TestOperation, TestOperations};
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_util::geo::LatLng;
 use mln_util::size::Size;
 use regex::Regex;
@@ -601,11 +601,11 @@ fn json_to_value(value: &serde_json::Value) -> Option<Value> {
 /// `convertFn` over `eachMember(state, ...)`), with its quirks: an array
 /// value becomes `{key: [...]}` but is not stored, an object recurses and
 /// stores the last nested value under the outer key too.
-fn parse_feature_state(state: &serde_json::Value, metadata: &mut TestMetadata) -> maplibre_native_base::PropertyMap {
+fn parse_feature_state(state: &serde_json::Value, metadata: &mut TestMetadata) -> feature::PropertyMap {
     struct Parse {
         state_value: Value,
         value_parsed: bool,
-        parsed_state: maplibre_native_base::PropertyMap,
+        parsed_state: feature::PropertyMap,
     }
     fn convert(p: &mut Parse, k: &str, v: &serde_json::Value, metadata: &mut TestMetadata) {
         if let Some(value) = json_to_value(v) {
@@ -613,7 +613,7 @@ fn parse_feature_state(state: &serde_json::Value, metadata: &mut TestMetadata) -
             p.value_parsed = true;
         } else if let serde_json::Value::Array(elements) = v {
             let array: Vec<Value> = elements.iter().filter_map(json_to_value).collect();
-            let mut values = maplibre_native_base::ValueObject::new();
+            let mut values = feature::ValueObject::new();
             values.insert(k.to_string(), Value::Array(array));
             p.state_value = Value::Object(values);
             p.value_parsed = true;
@@ -633,7 +633,7 @@ fn parse_feature_state(state: &serde_json::Value, metadata: &mut TestMetadata) -
     let mut p = Parse {
         state_value: Value::Null,
         value_parsed: false,
-        parsed_state: maplibre_native_base::PropertyMap::new(),
+        parsed_state: feature::PropertyMap::new(),
     };
     if let serde_json::Value::Object(members) = state {
         for (k, v) in members {
@@ -1344,7 +1344,7 @@ mod tests {
     fn global_state_value() {
         let v: serde_json::Value =
             serde_json::from_str(r#"[null, true, 1, -1, 1.5, "s", {"a": [2]}]"#).unwrap();
-        let mut object = maplibre_native_base::ValueObject::new();
+        let mut object = feature::ValueObject::new();
         object.insert("a".to_string(), Value::Array(vec![Value::Uint(2)]));
         assert_eq!(
             parse_global_state_value(&v),

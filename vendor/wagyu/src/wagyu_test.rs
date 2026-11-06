@@ -2,7 +2,7 @@
 // with the C++ wagyu.
 
 use crate::{ClipType, FillType, PolygonType, Wagyu};
-use maplibre_native_base::{MultiPolygon, Point};
+use geometry::{MultiPolygon, Point};
 
 fn ring(points: &[(i32, i32)]) -> Vec<Point<i32>> {
     points.iter().map(|&(x, y)| Point::new(x, y)).collect()

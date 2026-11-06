@@ -463,7 +463,7 @@ impl TilePyramid {
         }
 
         let height = f64::from(transform_state.get_size().height);
-        let query_geometry: Vec<maplibre_native_base::Point<f64>> = geometry
+        let query_geometry: Vec<geometry::Point<f64>> = geometry
             .iter()
             .map(|p| {
                 TileCoordinate::from_screen_coordinate(

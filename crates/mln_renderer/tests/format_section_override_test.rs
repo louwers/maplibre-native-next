@@ -5,7 +5,7 @@
 // (test/style/expression/global_state.test.cpp) and Layer.SymbolLayerOverrides
 // (test/style/style_layer.test.cpp).
 
-use maplibre_native_base::{PropertyMap, Value as MbglValue};
+use feature::{PropertyMap, Value as MbglValue};
 use mln_conversion::Convertible;
 use mln_expression::dsl::{format_str, get_str, literal_str, string, to_color};
 use mln_expression::expression::{Dependency, EvaluationContext, Expression, GlobalStateMap};

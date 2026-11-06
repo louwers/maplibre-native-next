@@ -7,7 +7,7 @@
 // earcut_fixtures_difftest.rs covers earcut.hpp's own fixtures.
 
 use geometry_difftest_support::{Polygon, flatten, grid_polygon, run_cases, star_polygon, to_f32, to_i16};
-use maplibre_native_base::Point;
+use geometry::Point;
 use proptest::prelude::*;
 use proptest::test_runner::TestCaseResult;
 

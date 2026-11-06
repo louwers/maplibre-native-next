@@ -17,7 +17,8 @@ doctest = false
 
 [dependencies]
 csscolorparser.workspace = true
-maplibre_native_base.workspace = true
+feature.workspace = true
+geometry.workspace = true
 mln_math.workspace = true
 rapidjson.workspace = true
 

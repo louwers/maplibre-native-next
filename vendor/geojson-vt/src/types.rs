@@ -1,6 +1,7 @@
 // Ports vendor/maplibre-native-base/deps/geojson-vt-cpp/include/mapbox/geojsonvt/types.hpp.
 
-use maplibre_native_base::{Identifier, Point, PropertyMap};
+use feature::{Identifier, PropertyMap};
+use geometry::Point;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 

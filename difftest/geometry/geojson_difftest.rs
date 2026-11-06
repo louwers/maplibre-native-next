@@ -7,7 +7,8 @@
 
 use geojson_canonical::*;
 use geometry_difftest_support::run_cases;
-use maplibre_native_base::{Feature, Geometry, Point, Value};
+use feature::{Feature, Value};
+use geometry::{Geometry, Point};
 use proptest::prelude::*;
 use proptest::test_runner::TestCaseResult;
 use serde_json::{Value as Json, json};

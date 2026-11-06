@@ -1,7 +1,7 @@
 // Ports include/mln/util/padding.hpp + src/mln/util/padding.cpp. The
 // Interpolator<Padding> specialization is in interpolate.rs.
 
-use maplibre_native_base::Value;
+use feature::Value;
 
 /// A set of four numbers representing padding around a box.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]

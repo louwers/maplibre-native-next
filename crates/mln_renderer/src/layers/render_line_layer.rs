@@ -188,7 +188,7 @@ fn offset_line(
     rings: &mln_tile_id::geometry_tile_data::GeometryCollection,
     offset: f64,
 ) -> Vec<mln_tile_id::geometry_tile_data::GeometryCoordinates> {
-    use maplibre_native_base::Point;
+    use geometry::Point;
     use mln_util::math::{perp, unit};
 
     debug_assert!(offset != 0.0);

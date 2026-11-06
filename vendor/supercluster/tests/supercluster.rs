@@ -1,7 +1,8 @@
 // Ports vendor/supercluster/test/test.cpp over test/fixtures/places.json,
 // read in place (parseFeatures reads the same properties the same way).
 
-use maplibre_native_base::{Feature, Geometry, Identifier, Point, PropertyMap, Value};
+use feature::{Feature, Identifier, PropertyMap, Value};
+use geometry::{Geometry, Point};
 use serde_json::Value as Json;
 use std::sync::Arc;
 use supercluster::{Options, Supercluster};

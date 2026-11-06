@@ -901,21 +901,22 @@ dependencies = [
 
 [[package]]
 name = "mln-rs"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-actor",
  "mln-rs-conversion",
  "mln-rs-csscolorparser",
  "mln-rs-earcut",
  "mln-rs-expression",
+ "mln-rs-feature",
  "mln-rs-geojson",
  "mln-rs-geojson-vt",
+ "mln-rs-geometry",
  "mln-rs-gfx",
  "mln-rs-kdbush",
  "mln-rs-libstdcxx",
  "mln-rs-map",
  "mln-rs-map-types",
- "mln-rs-maplibre-native-base",
  "mln-rs-math",
  "mln-rs-nunicode",
  "mln-rs-platform-default",
@@ -944,52 +945,53 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-actor"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
- "mln-rs-maplibre-native-base",
+ "mln-rs-feature",
  "mln-rs-util",
 ]
 
 [[package]]
 name = "mln-rs-cheap-ruler"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
- "mln-rs-maplibre-native-base",
+ "mln-rs-geometry",
 ]
 
 [[package]]
 name = "mln-rs-conversion"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
+ "mln-rs-feature",
  "mln-rs-geojson",
- "mln-rs-maplibre-native-base",
  "serde_json",
 ]
 
 [[package]]
 name = "mln-rs-csscolorparser"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-earcut"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-earcut-test-fixtures",
+ "mln-rs-geometry",
  "mln-rs-libstdcxx",
- "mln-rs-maplibre-native-base",
 ]
 
 [[package]]
 name = "mln-rs-earcut-test-fixtures"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-expression"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-conversion",
+ "mln-rs-feature",
  "mln-rs-geojson",
- "mln-rs-maplibre-native-base",
+ "mln-rs-geometry",
  "mln-rs-math",
  "mln-rs-nunicode",
  "mln-rs-rapidjson",
@@ -1001,30 +1003,43 @@ dependencies = [
 ]
 
 [[package]]
-name = "mln-rs-geojson"
-version = "0.0.7"
+name = "mln-rs-feature"
+version = "0.0.8"
 dependencies = [
- "mln-rs-maplibre-native-base",
+ "mln-rs-geometry",
+]
+
+[[package]]
+name = "mln-rs-geojson"
+version = "0.0.8"
+dependencies = [
+ "mln-rs-feature",
+ "mln-rs-geometry",
  "mln-rs-rapidjson",
  "serde_json",
 ]
 
 [[package]]
 name = "mln-rs-geojson-vt"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
+ "mln-rs-feature",
  "mln-rs-geojson",
+ "mln-rs-geometry",
  "mln-rs-libstdcxx",
- "mln-rs-maplibre-native-base",
  "serde_json",
 ]
 
 [[package]]
+name = "mln-rs-geometry"
+version = "0.0.8"
+
+[[package]]
 name = "mln-rs-gfx"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "bytemuck",
- "mln-rs-maplibre-native-base",
+ "mln-rs-geometry",
  "mln-rs-style-types",
  "mln-rs-tile-id",
  "mln-rs-util",
@@ -1032,22 +1047,22 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-kdbush"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-libstdcxx",
 ]
 
 [[package]]
 name = "mln-rs-libstdcxx"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-map"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-actor",
+ "mln-rs-geometry",
  "mln-rs-map-types",
- "mln-rs-maplibre-native-base",
  "mln-rs-math",
  "mln-rs-renderer",
  "mln-rs-storage",
@@ -1057,40 +1072,36 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-map-types"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
- "mln-rs-maplibre-native-base",
+ "mln-rs-geometry",
  "mln-rs-math",
  "mln-rs-tile-id",
  "mln-rs-util",
 ]
 
 [[package]]
-name = "mln-rs-maplibre-native-base"
-version = "0.0.7"
-
-[[package]]
 name = "mln-rs-math"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-nunicode"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-pixelmatch"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-platform-default"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-actor",
+ "mln-rs-feature",
  "mln-rs-geojson",
  "mln-rs-gfx",
  "mln-rs-map",
  "mln-rs-map-types",
- "mln-rs-maplibre-native-base",
  "mln-rs-math",
  "mln-rs-pixelmatch",
  "mln-rs-platform-default-image",
@@ -1104,7 +1115,7 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-platform-default-image"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "flate2",
  "image-webp",
@@ -1114,40 +1125,41 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-pmtiles"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-polylabel"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
+ "mln-rs-geometry",
  "mln-rs-libstdcxx",
- "mln-rs-maplibre-native-base",
  "serde_json",
 ]
 
 [[package]]
 name = "mln-rs-protozero"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-rapidjson"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-renderer"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "bytemuck",
  "mln-rs-actor",
  "mln-rs-conversion",
  "mln-rs-earcut",
  "mln-rs-expression",
+ "mln-rs-feature",
  "mln-rs-geojson",
+ "mln-rs-geometry",
  "mln-rs-gfx",
  "mln-rs-libstdcxx",
  "mln-rs-map",
  "mln-rs-map-types",
- "mln-rs-maplibre-native-base",
  "mln-rs-math",
  "mln-rs-nunicode",
  "mln-rs-pixelmatch",
@@ -1168,14 +1180,14 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-shelf-pack"
-version = "0.0.7"
+version = "0.0.8"
 
 [[package]]
 name = "mln-rs-sprite"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-actor",
- "mln-rs-maplibre-native-base",
+ "mln-rs-geometry",
  "mln-rs-platform-default-image",
  "mln-rs-storage",
  "mln-rs-style-types",
@@ -1185,12 +1197,12 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-storage"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-actor",
+ "mln-rs-feature",
  "mln-rs-geojson",
  "mln-rs-map",
- "mln-rs-maplibre-native-base",
  "mln-rs-platform-default",
  "mln-rs-platform-default-image",
  "mln-rs-pmtiles",
@@ -1203,12 +1215,12 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-storage-offline"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-actor",
  "mln-rs-conversion",
+ "mln-rs-feature",
  "mln-rs-map",
- "mln-rs-maplibre-native-base",
  "mln-rs-platform-default",
  "mln-rs-platform-default-image",
  "mln-rs-renderer",
@@ -1223,15 +1235,16 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-style"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-actor",
  "mln-rs-conversion",
  "mln-rs-expression",
+ "mln-rs-feature",
  "mln-rs-geojson",
  "mln-rs-geojson-vt",
+ "mln-rs-geometry",
  "mln-rs-map-types",
- "mln-rs-maplibre-native-base",
  "mln-rs-platform-default-image",
  "mln-rs-rapidjson",
  "mln-rs-sprite",
@@ -1247,9 +1260,9 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-style-types"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
- "mln-rs-maplibre-native-base",
+ "mln-rs-feature",
  "mln-rs-math",
  "mln-rs-rapidjson",
  "mln-rs-util",
@@ -1257,17 +1270,18 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-supercluster"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
+ "mln-rs-feature",
+ "mln-rs-geometry",
  "mln-rs-kdbush",
  "mln-rs-libstdcxx",
- "mln-rs-maplibre-native-base",
  "serde_json",
 ]
 
 [[package]]
 name = "mln-rs-text"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "harfrust",
  "mln-rs-math",
@@ -1280,10 +1294,11 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-tile"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
+ "mln-rs-feature",
+ "mln-rs-geometry",
  "mln-rs-libstdcxx",
- "mln-rs-maplibre-native-base",
  "mln-rs-protozero",
  "mln-rs-tile-id",
  "mln-rs-util",
@@ -1294,20 +1309,22 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-tile-id"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
- "mln-rs-maplibre-native-base",
+ "mln-rs-feature",
+ "mln-rs-geometry",
  "mln-rs-util",
 ]
 
 [[package]]
 name = "mln-rs-util"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "mln-rs-conversion",
  "mln-rs-csscolorparser",
  "mln-rs-expression",
- "mln-rs-maplibre-native-base",
+ "mln-rs-feature",
+ "mln-rs-geometry",
  "mln-rs-math",
  "mln-rs-nunicode",
  "mln-rs-rapidjson",
@@ -1319,23 +1336,24 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-vector-tile"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
- "mln-rs-maplibre-native-base",
+ "mln-rs-feature",
+ "mln-rs-geometry",
  "mln-rs-protozero",
 ]
 
 [[package]]
 name = "mln-rs-wagyu"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
+ "mln-rs-geometry",
  "mln-rs-libstdcxx",
- "mln-rs-maplibre-native-base",
 ]
 
 [[package]]
 name = "mln-rs-webgpu"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "bytemuck",
  "mln-rs-gfx",
@@ -1350,7 +1368,7 @@ dependencies = [
 
 [[package]]
 name = "mln-rs-wgpu-webgpu-h"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "wgpu",
 ]

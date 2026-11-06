@@ -1,14 +1,15 @@
 // Ports vendor/supercluster/include/supercluster.hpp (mapbox::supercluster:
 // Cluster, Options, Supercluster).
 //
-// Property maps are `maplibre_native_base::PropertyMap` (key order; C++:
+// Property maps are `feature::PropertyMap` (key order; C++:
 // std::unordered_map, which only shows in iteration order, see
 // DEVIATIONS.md). `std::function` map/reduce options are shared closures.
 // Exceptions (`std::runtime_error`, `bad_variant_access`) are `Err`s with
 // the C++ `what()`.
 
 use kdbush::{KDBush, Nth};
-use maplibre_native_base::{Feature, Geometry, Identifier, Point, PropertyMap, Value};
+use feature::{Feature, Identifier, PropertyMap, Value};
+use geometry::{Geometry, Point};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::sync::Arc;

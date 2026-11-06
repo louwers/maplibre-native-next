@@ -2,7 +2,7 @@
 
 use crate::style_image;
 use crate::support::*;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::RunLoop;
 use mln_map::{CameraOptions, MapMode};
 use mln_renderer::query::{RenderedQueryOptions, SourceQueryOptions};

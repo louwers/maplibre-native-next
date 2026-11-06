@@ -26,7 +26,7 @@ pub use tile::Tile;
 
 use detail::{InternalTile, VtFeatures};
 use geojson::{FeatureCollection, GeoJSON};
-use maplibre_native_base::Feature;
+use feature::Feature;
 use std::collections::{BTreeMap, HashMap};
 
 /// `ToFeatureCollection`

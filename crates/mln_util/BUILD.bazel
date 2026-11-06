@@ -9,7 +9,8 @@ rust_library(
     deps = [
         "//crates/mln_math",
         "//vendor/csscolorparser",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
+        "//vendor/geometry",
         "//vendor/rapidjson",
     ],
 )
@@ -43,7 +44,7 @@ rust_test(
         "//crates/mln_expression",
         "//crates/mln_style",
         "//crates/mln_tile_id",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "@next_crates//:serde_json",
     ],
 )

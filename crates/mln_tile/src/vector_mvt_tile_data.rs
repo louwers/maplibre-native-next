@@ -11,7 +11,7 @@
 // methods). See DEVIATIONS.md.
 
 use crate::geometry_tile_data::fixup_polygons;
-use maplibre_native_base::{Identifier, PropertyMap, Value};
+use feature::{Identifier, PropertyMap, Value};
 use mln_tile_id::{GeometryCollection, GeometryTileData, GeometryTileFeature, GeometryTileLayer};
 use mln_util::constants::EXTENT;
 use mln_util::geometry::FeatureType;

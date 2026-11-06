@@ -2,7 +2,7 @@
 
 use crate::point::{NIL, RingPtr};
 use crate::ring::RingManager;
-use maplibre_native_base::{LinearRing, MultiPolygon, Point, Polygon};
+use geometry::{LinearRing, MultiPolygon, Point, Polygon};
 
 /// The output coordinate type `T2` of `wagyu::execute`: `static_cast<T2>`
 /// of an int32 coordinate.

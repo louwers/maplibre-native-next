@@ -48,8 +48,8 @@ name = "gtest_memory"
 path = "tests/gtest_memory.rs"
 
 [dev-dependencies]
+feature = { package = "mln-rs-feature", path = "../../vendor/feature" }
 geojson = { package = "mln-rs-geojson", path = "../../vendor/geojson" }
-maplibre_native_base = { package = "mln-rs-maplibre-native-base", path = "../../vendor/maplibre-native-base" }
 mln_map_types = { package = "mln-rs-map-types", path = "../mln_map_types" }
 mln_math = { package = "mln-rs-math", path = "../mln_math" }
 mln_platform_default_image = { package = "mln-rs-platform-default-image", path = "../mln_platform_default_image" }

@@ -5,7 +5,8 @@
 // (classifyRings, limitHoles, convertGeometry, fixupPolygons, ...) arrive
 // with mln_tile.
 
-use maplibre_native_base::{Identifier, Point, PropertyMap, Value};
+use feature::{Identifier, PropertyMap, Value};
+use geometry::Point;
 use mln_util::geometry::FeatureType;
 use std::ops::{Deref, DerefMut, Range};
 use std::sync::Arc;

@@ -7,9 +7,10 @@ rust_library(
     srcs = glob(["src/**/*.rs"]),
     visibility = ["//visibility:public"],
     deps = [
+        "//vendor/feature",
         "//vendor/geojson",
+        "//vendor/geometry",
         "//vendor/libstdcxx",
-        "//vendor/maplibre-native-base:maplibre_native_base",
     ],
 )
 
@@ -24,8 +25,9 @@ rust_test(
     srcs = ["tests/geojsonvt.rs"],
     deps = [
         ":geojson_vt",
+        "//vendor/feature",
         "//vendor/geojson",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
     ],
 )
 
@@ -36,8 +38,9 @@ rust_test(
     data = ["@maplibre//vendor:geojson_vt_fixtures"],
     deps = [
         ":geojson_vt",
+        "//vendor/feature",
         "//vendor/geojson",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "@next_crates//:serde_json",
     ],
 )

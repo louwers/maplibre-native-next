@@ -8,7 +8,8 @@
 // (metrics/integration/expression-tests) with each of its inputs' feature
 // properties, plus generated interpolate/step/zoom/color/math expressions.
 
-use maplibre_native_base::{Feature, Geometry, Point, Value as MbglValue, ValueObject};
+use feature::{Feature, Value as MbglValue, ValueObject};
+use geometry::{Geometry, Point};
 use mln_conversion::Convertible;
 use mln_expression::expression::evaluate_feature;
 use mln_expression::type_::{self, Type};

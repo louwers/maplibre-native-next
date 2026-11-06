@@ -4,7 +4,7 @@
 // std::pair<double, double>.
 
 use earcut_test_fixtures::{CoordType, load_all};
-use maplibre_native_base::Point;
+use geometry::Point;
 
 unsafe extern "C" {
     fn ref_earcut_i16(xy: *const i16, sizes: *const u32, rings: usize, out: *mut u32, cap: usize) -> usize;

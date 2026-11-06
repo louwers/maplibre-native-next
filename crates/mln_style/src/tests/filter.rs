@@ -4,7 +4,7 @@ use super::util::{StubGeometryTileFeature, parse_json, property_map};
 use crate::conversion::{Converter, Error};
 use crate::expression::EvaluationContext;
 use crate::filter::Filter;
-use maplibre_native_base::{Identifier, Value};
+use feature::{Identifier, Value};
 use mln_conversion::Convertible;
 use mln_util::geometry::FeatureType;
 

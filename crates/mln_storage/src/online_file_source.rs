@@ -29,7 +29,7 @@ use crate::resource::{Kind, Priority, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::resource_transform::ResourceTransform;
 use crate::response::{Error, Reason, Response};
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::{ActorRef, AsyncTask, Mailbox, Thread, Timer, scheduler};
 use mln_util::chrono::{Duration, Timestamp, now};
 use mln_util::client_options::ClientOptions;

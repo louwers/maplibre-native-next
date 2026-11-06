@@ -1,7 +1,7 @@
 // Ports test/style/conversion/conversion_impl.test.cpp.
 
 use crate::conversion::{ConversionTraits, Convertible, Error};
-use maplibre_native_base::Value;
+use feature::Value;
 use std::cell::Cell;
 use std::rc::Rc;
 

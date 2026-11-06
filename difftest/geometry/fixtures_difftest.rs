@@ -272,7 +272,7 @@ fn supercluster_fixtures() {
 
 /// supercluster_difftest.rs's procedure for one request.
 fn supercluster_rust(request: &Json) -> Json {
-    use maplibre_native_base::{PropertyMap, Value};
+    use feature::{PropertyMap, Value};
     use std::sync::Arc;
     let geojson::GeoJSON::FeatureCollection(fs) = geojson::convert(&request["features"]).unwrap() else {
         panic!()
@@ -375,7 +375,7 @@ fn polylabel_fixtures() {
     let mut cases = 0;
     for (name, text) in files("vendor/polylabel/test/fixtures", "json") {
         let d: Json = serde_json::from_str(&text).unwrap();
-        let polygon: Vec<Vec<maplibre_native_base::Point<f64>>> = d
+        let polygon: Vec<Vec<geometry::Point<f64>>> = d
             .as_array()
             .unwrap()
             .iter()
@@ -383,7 +383,7 @@ fn polylabel_fixtures() {
                 r.as_array()
                     .unwrap()
                     .iter()
-                    .map(|p| maplibre_native_base::Point::new(p[0].as_f64().unwrap(), p[1].as_f64().unwrap()))
+                    .map(|p| geometry::Point::new(p[0].as_f64().unwrap(), p[1].as_f64().unwrap()))
                     .collect()
             })
             .collect();

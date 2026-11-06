@@ -6,7 +6,7 @@
 // are called.
 
 use crate::map_observer::CameraChangeMode;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_map_types::{
     AnimationOptions, CameraOptions, ConstrainMode, FreeCameraOptions, NorthOrientation, ProjectionMode,
     TransformState, TransformStateProperties, ViewportMode,

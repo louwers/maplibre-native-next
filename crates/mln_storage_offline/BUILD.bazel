@@ -18,7 +18,7 @@ rust_library(
         "//crates/mln_text",
         "//crates/mln_tile_id",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "@next_crates//:regex",
     ],
 )

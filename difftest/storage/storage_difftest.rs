@@ -431,7 +431,7 @@ fn rust_dbfs_request_all(path: &str, resources: &[Resource]) -> Vec<Option<Respo
         &ResourceOptions::default().with_cache_path(path),
         &ClientOptions::default(),
     );
-    dbfs.set_property(READ_ONLY_MODE_KEY, &maplibre_native_base::Value::Bool(true));
+    dbfs.set_property(READ_ONLY_MODE_KEY, &feature::Value::Bool(true));
     let responses: Rc<RefCell<Vec<Option<ResponseDump>>>> = Rc::new(RefCell::new(vec![None; resources.len()]));
     let received = Rc::new(RefCell::new(0usize));
     let count = resources.len();

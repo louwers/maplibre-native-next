@@ -13,5 +13,5 @@ name = "wagyu"
 doctest = false
 
 [dependencies]
+geometry.workspace = true
 libstdcxx.workspace = true
-maplibre_native_base.workspace = true

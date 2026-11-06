@@ -27,7 +27,7 @@ use crate::texture2d::Texture2DPtr;
 use crate::types::DepthMaskType;
 use crate::vertex_attribute::VertexAttributeArrayPtr;
 use crate::vertex_vector::VertexVector;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_tile_id::geometry_tile_data::GeometryCoordinates;
 use mln_util::identity::SimpleIdentity;
 use std::cell::RefCell;

@@ -7,7 +7,7 @@
 // every member, serde_json keeps the last value; rapidjson does not
 // validate UTF-8, serde_json rejects invalid UTF-8.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_platform_default_image::decode_image;
 use mln_style_types::image::{Image, ImageContent, ImageStretches, Impl, TextFit};
 use mln_util::exception::{ExceptionPtr, RuntimeError};

@@ -10,7 +10,7 @@
 use crate::color::Color;
 use crate::padding::Padding;
 use crate::range::Range;
-use maplibre_native_base::Point;
+use geometry::Point;
 
 pub trait Interpolate: Sized {
     /// `Interpolator<T>()(a, b, double t)`.

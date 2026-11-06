@@ -57,7 +57,7 @@ rust_test(
     deps = [
         ":geometry_difftest_support",
         "//vendor/earcut",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "@next_crates//:proptest",
     ],
 )
@@ -71,7 +71,7 @@ rust_test(
     deps = [
         "//vendor/earcut",
         "//vendor/earcut:earcut_test_fixtures",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
     ],
 )
 
@@ -94,9 +94,10 @@ rust_library(
     srcs = ["geojson_canonical.rs"],
     link_deps = [":geojson_reference"],
     deps = [
+        "//vendor/feature",
         "//vendor/geojson",
         "//vendor/geojson-vt:geojson_vt",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "@next_crates//:proptest",
         "@next_crates//:serde_json",
     ],
@@ -109,8 +110,9 @@ rust_test(
     deps = [
         ":geojson_canonical",
         ":geometry_difftest_support",
+        "//vendor/feature",
         "//vendor/geojson",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "@next_crates//:proptest",
         "@next_crates//:serde_json",
     ],
@@ -169,8 +171,8 @@ rust_test(
     deps = [
         ":geojson_canonical",
         ":geometry_difftest_support",
+        "//vendor/feature",
         "//vendor/geojson",
-        "//vendor/maplibre-native-base:maplibre_native_base",
         "//vendor/supercluster",
         "@next_crates//:proptest",
         "@next_crates//:serde_json",
@@ -199,7 +201,7 @@ rust_test(
     link_deps = [":misc_reference"],
     deps = [
         ":geometry_difftest_support",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "//vendor/polylabel",
         "@next_crates//:proptest",
     ],
@@ -216,7 +218,7 @@ rust_test(
     deps = [
         ":geometry_difftest_support",
         "//vendor/cheap-ruler:cheap_ruler",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "@next_crates//:proptest",
         "@next_crates//:serde_json",
     ],
@@ -257,10 +259,11 @@ rust_test(
     deps = [
         ":geojson_canonical",
         ":geometry_difftest_support",
+        "//vendor/feature",
         "//vendor/geojson",
         "//vendor/geojson-vt:geojson_vt",
+        "//vendor/geometry",
         "//vendor/kdbush",
-        "//vendor/maplibre-native-base:maplibre_native_base",
         "//vendor/polylabel",
         "//vendor/supercluster",
         "@next_crates//:serde_json",

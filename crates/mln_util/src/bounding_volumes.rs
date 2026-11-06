@@ -4,7 +4,7 @@
 use crate::mat3::{vec3_cross, vec3_dot, vec3_normalize, vec3_sub};
 use crate::mat4::{Mat4, matrix};
 use crate::vectors::{Vec3, Vec3i, Vec4};
-use maplibre_native_base::Point;
+use geometry::Point;
 
 /// `std::min(a, b)`: `(b < a) ? b : a`.
 fn std_min(a: f64, b: f64) -> f64 {

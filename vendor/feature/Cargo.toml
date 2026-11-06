@@ -1,0 +1,16 @@
+[package]
+name = "mln-rs-feature"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+
+[lib]
+name = "feature"
+# Bazel never runs doctests.
+doctest = false
+
+[dependencies]
+geometry.workspace = true

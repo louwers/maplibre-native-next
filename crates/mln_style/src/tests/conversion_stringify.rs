@@ -8,7 +8,7 @@ use crate::layers::SymbolLayoutProperties;
 use crate::layers::symbol_layer_properties::{IconPadding, SymbolAvoidEdges};
 use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection, VisibilityType};
 use mln_util::{Color, Padding};
 use std::collections::HashMap;

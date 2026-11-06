@@ -11,7 +11,7 @@ use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::util::rgba;
 use crate::value::{Value, stringify, to_string};
-use maplibre_native_base::{Value as MbglValue, ValueObject};
+use feature::{Value as MbglValue, ValueObject};
 use mln_conversion::Convertible;
 use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection};
 use mln_util::Padding;

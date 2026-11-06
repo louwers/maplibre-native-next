@@ -50,7 +50,7 @@ rust_test(
         "//crates/mln_style",
         "//crates/mln_tile_id",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "@next_crates//:serde_json",
     ],
 )

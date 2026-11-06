@@ -12,7 +12,7 @@ use crate::layer::layer_type_info::TileKind;
 use crate::source::{Source, SourceBase, static_immutable_cast};
 use crate::source_impl;
 use geojson::GeoJSON;
-use maplibre_native_base::Feature;
+use feature::Feature;
 use mln_actor::scheduler::{self, SchedulerPtr};
 use mln_storage::{AsyncRequest, FileSource, Resource, Response};
 use mln_tile_id::CanonicalTileID;

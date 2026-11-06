@@ -16,7 +16,7 @@
 // holes whose leftmost points have the same x come out in libstdc++'s
 // introsort order, ported in //vendor/libstdcxx.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 
 /// `mapbox::util::nth<0, P>::get` / `nth<1, P>::get`, converted to `double`
 /// as `Node`'s constructor does.

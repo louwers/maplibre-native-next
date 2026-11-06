@@ -51,7 +51,7 @@ use mln_util::geometry::FeatureType;
 use mln_util::i18n;
 use mln_util::immutable::Immutable;
 use mln_util::range::Range;
-use maplibre_native_base::{LinearRing, Point, Polygon};
+use geometry::{LinearRing, Point, Polygon};
 use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 

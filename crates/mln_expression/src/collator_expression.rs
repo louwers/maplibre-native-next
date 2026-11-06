@@ -9,7 +9,7 @@ use crate::literal::Literal;
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use maplibre_native_base::{Value as MbglValue, ValueObject};
+use feature::{Value as MbglValue, ValueObject};
 use mln_conversion::Convertible;
 
 pub struct CollatorExpression {

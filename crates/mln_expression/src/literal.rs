@@ -7,7 +7,7 @@ use crate::expression::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{ObjectType, Value, from_mbgl_value, to_mbgl_value, type_of};
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_conversion::Convertible;
 
 pub struct Literal {

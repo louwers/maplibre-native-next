@@ -8,7 +8,7 @@
 // its layer group: `Rc<RefCell<dyn LayerTweaker>>`.
 
 use crate::paint_parameters::{PaintParameters, TransformParameters};
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_gfx::{Drawable, LayerGroupBase};
 use mln_map_types::TransformState;
 use mln_style::layer_properties::LayerProperties;

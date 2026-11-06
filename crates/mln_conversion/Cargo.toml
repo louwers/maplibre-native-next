@@ -13,6 +13,6 @@ name = "mln_conversion"
 doctest = false
 
 [dependencies]
+feature.workspace = true
 geojson.workspace = true
-maplibre_native_base.workspace = true
 serde_json.workspace = true

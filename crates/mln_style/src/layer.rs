@@ -20,7 +20,7 @@ use crate::expression::{
 use crate::filter::Filter;
 use crate::style_property::StyleProperty;
 use crate::util::AsAny;
-use maplibre_native_base::{Value, ValueObject};
+use feature::{Value, ValueObject};
 use mln_conversion::{Convertible, Error};
 use mln_style_types::VisibilityType;
 use mln_util::immutable::Immutable;

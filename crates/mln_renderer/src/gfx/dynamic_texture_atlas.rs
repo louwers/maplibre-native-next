@@ -14,7 +14,7 @@ use mln_text::glyph::{GlyphMap, GlyphPosition, GlyphPositions, Glyph};
 use mln_util::image::{AlphaImage, PremultipliedImage};
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
-use maplibre_native_base::Point;
+use geometry::Point;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 

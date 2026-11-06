@@ -13,7 +13,7 @@ name = "mln_style_types"
 doctest = false
 
 [dependencies]
-maplibre_native_base.workspace = true
+feature.workspace = true
 mln_math.workspace = true
 mln_util.workspace = true
 rapidjson.workspace = true

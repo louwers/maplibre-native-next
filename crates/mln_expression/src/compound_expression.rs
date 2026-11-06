@@ -20,7 +20,7 @@ use crate::utf8_op_helpers::{
 };
 use crate::util::rgba;
 use crate::value::{ObjectType, Value, to_string, type_of};
-use maplibre_native_base::{Identifier as FeatureIdentifier, Value as MbglValue};
+use feature::{Identifier as FeatureIdentifier, Value as MbglValue};
 use mln_conversion::Convertible;
 use mln_util::geometry::FeatureType;
 use std::sync::LazyLock;

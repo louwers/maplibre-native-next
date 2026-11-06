@@ -3,7 +3,8 @@
 use crate::simplify::simplify;
 use crate::types::*;
 use geojson::FeatureCollection;
-use maplibre_native_base::{Geometry, Identifier, LineString, LinearRing, Point};
+use feature::Identifier;
+use geometry::{Geometry, LineString, LinearRing, Point};
 use std::f64::consts::PI;
 
 /// `project` (the visitor that converts to projected `vt_geometry`).

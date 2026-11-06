@@ -1,7 +1,7 @@
 // Ports include/mln/style/expression/image.hpp and
 // src/mln/style/expression/image.cpp (incl. `Converter<expression::Image>`).
 
-use maplibre_native_base::{Value as MbglValue, ValueObject};
+use feature::{Value as MbglValue, ValueObject};
 use mln_conversion::{Convertible, Error};
 
 /// `expression::Image`: an image ID plus whether it is available.

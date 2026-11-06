@@ -10,7 +10,7 @@
 // borrowed members; front ends that create new handles per member (JNI) can
 // return owned ones.
 
-use maplibre_native_base::Value;
+use feature::Value;
 
 /// `mln::style::conversion::Error`.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]

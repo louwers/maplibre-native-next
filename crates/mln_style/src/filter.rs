@@ -1,7 +1,7 @@
 // Ports include/mln/style/filter.hpp + src/mln/style/filter.cpp.
 
 use crate::expression::{EvaluationContext, Expression, from_expression_value};
-use maplibre_native_base::Value;
+use feature::Value;
 use std::sync::Arc;
 
 #[derive(Clone, Debug, Default)]

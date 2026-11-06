@@ -14,7 +14,7 @@
 use crate::bucket::{Bucket, BucketBase};
 use crate::geometry::dem_data::DEMData;
 use crate::tile_mask::TileMask;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_tile_id::CanonicalTileID;

@@ -15,7 +15,7 @@ use crate::resource::{Kind, LoadingMethod, Resource, StoragePolicy};
 use crate::resource_options::ResourceOptions;
 use crate::resource_transform::{FinishedCallback, ResourceTransform};
 use crate::response::{Reason, Response};
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::{ActorRef, Mailbox, RunLoop, Timer, scheduler};
 use mln_util::chrono::{Duration, Timestamp, now};
 use mln_util::tile_server_options::TileServerOptions;

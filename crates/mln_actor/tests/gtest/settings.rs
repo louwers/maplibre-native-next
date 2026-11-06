@@ -1,6 +1,6 @@
 // Ports test/platform/settings.test.cpp.
 
-use maplibre_native_base::{Value, ValueObject};
+use feature::{Value, ValueObject};
 use mln_actor::platform_settings::{
     EXPERIMENTAL_THREAD_PRIORITY_DATABASE, EXPERIMENTAL_THREAD_PRIORITY_FILE, EXPERIMENTAL_THREAD_PRIORITY_NETWORK,
     EXPERIMENTAL_THREAD_PRIORITY_WORKER, Settings,

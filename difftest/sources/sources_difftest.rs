@@ -12,7 +12,7 @@
 //
 // Responses are compared as text in the format of oracle_main.cpp.
 
-use maplibre_native_base::{Identifier, Value};
+use feature::{Identifier, Value};
 use mln_actor::{RunLoop, TaggedScheduler, scheduler};
 use mln_conversion::{Convertible, Error};
 use mln_map::transform::{NullTransformObserver, Transform};

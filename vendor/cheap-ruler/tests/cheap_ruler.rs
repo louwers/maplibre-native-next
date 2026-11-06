@@ -4,7 +4,7 @@
 // of std::random_device (the assertions hold for any sequence).
 
 use cheap_ruler::{Box, CheapRuler, Unit, remainder};
-use maplibre_native_base::{LineString, Point};
+use geometry::{LineString, Point};
 
 /// A brace initializer: nested lists of numbers.
 #[derive(Debug)]

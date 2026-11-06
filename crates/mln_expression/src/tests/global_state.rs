@@ -10,7 +10,7 @@ use crate::is_constant::{is_feature_constant, is_runtime_constant, is_zoom_const
 use crate::parsing_context::ParsingContext;
 use crate::type_::Type;
 use crate::value::Value;
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_conversion::Convertible;
 use std::collections::BTreeSet;
 

@@ -14,7 +14,7 @@ use crate::range::Range;
 use crate::stops::{Stops, get_covering_stops};
 use crate::type_::{self, Type};
 use crate::value::{Value, type_of};
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_conversion::Convertible;
 use mln_style_types::VariableAnchorOffsetCollection;
 use mln_util::{Color, ColorSpace, Padding};

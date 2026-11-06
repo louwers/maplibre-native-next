@@ -18,7 +18,7 @@ use crate::properties::Property as _;
 use crate::property_value::PropertyValue;
 use crate::style_property::{Kind, StyleProperty};
 use crate::transition_options::TransitionOptions;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_conversion::{Convertible, Error};
 use mln_style_types::TranslateAnchorType;
 use mln_util::Color;

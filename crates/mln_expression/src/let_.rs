@@ -7,7 +7,7 @@ use crate::expression::{
 };
 use crate::parsing_context::{Bindings, ParseResult, ParsingContext};
 use crate::value::Value;
-use maplibre_native_base::Value as MbglValue;
+use feature::Value as MbglValue;
 use mln_conversion::{Convertible, get_json_type};
 use std::sync::Arc;
 

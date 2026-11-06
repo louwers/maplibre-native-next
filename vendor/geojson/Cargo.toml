@@ -16,7 +16,8 @@ name = "geojson"
 doctest = false
 
 [dependencies]
-maplibre_native_base.workspace = true
+feature.workspace = true
+geometry.workspace = true
 rapidjson.workspace = true
 serde_json.workspace = true
 

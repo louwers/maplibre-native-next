@@ -76,7 +76,8 @@ rust_test(
     deps = [
         "//crates/mln_conversion",
         "//crates/mln_expression",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
+        "//vendor/geometry",
         "//vendor/rapidjson",
         "@next_crates//:proptest",
         "@next_crates//:serde_json",

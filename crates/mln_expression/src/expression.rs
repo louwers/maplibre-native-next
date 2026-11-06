@@ -10,7 +10,7 @@ use crate::compound_expression::CompoundExpression;
 use crate::literal::Literal;
 use crate::type_::Type;
 use crate::value::{Value, from_mbgl_value};
-use maplibre_native_base::{Feature, Identifier as FeatureIdentifier, Value as MbglValue, ValueObject};
+use feature::{Feature, Identifier as FeatureIdentifier, Value as MbglValue, ValueObject};
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature};
 use mln_util::geometry::{FeatureType, to_feature_type};

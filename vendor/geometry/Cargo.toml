@@ -1,5 +1,5 @@
 [package]
-name = "mln-rs-maplibre-native-base"
+name = "mln-rs-geometry"
 version.workspace = true
 edition.workspace = true
 description.workspace = true
@@ -8,6 +8,6 @@ repository.workspace = true
 include.workspace = true
 
 [lib]
-name = "maplibre_native_base"
+name = "geometry"
 # Bazel never runs doctests.
 doctest = false

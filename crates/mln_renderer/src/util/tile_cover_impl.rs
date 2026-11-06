@@ -6,7 +6,7 @@
 // mask the count like x86 does (`wrapping_shl`), as in mln_tile_id.
 
 use crate::util::tile_cover::std_sort;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_math::clamp_f64;
 use mln_tile_id::UnwrappedTileID;
 use mln_util::geo::LatLng;

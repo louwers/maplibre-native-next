@@ -6,7 +6,7 @@
 // IEEE remainder is exact, so [`remainder`] computes it from the (exact)
 // `fmod`. `::fmin`/`::fmax` follow glibc.
 
-use maplibre_native_base::{LineString, Point, Polygon};
+use geometry::{LineString, Point, Polygon};
 
 /// `mapbox::geometry::box<double>`
 #[derive(Clone, Copy, Debug, PartialEq)]

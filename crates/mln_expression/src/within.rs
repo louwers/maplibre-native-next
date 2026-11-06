@@ -14,7 +14,8 @@ use crate::expression::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use maplibre_native_base::{Geometry, Point, Value as MbglValue, ValueObject};
+use feature::{Value as MbglValue, ValueObject};
+use geometry::{Geometry, Point};
 use mln_conversion::{Convertible, Error};
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::{GeometryCoordinates, GeometryTileFeature};

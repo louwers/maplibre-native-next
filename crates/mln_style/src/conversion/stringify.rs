@@ -10,7 +10,7 @@ use crate::expression::{Formatted, Image, Value as ExpressionValue, ValueConvert
 use crate::filter::Filter;
 use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
-use maplibre_native_base::{Identifier, Value};
+use feature::{Identifier, Value};
 use mln_style_types::{
     AlignmentType, IconTextFitType, LineCapType, LineJoinType, SymbolAnchorType, SymbolPlacementType,
     SymbolZOrderType, TextJustifyType, TextTransformType, TextWritingModeType, VariableAnchorOffsetCollection,

@@ -84,7 +84,7 @@ pub fn set_layer_filter(style: &mut Style, layer_name: &str, filter: &serde_json
 pub fn set_global_state_property(
     style: &mut Style,
     name: &str,
-    value: &maplibre_native_base::Value,
+    value: &feature::Value,
 ) -> Result<(), MapError> {
     style.set_global_state_property(name, value).map_err(|e| MapError::Exception(e.to_string()))
 }

@@ -7,11 +7,12 @@
 
 pub use csscolorparser;
 pub use earcut;
+pub use feature;
 pub use geojson;
 pub use geojson_vt;
+pub use geometry;
 pub use kdbush;
 pub use libstdcxx;
-pub use maplibre_native_base;
 pub use mln_actor;
 pub use mln_conversion;
 pub use mln_expression;

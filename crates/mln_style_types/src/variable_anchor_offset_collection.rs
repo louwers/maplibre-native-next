@@ -5,7 +5,7 @@
 // because C++ throws on mismatched inputs).
 
 use crate::types::SymbolAnchorType;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_util::enum_::Enum;
 
 #[derive(Clone, Copy, Debug, PartialEq)]

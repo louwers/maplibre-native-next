@@ -1,5 +1,10 @@
-// Ports mapbox/geometry/{point,line_string,polygon,multi_*,geometry}.hpp
-// (vendor/maplibre-native-base).
+//! Ports `mapbox::geometry`: mapbox/geometry/{point,line_string,polygon,
+//! multi_*,geometry}.hpp of geometry.hpp (the C++ core's
+//! vendor/maplibre-native-base/deps/geometry.hpp), which
+//! `include/mln/util/geometry.hpp` re-exports into the `mln` namespace.
+//!
+//! Deliberately not `geo-types`: the port needs the exact generic coordinate
+//! parameter of the C++ types.
 
 /// `mapbox::geometry::point<T>`
 #[derive(Clone, Copy, Debug, Default, PartialEq)]

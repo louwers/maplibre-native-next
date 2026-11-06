@@ -20,8 +20,9 @@ rust_library(
         "//crates/mln_tile_id",
         "//crates/mln_util",
         "//vendor/earcut",
+        "//vendor/feature",
+        "//vendor/geometry",
         "//vendor/libstdcxx",
-        "//vendor/maplibre-native-base:maplibre_native_base",
         "//vendor/nunicode",
         "//vendor/polylabel",
         "//vendor/shelf-pack:shelf_pack",
@@ -47,7 +48,7 @@ rust_test(
         "//crates/mln_style_types",
         "//crates/mln_tile_id",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
     ],
 )
 
@@ -64,7 +65,8 @@ rust_test(
         "//crates/mln_style",
         "//crates/mln_tile_id",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
+        "//vendor/geometry",
     ],
 )
 
@@ -98,7 +100,7 @@ rust_test(
         "//crates/mln_style",
         "//crates/mln_tile_id",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
         "@next_crates//:serde_json",
     ],
 )
@@ -115,7 +117,8 @@ rust_test(
         "//crates/mln_tile_id",
         "//crates/mln_util",
         "//crates/mln_webgpu",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
+        "//vendor/geometry",
     ],
 )
 
@@ -148,7 +151,7 @@ rust_test(
         "//crates/mln_storage",
         "//crates/mln_tile_id",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
     ],
 )
 
@@ -167,7 +170,7 @@ rust_test(
         "//crates/mln_text",
         "//crates/mln_tile_id",
         "//crates/mln_util",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
     ],
 )
 

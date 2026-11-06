@@ -10,7 +10,7 @@
 
 mod cases;
 
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_conversion::{Convertible, Error};
 use mln_style::conversion::convert_layer;
 use mln_style::layer::PropertyScope;

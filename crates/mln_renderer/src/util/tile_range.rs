@@ -1,6 +1,6 @@
 // Ports src/mln/util/tile_range.hpp.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_tile_id::CanonicalTileID;
 use mln_util::constants;
 use mln_util::geo::LatLngBounds;

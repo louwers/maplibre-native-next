@@ -210,7 +210,7 @@ pub fn emit(layer: &LayerSpec) -> String {
     }
     imports.push("crate::style_property::{Kind, StyleProperty}".into());
     imports.push("crate::transition_options::TransitionOptions".into());
-    imports.push("maplibre_native_base::Value".into());
+    imports.push("feature::Value".into());
     imports.push("mln_conversion::{Convertible, Error}".into());
     imports.push("mln_util::immutable::Immutable".into());
     imports.push("std::sync::Arc".into());

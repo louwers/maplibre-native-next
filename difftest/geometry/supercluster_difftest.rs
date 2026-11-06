@@ -12,7 +12,7 @@
 
 use geojson_canonical::{abbreviate, features};
 use geometry_difftest_support::run_cases;
-use maplibre_native_base::{PropertyMap, Value};
+use feature::{PropertyMap, Value};
 use proptest::prelude::*;
 use serde_json::{Value as Json, json};
 use std::sync::Arc;

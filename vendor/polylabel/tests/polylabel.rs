@@ -1,6 +1,6 @@
 // Ports vendor/polylabel/test/test.cpp over test/fixtures, read in place.
 
-use maplibre_native_base::{Point, Polygon};
+use geometry::{Point, Polygon};
 use polylabel::polylabel;
 
 fn fixture(name: &str) -> Polygon<f64> {

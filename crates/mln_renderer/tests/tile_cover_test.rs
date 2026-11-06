@@ -3,7 +3,16 @@
 // The gtest groups `TileCover`, `TileCoverStream` and `TileCount` are the
 // modules `tile_cover`, `tile_cover_stream` and `tile_count`.
 
-use maplibre_native_base::{Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
+use geometry::{
+    Geometry,
+    LineString,
+    LinearRing,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+};
 use mln_map::transform::{NullTransformObserver, Transform};
 use mln_map_types::{CameraOptions, ConstrainMode, TileLodMode, ViewportMode};
 use mln_renderer::util::tile_cover::{

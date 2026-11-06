@@ -2,7 +2,7 @@
 // (`perp`, `dist`, `distSqr`, `length`, `mag`, `unit`, `rotate`). Other
 // files keep private copies of some of these; they can switch over.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 
 /// `perp(a)` for `Point<double>`.
 pub fn perp(a: Point<f64>) -> Point<f64> {

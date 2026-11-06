@@ -1,6 +1,6 @@
 // Ports render-test/metadata.hpp
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_util::size::Size;
 use std::collections::BTreeMap;
 

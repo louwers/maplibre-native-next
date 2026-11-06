@@ -44,7 +44,6 @@ rust_library(
             "//crates/mln_math",
             "//crates/mln_util",
             "//vendor/csscolorparser",
-            "//vendor/maplibre-native-base:maplibre_native_base",
             "//vendor/rapidjson",
             "@next_crates//:proptest",
         ],

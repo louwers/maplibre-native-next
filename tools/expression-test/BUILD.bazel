@@ -16,7 +16,8 @@ rust_library(
         "//crates/mln_tile_id",
         "//crates/mln_util",
         "//vendor/csscolorparser",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/feature",
+        "//vendor/geometry",
         "@next_crates//:serde_json",
     ],
 )

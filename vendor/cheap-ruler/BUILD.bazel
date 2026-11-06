@@ -6,7 +6,7 @@ rust_library(
     name = "cheap_ruler",
     srcs = glob(["src/**/*.rs"]),
     visibility = ["//visibility:public"],
-    deps = ["//vendor/maplibre-native-base:maplibre_native_base"],
+    deps = ["//vendor/geometry"],
 )
 
 rust_test(
@@ -22,6 +22,6 @@ rust_test(
     data = ["@maplibre//vendor:cheap_ruler_fixtures"],
     deps = [
         ":cheap_ruler",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
     ],
 )

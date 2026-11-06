@@ -213,7 +213,7 @@ fn main() {
     if !settings.online {
         match &online_file_source {
             Some(online) => {
-                online.set_property("online-status", &maplibre_native_base::Value::Bool(false));
+                online.set_property("online-status", &feature::Value::Bool(false));
                 Log::warning(Event::Setup, "Application is offline. Press `O` to toggle online status.");
             }
             None => Log::warning(
@@ -273,7 +273,7 @@ fn main() {
                 return;
             };
             online.set(!online.get());
-            online_file_source.set_property("online-status", &maplibre_native_base::Value::Bool(online.get()));
+            online_file_source.set_property("online-status", &feature::Value::Bool(online.get()));
             Log::info(
                 Event::Setup,
                 format!(

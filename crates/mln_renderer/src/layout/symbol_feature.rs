@@ -10,7 +10,7 @@ use mln_expression::image::Image;
 use mln_text::TaggedString;
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature};
 use mln_util::geometry::FeatureType;
-use maplibre_native_base::{Identifier, PropertyMap, Value};
+use feature::{Identifier, PropertyMap, Value};
 
 /// `SymbolFeature`.
 #[derive(Clone, Debug)]

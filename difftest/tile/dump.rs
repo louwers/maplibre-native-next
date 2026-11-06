@@ -3,7 +3,7 @@
 
 #![allow(dead_code)]
 
-use maplibre_native_base::{Identifier, Value};
+use feature::{Identifier, Value};
 use mln_tile::{Error, VectorMVTTileData};
 use mln_tile_id::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
 use mln_util::logging::{Event, EventSeverity, Log, Observer};
@@ -229,7 +229,7 @@ fn identifier(out: &mut String, id: &Identifier) {
     }
 }
 
-pub fn rings(out: &mut String, g: &[Vec<maplibre_native_base::Point<i16>>]) {
+pub fn rings(out: &mut String, g: &[Vec<geometry::Point<i16>>]) {
     let _ = writeln!(out, "{}", g.len());
     for r in g {
         let _ = write!(out, "r {}", r.len());

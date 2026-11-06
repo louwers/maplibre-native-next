@@ -15,7 +15,7 @@ use crate::bucket::{Bucket, BucketBase};
 use crate::layout::pattern_layout::{PatternLayerMap, PatternLayoutSpec};
 use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
 use crate::render_layer::RenderLayer;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_map_types::TransformState;

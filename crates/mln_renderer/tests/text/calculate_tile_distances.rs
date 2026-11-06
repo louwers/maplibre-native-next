@@ -1,6 +1,6 @@
 // Ports test/text/calculate_tile_distances.test.cpp.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_renderer::geometry::anchor::Anchor;
 use mln_renderer::layout::symbol_layout::SymbolLayout;
 use mln_tile_id::GeometryCoordinates;

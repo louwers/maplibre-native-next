@@ -2,7 +2,7 @@
 // the expression and function cases need mln_style (PropertyExpression and
 // the style conversions), which sits far above mln_util.
 
-use maplibre_native_base::{PropertyMap, Value as MbglValue};
+use feature::{PropertyMap, Value as MbglValue};
 use mln_conversion::{Convertible, Error};
 use mln_expression::EvaluationContext;
 use mln_expression::dsl::{create_expression_from_str, interpolate, linear, literal, zoom};

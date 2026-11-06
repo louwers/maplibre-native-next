@@ -5,7 +5,7 @@ use crate::resource::Resource;
 use crate::resource_options::ResourceOptions;
 use crate::resource_transform::ResourceTransform;
 use crate::response::Response;
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_util::client_options::ClientOptions;
 
 // TODO: Rename to ResourceProviderType

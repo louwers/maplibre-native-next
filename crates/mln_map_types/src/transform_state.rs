@@ -14,7 +14,7 @@ use crate::camera::{CameraOptions, FreeCameraOptions};
 use crate::mode::{ConstrainMode, ViewportMode};
 use crate::tile_coordinate::TileCoordinate;
 use crate::util_camera::Camera;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_tile_id::UnwrappedTileID;
 use mln_util::constants;
 use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds, ScreenCoordinate, WrapMode};

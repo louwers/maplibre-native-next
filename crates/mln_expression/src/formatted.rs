@@ -3,7 +3,7 @@
 // `Converter<expression::Formatted>`).
 
 use crate::image::Image;
-use maplibre_native_base::{Value as MbglValue, ValueObject};
+use feature::{Value as MbglValue, ValueObject};
 use mln_conversion::{Convertible, Error};
 use mln_util::Color;
 

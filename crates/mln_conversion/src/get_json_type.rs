@@ -2,7 +2,7 @@
 // src/mln/style/conversion/get_json_type.cpp.
 
 use crate::conversion::Convertible;
-use maplibre_native_base::Value;
+use feature::Value;
 
 pub fn get_json_type(value: &Convertible<'_>) -> String {
     if value.is_undefined() {

@@ -227,7 +227,7 @@ pub fn get_center_anchor(
 mod tests {
     // Ports test/text/get_anchors.test.cpp.
     use super::*;
-    use maplibre_native_base::Point;
+    use geometry::Point;
     use std::f32::consts::PI;
 
     fn make_line(shift: usize) -> GeometryCoordinates {

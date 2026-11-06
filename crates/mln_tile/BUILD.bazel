@@ -10,8 +10,9 @@ rust_library(
     deps = [
         "//crates/mln_tile_id",
         "//crates/mln_util",
+        "//vendor/feature",
+        "//vendor/geometry",
         "//vendor/libstdcxx",
-        "//vendor/maplibre-native-base:maplibre_native_base",
         "//vendor/protozero",
         "//vendor/vector-tile:vector_tile",
         "//vendor/wagyu",

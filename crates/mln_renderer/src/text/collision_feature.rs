@@ -5,7 +5,7 @@
 // `RefIndexedSubfeature` into an owning `IndexedSubfeature`; here both are
 // `IndexedSubfeature`, so it is cloned.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_math::deg2radf;
 use mln_style_types::SymbolPlacementType;
 use mln_text::PositionedIcon;

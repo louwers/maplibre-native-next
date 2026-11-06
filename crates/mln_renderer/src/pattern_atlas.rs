@@ -1,6 +1,6 @@
 // Ports src/mln/renderer/pattern_atlas.hpp and src/mln/renderer/pattern_atlas.cpp.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::texture2d::{Texture2DPtr, upload_image};
 use mln_style_types::image::{ImagePosition, Impl as ImageImpl, RectU16};

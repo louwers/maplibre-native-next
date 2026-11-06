@@ -16,9 +16,10 @@ name = "supercluster"
 doctest = false
 
 [dependencies]
+feature.workspace = true
+geometry.workspace = true
 kdbush.workspace = true
 libstdcxx.workspace = true
-maplibre_native_base.workspace = true
 
 [[test]]
 name = "supercluster_fixtures_test"

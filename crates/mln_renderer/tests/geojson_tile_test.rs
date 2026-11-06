@@ -1,6 +1,7 @@
 // Ports test/tile/geojson_tile.test.cpp.
 
-use maplibre_native_base::{Feature, Geometry, Point};
+use feature::Feature;
+use geometry::{Geometry, Point};
 use mln_actor::{RunLoop, TaggedScheduler, scheduler};
 use mln_map::transform::{NullTransformObserver, Transform};
 use mln_map_types::{ConstrainMode, MapDebugOptions, MapMode, TileLodMode, ViewportMode};

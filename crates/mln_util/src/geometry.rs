@@ -1,11 +1,18 @@
 // Ports include/mln/util/geometry.hpp: `FeatureType`, `ToFeatureType` and
 // `convertPoint`. The geometry type aliases are the
-// `maplibre_native_base` types (`Point`, `LineString`, ...), re-exported
+// `geometry` crate's types (`Point`, `LineString`, ...), re-exported
 // here under their mln names.
 
-pub use maplibre_native_base::{
-    Geometry, GeometryCollection, LineString, LinearRing, MultiLineString, MultiPoint,
-    MultiPolygon, Point, Polygon,
+pub use geometry::{
+    Geometry,
+    GeometryCollection,
+    LineString,
+    LinearRing,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
 };
 
 /// `mln::FeatureType`.

@@ -1,7 +1,7 @@
 // Ports expression-test/test_runner_common.cpp: the comparison rules of the
 // C++ (and GL JS) expression harness.
 
-use maplibre_native_base::Value;
+use feature::Value;
 
 /// `numericValue<double>`.
 fn numeric_value(value: &Value) -> Option<f64> {

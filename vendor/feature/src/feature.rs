@@ -1,8 +1,9 @@
-// Ports mapbox::feature::{identifier, feature} (vendor/maplibre-native-base),
+// Ports mapbox::feature::{identifier, feature} (mapbox/feature.hpp),
 // aliased as mln::FeatureIdentifier / mln::Feature in
 // include/mln/util/feature.hpp.
 
-use crate::point::Geometry;
+use geometry::Geometry;
+
 use crate::value::ValueObject;
 
 /// `mapbox::feature::identifier`:

@@ -47,7 +47,7 @@ use std::sync::Arc;
 use crate::render_pass::RenderPass;
 use crate::tile::tile::Tile;
 use crate::tile_pyramid::TilePyramid;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_actor::TaggedScheduler;
 use mln_gfx::UploadPass;
 use mln_style::source;

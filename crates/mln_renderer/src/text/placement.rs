@@ -27,7 +27,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::rc::Rc;
 use std::sync::{Arc, OnceLock};
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_map_types::{MapDebugOptions, MapMode, TransformState};
 use mln_math::{fmaxf, fminf};
 use mln_style::TransitionOptions;

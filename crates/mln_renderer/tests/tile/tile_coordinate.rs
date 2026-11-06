@@ -1,6 +1,6 @@
 // Ports test/tile/tile_coordinate.test.cpp.
 
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_map::CameraChangeMode;
 use mln_map::transform::{Transform, TransformObserver};
 use mln_map_types::tile_coordinate::TileCoordinate;

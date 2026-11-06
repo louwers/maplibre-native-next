@@ -6,7 +6,7 @@
 // stays dependency-free.
 
 use crate::size::Size;
-use maplibre_native_base::Point;
+use geometry::Point;
 use std::fmt;
 use std::marker::PhantomData;
 

@@ -2,7 +2,7 @@
 
 use crate::constants::{DEGREES_MAX, LATITUDE_MAX, LONGITUDE_MAX, MAX_ZOOM, MIN_ZOOM};
 use crate::geo::{LatLng, WrapMode};
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_math::{clamp_f64, deg2rad, rad2deg};
 use std::f64::consts::PI;
 

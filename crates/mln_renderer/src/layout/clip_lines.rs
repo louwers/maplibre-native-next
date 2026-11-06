@@ -76,7 +76,7 @@ pub fn clip_lines(lines: &GeometryCollection, x1: i16, y1: i16, x2: i16, y2: i16
 #[cfg(test)]
 mod tests {
     use super::*;
-    use maplibre_native_base::Point;
+    use geometry::Point;
 
     fn collection(lines: &[&[(i16, i16)]]) -> GeometryCollection {
         GeometryCollection::from(

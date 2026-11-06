@@ -6,8 +6,8 @@ rust_library(
     srcs = glob(["src/**/*.rs"]),
     visibility = ["//visibility:public"],
     deps = [
+        "//vendor/geometry",
         "//vendor/libstdcxx",
-        "//vendor/maplibre-native-base:maplibre_native_base",
     ],
 )
 
@@ -23,7 +23,7 @@ rust_test(
     data = ["@maplibre//vendor:polylabel_fixtures"],
     deps = [
         ":polylabel",
-        "//vendor/maplibre-native-base:maplibre_native_base",
+        "//vendor/geometry",
         "@next_crates//:serde_json",
     ],
 )

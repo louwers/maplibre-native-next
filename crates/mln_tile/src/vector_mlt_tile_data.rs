@@ -13,7 +13,7 @@
 // DEVIATIONS.md.
 
 use crate::mlt::{self, Coordinate, MapLibreTile, Property, Shape};
-use maplibre_native_base::{Identifier, PropertyMap, Value};
+use feature::{Identifier, PropertyMap, Value};
 use mln_tile_id::{
     GeometryCollection, GeometryCoordinate, GeometryCoordinates, GeometryTileData, GeometryTileFeature,
     GeometryTileLayer,

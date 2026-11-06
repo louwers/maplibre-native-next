@@ -8,7 +8,7 @@
 // they do on the platforms C++ runs on.
 
 use crate::math::{dist_sqr_i16, dist_sqr_i16_f32};
-use maplibre_native_base::Point;
+use geometry::Point;
 
 type GeometryCoordinate = Point<i16>;
 

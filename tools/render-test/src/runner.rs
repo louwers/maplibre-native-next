@@ -22,7 +22,8 @@ use crate::parser::{
     test_operation_names::{GFX_PROBE_OP, MEMORY_PROBE_OP, NETWORK_PROBE_OP},
 };
 use crate::test_runner_common::{deep_equal, tokenize};
-use maplibre_native_base::{Point, Value};
+use feature::Value;
+use geometry::Point;
 use mln_util::feature::Feature;
 use mln_platform_default_image::{decode_image, encode_png};
 use mln_util::geo::LatLng;
@@ -178,7 +179,7 @@ pub trait TestRunnerImpl {
         _source_id: &str,
         _source_layer: Option<&str>,
         _feature_id: &str,
-        _state: &maplibre_native_base::PropertyMap,
+        _state: &feature::PropertyMap,
     ) -> Result<bool, MapError> {
         not_ported("setFeatureState operation (Renderer feature state)")
     }

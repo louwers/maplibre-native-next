@@ -14,7 +14,7 @@ use crate::light::Light;
 use crate::source::Source;
 use crate::sprite::Sprite;
 use crate::transition_options::TransitionOptions;
-use maplibre_native_base::{Value, ValueObject};
+use feature::{Value, ValueObject};
 use mln_conversion::{Convertible, Error};
 use mln_util::LatLng;
 use mln_util::constants::DEFAULT_TRANSITION_DURATION;

@@ -9,7 +9,8 @@
 // same. //difftest/geometry compares everything exactly against the C++.
 
 use geojson_vt::{EMPTY_TILE, GeoJSONVT, Options, TileOptions, geojson_to_tile};
-use maplibre_native_base::{Feature, Geometry, Identifier, Point, PropertyMap, Value};
+use feature::{Feature, Identifier, PropertyMap, Value};
+use geometry::{Geometry, Point};
 use serde_json::Value as Json;
 use std::collections::BTreeMap;
 use std::f64::consts::PI;

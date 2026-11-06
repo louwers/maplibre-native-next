@@ -27,7 +27,7 @@ use mln_tile_id::geometry_tile_data::{GeometryCoordinates, GeometryTileFeature, 
 use mln_util::Color;
 use mln_util::immutable::Immutable;
 use mln_util::range::Range;
-use maplibre_native_base::Point;
+use geometry::Point;
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock, RwLock};

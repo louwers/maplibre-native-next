@@ -6,7 +6,7 @@
 
 use cheap_ruler::{Box, CheapRuler, Unit};
 use geometry_difftest_support::run_cases;
-use maplibre_native_base::Point;
+use geometry::Point;
 use proptest::prelude::*;
 use serde_json::{Value as Json, json};
 

@@ -6,7 +6,7 @@
 // IDs' fields: `LatLng::from_canonical_tile(z, x, y)` etc.
 
 use crate::constants;
-use maplibre_native_base::Point;
+use geometry::Point;
 use mln_math::{clamp_f64, rad2deg, wrap};
 
 pub type ScreenCoordinate = Point<f64>;

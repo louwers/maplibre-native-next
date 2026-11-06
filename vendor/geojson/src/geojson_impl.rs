@@ -16,9 +16,17 @@
 // error instead (marked TODO(port) below).
 
 use crate::{Error, FeatureCollection, GeoJSON};
-use maplibre_native_base::{
-    Feature, Geometry, GeometryCollection, Identifier, LineString, LinearRing, MultiLineString,
-    MultiPoint, MultiPolygon, Point, Polygon, PropertyMap, Value,
+use feature::{Feature, Identifier, PropertyMap, Value};
+use geometry::{
+    Geometry,
+    GeometryCollection,
+    LineString,
+    LinearRing,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
 };
 use rapidjson::Writer;
 use serde_json::Value as Json;

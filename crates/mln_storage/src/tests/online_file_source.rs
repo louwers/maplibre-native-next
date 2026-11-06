@@ -13,7 +13,7 @@ use crate::online_file_source::OnlineFileSource;
 use crate::resource::{Kind, Priority, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use maplibre_native_base::Value;
+use feature::Value;
 use mln_actor::{RunLoop, Timer};
 use mln_util::chrono::{Clock, Duration, Timestamp, now};
 use mln_util::tile_server_options::TileServerOptions;
