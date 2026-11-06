@@ -313,7 +313,9 @@ std::string dumpFeatures(const rapidjson::Value& request) {
 } // namespace
 
 int main() {
-    std::ios::sync_with_stdio(false);
+    // No std::ios::sync_with_stdio(false): the core logs to std::cerr from
+    // other threads, which flushes the tied std::cout, and unsynchronized
+    // streams are not thread-safe (see difftest/layers/oracle_main.cpp).
     util::RunLoop loop;
     std::string line;
     while (std::getline(std::cin, line)) {

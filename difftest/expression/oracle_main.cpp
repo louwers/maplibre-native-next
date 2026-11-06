@@ -27,7 +27,9 @@ extern "C" size_t ref_expression_report(const char* json,
                                         size_t cap);
 
 int main() {
-    std::ios::sync_with_stdio(false);
+    // No std::ios::sync_with_stdio(false): the core logs to std::cerr from
+    // other threads, which flushes the tied std::cout, and unsynchronized
+    // streams are not thread-safe (see difftest/layers/oracle_main.cpp).
     std::string line;
     std::vector<char> buffer(1 << 16);
     while (std::getline(std::cin, line)) {
