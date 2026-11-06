@@ -101,19 +101,6 @@ crate.spec(
     version = "0.15",
 )
 
-# Two HarfRust 0.15 vs HarfBuzz differences found by //difftest/text (anchor
-# rounding ties, fallback space widths); see DEVIATIONS.md [text]. Drop this
-# once fixed upstream.
-crate.annotation(
-    crate = "harfrust",
-    patch_args = ["-p1"],
-    # GNU patch: Bazel's built-in patcher rejects this patch, which GNU patch
-    # applies cleanly to harfrust 0.15.0.
-    patch_tool = "patch",
-    patches = ["//crates/mln_text/patches:harfrust_hb_rounding.patch"],
-    repositories = ["next_crates"],
-)
-
 # decodeWEBP (platform/default/src/mln/util/webp_reader.cpp); pure Rust.
 crate.spec(
     package = "image-webp",

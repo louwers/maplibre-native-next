@@ -430,10 +430,9 @@ account for it.
   (HB_NO_VAR) and passing `frac=0 numr=0 dnom=0` (HB_NO_OT_SHAPE_FRACTIONS).
   `//difftest/text:shaping_difftest` shapes 407 strings (107 hand-written,
   300 generated) with 145 fonts (HarfBuzz's perf/API test fonts and the
-  render tests' font-faces fonts): 55587 of 59015 cases are bit-identical
-  (55446 before the HarfRust patch below). Every one of the 3428 others is
-  minimized to a reproducer and has one of causes 1-3 and 6 (counts at
-  fastbuild and `--config=oracle-opt` alike):
+  render tests' font-faces fonts): 55446 of 59015 cases are bit-identical.
+  Every one of the 3569 others is minimized to a reproducer and has one of
+  causes 1-6 (counts at fastbuild and `--config=oracle-opt` alike):
   1. *Unicode data* (1691 cases, 22 minimal texts): the text has a
      codepoint unassigned in Unicode 15.0 (HB_NO_UCD_UNASSIGNED gives those
      its neighbours' properties) or whose script or combining class differs
@@ -452,15 +451,13 @@ account for it.
   3. *Vowel constraints* (79 cases, 1 text): HB_NO_OT_SHAPER_VOWEL_CONSTRAINTS
      in C++; HarfRust inserts U+25CC. Reproducer: "अॅ" (U+0905 U+0945),
      every font: 2 glyphs in C++, 3 in Rust.
-  4. *HarfRust bug, rounding* (27 cases, 12 texts; fixed by the patch):
-     HarfBuzz (8.2.0 and
+  4. *HarfRust bug, rounding* (27 cases, 12 texts): HarfBuzz (8.2.0 and
      15.0.0) rounds scaled anchor positions with `roundf` = `floor(x + .5)`;
      HarfRust's `Scale::scale_x_f` uses `f32::round`, so -n.5 ends one unit
      lower. Reproducer: perf/fonts/Roboto-Regular.ttf "Ҙ̥" (U+0498 U+0325):
      the mark's anchor delta is -10 units * 0.75 = -7.5: HarfBuzz -7,
      HarfRust -8 (HBShapeAdjust y_offset 0.109375 vs 0.125).
-  5. *HarfRust bug, fallback spaces* (114 cases, 5 texts; fixed by the
-     patch): HarfBuzz sizes
+  5. *HarfRust bug, fallback spaces* (114 cases, 5 texts): HarfBuzz sizes
      U+2000..U+200A etc. from its scale, `(x_scale + n/2) / n`; HarfRust
      scales `(upem + n/2) / n`. Reproducer: Noto Sans devanagari.ttf (upem
      1000) U+2004: C++ 512/64 = 8.0, Rust 511/64.
@@ -468,11 +465,12 @@ account for it.
      has no Unicode cmap; FreeType's CFF driver synthesizes one from the
      glyph names (psnames + the Adobe Glyph List), which is not ported
      (TODO(port) in ft/face.rs), so its characters map to .notdef.
-  `crates/mln_text/patches/harfrust_hb_rounding.patch` fixes 4 and 5 in
-  HarfRust; MODULE.bazel applies it (`crate.annotation`), to be
-  upstreamed. With it both counts are 0 and nothing else changes; the
-  difftest no longer accepts them. 1-3 need HarfRust features (HB_TINY-like
-  switches or Unicode tables) that do not exist.
+  4 and 5 are HarfRust bugs, to be fixed upstream. A local patch fixed both
+  and changed nothing else (`crates/mln_text/patches/harfrust_hb_rounding.patch`,
+  removed in favour of upstream HarfRust; see the git history). The difftest has no cause for them, so
+  `shaping_matches_harfbuzz` is ignored until HarfRust fixes them. 1-3 need
+  HarfRust features (HB_TINY-like switches or Unicode tables) that do not
+  exist.
 - **[text] Glyph rasterization** (FreeTypeFace::rasterizeGlyph,
   freetype.cpp). The port loads hinted outlines with skrifa
   (`HintOptions::auto_fallback`, grayscale: FreeType's FT_LOAD_DEFAULT engine
