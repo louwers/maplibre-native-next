@@ -11,13 +11,14 @@ include.workspace = true
 # (difftests, tools, platform/glfw). As dev-dependencies of this empty
 # package they are resolved and locked with the rest of the workspace, which
 # is where Bazel gets its crates (MODULE.bazel), but Cargo never builds them:
-# the package has no tests.
+# the package has no tests or benchmarks.
 publish = false
 
 [lib]
 name = "bazel_crates"
 test = false
 doctest = false
+bench = false
 
 [dev-dependencies]
 # Evaluated as a replacement for //vendor/earcut and rejected: on polygons

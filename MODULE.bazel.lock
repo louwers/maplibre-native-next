@@ -675,7 +675,7 @@
           "REPO_MAPPING:rules_rust+,bazel_tools bazel_tools",
           "REPO_MAPPING:rules_rust+,rules_cc rules_cc+",
           "FILE:@@//Cargo.lock 37ef559c66b9bb08ebf011f828ed4baa638cf5857e2131cff08c992281717a45",
-          "FILE:@@//Cargo.toml 505b909e34ec9cc33a363192e7b5d6a5df84443467e8d6020f3ecafb4f5d871b",
+          "FILE:@@//Cargo.toml 7619fec7f361bba27efbac77968dec977ff9133ecedf261ca9d4b33b73ec98f8",
           "FILE:@@//crates/mln_actor/Cargo.toml 13b5c1ff263a43cb2367ddbacda412a0b1117bdc08fb426cdb49e1a6fa20b140",
           "FILE:@@//vendor/feature/Cargo.toml 1bdf0caa85e7450c213f434038da925a4064993ae13983ae7bffd9f3d65ce9fc",
           "FILE:@@//vendor/geometry/Cargo.toml f7e91f37d13a3ab89fbcb17364aa0c125954cebcb19dd09bb61dc50d680ed91d",
@@ -716,7 +716,7 @@
           "FILE:@@//vendor/supercluster/Cargo.toml b9e0415c65da1977543508293dcd59f952f98d3623c1e2a5929566e5b094b3f0",
           "FILE:@@//vendor/kdbush/Cargo.toml 84f656069a3dc08180a655cc5eee57cbcb9e5770880329aabf67855669565bce",
           "FILE:@@//crates/mln_storage_offline/Cargo.toml 8e961c890dc086fabab582c64c982ba490d38820ef9cd935a564d511bdf817b2",
-          "FILE:@@//third_party/bazel_crates/Cargo.toml 8d09fd228e77e363d522b98879862a93d12961c9632a640c1957a8d8e0a92e81",
+          "FILE:@@//third_party/bazel_crates/Cargo.toml 2a709e936806977fcbd9799c4cc630c72fc068b4ed24abf2818959aecfebeb02",
           "FILE:@@//vendor/cheap-ruler/Cargo.toml f9857d6c1b885cc0b510655020aad6df68a61791ded6f79af1b228b8497e721a"
         ],
         "generatedRepoSpecs": {
