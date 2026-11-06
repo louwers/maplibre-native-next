@@ -1,0 +1,18 @@
+[package]
+name = "mln-rs-supercluster"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# The tests run under Bazel (BUILD.bazel).
+autotests = false
+
+[lib]
+name = "supercluster"
+
+[dependencies]
+kdbush.workspace = true
+libstdcxx.workspace = true
+maplibre_native_base.workspace = true

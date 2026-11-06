@@ -1,0 +1,26 @@
+[package]
+name = "mln-rs-expression"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# The tests run under Bazel (BUILD.bazel).
+autotests = false
+
+[lib]
+name = "mln_expression"
+
+[dependencies]
+geojson.workspace = true
+maplibre_native_base.workspace = true
+mln_conversion.workspace = true
+mln_math.workspace = true
+mln_style_types.workspace = true
+mln_tile.workspace = true
+mln_tile_id.workspace = true
+mln_util.workspace = true
+nunicode.workspace = true
+rapidjson.workspace = true
+serde_json.workspace = true

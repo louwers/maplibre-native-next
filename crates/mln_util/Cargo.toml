@@ -1,0 +1,19 @@
+[package]
+name = "mln-rs-util"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# The tests run under Bazel (BUILD.bazel).
+autotests = false
+
+[lib]
+name = "mln_util"
+
+[dependencies]
+csscolorparser.workspace = true
+maplibre_native_base.workspace = true
+mln_math.workspace = true
+rapidjson.workspace = true

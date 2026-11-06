@@ -1,0 +1,23 @@
+[package]
+name = "mln-rs-tile"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# The tests run under Bazel (BUILD.bazel).
+autotests = false
+
+[lib]
+name = "mln_tile"
+
+[dependencies]
+libstdcxx.workspace = true
+maplibre_native_base.workspace = true
+mln_tile_id.workspace = true
+mln_util.workspace = true
+mlt-core.workspace = true
+protozero.workspace = true
+vector_tile.workspace = true
+wagyu.workspace = true

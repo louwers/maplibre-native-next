@@ -41,8 +41,10 @@ use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
 
-# Third-party crates. Bazel is the only build: crates in this repo are plain
-# rust_library targets, so adding one never touches this file. Only add a
+# Third-party crates. Bazel is the build; the root Cargo.toml lists the same
+# crates with the same features for the crates.io release (RELEASING.md), so
+# change both. Crates in this repo are plain rust_library targets, so adding
+# one never touches this file. Only add a
 # crate here when nothing in the C++ core has to be ported for it (see
 # PLAN.md, "Dependency map"). The repo is not called "crates" because
 # @maplibre already uses that name for rustutils.

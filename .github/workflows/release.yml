@@ -1,10 +1,10 @@
 name: release
 
-# Publishes maplibre-native-next to crates.io at the version in
-# tools/release/package.toml, plus the patched third-party forks it depends
-# on, then tags the commit v<version> and creates a GitHub release. See
-# RELEASING.md. Rerunning after a partial failure finishes the job: packages
-# already on crates.io with the same contents are skipped.
+# Publishes the workspace in Cargo.toml to crates.io at its version: mln-rs
+# and the mln-rs-* libraries it re-exports. Then tags the commit v<version>
+# and creates a GitHub release. See RELEASING.md. Rerunning after a partial
+# failure finishes the job: packages crates.io already has at this version
+# are skipped.
 
 on:
   workflow_dispatch:
@@ -19,7 +19,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-26.04
-    timeout-minutes: 90
+    # The publish step waits out crates.io's limit on new crates, which the
+    # first release of new packages runs into.
+    timeout-minutes: 360
     steps:
       - name: Require the default branch
         if: github.ref != format('refs/heads/{0}', github.event.repository.default_branch)
@@ -29,7 +31,6 @@ jobs:
 
       - uses: actions/checkout@v5
         with:
-          path: maplibre-native-next
           persist-credentials: false
 
       - name: Install Rust
@@ -37,51 +38,47 @@ jobs:
           rustup toolchain install stable --profile minimal --no-self-update
           rustup default stable
 
-      - name: Assemble
-        working-directory: maplibre-native-next
+      - name: Version
         run: |
-          python3 -I tools/release/assemble.py assemble
-          version=$(python3 -I tools/release/assemble.py version)
+          version=$(cargo metadata --no-deps --format-version 1 --locked |
+            jq -r '.packages[] | select(.name == "mln-rs") | .version')
           echo "VERSION=$version" >> "$GITHUB_ENV"
 
+      # Builds each package from its packaged sources. Packages resolve each
+      # other locally, so this works before any of them is on crates.io.
       - name: Package
-        working-directory: maplibre-native-next/target/release-crate
-        run: cargo package --workspace --no-verify
+        run: cargo package --workspace --locked
 
-      # Prints the packages crates.io does not have yet; fails if it has one
-      # of these versions with different contents.
-      - name: Compare with crates.io
-        id: status
-        working-directory: maplibre-native-next
-        run: |
-          missing=$(python3 -I tools/release/assemble.py status)
-          echo "missing=$missing" >> "$GITHUB_OUTPUT"
-
-      # Builds the packaged sources. Packages published together resolve each
-      # other locally, so the merged crate verifies before its forks are up.
-      - name: Dry run
-        if: steps.status.outputs.missing != ''
-        working-directory: maplibre-native-next/target/release-crate
-        env:
-          MISSING: ${{ steps.status.outputs.missing }}
-        run: |
-          read -ra packages <<< "$MISSING"
-          cargo publish --dry-run "${packages[@]/#/--package=}"
-
-      # In dependency order, waiting for each to reach the index. The dry run
-      # verified these exact packages, so skip the second build.
+      # In dependency order, waiting for each to reach the index. Package
+      # verified these exact packages, so skip the second build. A 429 is
+      # crates.io's limit on new crates: wait, then publish the rest.
       - name: Publish
-        if: steps.status.outputs.missing != ''
-        working-directory: maplibre-native-next/target/release-crate
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-          MISSING: ${{ steps.status.outputs.missing }}
+          USER_AGENT: mln-rs-release (https://github.com/louwers/maplibre-native-next)
         run: |
-          read -ra packages <<< "$MISSING"
-          cargo publish --no-verify "${packages[@]/#/--package=}"
+          set -o pipefail
+          packages=$(cargo metadata --no-deps --format-version 1 --locked | jq -r '.packages[].name')
+          while true; do
+            skip=()
+            for package in $packages; do
+              if curl -sf -o /dev/null -A "$USER_AGENT" "https://crates.io/api/v1/crates/$package/$VERSION"; then
+                skip+=("--exclude=$package")
+              fi
+            done
+            if [[ ${#skip[@]} == $(wc -w <<< "$packages") ]]; then
+              echo "crates.io has every package at $VERSION."
+              break
+            fi
+            if cargo publish --workspace --locked --no-verify "${skip[@]}" 2>&1 | tee "$RUNNER_TEMP/publish.log"; then
+              break
+            fi
+            grep -q "status 429" "$RUNNER_TEMP/publish.log" || exit 1
+            echo "Rate-limited by crates.io; retrying in 10 minutes."
+            sleep 600
+          done
 
       - name: Tag and create the GitHub release
-        working-directory: maplibre-native-next
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -92,5 +89,5 @@ jobs:
           fi
           gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "$tag" \
-            --notes "https://crates.io/crates/maplibre-native-next/$VERSION" \
-            target/release-crate/target/package/*.crate
+            --notes "https://crates.io/crates/mln-rs/$VERSION" \
+            target/package/*.crate

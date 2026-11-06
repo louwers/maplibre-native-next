@@ -1,0 +1,140 @@
+# The crates.io release (RELEASING.md). Bazel builds and tests the port
+# (PLAN.md §1); this workspace builds the same libraries with Cargo so they
+# can be published. Each library under crates/ and vendor/ is the package
+# mln-rs-<name> (library name unchanged, so the code still says `mln_util::`),
+# and the package here, mln-rs, re-exports them all. Users depend on mln-rs
+# only.
+#
+# A library's dependencies are listed twice: in its BUILD.bazel and in its
+# Cargo.toml. CI builds both, so a missing one fails there.
+[workspace]
+resolver = "3"
+members = ["crates/*", "vendor/*"]
+# Libraries Bazel builds that the release leaves out: ports nothing in the
+# release uses.
+exclude = ["vendor/cheap-ruler", "vendor/pixelmatch"]
+
+[workspace.package]
+# Every package is published at this version. To release, bump it here and
+# in the in-repo [workspace.dependencies] below (RELEASING.md).
+version = "0.0.7"
+edition = "2024"
+description = "Part of mln-rs, a Rust port of the MapLibre Native map rendering core. Depend on mln-rs instead."
+license = "BSD-2-Clause"
+repository = "https://github.com/louwers/maplibre-native-next"
+include = ["/src"]
+
+[workspace.dependencies]
+# In-repo libraries. The exact version keeps a release's packages together.
+csscolorparser = { package = "mln-rs-csscolorparser", path = "vendor/csscolorparser", version = "=0.0.7" }
+earcut = { package = "mln-rs-earcut", path = "vendor/earcut", version = "=0.0.7" }
+geojson = { package = "mln-rs-geojson", path = "vendor/geojson", version = "=0.0.7" }
+geojson_vt = { package = "mln-rs-geojson-vt", path = "vendor/geojson-vt", version = "=0.0.7" }
+kdbush = { package = "mln-rs-kdbush", path = "vendor/kdbush", version = "=0.0.7" }
+libstdcxx = { package = "mln-rs-libstdcxx", path = "vendor/libstdcxx", version = "=0.0.7" }
+maplibre_native_base = { package = "mln-rs-maplibre-native-base", path = "vendor/maplibre-native-base", version = "=0.0.7" }
+mln_actor = { package = "mln-rs-actor", path = "crates/mln_actor", version = "=0.0.7" }
+mln_conversion = { package = "mln-rs-conversion", path = "crates/mln_conversion", version = "=0.0.7" }
+mln_expression = { package = "mln-rs-expression", path = "crates/mln_expression", version = "=0.0.7" }
+mln_gfx = { package = "mln-rs-gfx", path = "crates/mln_gfx", version = "=0.0.7" }
+mln_map = { package = "mln-rs-map", path = "crates/mln_map", version = "=0.0.7" }
+mln_map_types = { package = "mln-rs-map-types", path = "crates/mln_map_types", version = "=0.0.7" }
+mln_math = { package = "mln-rs-math", path = "crates/mln_math", version = "=0.0.7" }
+mln_platform_default = { package = "mln-rs-platform-default", path = "crates/mln_platform_default", version = "=0.0.7" }
+mln_platform_default_image = { package = "mln-rs-platform-default-image", path = "crates/mln_platform_default_image", version = "=0.0.7" }
+mln_renderer = { package = "mln-rs-renderer", path = "crates/mln_renderer", version = "=0.0.7" }
+mln_sprite = { package = "mln-rs-sprite", path = "crates/mln_sprite", version = "=0.0.7" }
+mln_storage = { package = "mln-rs-storage", path = "crates/mln_storage", version = "=0.0.7" }
+mln_storage_offline = { package = "mln-rs-storage-offline", path = "crates/mln_storage_offline", version = "=0.0.7" }
+mln_style = { package = "mln-rs-style", path = "crates/mln_style", version = "=0.0.7" }
+mln_style_types = { package = "mln-rs-style-types", path = "crates/mln_style_types", version = "=0.0.7" }
+mln_text = { package = "mln-rs-text", path = "crates/mln_text", version = "=0.0.7" }
+mln_tile = { package = "mln-rs-tile", path = "crates/mln_tile", version = "=0.0.7" }
+mln_tile_id = { package = "mln-rs-tile-id", path = "crates/mln_tile_id", version = "=0.0.7" }
+mln_util = { package = "mln-rs-util", path = "crates/mln_util", version = "=0.0.7" }
+mln_webgpu = { package = "mln-rs-webgpu", path = "crates/mln_webgpu", version = "=0.0.7" }
+mln_wgpu_webgpu_h = { package = "mln-rs-wgpu-webgpu-h", path = "crates/mln_wgpu_webgpu_h", version = "=0.0.7" }
+nunicode = { package = "mln-rs-nunicode", path = "vendor/nunicode", version = "=0.0.7" }
+pmtiles = { package = "mln-rs-pmtiles", path = "vendor/pmtiles", version = "=0.0.7" }
+polylabel = { package = "mln-rs-polylabel", path = "vendor/polylabel", version = "=0.0.7" }
+protozero = { package = "mln-rs-protozero", path = "vendor/protozero", version = "=0.0.7" }
+rapidjson = { package = "mln-rs-rapidjson", path = "vendor/rapidjson", version = "=0.0.7" }
+shelf_pack = { package = "mln-rs-shelf-pack", path = "vendor/shelf-pack", version = "=0.0.7" }
+supercluster = { package = "mln-rs-supercluster", path = "vendor/supercluster", version = "=0.0.7" }
+vector_tile = { package = "mln-rs-vector-tile", path = "vendor/vector-tile", version = "=0.0.7" }
+wagyu = { package = "mln-rs-wagyu", path = "vendor/wagyu", version = "=0.0.7" }
+
+# Third-party crates: the crate.specs of MODULE.bazel, with the versions
+# Bazel resolved as minimums. Keep the features in sync with MODULE.bazel.
+# min_const_generics: Pod for any array length (mln_gfx's UBOs). Bazel gets it
+# through wgpu's features; here each package is built on its own.
+bytemuck = { version = "1.25.2", features = ["derive", "min_const_generics"] }
+# zlib backend: util::compress output must be byte-identical to the zlib the
+# C++ links (see MODULE.bazel).
+flate2 = { version = "1.1.11", default-features = false, features = ["zlib"] }
+harfrust = { version = "0.15.0" }
+image-webp = { version = "0.2.4" }
+mlt-core = { version = "0.22.1" }
+png = { version = "0.18.1" }
+pollster = { version = "1.0.1" }
+regex = { version = "1.13.1" }
+rusqlite = { version = "0.41.1", features = ["bundled"] }
+# preserve_order and float_roundtrip: rapidjson's behaviour (see MODULE.bazel).
+serde_json = { version = "1.0.154", features = ["float_roundtrip", "preserve_order"] }
+skrifa = { version = "0.49.0" }
+unicode-bidi = { version = "0.3.18" }
+ureq = { version = "3.5.1" }
+# `custom` lets mln_wgpu_webgpu_h plug in the browser's WebGPU on Emscripten.
+# The default features are off here because Emscripten builds without them;
+# the crates turn them on for every other target.
+wgpu = { version = "30.0.1", default-features = false, features = ["custom"] }
+
+[package]
+name = "mln-rs"
+version.workspace = true
+edition.workspace = true
+description = "A Rust port of the MapLibre Native map rendering core"
+license.workspace = true
+repository.workspace = true
+include = ["/src", "/LICENSE.md"]
+keywords = ["maplibre", "map", "vector-tiles", "gis", "rendering"]
+categories = ["graphics", "rendering::engine", "science::geo"]
+
+[dependencies]
+csscolorparser.workspace = true
+earcut.workspace = true
+geojson.workspace = true
+geojson_vt.workspace = true
+kdbush.workspace = true
+libstdcxx.workspace = true
+maplibre_native_base.workspace = true
+mln_actor.workspace = true
+mln_conversion.workspace = true
+mln_expression.workspace = true
+mln_gfx.workspace = true
+mln_map.workspace = true
+mln_map_types.workspace = true
+mln_math.workspace = true
+mln_platform_default.workspace = true
+mln_platform_default_image.workspace = true
+mln_renderer.workspace = true
+mln_sprite.workspace = true
+mln_storage.workspace = true
+mln_storage_offline.workspace = true
+mln_style.workspace = true
+mln_style_types.workspace = true
+mln_text.workspace = true
+mln_tile.workspace = true
+mln_tile_id.workspace = true
+mln_util.workspace = true
+mln_webgpu.workspace = true
+mln_wgpu_webgpu_h.workspace = true
+nunicode.workspace = true
+pmtiles.workspace = true
+polylabel.workspace = true
+protozero.workspace = true
+rapidjson.workspace = true
+shelf_pack.workspace = true
+supercluster.workspace = true
+vector_tile.workspace = true
+wagyu.workspace = true

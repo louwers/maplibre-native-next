@@ -1,0 +1,22 @@
+[package]
+name = "mln-rs-wgpu-webgpu-h"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# The tests run under Bazel (BUILD.bazel).
+autotests = false
+
+[lib]
+name = "mln_wgpu_webgpu_h"
+
+[target.'cfg(not(target_os = "emscripten"))'.dependencies]
+wgpu = { workspace = true, features = ["default"] }
+
+# In the browser the port renders through this crate's custom backend
+# over webgpu.h; wgpu's GLES backend would link EGL 1.5 functions that
+# Emscripten doesn't provide.
+[target.'cfg(target_os = "emscripten")'.dependencies]
+wgpu = { workspace = true, features = ["parking_lot", "std", "wgsl"] }

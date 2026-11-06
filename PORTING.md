@@ -39,7 +39,11 @@ everyone working in this repo).
   - never build `//...` (other people's packages may be mid-edit);
   - never `clean`, `shutdown`, `sync`, or pass startup flags, `--output_base`,
     or new `--config`s. Only `--config=oracle-opt` exists.
-- Don't run `cargo`. There are no Cargo manifests.
+- Don't build or test with `cargo`: the Cargo manifests (the root
+  `Cargo.toml` and one per library) are for the crates.io release only.
+  When you change a library's dependencies in `BUILD.bazel`, change its
+  `Cargo.toml` the same way; a new library needs the steps in RELEASING.md
+  ("Adding a library"). CI's `release-crate` job checks them.
 - Third-party crates already available as `@next_crates//:<name>`: `bytemuck`,
   `flate2`, `harfrust`, `png`,
   `pollster`, `proptest`, `regex`, `rusqlite` (bundled SQLite), `serde`,
