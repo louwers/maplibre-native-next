@@ -1,6 +1,13 @@
 // Ports test/storage/database_file_source.test.cpp. The tests take
 // `serial()`: they share the FileSourceManager's database file source.
 
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_actor::{RunLoop, Timer};
+use mln_util::chrono::Duration;
+
 use super::{local_callback, req, serial};
 use crate::ClientOptions;
 use crate::database_file_source::DatabaseFileSource;
@@ -9,11 +16,6 @@ use crate::file_source_manager::FileSourceManager;
 use crate::resource::{Kind, LoadingMethod, Resource, StoragePolicy};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use mln_actor::{RunLoop, Timer};
-use mln_util::chrono::Duration;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn dbfs() -> Arc<dyn FileSource> {
     FileSourceManager::get()

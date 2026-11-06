@@ -5,12 +5,13 @@
 
 mod dump;
 
+use std::fmt::Write;
+
 use dump::*;
 use geometry::{Geometry, MultiPolygon, Point};
 use mln_tile_id::{CanonicalTileID, GeometryCollection, GeometryTileFeature};
 use mln_util::geometry::FeatureType;
 use proptest::prelude::*;
-use std::fmt::Write;
 
 fn collection(rings: &[Vec<(i16, i16)>]) -> GeometryCollection {
     GeometryCollection::from(

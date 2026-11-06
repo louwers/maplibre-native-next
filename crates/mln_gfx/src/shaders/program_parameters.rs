@@ -1,10 +1,11 @@
 // Ports include/mln/shaders/program_parameters.hpp and
 // src/mln/shaders/program_parameters.cpp
 
-use crate::backend::Type as BackendType;
-use crate::shaders::shader_source::BuiltIn;
 use std::cell::OnceCell;
 use std::collections::BTreeMap;
+
+use crate::backend::Type as BackendType;
+use crate::shaders::shader_source::BuiltIn;
 
 const BACKEND_TYPE_COUNT: usize = 4;
 

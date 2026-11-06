@@ -7,12 +7,14 @@
 // Wayland first and falls back to X11 (`MLN_GLFW_PLATFORM=x11|wayland`
 // forces one).
 
-use crate::glfw_webgpu_backend::GLFWWebGPUBackend;
+use std::rc::Rc;
+
 use mln_gfx::RendererBackend;
 use mln_util::image::PremultipliedImage;
 use mln_util::logging::{Event, Log};
 use mln_util::size::Size;
-use std::rc::Rc;
+
+use crate::glfw_webgpu_backend::GLFWWebGPUBackend;
 
 /// `GLFWBackend`: the rendering backend bound to a GLFW window.
 pub trait GLFWBackend {

@@ -20,12 +20,14 @@
 // message returns (C++ destroys it during the message, which Rust's `&mut O`
 // borrow rules out).
 
-use crate::scheduler::{SchedulerPtr, TaggedScheduler, WeakScheduler};
-use mln_util::identity::SimpleIdentity;
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, Weak, mpsc};
 use std::thread::ThreadId;
+
+use mln_util::identity::SimpleIdentity;
+
+use crate::scheduler::{SchedulerPtr, TaggedScheduler, WeakScheduler};
 
 /// A message to a pool actor's object.
 pub type PoolMessage<O> = Box<dyn FnOnce(&mut O) + Send + 'static>;
@@ -242,9 +244,10 @@ impl<O: Send + 'static> Drop for Actor<O> {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::mpsc;
+
     use super::*;
     use crate::thread_pool::ThreadPool;
-    use std::sync::mpsc;
 
     struct Counter {
         count: u32,

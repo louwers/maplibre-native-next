@@ -5,6 +5,10 @@
 // shares it. The Map keeps a clone as its `RendererFrontend` (C++: a
 // reference), so `frontend.render(&mut map)` works while the map holds it.
 
+use std::cell::{Cell, RefCell};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_actor::{AsyncTask, RunLoop};
 use mln_gfx::headless_backend::HeadlessBackend as GfxHeadlessBackend;
 use mln_gfx::{BackendScope, ContextMode, RendererBackend, ScopeType, SwapBehaviour};
@@ -13,9 +17,6 @@ use mln_renderer::{Renderer, RendererFrontend, RendererObserver, UpdateParameter
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
 use mln_webgpu::HeadlessBackend;
-use std::cell::{Cell, RefCell};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 /// `HeadlessFrontend::RenderResult`.
 pub struct RenderResult {

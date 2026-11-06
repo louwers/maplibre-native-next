@@ -1,8 +1,9 @@
 // Ports test/style/style_image.test.cpp.
 
-use crate::image::{Image, ImageContent, ImageStretches};
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
+
+use crate::image::{Image, ImageContent, ImageStretches};
 
 /// `style::Image(id, PremultipliedImage({w, h}), pixelRatio, stretchX,
 /// stretchY, content)` (the overload without `sdf`).

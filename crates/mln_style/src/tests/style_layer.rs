@@ -1,5 +1,12 @@
 // Ports test/style/style_layer.test.cpp.
 
+use std::path::PathBuf;
+use std::sync::Arc;
+
+use mln_conversion::{Convertible, Error};
+use mln_style_types::{LineCapType, LineJoinType, TranslateAnchorType, VisibilityType};
+use mln_util::Color;
+
 use super::util::parse_json;
 use crate::conversion::convert;
 use crate::expression::Image;
@@ -9,11 +16,6 @@ use crate::layers::background_layer::BackgroundLayer;
 use crate::layers::{CircleLayer, FillLayer, LineLayer, RasterLayer};
 use crate::property_value::PropertyValue;
 use crate::style_impl::Impl as StyleImpl;
-use mln_conversion::{Convertible, Error};
-use mln_style_types::{LineCapType, LineJoinType, TranslateAnchorType, VisibilityType};
-use mln_util::Color;
-use std::path::PathBuf;
-use std::sync::Arc;
 
 fn color() -> Color {
     Color::new(1.0, 0.0, 0.0, 1.0)

@@ -78,8 +78,9 @@ pub fn decompress(raw: &[u8]) -> Result<Vec<u8>, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::io::Read;
+
+    use super::*;
 
     #[test]
     fn round_trip() {

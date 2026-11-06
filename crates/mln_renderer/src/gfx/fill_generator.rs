@@ -6,14 +6,15 @@
 // TODO(port): pre-tessellated geometry (`GeometryCollection::getTriangles`,
 // MLT tiles).
 
-use crate::bucket::GeometryTooLongException;
-use crate::buckets::fill_bucket::{FillBucket, FillLayoutVertex};
-use crate::buckets::line_bucket::{LineBucket, LineLayoutVertex};
 use mln_gfx::polyline_generator::{PolylineGenerator, PolylineGeneratorOptions};
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_tile::geometry_tile_data::{classify_rings, limit_holes};
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinates};
 use mln_util::geometry::FeatureType;
+
+use crate::bucket::GeometryTooLongException;
+use crate::buckets::fill_bucket::{FillBucket, FillLayoutVertex};
+use crate::buckets::line_bucket::{LineBucket, LineLayoutVertex};
 
 fn add_ring_vertices(vertices: &mut Vec<FillLayoutVertex>, ring: &GeometryCoordinates) -> usize {
     for point in ring {

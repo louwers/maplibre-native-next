@@ -6,10 +6,12 @@
 // fixtures are test/fixtures/annotations/<name>/expected.png, compared with
 // checkImage(.., 0.0002, 0.1)).
 
-use crate::support::*;
+use std::sync::Arc;
+
 use mln_map::{CameraOptions, MapDebugOptions, MapMode};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
-use std::sync::Arc;
+
+use crate::support::*;
 
 /// `AnnotationTest`: a static 256x256 map over a `StubFileSource()`.
 // TODO(port): `StubFileSource()` uses the MapTiler tile server options.

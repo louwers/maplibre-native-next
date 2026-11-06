@@ -12,20 +12,12 @@
 //   geometry never changes, so the drawables are the same.
 //
 
-use super::raster_layer_tweaker::{ImageDrawableData, RasterLayerTweaker};
-use super::{TileDrawables, drawable_has_layer_tweaker, shared_vertices};
-use crate::buckets::raster_bucket::{RasterBucket, RasterLayoutVertex};
-use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
-use crate::paint_parameters::PaintParameters;
-use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
-use crate::render_layer::{activate_layer_group, change_layer_index};
-use crate::render_pass::RenderPass;
-use crate::render_static_data::RenderStaticData;
-use crate::render_tree::RenderTree;
-use crate::sources::render_image_source::ImageSourceRenderData;
-use crate::update_parameters::UpdateParameters;
-use mln_gfx::LayerGroupBasePtr;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::rc::Rc;
+use std::sync::Arc;
+use std::time::Instant;
+
 use mln_gfx::index_vector::{IndexVectorBase, IndexVectorBasePtr};
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_gfx::shaders::shader_defines::*;
@@ -34,24 +26,33 @@ use mln_gfx::types::{TextureFilterType, TextureWrapType};
 use mln_gfx::vertex_attribute::VertexAttributeArrayPtr;
 use mln_gfx::vertex_vector::VertexVectorBasePtr;
 use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableBuilder,
+    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableBuilder, LayerGroupBasePtr,
     ShaderProgramBasePtr, ShaderRegistry,
 };
 use mln_map_types::TransformState;
-use mln_style::layer;
 use mln_style::layer::static_immutable_cast;
 use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::raster_layer_impl::Impl as RasterLayerImpl;
 use mln_style::layers::raster_layer_properties::*;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
 use mln_style_types::RasterResamplingType;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
-use std::sync::Arc;
-use std::time::Instant;
+
+use super::raster_layer_tweaker::{ImageDrawableData, RasterLayerTweaker};
+use super::{TileDrawables, drawable_has_layer_tweaker, shared_vertices};
+use crate::buckets::raster_bucket::{RasterBucket, RasterLayoutVertex};
+use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
+use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
+use crate::paint_parameters::PaintParameters;
+use crate::render_layer::{
+    LayerPrepareParameters, RenderLayer, RenderLayerBase, activate_layer_group, change_layer_index,
+};
+use crate::render_pass::RenderPass;
+use crate::render_static_data::RenderStaticData;
+use crate::render_tree::RenderTree;
+use crate::sources::render_image_source::ImageSourceRenderData;
+use crate::update_parameters::UpdateParameters;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &RasterLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), RasterLayerImpl::static_type_info()));

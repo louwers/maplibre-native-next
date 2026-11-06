@@ -1,11 +1,12 @@
 // Ports test/storage/offline.test.cpp.
 
+use mln_util::geo::{LatLng, LatLngBounds};
+use mln_util::geometry::{Geometry, Point};
+
 use crate::offline::{
     OfflineGeometryRegionDefinition, OfflineRegionDefinition, OfflineTilePyramidRegionDefinition,
     decode_offline_region_definition, encode_offline_region_definition,
 };
-use mln_util::geo::{LatLng, LatLngBounds};
-use mln_util::geometry::{Geometry, Point};
 
 // gtest: OfflineTilePyramidRegionDefinition.EncodeDecode
 #[test]

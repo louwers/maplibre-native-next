@@ -1,9 +1,11 @@
 // Ports test/style/conversion/conversion_impl.test.cpp.
 
-use crate::conversion::{ConversionTraits, Convertible, Error};
-use feature::Value;
 use std::cell::Cell;
 use std::rc::Rc;
+
+use feature::Value;
+
+use crate::conversion::{ConversionTraits, Convertible, Error};
 
 /// `MockConvertible`: counts its destructions.
 struct MockConvertible {

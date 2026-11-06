@@ -7,13 +7,15 @@
 // exception handler: a panicking task is caught and passed to the handler,
 // as C++ catches the exception; without a handler the panic continues.)
 
-use crate::scheduler::{ExceptionHandler, Scheduler, Task};
-use mln_util::identity::SimpleIdentity;
 use std::cell::Cell;
 use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread::JoinHandle;
+
+use mln_util::identity::SimpleIdentity;
+
+use crate::scheduler::{ExceptionHandler, Scheduler, Task};
 
 #[derive(Default)]
 struct Queue {
@@ -281,11 +283,12 @@ impl Scheduler for SequencedScheduler {
 
 #[cfg(test)]
 mod tests {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
     use super::*;
     use crate::run_loop::RunLoop;
     use crate::scheduler::schedule_and_reply_value;
-    use std::cell::RefCell;
-    use std::rc::Rc;
 
     #[test]
     fn runs_tagged_tasks_and_waits() {

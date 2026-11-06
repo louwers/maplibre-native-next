@@ -1,6 +1,9 @@
 // Ports the VectorTile tests of test/tile/vector_tile.test.cpp (the
 // VectorTileData ones are mln_tile's).
 
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::{RunLoop, TaggedScheduler, scheduler};
 use mln_map::transform::{NullTransformObserver, Transform};
 use mln_map_types::{ConstrainMode, MapDebugOptions, MapMode, TileLodMode, ViewportMode};
@@ -14,8 +17,6 @@ use mln_tile_id::OverscaledTileID;
 use mln_util::exception::RuntimeError;
 use mln_util::identity::SimpleIdentity;
 use mln_util::tileset::Tileset;
-use std::rc::Rc;
-use std::sync::Arc;
 
 /// `VectorTileTest`.
 struct VectorTileTest {

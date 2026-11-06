@@ -1,6 +1,8 @@
 // Ports include/mln/style/expression/comparison.hpp and
 // src/mln/style/expression/comparison.cpp.
 
+use mln_conversion::Convertible;
+
 use crate::assertion::Assertion;
 use crate::collator::Collator;
 use crate::expression::{
@@ -9,7 +11,6 @@ use crate::expression::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{Value, type_of};
-use mln_conversion::Convertible;
 
 fn is_comparable_type(op: &str, t: &Type) -> bool {
     if op == "==" || op == "!=" {

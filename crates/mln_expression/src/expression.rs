@@ -6,17 +6,19 @@
 // `ExpressionBase` and implements the `Expression` trait. C++ downcasts with
 // `getKind()` + `static_cast`; the port uses `downcast` (`Any`).
 
-use crate::compound_expression::CompoundExpression;
-use crate::literal::Literal;
-use crate::type_::Type;
-use crate::value::{Value, from_mbgl_value};
+use std::any::Any;
+use std::collections::BTreeSet;
+use std::fmt;
+
 use feature::{Feature, Identifier as FeatureIdentifier, Value as MbglValue, ValueObject};
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature};
 use mln_util::geometry::{FeatureType, to_feature_type};
-use std::any::Any;
-use std::collections::BTreeSet;
-use std::fmt;
+
+use crate::compound_expression::CompoundExpression;
+use crate::literal::Literal;
+use crate::type_::Type;
+use crate::value::{Value, from_mbgl_value};
 
 /// `mln::FeatureState` (util/feature.hpp).
 pub type FeatureState = ValueObject;

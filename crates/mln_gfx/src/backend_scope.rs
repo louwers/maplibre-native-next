@@ -8,9 +8,11 @@
 // Nesting the same backend (the common case) behaves as in C++: activated
 // once, deactivated once.
 
-use crate::renderer_backend::RendererBackend;
-use mln_util::identity::SimpleIdentity;
 use std::cell::RefCell;
+
+use mln_util::identity::SimpleIdentity;
+
+use crate::renderer_backend::RendererBackend;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScopeType {

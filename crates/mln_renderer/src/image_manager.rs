@@ -8,16 +8,18 @@
 // maps key them by pointer. Requestors are notified after the state borrow
 // is released, so a requestor may call back into the manager.
 
-use crate::gfx::dynamic_texture_atlas::ImageVersionMap;
+use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_actor::scheduler;
 use mln_style_types::image::{ImageDependencies, ImageMap, ImageType, Impl as ImageImpl};
 use mln_util::constants::DEFAULT_ON_DEMAND_IMAGES_CACHE_SIZE;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::cell::RefCell;
-use std::collections::{BTreeMap, BTreeSet};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
+
+use crate::gfx::dynamic_texture_atlas::ImageVersionMap;
 
 /// `ImageRequestPair = std::pair<ImageDependencies, uint64_t>`.
 pub type ImageRequestPair = (ImageDependencies, u64);

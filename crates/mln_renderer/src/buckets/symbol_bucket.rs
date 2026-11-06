@@ -10,9 +10,10 @@
 //
 // Not ported: the MLN_SYMBOL_GUARDS `check` (memory-corruption guards).
 
-use crate::bucket::{Bucket, BucketBase, FeatureStates};
-use crate::layout::symbol_instance::SymbolInstance;
-use crate::paint_property_binder::PaintPropertyBinder;
+use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::{Arc, Mutex, MutexGuard, OnceLock, RwLock};
+
 use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
@@ -28,9 +29,10 @@ use mln_tile_id::geometry_tile_data::{GeometryCoordinates, GeometryTileFeature, 
 use mln_util::Color;
 use mln_util::immutable::Immutable;
 use mln_util::range::Range;
-use std::collections::BTreeMap;
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::{Arc, Mutex, MutexGuard, OnceLock, RwLock};
+
+use crate::bucket::{Bucket, BucketBase, FeatureStates};
+use crate::layout::symbol_instance::SymbolInstance;
+use crate::paint_property_binder::PaintPropertyBinder;
 
 crate::paint_property_binders!(
     /// `SymbolIconBinders = PaintPropertyBinders<IconPaintProperties::DataDrivenProperties>`.

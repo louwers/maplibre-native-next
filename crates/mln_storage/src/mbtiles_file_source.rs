@@ -16,14 +16,10 @@
 //
 // TODO(port): makeThreadPrioritySetter(EXPERIMENTAL_THREAD_PRIORITY_FILE).
 
-use crate::async_request::AsyncRequest;
-use crate::file_source::{Callback, FileSource};
-use crate::file_source_request::{FileSourceRequest, FileSourceRequestState};
-use crate::local_file_request::path_from_utf8;
-use crate::resource::{Kind, Resource};
-use crate::resource_options::ResourceOptions;
-use crate::response::{Error, Reason, Response};
-use crate::sqlite3::{Database, OpenFlag, Query, Statement};
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex};
+
 use mln_actor::{ActorRef, Thread};
 use mln_platform_default_image::compression::{decompress, is_compressed};
 use mln_util::chrono::Timestamp;
@@ -32,9 +28,15 @@ use mln_util::constants::MBTILES_PROTOCOL;
 use mln_util::url::percent_decode;
 use rapidjson::Writer;
 use serde_json::Value as Json;
-use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex};
+
+use crate::async_request::AsyncRequest;
+use crate::file_source::{Callback, FileSource};
+use crate::file_source_request::{FileSourceRequest, FileSourceRequestState};
+use crate::local_file_request::path_from_utf8;
+use crate::resource::{Kind, Resource};
+use crate::resource_options::ResourceOptions;
+use crate::response::{Error, Reason, Response};
+use crate::sqlite3::{Database, OpenFlag, Query, Statement};
 
 fn accepts_url(url: &str) -> bool {
     url.starts_with(MBTILES_PROTOCOL)

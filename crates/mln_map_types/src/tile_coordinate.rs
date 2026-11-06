@@ -1,12 +1,13 @@
 // Ports src/mln/util/tile_coordinate.hpp (it includes map/transform_state.hpp,
 // so it lives next to TransformState).
 
-use crate::transform_state::TransformState;
 use geometry::Point;
 use mln_tile_id::{GeometryCoordinate, UnwrappedTileID};
 use mln_util::constants;
 use mln_util::geo::{LatLng, ScreenCoordinate};
 use mln_util::projection::Projection;
+
+use crate::transform_state::TransformState;
 
 pub type TileCoordinatePoint = Point<f64>;
 

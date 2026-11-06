@@ -3,8 +3,9 @@
 // `isOverridable`, `expressionType`, `evaluatedType`, `attributeUniformType`,
 // `layoutPropertyType`, `paintPropertyType`, `propertyValueType`.
 
-use crate::spec::Property;
 use serde_json::Value;
+
+use crate::spec::Property;
 
 /// `camelize`: `str.replace(/(?:^|-)(.)/g, (_, x) => x.toUpperCase())`.
 pub fn camelize(s: &str) -> String {

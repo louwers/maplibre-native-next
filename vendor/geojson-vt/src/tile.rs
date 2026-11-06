@@ -1,10 +1,11 @@
 // Ports vendor/maplibre-native-base/deps/geojson-vt-cpp/include/mapbox/geojsonvt/tile.hpp.
 
-use crate::types::*;
 use feature::{Feature, Identifier, PropertyMap, Value};
 use geojson::FeatureCollection;
 use geometry::{Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
 use libstdcxx::cvt::f64_to_i16;
+
+use crate::types::*;
 
 /// `Tile`
 #[derive(Clone, Debug, Default, PartialEq)]

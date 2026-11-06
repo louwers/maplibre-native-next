@@ -4,16 +4,17 @@
 // It lives here rather than in mln_util because camera.cpp also implements
 // `FreeCameraOptions` (map/camera.hpp).
 
-use crate::camera::FreeCameraOptions;
+use std::f64::consts::PI;
+
+use mln_util::constants::{EARTH_RADIUS_M, M2PI};
 use mln_util::geo::{LatLng, LatLngAltitude};
 use mln_util::mat3::{vec3_cross, vec3_length, vec3_sub};
 use mln_util::mat4::{Mat4, matrix};
 use mln_util::projection::Projection;
 use mln_util::quaternion::Quaternion;
 use mln_util::vectors::Vec3;
-use std::f64::consts::PI;
 
-use mln_util::constants::{EARTH_RADIUS_M, M2PI};
+use crate::camera::FreeCameraOptions;
 
 fn mercator_x_from_lng(lng: f64) -> f64 {
     (180.0 + lng) / 360.0

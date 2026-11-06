@@ -1,6 +1,8 @@
 // Ports include/mln/style/expression/slice.hpp and
 // src/mln/style/expression/slice.cpp.
 
+use mln_conversion::Convertible;
+
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
@@ -8,7 +10,6 @@ use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_;
 use crate::utf8_op_helpers::{get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8};
 use crate::value::{Value, type_of};
-use mln_conversion::Convertible;
 
 fn normalize_index(index: i32, length: i32) -> i32 {
     if index < 0 { index.wrapping_add(length) } else { index }

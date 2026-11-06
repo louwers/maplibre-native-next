@@ -4,11 +4,13 @@
 // `Layer::Impl`, the data is `LayerPropertiesBase` and the virtual interface
 // is the `LayerProperties` trait. `dyn LayerProperties` derefs to its base.
 
+use std::collections::BTreeSet;
+
+use mln_util::immutable::Immutable;
+
 use crate::expression::Dependency;
 use crate::layer::Impl;
 use crate::util::AsAny;
-use mln_util::immutable::Immutable;
-use std::collections::BTreeSet;
 
 /// The data members of `LayerProperties`.
 #[derive(Clone, Debug)]

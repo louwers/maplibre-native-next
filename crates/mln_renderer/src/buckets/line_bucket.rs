@@ -1,9 +1,9 @@
 // Ports src/mln/renderer/buckets/line_bucket.hpp and line_bucket.cpp
 
-use crate::bucket::{Bucket, BucketBase};
-use crate::layout::pattern_layout::PatternLayerMap;
-use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
-use crate::render_layer::RenderLayer;
+use std::collections::BTreeMap;
+use std::sync::RwLock;
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::polyline_generator::{PolylineGenerator, PolylineGeneratorDistances, PolylineGeneratorOptions, dist};
@@ -22,9 +22,11 @@ use mln_util::feature::numeric_value_f64;
 use mln_util::geometry::FeatureType;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::collections::BTreeMap;
-use std::sync::RwLock;
-use std::sync::atomic::{AtomicBool, Ordering};
+
+use crate::bucket::{Bucket, BucketBase};
+use crate::layout::pattern_layout::PatternLayerMap;
+use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
+use crate::render_layer::RenderLayer;
 
 crate::paint_property_binders!(
     /// `LineBinders = PaintPropertyBinders<LinePaintProperties::DataDrivenProperties>`.

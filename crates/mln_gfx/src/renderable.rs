@@ -1,9 +1,10 @@
 // Ports include/mln/gfx/renderable.hpp
 
-use mln_util::size::Size;
 use std::any::Any;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
+
+use mln_util::size::Size;
 
 /// `gfx::RenderableResource`: the backend-specific render target behind a
 /// `Renderable`. Backends downcast through `as_any`.

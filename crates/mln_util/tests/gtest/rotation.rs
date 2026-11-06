@@ -1,8 +1,9 @@
 // Ports test/util/rotation.test.cpp.
 
-use crate::assert_near;
 use mln_style_types::Rotation;
 use mln_util::interpolate::Interpolate;
+
+use crate::assert_near;
 
 // gtest: Rotation.Calculations
 #[test]

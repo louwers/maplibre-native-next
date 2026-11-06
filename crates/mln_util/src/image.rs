@@ -5,10 +5,12 @@
 // their port lives in //crates/mln_platform_default_image so that this file
 // stays dependency-free.
 
-use crate::size::Size;
-use geometry::Point;
 use std::fmt;
 use std::marker::PhantomData;
+
+use geometry::Point;
+
+use crate::size::Size;
 
 /// `mln::ImageAlphaMode`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

@@ -1,7 +1,10 @@
 // Ports test/text/glyph_manager.test.cpp.
 
-use super::glyph_manager_bitmaps::{SDF_BITMAP, STUB_BITMAP};
-use super::{SquelchLog, read_file};
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeMap;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::RunLoop;
 use mln_renderer::text::glyph_manager::{GlyphManager, GlyphManagerObserver, GlyphRequestor};
 use mln_storage::response::{Error, Reason};
@@ -18,10 +21,9 @@ use mln_util::font_stack::FontStack;
 use mln_util::i18n;
 use mln_util::image::AlphaImage;
 use mln_util::size::Size;
-use std::cell::{Cell, RefCell};
-use std::collections::BTreeMap;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use super::glyph_manager_bitmaps::{SDF_BITMAP, STUB_BITMAP};
+use super::{SquelchLog, read_file};
 
 fn stub_glyph(glyph_id: GlyphID) -> Glyph {
     Glyph {

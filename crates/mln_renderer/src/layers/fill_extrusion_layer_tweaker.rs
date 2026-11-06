@@ -2,10 +2,6 @@
 // src/mln/renderer/layers/fill_extrusion_layer_tweaker.cpp
 // (MLN_UBO_CONSOLIDATION branches: the port's backend is WebGPU).
 
-use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
-use crate::buckets::fill_extrusion_bucket::FillExtrusionBucket;
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
-use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::fill_extrusion_layer_ubo::{
     FillExtrusionDrawableUBO, FillExtrusionPropsUBO, FillExtrusionTilePropsUBO,
@@ -23,6 +19,11 @@ use mln_style::renderer::cross_faded_property_evaluator::Faded;
 use mln_util::constants::TILE_SIZE_D;
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
+
+use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
+use crate::buckets::fill_extrusion_bucket::FillExtrusionBucket;
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
+use crate::paint_parameters::PaintParameters;
 
 pub struct FillExtrusionLayerTweaker {
     base: LayerTweakerBase,

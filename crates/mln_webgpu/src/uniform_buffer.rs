@@ -4,11 +4,13 @@
 // are built per drawable in `Drawable::draw`) and `copy`, so the port uses
 // `gfx::UniformBufferArray` directly.
 
-use crate::context::Context;
-use crate::renderer_backend::BackendImpl;
-use mln_gfx::uniform_buffer;
 use std::any::Any;
 use std::rc::Rc;
+
+use mln_gfx::uniform_buffer;
+
+use crate::context::Context;
+use crate::renderer_backend::BackendImpl;
 
 const UNIFORM_BUFFER_ALIGNMENT: usize = 256;
 

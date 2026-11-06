@@ -8,10 +8,8 @@
 // for). Rings and lines with fewer than two points walk no edges (C++ reads
 // out of bounds for an empty one).
 
-use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
-use crate::parsing_context::{ParseResult, ParsingContext};
-use crate::type_::Type;
-use crate::value::Value;
+use std::f64::consts::PI;
+
 use feature::{Value as MbglValue, ValueObject};
 use geometry::{Geometry, Point};
 use mln_conversion::{Convertible, Error};
@@ -20,7 +18,11 @@ use mln_tile_id::geometry_tile_data::{GeometryCoordinates, GeometryTileFeature};
 use mln_util::constants::{DEGREES_MAX, EXTENT, LONGITUDE_MAX};
 use mln_util::geometry::{FeatureType, to_feature_type};
 use mln_util::logging::{Event, Log};
-use std::f64::consts::PI;
+
+use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
+use crate::parsing_context::{ParseResult, ParsingContext};
+use crate::type_::Type;
+use crate::value::Value;
 
 // --- util/geometry_util ---
 

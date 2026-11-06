@@ -1,6 +1,9 @@
 // Ports include/mln/style/expression/assertion.hpp and
 // src/mln/style/expression/assertion.cpp.
 
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+
 use crate::check_subtype::check_subtype;
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
@@ -9,8 +12,6 @@ use crate::expression::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{Value, type_of};
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
 
 pub struct Assertion {
     base: ExpressionBase,

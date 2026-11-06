@@ -1,6 +1,24 @@
 // Ports src/mln/renderer/layers/render_background_layer.hpp and
 // src/mln/renderer/layers/render_background_layer.cpp (drawable path).
 
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_gfx::shaders::shader_defines::ID_BACKGROUND_POS_VERTEX_ATTRIBUTE;
+use mln_gfx::{AttributeDataType, ColorMode, Context, DepthMaskType, DrawMode, ShaderProgramBasePtr, ShaderRegistry};
+use mln_map_types::TransformState;
+use mln_style::layer::static_immutable_cast;
+use mln_style::layer_properties::LayerProperties;
+use mln_style::layers::background_layer_impl::Impl as BackgroundLayerImpl;
+use mln_style::layers::{
+    BackgroundColor, BackgroundLayerProperties, BackgroundOpacity, BackgroundPaintProperties, BackgroundPattern,
+};
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_util::Color;
+use mln_util::immutable::Immutable;
+use mln_util::range::Range;
+
 use super::{background_crossfade, background_layer_properties};
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
@@ -12,23 +30,6 @@ use crate::render_static_data::RenderStaticData;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
 use crate::util::tile_cover::{TileCoverParameters, tile_cover};
-use mln_gfx::shaders::shader_defines::ID_BACKGROUND_POS_VERTEX_ATTRIBUTE;
-use mln_gfx::{AttributeDataType, ColorMode, Context, DepthMaskType, DrawMode, ShaderProgramBasePtr, ShaderRegistry};
-use mln_map_types::TransformState;
-use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::LayerProperties;
-use mln_style::layers::background_layer_impl::Impl as BackgroundLayerImpl;
-use mln_style::layers::{
-    BackgroundColor, BackgroundLayerProperties, BackgroundOpacity, BackgroundPaintProperties, BackgroundPattern,
-};
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_util::Color;
-use mln_util::immutable::Immutable;
-use mln_util::range::Range;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &BackgroundLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), BackgroundLayerImpl::static_type_info()));

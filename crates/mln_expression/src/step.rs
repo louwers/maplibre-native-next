@@ -1,6 +1,9 @@
 // Ports include/mln/style/expression/step.hpp and
 // src/mln/style/expression/step.cpp.
 
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
@@ -10,8 +13,6 @@ use crate::range::Range;
 use crate::stops::{Stops, get_covering_stops};
 use crate::type_::Type;
 use crate::value::Value;
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
 
 pub struct Step {
     base: ExpressionBase,

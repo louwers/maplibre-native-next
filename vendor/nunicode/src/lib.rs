@@ -17,9 +17,8 @@ pub mod udb;
 pub mod utf8;
 
 use casemap::{_nu_tolower, _nu_tounaccent, _nu_toupper, Transform};
-use utf8::{nu_utf8_read, nu_utf8_write};
-
 pub use strcoll::{nu_strcasecoll, nu_strcoll};
+use utf8::{nu_utf8_read, nu_utf8_write};
 
 type TransformFn = fn(&[u8], usize, usize) -> (usize, u32, Transform);
 

@@ -8,6 +8,9 @@
 // (metrics/integration/expression-tests) with each of its inputs' feature
 // properties, plus generated interpolate/step/zoom/color/math expressions.
 
+use std::collections::BTreeMap;
+use std::path::PathBuf;
+
 use feature::{Feature, Value as MbglValue, ValueObject};
 use geometry::{Geometry, Point};
 use mln_conversion::Convertible;
@@ -15,8 +18,6 @@ use mln_expression::expression::evaluate_feature;
 use mln_expression::type_::{self, Type};
 use mln_expression::{ParsingContext, Value, is_feature_constant, is_zoom_constant};
 use proptest::prelude::*;
-use std::collections::BTreeMap;
-use std::path::PathBuf;
 
 /// The C++ oracle process (oracle_main.cpp), shared by the tests.
 struct Oracle {

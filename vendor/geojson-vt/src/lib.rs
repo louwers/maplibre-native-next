@@ -22,12 +22,12 @@ pub mod detail {
     pub use crate::wrap::{shift_coords, wrap};
 }
 
-pub use tile::Tile;
+use std::collections::{BTreeMap, HashMap};
 
 use detail::{InternalTile, VtFeatures};
 use feature::Feature;
 use geojson::{FeatureCollection, GeoJSON};
-use std::collections::{BTreeMap, HashMap};
+pub use tile::Tile;
 
 /// `ToFeatureCollection`
 pub fn to_feature_collection(geojson: &GeoJSON) -> FeatureCollection<f64> {

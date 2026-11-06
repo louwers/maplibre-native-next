@@ -1,6 +1,9 @@
 // Ports include/mln/style/expression/index_of.hpp and
 // src/mln/style/expression/index_of.cpp.
 
+use mln_conversion::Convertible;
+use mln_util::string::to_string_double;
+
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
@@ -8,8 +11,6 @@ use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::utf8_op_helpers::{get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8};
 use crate::value::{Value, type_of};
-use mln_conversion::Convertible;
-use mln_util::string::to_string_double;
 
 pub struct IndexOf {
     base: ExpressionBase,

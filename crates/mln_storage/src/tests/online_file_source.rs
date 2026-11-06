@@ -3,6 +3,14 @@
 // tests that request through the network take `serial()`: NetworkStatus is
 // process-wide and C++ runs one test at a time.
 
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
+use feature::Value;
+use mln_actor::{RunLoop, Timer};
+use mln_util::chrono::{Clock, Duration, Timestamp, now};
+use mln_util::tile_server_options::TileServerOptions;
+
 use super::http_file_source::{LoadState, load_request};
 use super::http_server::{HttpServer, closed_port_url};
 use super::{Req, req, serial};
@@ -13,12 +21,6 @@ use crate::online_file_source::OnlineFileSource;
 use crate::resource::{Kind, Priority, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use feature::Value;
-use mln_actor::{RunLoop, Timer};
-use mln_util::chrono::{Clock, Duration, Timestamp, now};
-use mln_util::tile_server_options::TileServerOptions;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
 
 /// Windows doesn't fail immediately like other OS (C++: 2.0 on WIN32).
 const CONNECTION_TIMEOUT: f64 = 0.0;

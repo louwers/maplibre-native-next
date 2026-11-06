@@ -2,9 +2,10 @@
 // src/mln/style/conversion/tileset.cpp and the SourceOptions converter of
 // src/mln/style/conversion/source_options.cpp.
 
-use super::{Converter, Convertible, Error};
 use mln_util::geo::{LatLng, LatLngBounds};
 use mln_util::tileset::{RasterEncoding, Scheme, Tileset, VectorEncoding};
+
+use super::{Converter, Convertible, Error};
 
 /// `SourceOptions`.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]

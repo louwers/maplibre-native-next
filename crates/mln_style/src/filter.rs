@@ -1,8 +1,10 @@
 // Ports include/mln/style/filter.hpp + src/mln/style/filter.cpp.
 
-use crate::expression::{EvaluationContext, Expression, from_expression_value};
-use feature::Value;
 use std::sync::Arc;
+
+use feature::Value;
+
+use crate::expression::{EvaluationContext, Expression, from_expression_value};
 
 #[derive(Clone, Debug, Default)]
 pub struct Filter {

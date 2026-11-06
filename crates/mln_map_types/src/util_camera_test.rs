@@ -1,9 +1,11 @@
 // Ports test/util/camera.test.cpp (TEST(FreeCameraOptions, *)).
 
-use super::*;
+use std::f64::consts::SQRT_2;
+
 use mln_util::constants::LATITUDE_MAX;
 use mln_util::vectors::Vec4;
-use std::f64::consts::SQRT_2;
+
+use super::*;
 
 const ABS_DOUBLE_ERROR: f64 = 1e-7;
 

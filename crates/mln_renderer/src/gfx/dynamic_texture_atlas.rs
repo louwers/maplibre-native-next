@@ -7,7 +7,9 @@
 // needs no context here: the GPU texture is created in the upload pass (see
 // dynamic_texture.rs).
 
-use super::dynamic_texture::{DynamicTexture, DynamicTexturePtr, TextureHandle};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+
 use geometry::Point;
 use mln_gfx::types::TexturePixelType;
 use mln_style_types::image::{ImageMap, ImagePosition, ImagePositions, ImageType, Impl as ImageImpl, RectU16};
@@ -15,8 +17,8 @@ use mln_text::glyph::{Glyph, GlyphMap, GlyphPosition, GlyphPositions};
 use mln_util::image::{AlphaImage, PremultipliedImage};
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+
+use super::dynamic_texture::{DynamicTexture, DynamicTexturePtr, TextureHandle};
 
 /// `ImageVersionMap`.
 pub type ImageVersionMap = HashMap<String, u32>;

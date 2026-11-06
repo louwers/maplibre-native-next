@@ -5,9 +5,10 @@
 // the tile ID types here (mln_tile_id depends on mln_util), so they take the
 // IDs' fields: `LatLng::from_canonical_tile(z, x, y)` etc.
 
-use crate::constants;
 use geometry::Point;
 use mln_math::{clamp_f64, rad2deg, wrap};
+
+use crate::constants;
 
 pub type ScreenCoordinate = Point<f64>;
 pub type ScreenLineString = Vec<Point<f64>>;

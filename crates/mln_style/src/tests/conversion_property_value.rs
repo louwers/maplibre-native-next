@@ -1,10 +1,11 @@
 // Ports test/style/conversion/property_value.test.cpp.
 
-use super::util::{StubGeometryTileFeature, parse_json, property_map};
-use crate::conversion::convert_property_value;
 use feature::Value;
 use mln_conversion::{Convertible, Error};
 use mln_style_types::{SymbolAnchorType, VariableAnchorOffsetCollection};
+
+use super::util::{StubGeometryTileFeature, parse_json, property_map};
+use crate::conversion::convert_property_value;
 
 // gtest: StyleConversion.PropertyValue
 #[test]

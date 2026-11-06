@@ -9,6 +9,14 @@
 // `expression::FormatSectionOverride`s, is in mln_renderer
 // (format_section_override.rs).
 
+use std::collections::BTreeSet;
+use std::sync::OnceLock;
+
+use mln_expression::format_expression::{FormatExpression, FormatExpressionSection};
+use mln_expression::value::from_expression_value;
+use mln_util::constants::{LAST_RESORT_ALPHABETIC_FONT, LAST_RESORT_PAN_UNICODE_FONT};
+use mln_util::logging::{Event, Log};
+
 use crate::expression::{Dependency, Expression, Formatted, FormattedSection, Kind, Literal, Type, downcast};
 use crate::layer::{self, FontStack, ImplBase, LayerTypeInfo};
 use crate::layers::symbol_layer_properties::{
@@ -17,12 +25,6 @@ use crate::layers::symbol_layer_properties::{
 use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
 use crate::renderer::possibly_evaluated_property_value::PossiblyEvaluatedPropertyValue;
-use mln_expression::format_expression::{FormatExpression, FormatExpressionSection};
-use mln_expression::value::from_expression_value;
-use mln_util::constants::{LAST_RESORT_ALPHABETIC_FONT, LAST_RESORT_PAN_UNICODE_FONT};
-use mln_util::logging::{Event, Log};
-use std::collections::BTreeSet;
-use std::sync::OnceLock;
 
 /// The alternatives `hasOverride`'s `formatted.match(...)` visits; C++
 /// templates it over `PropertyValue<Formatted>` and

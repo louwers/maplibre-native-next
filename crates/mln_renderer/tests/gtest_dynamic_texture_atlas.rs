@@ -5,12 +5,13 @@
 // context (its dynamic textures create their GPU texture in the upload
 // pass, see dynamic_texture.rs), so the fixture has no backend.
 
+use std::sync::Arc;
+
 use mln_renderer::gfx::dynamic_texture_atlas::{DynamicTextureAtlas, ImageAtlas, ImageVersionMap};
 use mln_style_types::image::{ImageMap, Impl as ImageImpl};
 use mln_util::image::PremultipliedImage;
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
-use std::sync::Arc;
 
 /// `makeImage(id, sdf, size = {16, 16})`.
 fn make_image(id: &str, sdf: bool) -> Immutable<ImageImpl> {

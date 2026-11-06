@@ -13,12 +13,14 @@ mod online_file_source;
 mod pmtiles_file_source;
 mod sqlite;
 
-use crate::AsyncRequest;
-use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, MutexGuard};
+
+use mln_util::logging::{Event, EventSeverity, Log, Observer};
+
+use crate::AsyncRequest;
 
 /// A `std::unique_ptr<AsyncRequest>` that a request's own callback can reset.
 pub type Req = Rc<RefCell<Option<Box<dyn AsyncRequest>>>>;

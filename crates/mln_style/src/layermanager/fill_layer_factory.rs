@@ -1,10 +1,11 @@
 // Ports include/mln/layermanager/fill_layer_factory.hpp +
 // src/mln/layermanager/fill_layer_factory.cpp (style half).
 
+use mln_conversion::Convertible;
+
 use super::layer_factory::{LayerFactory, get_source};
 use crate::layer::{Layer, LayerTypeInfo};
 use crate::layers::fill_layer::{FillLayer, Impl};
-use mln_conversion::Convertible;
 
 pub struct FillLayerFactory;
 

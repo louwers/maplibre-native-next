@@ -3,6 +3,8 @@
 // The gtest groups `TileCover`, `TileCoverStream` and `TileCount` are the
 // modules `tile_cover`, `tile_cover_stream` and `tile_count`.
 
+use std::rc::Rc;
+
 use geometry::{Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
 use mln_map::transform::{NullTransformObserver, Transform};
 use mln_map_types::{CameraOptions, ConstrainMode, TileLodMode, ViewportMode};
@@ -16,7 +18,6 @@ use mln_util::constants;
 use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds};
 use mln_util::range::Range;
 use mln_util::size::Size;
-use std::rc::Rc;
 
 const ZOOM_RANGE: Range<u8> = Range::new(0, 14);
 

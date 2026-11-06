@@ -3,14 +3,12 @@
 //
 // `GeoJSONSource` is a handle (see source.rs): `Clone` shares the source.
 
-use super::geojson_source_impl::{self, Impl};
-use crate::conversion::Error;
-use crate::conversion::geojson::convert_json_geojson;
-use crate::expression::Expression;
-use crate::layer::LayerTypeInfo;
-use crate::layer::layer_type_info::TileKind;
-use crate::source::{Source, SourceBase, static_immutable_cast};
-use crate::source_impl;
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeMap;
+use std::rc::{Rc, Weak};
+use std::sync::{Arc, Mutex, OnceLock};
+
 use feature::Feature;
 use geojson::GeoJSON;
 use mln_actor::scheduler::{self, SchedulerPtr};
@@ -21,11 +19,15 @@ use mln_util::exception::RuntimeError;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::collections::BTreeMap;
-use std::rc::{Rc, Weak};
-use std::sync::{Arc, Mutex, OnceLock};
+
+use super::geojson_source_impl::{self, Impl};
+use crate::conversion::Error;
+use crate::conversion::geojson::convert_json_geojson;
+use crate::expression::Expression;
+use crate::layer::LayerTypeInfo;
+use crate::layer::layer_type_info::TileKind;
+use crate::source::{Source, SourceBase, static_immutable_cast};
+use crate::source_impl;
 
 /// `GeoJSONOptions::ClusterExpression`.
 pub type ClusterExpression = (Arc<dyn Expression>, Arc<dyn Expression>);

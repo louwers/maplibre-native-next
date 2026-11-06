@@ -8,18 +8,20 @@
 // that resizes the textures when someone calls `setSize` on the color
 // texture; nothing on the M1 path resizes them.
 
-use crate::context::Context;
-use crate::renderable_resource::{RenderableResource, RenderableResourceBox, downcast_resource};
-use crate::texture2d::Texture2D;
+use std::any::Any;
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use mln_gfx::offscreen_texture;
 use mln_gfx::renderable::{Renderable, RenderableBase};
 use mln_gfx::texture2d::{SamplerState, Texture2D as _, Texture2DPtr};
 use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
-use std::any::Any;
-use std::cell::RefCell;
-use std::rc::Rc;
+
+use crate::context::Context;
+use crate::renderable_resource::{RenderableResource, RenderableResourceBox, downcast_resource};
+use crate::texture2d::Texture2D;
 
 const BYTES_PER_ROW_ALIGNMENT: u32 = 256;
 

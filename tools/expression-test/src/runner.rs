@@ -1,13 +1,14 @@
 // Ports expression-test/expression_test_runner.hpp and
 // expression-test/expression_test_runner.cpp (minus UPDATE mode).
 
+use feature::{Value, ValueObject};
+use mln_expression::Expression;
+use mln_expression::expression::{evaluate_feature_with_canonical, evaluate_feature_with_images};
+
 use crate::parser::{
     TestData, TestResult, compiled_to_value, expression_value_to_value, parse_expression, to_document, to_json,
 };
 use crate::test_runner_common::{deep_equal_opt, tokenize};
-use feature::{Value, ValueObject};
-use mln_expression::Expression;
-use mln_expression::expression::{evaluate_feature_with_canonical, evaluate_feature_with_images};
 
 #[derive(Clone, Debug, Default)]
 pub struct TestRunOutput {

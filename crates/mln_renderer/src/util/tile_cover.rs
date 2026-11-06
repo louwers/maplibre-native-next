@@ -13,7 +13,8 @@
 // `std::sort` is libstdc++'s introsort (ported below as `std_sort`), because
 // the tile order for equal sort keys is observable in the results.
 
-use crate::util::tile_cover_impl::Impl;
+use std::cmp::Ordering;
+
 use geometry::Point;
 use mln_map_types::{TileCoordinate, TileLodMode, TransformState, ViewportMode};
 use mln_math::{fmax, fmin};
@@ -27,7 +28,8 @@ use mln_util::mat3::{vec3_length, vec3_scale, vec3_sub};
 use mln_util::projection::Projection;
 use mln_util::range::Range;
 use mln_util::vectors::Vec3;
-use std::cmp::Ordering;
+
+use crate::util::tile_cover_impl::Impl;
 
 /// `std::min(a, b)` on doubles: `(b < a) ? b : a`.
 fn std_min(a: f64, b: f64) -> f64 {

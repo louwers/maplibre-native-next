@@ -5,8 +5,9 @@
 // distances to tile geometry) arrives with GeoJSON sources (M3). Until then
 // it fails to parse with an explicit error.
 
-use crate::parsing_context::{ParseResult, ParsingContext};
 use mln_conversion::Convertible;
+
+use crate::parsing_context::{ParseResult, ParsingContext};
 
 pub struct Distance;
 

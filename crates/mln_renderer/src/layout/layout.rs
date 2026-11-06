@@ -7,17 +7,19 @@
 // tile data and the layer name, from which they re-borrow the layer (and
 // re-get features by index) when they need it. Same results.
 
-use crate::bucket_parameters::BucketParameters;
-use crate::geometry::feature_index::FeatureIndex;
-use crate::render_layer::LayerRenderData;
-use crate::text::glyph_manager::HBShapeResults;
+use std::collections::{BTreeSet, HashMap};
+use std::sync::Arc;
+
 use mln_style_types::image::{ImageDependencies, ImageMap, ImagePositions};
 use mln_text::glyph::{GlyphDependencies, GlyphMap, GlyphPositions};
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::{GeometryTileData, GeometryTileLayer};
 use mln_util::exception::ExceptionPtr;
-use std::collections::{BTreeSet, HashMap};
-use std::sync::Arc;
+
+use crate::bucket_parameters::BucketParameters;
+use crate::geometry::feature_index::FeatureIndex;
+use crate::render_layer::LayerRenderData;
+use crate::text::glyph_manager::HBShapeResults;
 
 /// The `std::unique_ptr<GeometryTileLayer>` a layout keeps.
 #[derive(Clone)]

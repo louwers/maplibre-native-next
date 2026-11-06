@@ -1,8 +1,9 @@
 // Smoke tests of the port; //difftest/tile:geometry_difftest compares it
 // with the C++ wagyu.
 
-use crate::{ClipType, FillType, PolygonType, Wagyu};
 use geometry::{MultiPolygon, Point};
+
+use crate::{ClipType, FillType, PolygonType, Wagyu};
 
 fn ring(points: &[(i32, i32)]) -> Vec<Point<i32>> {
     points.iter().map(|&(x, y)| Point::new(x, y)).collect()

@@ -1,9 +1,10 @@
 // Ports src/mln/gfx/index_vector.hpp
 
-use crate::draw_mode::DrawMode;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use crate::draw_mode::DrawMode;
 
 /// `gfx::IndexBufferBase`: backend buffer attached to a shared index vector.
 pub trait IndexBufferBase: Any {

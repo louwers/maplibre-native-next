@@ -13,8 +13,9 @@
 // `util::hash_combine`; the port derives `Hash` (field order differs from the
 // C++ combine order, but no ported code depends on hash values).
 
-use mln_util::constants;
 use std::fmt;
+
+use mln_util::constants;
 
 /// Has integer z/x/y coordinates. All tiles must be derived from 0/0/0 (no
 /// tiles outside of the main tile pyramid). Used for requesting data;

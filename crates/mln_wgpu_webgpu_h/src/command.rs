@@ -1,11 +1,13 @@
 // Command encoders, command buffers and render passes.
 
+use core::ops::Range;
+
+use wgpu::custom::*;
+
 use crate::conv;
 use crate::handle::*;
 use crate::resource::*;
 use crate::sys::*;
-use core::ops::Range;
-use wgpu::custom::*;
 
 /// A `wgpu::CommandEncoder` backend over a WGPUCommandEncoder.
 #[derive(Debug)]

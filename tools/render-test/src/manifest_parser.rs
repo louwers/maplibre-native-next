@@ -1,12 +1,14 @@
 // Ports render-test/manifest_parser.{hpp,cpp}
 
+use std::collections::BTreeSet;
+
+use regex::Regex;
+
 use crate::filesystem;
 use crate::log::{self, Event};
 use crate::metadata::TestPaths;
 use crate::parser::read_json;
 use crate::std_random::{Mt19937, SeedSeq, shuffle};
-use regex::Regex;
-use std::collections::BTreeSet;
 
 /// `Manifest`.
 #[derive(Clone, Debug, Default)]

@@ -15,6 +15,16 @@
 // OfflineDownload lives in //crates/mln_storage_offline), resetDatabase,
 // packDatabase, invalidate/clear ambient cache, setMaximumAmbientCacheSize.
 
+use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
+
+use feature::Value;
+use mln_actor::{ActorRef, Thread, scheduler};
+use mln_util::client_options::ClientOptions;
+use mln_util::constants::{ASSET_PROTOCOL, FILE_PROTOCOL};
+use mln_util::logging::{Event, Log};
+use mln_util::tile_server_options::TileServerOptions;
+
 use crate::async_request::AsyncRequest;
 use crate::file_source::{Callback, FileSource, FileSourceType, READ_ONLY_MODE_KEY};
 use crate::file_source_manager::FileSourceManager;
@@ -23,14 +33,6 @@ use crate::offline_database::OfflineDatabase;
 use crate::resource::{LoadingMethod, Resource, StoragePolicy};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Error, Reason, Response};
-use feature::Value;
-use mln_actor::{ActorRef, Thread, scheduler};
-use mln_util::client_options::ClientOptions;
-use mln_util::constants::{ASSET_PROTOCOL, FILE_PROTOCOL};
-use mln_util::logging::{Event, Log};
-use mln_util::tile_server_options::TileServerOptions;
-use std::cell::RefCell;
-use std::sync::{Arc, Mutex};
 
 /// `DatabaseFileSourceThread`: owns the OfflineDatabase on the database
 /// thread.

@@ -1,19 +1,21 @@
 // wgpu::Device and wgpu::Queue over WGPUDevice and WGPUQueue: resource
 // creation, error scopes, uncaptured errors and polling.
 
-use crate::conv;
-use crate::event::{self, MessageResult, PopErrorScopeResult, slot, take, userdata};
-use crate::handle::*;
-use crate::instance::Instance;
-use crate::resource::*;
-use crate::sys::*;
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::pin::Pin;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+
 use wgpu::custom::*;
+
+use crate::conv;
+use crate::event::{self, MessageResult, PopErrorScopeResult, slot, take, userdata};
+use crate::handle::*;
+use crate::instance::Instance;
+use crate::resource::*;
+use crate::sys::*;
 
 /// A callback to run once its future completed, inside `poll`.
 struct Pending {

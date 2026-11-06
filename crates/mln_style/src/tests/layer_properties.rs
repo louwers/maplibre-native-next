@@ -2,13 +2,15 @@
 //! on a real `BackgroundLayerProperties` behind `Immutable<LayerProperties>`.
 //! No C++ gtest; the renderer reads evaluated properties this way.
 
+use std::sync::Arc;
+
+use mln_util::Color;
+use mln_util::immutable::Immutable;
+
 use crate::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
 use crate::layers::background_layer::Impl as BackgroundLayerImpl;
 use crate::layers::{BackgroundLayerProperties, BackgroundPaintProperties};
 use crate::renderer::property_evaluation_parameters::CrossfadeParameters;
-use mln_util::Color;
-use mln_util::immutable::Immutable;
-use std::sync::Arc;
 
 fn background_properties() -> Immutable<dyn LayerProperties> {
     let mut evaluated = BackgroundPaintProperties::PossiblyEvaluated::default();

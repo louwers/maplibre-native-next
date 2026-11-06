@@ -28,21 +28,23 @@
 // the vendored parsedate instead of libcurl's `curl_getdate` (they differ
 // only after 2037).
 
-use crate::async_request::AsyncRequest;
-use crate::file_source::{Callback, FileSource};
-use crate::resource::{Kind, Resource};
-use crate::resource_options::ResourceOptions;
-use crate::response::{Error, Reason, Response};
-use mln_actor::{ActorRef, Mailbox, scheduler};
-use mln_util::chrono::{Timestamp, parse_timestamp_str};
-use mln_util::client_options::ClientOptions;
-use mln_util::http_header::{CacheControl, parse_retry_headers};
-use mln_util::string::to_string_i64;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, mpsc};
+
+use mln_actor::{ActorRef, Mailbox, scheduler};
+use mln_util::chrono::{Timestamp, parse_timestamp_str};
+use mln_util::client_options::ClientOptions;
+use mln_util::http_header::{CacheControl, parse_retry_headers};
+use mln_util::string::to_string_i64;
+
+use crate::async_request::AsyncRequest;
+use crate::file_source::{Callback, FileSource};
+use crate::resource::{Kind, Resource};
+use crate::resource_options::ResourceOptions;
+use crate::response::{Error, Reason, Response};
 
 /// The part of `HTTPRequest` that lives on the requesting thread.
 pub struct HTTPRequestState {
@@ -182,18 +184,20 @@ fn range_header(resource: &Resource) -> Option<String> {
 /// Eyeballs), so the agent's TCP step does too: see `HappyEyeballsConnector`.
 #[cfg(not(target_os = "emscripten"))]
 mod transport {
-    use super::{Transfer, range_header};
-    use crate::resource::Resource;
-    use crate::response::{Error, Reason};
-    use mln_util::chrono::rfc1123;
     use std::net::SocketAddr;
     use std::sync::{Arc, mpsc};
     use std::time::Duration;
+
+    use mln_util::chrono::rfc1123;
     use ureq::unversioned::resolver::{DefaultResolver, Resolver};
     use ureq::unversioned::transport::{
         ConnectProxyConnector, ConnectionDetails, Connector, Either, RustlsConnector, TcpConnector,
         Transport as UreqTransport,
     };
+
+    use super::{Transfer, range_header};
+    use crate::resource::Resource;
+    use crate::response::{Error, Reason};
 
     /// The worker threads of a file source: as many as the online file
     /// source's default maximum of concurrent requests.
@@ -382,15 +386,17 @@ mod transport {
 
     #[cfg(test)]
     mod tests {
-        use super::*;
         use std::io::{Read, Write};
         use std::net::TcpListener;
         use std::sync::Mutex;
         use std::time::Instant;
+
         use ureq::config::Config;
         use ureq::http::Uri;
         use ureq::unversioned::resolver::ResolvedSocketAddrs;
         use ureq::unversioned::transport::NextTimeout;
+
+        use super::*;
 
         /// Resolves every host to `addrs`, in order.
         #[derive(Debug)]
@@ -493,12 +499,13 @@ mod transport {
 // FFI to emscripten_fetch.
 #[allow(unsafe_code)]
 mod transport {
-    use super::{Transfer, range_header};
-    use crate::resource::Resource;
-    use crate::response::{Error, Reason};
     use std::ffi::{CStr, CString, c_char, c_void};
     use std::ptr::null;
     use std::sync::atomic::{AtomicBool, Ordering};
+
+    use super::{Transfer, range_header};
+    use crate::resource::Resource;
+    use crate::response::{Error, Reason};
 
     /// Browsers run a handful of requests per host at a time, and every
     /// worker is a pthread, so fewer than natively.

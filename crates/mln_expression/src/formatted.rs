@@ -2,10 +2,11 @@
 // src/mln/style/expression/formatted.cpp (incl.
 // `Converter<expression::Formatted>`).
 
-use crate::image::Image;
 use feature::{Value as MbglValue, ValueObject};
 use mln_conversion::{Convertible, Error};
 use mln_util::Color;
+
+use crate::image::Image;
 
 pub const K_FORMATTED_SECTION_FONT_SCALE: &str = "font-scale";
 pub const K_FORMATTED_SECTION_TEXT_FONT: &str = "text-font";

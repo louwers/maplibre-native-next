@@ -5,11 +5,12 @@
 // JSON values chosen from the property's type (constants, zoom and
 // data expressions, legacy functions, transitions, invalid values).
 
+use serde_json::Value;
+
 use crate::emit_layer::is_source_less;
 use crate::spec::{LayerSpec, Property};
 use crate::types::{EvaluatedType, camelize, evaluated_type, is_color_ramp, is_data_driven, snake};
 use crate::writer::{Writer, layer_file_name};
-use serde_json::Value;
 
 /// The enumerator names of an enum property (the spec's `values` keys).
 fn enum_values(p: &Property) -> Vec<String> {

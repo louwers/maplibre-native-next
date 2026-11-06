@@ -6,6 +6,9 @@
 // type-checking, and is intended for use only by test and other non-production
 // code (and the legacy function conversion).
 
+use mln_conversion::Convertible;
+use mln_util::ColorSpace;
+
 use crate::assertion::Assertion;
 use crate::coercion::Coercion;
 use crate::comparison::BasicComparison;
@@ -24,8 +27,6 @@ use crate::step::Step;
 use crate::stops::Stops;
 use crate::type_::Type;
 use crate::value::Value;
-use mln_conversion::Convertible;
-use mln_util::ColorSpace;
 
 pub fn compound(op: &str, args: Vec<Box<dyn Expression>>) -> Box<dyn Expression> {
     let mut ctx = ParsingContext::new();

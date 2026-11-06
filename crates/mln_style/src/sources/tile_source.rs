@@ -14,22 +14,24 @@
 // TODO(port): `util::mapbox::canonicalizeSourceURL` / `canonicalizeTileset`
 // (only change URLs with the tile server's scheme alias, e.g. mapbox://).
 
-use crate::conversion::Error;
-use crate::conversion::tileset::convert_json_tileset;
-use crate::layer::LayerTypeInfo;
-use crate::layer::layer_type_info::TileKind;
-use crate::source::{Source, SourceBase, static_immutable_cast};
-use crate::source_impl::{self, ImplBase};
+use std::any::Any;
+use std::cell::RefCell;
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_storage::{AsyncRequest, FileSource, Resource, Response};
 use mln_style_types::SourceType;
 use mln_util::constants;
 use mln_util::exception::{RuntimeError, StyleParseException};
 use mln_util::immutable::Immutable;
 use mln_util::tileset::{RasterEncoding, Tileset, VectorEncoding};
-use std::any::Any;
-use std::cell::RefCell;
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
+
+use crate::conversion::Error;
+use crate::conversion::tileset::convert_json_tileset;
+use crate::layer::LayerTypeInfo;
+use crate::layer::layer_type_info::TileKind;
+use crate::source::{Source, SourceBase, static_immutable_cast};
+use crate::source_impl::{self, ImplBase};
 
 /// `TileSource::Impl`.
 #[derive(Clone, Debug)]

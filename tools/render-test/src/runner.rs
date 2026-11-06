@@ -9,20 +9,11 @@
 // `mln_map::Map` + `mln_platform_default::HeadlessFrontend`, and
 // `--self-check` replaces rendering with the test's expected image.
 
-use crate::file_source::ProxyFileSource;
-use crate::filesystem;
-use crate::log::{self, Event};
-use crate::manifest_parser::Manifest;
-use crate::metadata::{
-    GfxProbe, MapMode, MemoryProbe, NetworkProbe, RenderedQueryOptions, ScreenBox, TestMetadata, check_value,
-};
-use crate::parser::{
-    TileLodMode, parse_test_operations, read_expected_image_entries, read_expected_json_entries,
-    read_expected_metric_entries, read_expected_metrics, read_json,
-    test_operation_names::{GFX_PROBE_OP, MEMORY_PROBE_OP, NETWORK_PROBE_OP},
-    to_json_features, to_json_value,
-};
-use crate::test_runner_common::{deep_equal, tokenize};
+use std::collections::HashMap;
+use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::path::PathBuf;
+use std::time::Duration;
+
 use feature::Value;
 use geometry::Point;
 use mln_platform_default_image::{decode_image, encode_png};
@@ -30,10 +21,20 @@ use mln_util::feature::Feature;
 use mln_util::geo::LatLng;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
-use std::collections::HashMap;
-use std::panic::{AssertUnwindSafe, catch_unwind};
-use std::path::PathBuf;
-use std::time::Duration;
+
+use crate::file_source::ProxyFileSource;
+use crate::filesystem;
+use crate::log::{self, Event};
+use crate::manifest_parser::Manifest;
+use crate::metadata::{
+    GfxProbe, MapMode, MemoryProbe, NetworkProbe, RenderedQueryOptions, ScreenBox, TestMetadata, check_value,
+};
+use crate::parser::test_operation_names::{GFX_PROBE_OP, MEMORY_PROBE_OP, NETWORK_PROBE_OP};
+use crate::parser::{
+    TileLodMode, parse_test_operations, read_expected_image_entries, read_expected_json_entries,
+    read_expected_metric_entries, read_expected_metrics, read_json, to_json_features, to_json_value,
+};
+use crate::test_runner_common::{deep_equal, tokenize};
 
 /// `mln::CameraOptions` (include/mln/map/camera.hpp): the fields the
 /// operations set.

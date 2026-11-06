@@ -15,10 +15,14 @@
 // fetched as font files (`Resource::fontFace`) and shaped with
 // mln_text's HBShaper (HarfRust).
 
+use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_storage::{AsyncRequest, FileSource, Resource, Response};
-use mln_text::glyph::FontFaces;
 use mln_text::glyph::{
-    Glyph, GlyphDependencies, GlyphID, GlyphIDType, GlyphIDs, GlyphMap, GlyphRange, Glyphs, HBShapeRequests,
+    FontFaces, Glyph, GlyphDependencies, GlyphID, GlyphIDType, GlyphIDs, GlyphMap, GlyphRange, Glyphs, HBShapeRequests,
     get_glyph_range,
 };
 use mln_text::glyph_pbf::parse_glyph_pbf;
@@ -29,10 +33,6 @@ use mln_util::exception::{ExceptionPtr, RuntimeError};
 use mln_util::font_stack::FontStack;
 use mln_util::immutable::Immutable;
 use mln_util::tiny_sdf::transform_raster_to_sdf;
-use std::cell::RefCell;
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 /// `HBShapeResult`.
 #[derive(Clone, Debug, Default)]

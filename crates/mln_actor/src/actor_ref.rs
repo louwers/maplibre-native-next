@@ -6,10 +6,11 @@
 // taking `&O` (targets that mutate use interior mutability, since messages
 // can run while other code on the same thread holds the target).
 
-use crate::mailbox::Mailbox;
 use std::any::Any;
 use std::marker::PhantomData;
 use std::sync::{Arc, Weak};
+
+use crate::mailbox::Mailbox;
 
 /// A non-owning, `Send` reference to an actor's object of type `O`.
 /// Sending to a reference whose actor is gone does nothing.

@@ -9,13 +9,14 @@
 //   operation parsing, comparison and reporting. Exits non-zero unless
 //   every test that runs passes (ignored ones included).
 
+use std::path::{Path, PathBuf};
+
 use crate::filesystem;
 use crate::log::{self, Event};
 use crate::manifest_parser::ManifestParser;
 use crate::metadata::{TestMetadata, TestStatistics};
 use crate::parser::{create_result_page, parse_test_metadata, serialize_json_value};
 use crate::runner::{ImplFactory, TestRunner, UpdateResults};
-use std::path::{Path, PathBuf};
 
 // SHOW_ANSI_COLORS is not defined in the C++ build either.
 const ANSI_COLOR_RED: &str = "";

@@ -5,6 +5,8 @@
 // renderer type). The only overridable property is `text-color`, so the
 // template is instantiated for `Color`.
 
+use std::sync::Arc;
+
 use mln_expression::expression::{
     Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
@@ -16,7 +18,6 @@ use mln_style::layers::symbol_layer_properties::{SymbolLayoutProperties, SymbolP
 use mln_style::property_expression::PropertyExpression;
 use mln_style::renderer::possibly_evaluated_property_value::PossiblyEvaluatedPropertyValue;
 use mln_util::Color;
-use std::sync::Arc;
 
 /// `FormatSectionOverride<Color>`.
 pub struct FormatSectionOverride {

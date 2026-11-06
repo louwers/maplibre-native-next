@@ -1,5 +1,8 @@
 // Ports test/tile/tile_coordinate.test.cpp.
 
+use std::cell::Cell;
+use std::rc::Rc;
+
 use geometry::Point;
 use mln_map::CameraChangeMode;
 use mln_map::transform::{Transform, TransformObserver};
@@ -9,8 +12,6 @@ use mln_tile_id::{CanonicalTileID, UnwrappedTileID};
 use mln_util::constants;
 use mln_util::geo::{LatLng, ScreenCoordinate};
 use mln_util::size::Size;
-use std::cell::Cell;
-use std::rc::Rc;
 
 /// gtest's `ASSERT_DOUBLE_EQ`: equal within 4 ULPs.
 fn assert_double_eq(actual: f64, expected: f64) {

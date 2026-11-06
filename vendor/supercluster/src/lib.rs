@@ -7,12 +7,13 @@
 // Exceptions (`std::runtime_error`, `bad_variant_access`) are `Err`s with
 // the C++ `what()`.
 
-use feature::{Feature, Identifier, PropertyMap, Value};
-use geometry::{Geometry, Point};
-use kdbush::{KDBush, Nth};
 use std::collections::HashMap;
 use std::f64::consts::PI;
 use std::sync::Arc;
+
+use feature::{Feature, Identifier, PropertyMap, Value};
+use geometry::{Geometry, Point};
+use kdbush::{KDBush, Nth};
 
 /// `feature_collection<double>`
 pub type GeoJSONFeatures = Vec<Feature<f64>>;

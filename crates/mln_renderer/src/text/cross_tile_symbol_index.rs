@@ -419,11 +419,8 @@ impl SymbolBucket {
 #[cfg(test)]
 mod tests {
     // Ports test/text/cross_tile_symbol_index.test.cpp.
-    use super::*;
-    use crate::buckets::symbol_bucket::SortKeyRange;
-    use crate::geometry::anchor::Anchor;
-    use crate::geometry::feature_index::IndexedSubfeature;
-    use crate::layout::symbol_instance::{ShapedTextOrientations, SymbolContent, SymbolInstanceSharedData};
+    use std::sync::Arc;
+
     use mln_map_types::TransformState;
     use mln_style::layers::symbol_layer_properties::SymbolLayoutProperties;
     use mln_style::property_value::PropertyValue;
@@ -433,7 +430,12 @@ mod tests {
     use mln_util::Padding;
     use mln_util::geo::LatLng;
     use mln_util::size::Size;
-    use std::sync::Arc;
+
+    use super::*;
+    use crate::buckets::symbol_bucket::SortKeyRange;
+    use crate::geometry::anchor::Anchor;
+    use crate::geometry::feature_index::IndexedSubfeature;
+    use crate::layout::symbol_instance::{ShapedTextOrientations, SymbolContent, SymbolInstanceSharedData};
 
     fn make_symbol_instance(x: f32, y: f32, key: &str) -> SymbolInstance {
         let line = GeometryCoordinates::new();

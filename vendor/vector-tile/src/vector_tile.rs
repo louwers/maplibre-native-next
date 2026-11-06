@@ -1,11 +1,13 @@
 // Ports vendor/vector-tile/include/mapbox/vector_tile.hpp.
 
-use crate::config::{CommandType, FeatureType, GeomType, LayerType, TileType, ValueType};
-use crate::error::{Error, at};
+use std::collections::BTreeMap;
+
 use feature::{Identifier, PropertyMap, Value};
 use geometry::Point;
 use protozero::{ConstVarintIterator, DataView, IteratorRange, PbfReader, decode_zigzag32};
-use std::collections::BTreeMap;
+
+use crate::config::{CommandType, FeatureType, GeomType, LayerType, TileType, ValueType};
+use crate::error::{Error, at};
 
 /// `point_type`: `mapbox::geometry::point<std::int16_t>`.
 pub type PointType = Point<i16>;

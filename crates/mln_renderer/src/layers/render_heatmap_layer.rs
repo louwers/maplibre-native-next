@@ -7,6 +7,35 @@
 //
 // TODO(port): queryIntersectsFeature (queries, M6; C++ returns false).
 
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_gfx::index_vector::IndexVectorBase;
+use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
+use mln_gfx::shaders::segment::SegmentBase;
+use mln_gfx::shaders::shader_defines::*;
+use mln_gfx::texture2d::SamplerState;
+use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TextureWrapType};
+use mln_gfx::vertex_vector::VertexVectorBasePtr;
+use mln_gfx::{
+    AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, Drawable, LayerGroupBasePtr, ShaderProgramBasePtr,
+    ShaderRegistry,
+};
+use mln_map_types::TransformState;
+use mln_style::expression::{Dependency, GlobalStateMap, global_state_refs_intersect};
+use mln_style::layer::static_immutable_cast;
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
+use mln_style::layers::HeatmapLayer;
+use mln_style::layers::heatmap_layer_impl::Impl as HeatmapLayerImpl;
+use mln_style::layers::heatmap_layer_properties::*;
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_tile_id::OverscaledTileID;
+use mln_util::identity::SimpleIdentity;
+use mln_util::image::PremultipliedImage;
+use mln_util::immutable::Immutable;
+use mln_util::size::Size;
+
 use super::heatmap_layer_tweaker::HeatmapLayerTweaker;
 use super::heatmap_texture_layer_tweaker::HeatmapTextureLayerTweaker;
 use super::render_line_layer::apply_color_ramp;
@@ -22,34 +51,6 @@ use crate::render_static_data::RenderStaticData;
 use crate::render_target::{RenderTarget, RenderTargetPtr};
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::index_vector::IndexVectorBase;
-use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
-use mln_gfx::shaders::segment::SegmentBase;
-use mln_gfx::shaders::shader_defines::*;
-use mln_gfx::texture2d::SamplerState;
-use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TextureWrapType};
-use mln_gfx::vertex_vector::VertexVectorBasePtr;
-use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, Drawable, LayerGroupBasePtr, ShaderProgramBasePtr,
-    ShaderRegistry,
-};
-use mln_map_types::TransformState;
-use mln_style::expression::{Dependency, GlobalStateMap, global_state_refs_intersect};
-use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{LayerProperties, get_evaluated};
-use mln_style::layers::HeatmapLayer;
-use mln_style::layers::heatmap_layer_impl::Impl as HeatmapLayerImpl;
-use mln_style::layers::heatmap_layer_properties::*;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_tile_id::OverscaledTileID;
-use mln_util::identity::SimpleIdentity;
-use mln_util::image::PremultipliedImage;
-use mln_util::immutable::Immutable;
-use mln_util::size::Size;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &HeatmapLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), HeatmapLayerImpl::static_type_info()));

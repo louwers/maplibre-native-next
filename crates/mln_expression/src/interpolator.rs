@@ -1,9 +1,9 @@
 // Ports include/mln/style/expression/interpolator.hpp.
 
-use crate::range::Range;
 use mln_util::UnitBezier;
-
 use mln_util::interpolate::interpolation_factor;
+
+use crate::range::Range;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct ExponentialInterpolator {

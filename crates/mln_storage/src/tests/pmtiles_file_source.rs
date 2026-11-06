@@ -3,6 +3,13 @@
 // the PMTiles file source reads through the FileSourceManager's shared
 // ResourceLoader.
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use mln_actor::RunLoop;
+use mln_util::constants::{FILE_PROTOCOL, PMTILES_PROTOCOL};
+use mln_util::tileset::Scheme;
+
 use super::{cpp_path, req, serial};
 use crate::ClientOptions;
 use crate::file_source::FileSource;
@@ -10,11 +17,6 @@ use crate::pmtiles_file_source::PMTilesFileSource;
 use crate::resource::{Kind, LoadingMethod, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use mln_actor::RunLoop;
-use mln_util::constants::{FILE_PROTOCOL, PMTILES_PROTOCOL};
-use mln_util::tileset::Scheme;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 fn to_absolute_url(file_name: &str) -> String {
     let path = cpp_path("test/fixtures/storage/pmtiles").join(file_name);

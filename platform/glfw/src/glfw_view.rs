@@ -23,8 +23,12 @@
 // `--quit-after <seconds>` closes the window; the style report prints once
 // which layers and sources the renderer skips.
 
-use crate::glfw_backend::{self, GLFWBackend};
-use crate::glfw_renderer_frontend::GLFWRendererFrontend;
+use std::cell::{Cell, RefCell};
+use std::collections::BTreeMap;
+use std::path::PathBuf;
+use std::rc::Rc;
+use std::time::Instant;
+
 use mln_actor::{RunLoop, Timer};
 use mln_gfx::{BackendScope, RendererBackend, ScopeType};
 use mln_map::{
@@ -35,11 +39,9 @@ use mln_util::chrono::Duration;
 use mln_util::geo::{LatLng, ScreenCoordinate};
 use mln_util::logging::{Event, Log};
 use mln_util::size::Size;
-use std::cell::{Cell, RefCell};
-use std::collections::BTreeMap;
-use std::path::PathBuf;
-use std::rc::Rc;
-use std::time::Instant;
+
+use crate::glfw_backend::{self, GLFWBackend};
+use crate::glfw_renderer_frontend::GLFWRendererFrontend;
 
 /// The part of the view other objects reach while the view is busy.
 pub struct ViewShared {

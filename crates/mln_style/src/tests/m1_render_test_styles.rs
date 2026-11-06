@@ -7,6 +7,15 @@
 // the transition parameters are `TransitionOptions()` (no transitions), and
 // in MapMode::Continuous for the transition test.
 
+use std::path::PathBuf;
+
+use mln_conversion::Convertible;
+use mln_style_types::VisibilityType;
+use mln_util::chrono::{Duration, TimePoint, milliseconds};
+use mln_util::immutable::Immutable;
+use mln_util::logging::{Event, EventSeverity};
+use mln_util::{Color, UnitBezier};
+
 use super::util::FixtureLog;
 use crate::layer::static_immutable_cast;
 use crate::layers::BackgroundPaintProperties;
@@ -16,13 +25,6 @@ use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameter
 use crate::renderer::transition_parameters::TransitionParameters;
 use crate::style::Impl;
 use crate::transition_options::TransitionOptions;
-use mln_conversion::Convertible;
-use mln_style_types::VisibilityType;
-use mln_util::chrono::{Duration, TimePoint, milliseconds};
-use mln_util::immutable::Immutable;
-use mln_util::logging::{Event, EventSeverity};
-use mln_util::{Color, UnitBezier};
-use std::path::PathBuf;
 
 fn render_tests_dir() -> PathBuf {
     let base =

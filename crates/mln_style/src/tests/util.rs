@@ -1,8 +1,9 @@
 //! Test helpers: the C++ `FixtureLog` (per thread, see mln_util::logging)
 //! and `convertJSON`.
 
-use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use std::sync::{Arc, Mutex};
+
+use mln_util::logging::{Event, EventSeverity, Log, Observer};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LogMessage {

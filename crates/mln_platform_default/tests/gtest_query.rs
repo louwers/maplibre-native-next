@@ -1,7 +1,7 @@
 // Ports test/api/query.test.cpp (a module of the gtest_api test crate).
 
-use crate::style_image;
-use crate::support::*;
+use std::sync::Arc;
+
 use feature::Value;
 use mln_actor::RunLoop;
 use mln_map::{CameraOptions, MapMode};
@@ -14,7 +14,9 @@ use mln_style::expression::expression::FeatureState;
 use mln_style::filter::Filter;
 use mln_util::feature::Feature;
 use mln_util::geo::{LatLng, ScreenCoordinate};
-use std::sync::Arc;
+
+use crate::style_image;
+use crate::support::*;
 
 /// The `QueryTest` fixture: a static 256x256 map with
 /// test/fixtures/api/query_style.json and the "test-icon" image, rendered

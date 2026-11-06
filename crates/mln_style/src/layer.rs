@@ -13,22 +13,23 @@
 // notifies also replaces `baseImpl`). Several setter calls through one guard
 // therefore notify once.
 
-use crate::conversion::{Converter, convert};
-use crate::expression::{
-    Dependency, EvaluationContext, Expression, GlobalStateMap, ParsingContext, Type, from_expression_value,
-};
-use crate::filter::Filter;
-use crate::style_property::StyleProperty;
-use crate::util::AsAny;
+use std::sync::Arc;
+
 use feature::{Value, ValueObject};
 use mln_conversion::{Convertible, Error};
 use mln_style_types::VisibilityType;
 use mln_util::enum_::Enum;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::sync::Arc;
 
+use crate::conversion::{Converter, convert};
+use crate::expression::{
+    Dependency, EvaluationContext, Expression, GlobalStateMap, ParsingContext, Type, from_expression_value,
+};
+use crate::filter::Filter;
 pub use crate::layer_impl::{FontStack, Impl, ImplBase, static_immutable_cast};
+use crate::style_property::StyleProperty;
+use crate::util::AsAny;
 
 /// The enums nested in C++ `LayerTypeInfo`.
 pub mod layer_type_info {

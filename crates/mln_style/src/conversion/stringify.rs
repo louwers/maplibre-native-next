@@ -6,10 +6,8 @@
 // Nothing in the C++ core calls it except `Properties<...>::stringify`
 // (`stringifyLayout`), whose only callers are tests.
 
-use crate::expression::{Formatted, Image, Value as ExpressionValue, ValueConverter};
-use crate::filter::Filter;
-use crate::property_expression::PropertyExpression;
-use crate::property_value::PropertyValue;
+use std::collections::{BTreeMap, HashMap};
+
 use feature::{Identifier, Value};
 use mln_style_types::{
     AlignmentType, IconTextFitType, LineCapType, LineJoinType, SymbolAnchorType, SymbolPlacementType, SymbolZOrderType,
@@ -18,9 +16,12 @@ use mln_style_types::{
 use mln_util::enum_::Enum;
 use mln_util::geometry::FeatureType;
 use mln_util::{Color, Padding};
-use std::collections::{BTreeMap, HashMap};
-
 pub use rapidjson::Writer;
+
+use crate::expression::{Formatted, Image, Value as ExpressionValue, ValueConverter};
+use crate::filter::Filter;
+use crate::property_expression::PropertyExpression;
+use crate::property_value::PropertyValue;
 
 /// `template <class Writer> void stringify(Writer&, const T&)`.
 pub trait Stringify {

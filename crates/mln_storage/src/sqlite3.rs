@@ -18,11 +18,12 @@
 // library version check at startup, `Query::reset`/`clearBindings` after a
 // `run()`.
 
+use std::sync::{Arc, Mutex, MutexGuard};
+
 use rusqlite::fallible_iterator::FallibleIterator;
 use rusqlite::fallible_streaming_iterator::FallibleStreamingIterator;
 use rusqlite::types::{ToSql, ValueRef};
 use rusqlite::{Connection, OpenFlags, Row, Rows};
-use std::sync::{Arc, Mutex, MutexGuard};
 
 /// `mapbox::sqlite::ResultCode` values (`SQLITE_*`).
 pub mod result_code {

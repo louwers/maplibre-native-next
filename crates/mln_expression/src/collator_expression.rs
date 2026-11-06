@@ -1,14 +1,15 @@
 // Ports include/mln/style/expression/collator_expression.hpp and
 // src/mln/style/expression/collator_expression.cpp.
 
+use feature::{Value as MbglValue, ValueObject};
+use mln_conversion::Convertible;
+
 use crate::collator::Collator;
 use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::literal::Literal;
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use feature::{Value as MbglValue, ValueObject};
-use mln_conversion::Convertible;
 
 pub struct CollatorExpression {
     base: ExpressionBase,

@@ -11,17 +11,12 @@
 //
 // TODO(port): queryIntersectsFeature (C++ returns false).
 
-use super::color_relief_layer_tweaker::{ColorReliefDrawableData, ColorReliefLayerTweaker};
-use super::{TileDrawables, drawable_has_layer_tweaker, shared_vertices};
-use crate::buckets::hillshade_bucket::{HillshadeBucket, HillshadeLayoutVertex};
-use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
-use crate::paint_parameters::PaintParameters;
-use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
-use crate::render_pass::RenderPass;
-use crate::render_static_data::RenderStaticData;
-use crate::render_tree::RenderTree;
-use crate::update_parameters::UpdateParameters;
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
+use std::sync::Arc;
+use std::time::Instant;
+
 use mln_gfx::index_vector::{IndexVectorBase, IndexVectorBasePtr};
 use mln_gfx::shaders::color_relief_layer_ubo::ColorReliefTilePropsUBO;
 use mln_gfx::shaders::segment::SegmentBase;
@@ -36,24 +31,30 @@ use mln_style::expression::{
     Dependency, EvaluationContext, GlobalStateMap, Interpolate, downcast, from_expression_value,
     global_state_refs_intersect,
 };
-use mln_style::layer;
 use mln_style::layer::static_immutable_cast;
 use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::ColorReliefLayer;
 use mln_style::layers::color_relief_layer_impl::Impl as ColorReliefLayerImpl;
 use mln_style::layers::color_relief_layer_properties::*;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
 use mln_util::Color;
 use mln_util::identity::SimpleIdentity;
 use mln_util::image::PremultipliedImage;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use mln_util::size::Size;
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
-use std::sync::Arc;
-use std::time::Instant;
+
+use super::color_relief_layer_tweaker::{ColorReliefDrawableData, ColorReliefLayerTweaker};
+use super::{TileDrawables, drawable_has_layer_tweaker, shared_vertices};
+use crate::buckets::hillshade_bucket::{HillshadeBucket, HillshadeLayoutVertex};
+use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
+use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
+use crate::paint_parameters::PaintParameters;
+use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
+use crate::render_pass::RenderPass;
+use crate::render_static_data::RenderStaticData;
+use crate::render_tree::RenderTree;
+use crate::update_parameters::UpdateParameters;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &ColorReliefLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), ColorReliefLayerImpl::static_type_info()));

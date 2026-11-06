@@ -1,5 +1,12 @@
 // Ports test/style/conversion/stringify.test.cpp.
 
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use feature::Value;
+use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection, VisibilityType};
+use mln_util::{Color, Padding};
+
 use crate::conversion::stringify::{Stringify, Writer};
 use crate::expression::Value as ExpressionValue;
 use crate::expression::dsl::{eq, exponential, get_str, interpolate, linear, literal, literal_str, number, zoom};
@@ -8,11 +15,6 @@ use crate::layers::SymbolLayoutProperties;
 use crate::layers::symbol_layer_properties::{IconPadding, SymbolAvoidEdges};
 use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
-use feature::Value;
-use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection, VisibilityType};
-use mln_util::{Color, Padding};
-use std::collections::HashMap;
-use std::sync::Arc;
 
 fn stringify<T: Stringify + ?Sized>(t: &T) -> String {
     let mut writer = Writer::new();

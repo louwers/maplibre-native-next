@@ -1,6 +1,8 @@
 // Ports vendor/wagyu/include/mapbox/geometry/wagyu/wagyu.hpp (the `wagyu<T>`
 // class, for T = int32_t).
 
+use geometry::{LinearRing, MultiPolygon, Polygon};
+
 use crate::bound::Bound;
 use crate::build_result::{OutputCoordinate, build_result};
 use crate::config::{ClipType, FillType, PolygonType};
@@ -10,7 +12,6 @@ use crate::ring::RingManager;
 use crate::snap_rounding::build_hot_pixels;
 use crate::topology_correction::correct_topology;
 use crate::vatti::execute_vatti;
-use geometry::{LinearRing, MultiPolygon, Polygon};
 
 /// `mapbox::geometry::wagyu::wagyu<int32_t>`: a polygon clipper (Vatti with
 /// snap rounding and topology correction). Errors are the C++

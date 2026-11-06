@@ -5,10 +5,11 @@
 // `LatLngBounds(CanonicalTileID)` are the `from_*_tile` functions (mln_util
 // sits below mln_tile_id), called with the tile ids' fields.
 
-use crate::assert_double_eq;
 use mln_tile_id::{CanonicalTileID, UnwrappedTileID};
 use mln_util::constants::{LATITUDE_MAX, LONGITUDE_MAX};
 use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds, WrapMode};
+
+use crate::assert_double_eq;
 
 fn ll(lat: f64, lon: f64) -> LatLng {
     LatLng::new(lat, lon).unwrap()

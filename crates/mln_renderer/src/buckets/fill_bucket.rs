@@ -2,12 +2,10 @@
 // (`MLN_TRIANGULATE_FILL_OUTLINES` = 1, as for the WebGPU backend: the
 // outlines are generated both as triangulated lines and as line primitives).
 
-use crate::bucket::{Bucket, BucketBase};
-use crate::buckets::line_bucket::LineLayoutVertex;
-use crate::gfx::fill_generator::generate_fill_and_outline_buffers;
-use crate::layout::pattern_layout::PatternLayerMap;
-use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
-use crate::render_layer::RenderLayer;
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::sync::atomic::Ordering;
+use std::sync::{Arc, RwLock};
+
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_style::expression::{Image, Value};
@@ -20,10 +18,13 @@ use mln_util::Color;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::sync::Arc;
-use std::sync::RwLock;
-use std::sync::atomic::Ordering;
+
+use crate::bucket::{Bucket, BucketBase};
+use crate::buckets::line_bucket::LineLayoutVertex;
+use crate::gfx::fill_generator::generate_fill_and_outline_buffers;
+use crate::layout::pattern_layout::PatternLayerMap;
+use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
+use crate::render_layer::RenderLayer;
 
 crate::paint_property_binders!(
     /// `FillBinders = PaintPropertyBinders<FillPaintProperties::DataDrivenProperties>`.

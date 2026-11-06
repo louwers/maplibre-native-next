@@ -1,11 +1,12 @@
 // Ports test/renderer/pattern_atlas.test.cpp.
 
+use std::path::PathBuf;
+
 use mln_platform_default_image::decode_image;
 use mln_renderer::pattern_atlas::PatternAtlas;
 use mln_style_types::image::Impl as ImageImpl;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
-use std::path::PathBuf;
 
 /// The runfiles path of `test/fixtures/...` (`@maplibre//test:fixtures`).
 fn cpp_path(relative: &str) -> PathBuf {

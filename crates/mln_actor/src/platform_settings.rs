@@ -3,8 +3,9 @@
 // because its C++ users are the thread priority setters of util::Thread and
 // the thread pools (still TODO(port) here).
 
-use feature::{Value, ValueObject};
 use std::sync::{Mutex, OnceLock};
+
+use feature::{Value, ValueObject};
 
 // The value for EXPERIMENTAL_THREAD_PRIORITY_* keys, must be a double.
 pub const EXPERIMENTAL_THREAD_PRIORITY_WORKER: &str = "maplibre_thread_priority_worker";

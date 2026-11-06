@@ -7,7 +7,10 @@
 // Tweakers are shared (`std::shared_ptr`) by the render layer and, weakly, by
 // its layer group: `Rc<RefCell<dyn LayerTweaker>>`.
 
-use crate::paint_parameters::{PaintParameters, TransformParameters};
+use std::any::Any;
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use geometry::Point;
 use mln_gfx::{Drawable, LayerGroupBase};
 use mln_map_types::TransformState;
@@ -16,9 +19,8 @@ use mln_style_types::TranslateAnchorType;
 use mln_tile_id::UnwrappedTileID;
 use mln_util::immutable::Immutable;
 use mln_util::mat4::{Mat4, matrix};
-use std::any::Any;
-use std::cell::RefCell;
-use std::rc::Rc;
+
+use crate::paint_parameters::{PaintParameters, TransformParameters};
 
 pub type LayerTweakerPtr = Rc<RefCell<dyn LayerTweaker>>;
 

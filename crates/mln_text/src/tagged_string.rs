@@ -3,10 +3,9 @@
 
 use std::sync::Arc;
 
-use mln_util::Color;
 use mln_util::font_stack::FontStack;
-use mln_util::i18n;
 use mln_util::logging::{Event, Log};
+use mln_util::{Color, i18n};
 
 use crate::glyph::GlyphIDType;
 use crate::harfbuzz::HBShapeAdjust;

@@ -1,6 +1,9 @@
 // Ports test/map/prefetch.test.cpp (a module of the gtest_map test crate).
 
-use crate::support::*;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::RunLoop;
 use mln_map::{CameraOptions, Map, MapMode, MapOptions};
 use mln_platform_default::HeadlessFrontend;
@@ -8,9 +11,8 @@ use mln_storage::Resource;
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_util::geo::LatLng;
 use mln_util::size::Size;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::support::*;
 
 /// `std::stoi(str)`: the leading (optionally signed) decimal integer.
 fn stoi(s: &str) -> i32 {

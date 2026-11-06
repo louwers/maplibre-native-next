@@ -6,13 +6,14 @@
 // TODO(port): `readDataDrivenPaintProperties` (data-driven paint property
 // binders) arrives with the first layer type that uses binders (M3).
 
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+use std::time::Instant;
+
 use crate::gfx_types::AttributeDataType;
 use crate::shaders::shader_defines::MAX_ATTRIBUTE_COUNT_PER_SHADER;
 use crate::vertex_buffer::UniqueVertexBufferResource;
 use crate::vertex_vector::VertexVectorBasePtr;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::time::Instant;
 
 /// `VertexAttribute::ElementType = variant<int32_t, ushort8, int2, int3, int4,
 /// float, float2, float3, float4, matf3, matf4>` (same order).

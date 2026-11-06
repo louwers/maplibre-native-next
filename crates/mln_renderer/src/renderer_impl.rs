@@ -1,6 +1,16 @@
 // Ports src/mln/renderer/renderer_impl.hpp and src/mln/renderer/renderer_impl.cpp
 // (non-OpenGL, non-Metal branches; the port's backend is WebGPU).
 
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
+use mln_gfx::shaders::layer_ubo::GlobalPaintParamsUBO;
+use mln_gfx::shaders::program_parameters::ProgramParameters;
+use mln_gfx::shaders::shader_defines::ID_GLOBAL_PAINT_PARAMS_UBO;
+use mln_gfx::{RenderPassDescriptor, RendererBackend, ScissorRect, ShaderRegistry};
+use mln_map_types::MapDebugOptions;
+use mln_util::Color;
+
 use crate::paint_parameters::PaintParameters;
 use crate::render_orchestrator::RenderOrchestrator;
 use crate::render_pass::RenderPass;
@@ -8,14 +18,6 @@ use crate::render_static_data::RenderStaticData;
 use crate::render_tree::RenderTree;
 use crate::renderer_observer::{RenderMode, RendererObserver};
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::shaders::layer_ubo::GlobalPaintParamsUBO;
-use mln_gfx::shaders::program_parameters::ProgramParameters;
-use mln_gfx::shaders::shader_defines::ID_GLOBAL_PAINT_PARAMS_UBO;
-use mln_gfx::{RenderPassDescriptor, RendererBackend, ScissorRect, ShaderRegistry};
-use mln_map_types::MapDebugOptions;
-use mln_util::Color;
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum RenderState {

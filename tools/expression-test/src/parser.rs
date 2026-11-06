@@ -4,14 +4,15 @@
 // The C++ runner reads the fixtures with rapidjson's full-precision parser
 // (correctly rounded, like serde_json).
 
+use std::collections::BTreeSet;
+use std::path::{Path, PathBuf};
+
 use feature::{Feature, Identifier, Value, ValueObject};
 use geometry::{Geometry, LineString, Point, Polygon};
 use mln_conversion::Convertible;
 use mln_expression::type_::{self, Type};
 use mln_expression::{Expression, ParsingContext, is_feature_constant, is_zoom_constant};
 use mln_tile_id::CanonicalTileID;
-use std::collections::BTreeSet;
-use std::path::{Path, PathBuf};
 
 pub struct Input {
     pub zoom: Option<f32>,

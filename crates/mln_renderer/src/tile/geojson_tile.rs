@@ -4,21 +4,23 @@
 // it was requested for with the tile's current data; here it holds a `Weak`
 // to the tile's state and the data pointer.
 
+use std::any::Any;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_style::expression::GlobalStateMap;
+use mln_style::layer_properties::LayerProperties;
+use mln_style::sources::geojson_source::{GeoJSONData, TileFeatures};
+use mln_tile_id::OverscaledTileID;
+use mln_util::immutable::Immutable;
+
 use crate::tile::geojson_tile_data::GeoJSONTileData;
 use crate::tile::geometry_tile::GeometryTile;
 use crate::tile::tile::{Tile, TileBase};
 use crate::tile::tile_observer::TileObserver;
 use crate::tile_parameters::TileParameters;
 use crate::tile_render_data::TileRenderData;
-use mln_style::expression::GlobalStateMap;
-use mln_style::layer_properties::LayerProperties;
-use mln_style::sources::geojson_source::{GeoJSONData, TileFeatures};
-use mln_tile_id::OverscaledTileID;
-use mln_util::immutable::Immutable;
-use std::any::Any;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 /// The address of a `GeoJSONData` (C++ `data.get()`).
 fn data_address(data: &Arc<dyn GeoJSONData>) -> *const () {

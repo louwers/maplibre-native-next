@@ -4,12 +4,13 @@
 // const parameter; `testing::ScopedTrace` is the threshold in the assertion
 // messages. A C++ move leaves an empty map behind, which is `mem::take`.
 
-use mln_tile_id::{CanonicalTileID, OverscaledTileID};
-use mln_util::logging::{Event, Log};
-use mln_util::tiny_unordered_map::TinyUnorderedMap;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::time::{Duration, Instant};
+
+use mln_tile_id::{CanonicalTileID, OverscaledTileID};
+use mln_util::logging::{Event, Log};
+use mln_util::tiny_unordered_map::TinyUnorderedMap;
 
 type IntMap<const T: usize> = TinyUnorderedMap<i32, i32, T>;
 

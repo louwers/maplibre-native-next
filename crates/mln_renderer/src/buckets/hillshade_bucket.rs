@@ -11,9 +11,10 @@
 // counts the C++ `renderTargetPrepared = false` resets
 // (`render_target_generation`) so the layer can tell when to prepare again.
 
-use crate::bucket::{Bucket, BucketBase};
-use crate::geometry::dem_data::DEMData;
-use crate::tile_mask::TileMask;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::{Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard};
+use std::time::Instant;
+
 use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
@@ -21,9 +22,10 @@ use mln_tile_id::CanonicalTileID;
 use mln_util::constants;
 use mln_util::image::PremultipliedImage;
 use mln_util::tileset::RasterEncoding;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::sync::{Mutex, MutexGuard, RwLock, RwLockReadGuard, RwLockWriteGuard};
-use std::time::Instant;
+
+use crate::bucket::{Bucket, BucketBase};
+use crate::geometry::dem_data::DEMData;
+use crate::tile_mask::TileMask;
 
 /// `HillshadeLayoutVertex = gfx::Vertex<TypeList<attributes::pos, attributes::texture_pos>>`.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, bytemuck::Pod, bytemuck::Zeroable)]

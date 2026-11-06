@@ -5,11 +5,12 @@
 // decode to the same pixels; lossy (VP8) images use its bilinear ("fancy")
 // chroma upsampling, which libwebp also uses by default.
 
+use std::io::Cursor;
+
 use mln_util::image::{PremultipliedImage, UnassociatedImage};
 use mln_util::logging::{Event, Log};
 use mln_util::premultiply::premultiply;
 use mln_util::size::Size;
-use std::io::Cursor;
 
 /// `decodeWEBP(data, size)`: an empty image (and a warning) when the data
 /// can't be decoded, as C++.

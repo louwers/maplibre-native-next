@@ -5,6 +5,17 @@
 // in TEST_TMPDIR instead (the Rust harness runs tests in parallel), copied
 // from the fixtures read in place.
 
+use std::path::PathBuf;
+use std::sync::Arc;
+
+use mln_util::chrono::{Timestamp, now};
+use mln_util::constants::DEFAULT_MAX_CACHE_SIZE;
+use mln_util::geo::{LatLng, LatLngBounds};
+use mln_util::geometry::{Geometry, Point};
+use mln_util::logging::{Event, EventSeverity};
+use mln_util::tile_server_options::TileServerOptions;
+use mln_util::tileset::Scheme;
+
 use super::{
     FixtureLog, Message, copy_file, cpp_path, delete_file, error, file_size, random_string, temp_path, warning,
 };
@@ -16,15 +27,6 @@ use crate::offline_database::{DatabaseError, MapboxTileLimitExceededException, O
 use crate::resource::{Kind, LoadingMethod, Resource, TileData};
 use crate::response::{Error, Reason, Response};
 use crate::sqlite3::{Database, OpenFlag, Query, Statement, result_code};
-use mln_util::chrono::{Timestamp, now};
-use mln_util::constants::DEFAULT_MAX_CACHE_SIZE;
-use mln_util::geo::{LatLng, LatLngBounds};
-use mln_util::geometry::{Geometry, Point};
-use mln_util::logging::{Event, EventSeverity};
-use mln_util::tile_server_options::TileServerOptions;
-use mln_util::tileset::Scheme;
-use std::path::PathBuf;
-use std::sync::Arc;
 
 fn fixture(name: &str) -> PathBuf {
     cpp_path(&format!("test/fixtures/offline_database/{name}"))

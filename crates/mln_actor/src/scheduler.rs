@@ -9,11 +9,13 @@
 // TODO(port): `runOnRenderThread`/`runRenderJobs`. (gtests-core added
 // `GetSequenced` and `setExceptionHandler`.)
 
-use crate::local_object::LocalObject;
-use crate::thread_pool::{SequencedScheduler, ThreadPool};
-use mln_util::identity::SimpleIdentity;
 use std::cell::RefCell;
 use std::sync::{Arc, Mutex, Weak};
+
+use mln_util::identity::SimpleIdentity;
+
+use crate::local_object::LocalObject;
+use crate::thread_pool::{SequencedScheduler, ThreadPool};
 
 pub type Task = Box<dyn FnOnce() + Send + 'static>;
 

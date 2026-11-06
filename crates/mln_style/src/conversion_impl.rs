@@ -2,15 +2,16 @@
 // `ValueFactory<T>`, `makeValue`, `makeStyleProperty`. (`Convertible` itself
 // is in mln_conversion.)
 
+use feature::Value;
+use mln_style_types::{Position, Rotation, VariableAnchorOffsetCollection};
+use mln_util::enum_::Enum;
+use mln_util::{Color, Padding};
+
 use crate::color_ramp_property_value::ColorRampPropertyValue;
 use crate::expression::{Formatted, Image};
 use crate::property_value::PropertyValue;
 use crate::style_property::{Kind, StyleProperty};
 use crate::transition_options::TransitionOptions;
-use feature::Value;
-use mln_style_types::{Position, Rotation, VariableAnchorOffsetCollection};
-use mln_util::enum_::Enum;
-use mln_util::{Color, Padding};
 
 /// `ValueFactory<T>::make`, plus the `makeStyleProperty` kind of a constant
 /// (`Color`, `Padding` and `VariableAnchorOffsetCollection` constants are

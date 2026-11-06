@@ -1,8 +1,9 @@
 // Ports include/mln/style/conversion/coordinate.hpp +
 // src/mln/style/conversion/coordinate.cpp.
 
-use super::{Converter, Convertible, Error};
 use mln_util::LatLng;
+
+use super::{Converter, Convertible, Error};
 
 impl Converter for LatLng {
     fn convert(value: &Convertible<'_>, error: &mut Error) -> Option<LatLng> {

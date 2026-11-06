@@ -7,10 +7,11 @@
 // second. Specializations that only define one of the two get the other
 // through C++'s implicit conversion of `t`, and so do the impls here.
 
+use geometry::Point;
+
 use crate::color::Color;
 use crate::padding::Padding;
 use crate::range::Range;
-use geometry::Point;
 
 pub trait Interpolate: Sized {
     /// `Interpolator<T>()(a, b, double t)`.

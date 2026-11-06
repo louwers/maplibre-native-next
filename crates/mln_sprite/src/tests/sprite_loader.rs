@@ -1,8 +1,9 @@
 // Ports test/sprite/sprite_loader.test.cpp.
 
-use super::{FixtureLog, cpp_path};
-use crate::sprite_loader::SpriteLoader;
-use crate::sprite_loader_observer::SpriteLoaderObserver;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::{RunLoop, TaggedScheduler, scheduler};
 use mln_storage::response::{Error, Reason};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
@@ -12,9 +13,10 @@ use mln_style_types::sprite::Sprite;
 use mln_util::exception::ExceptionPtr;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use super::{FixtureLog, cpp_path};
+use crate::sprite_loader::SpriteLoader;
+use crate::sprite_loader_observer::SpriteLoaderObserver;
 
 type Loaded = Box<dyn FnMut(Vec<Immutable<Impl>>)>;
 type Failed = Box<dyn FnMut(ExceptionPtr)>;

@@ -5,9 +5,10 @@ pub mod parser;
 pub mod runner;
 pub mod test_runner_common;
 
+use std::path::{Path, PathBuf};
+
 use parser::{collect_test_paths, parse_expression_ignores, parse_test_data};
 use runner::{TestRunOutput, TestStats, run_expression_test};
-use std::path::{Path, PathBuf};
 
 /// The `maplibre` module's metrics directory in the runfiles tree.
 pub fn find_metrics_dir() -> Option<PathBuf> {

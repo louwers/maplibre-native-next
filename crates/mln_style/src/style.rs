@@ -1,17 +1,17 @@
 // Ports include/mln/style/style.hpp + src/mln/style/style.cpp.
 
+use feature::Value;
+use mln_util::exception::{ExceptionPtr, MisuseException};
+use mln_util::immutable::Immutable;
+
 use crate::expression::GlobalStateMap;
 use crate::image;
 use crate::layer::Layer;
 use crate::light::Light;
 use crate::map::camera::CameraOptions;
 use crate::source::Source;
-use crate::transition_options::TransitionOptions;
-use feature::Value;
-use mln_util::exception::{ExceptionPtr, MisuseException};
-use mln_util::immutable::Immutable;
-
 pub use crate::style_impl::{Impl, LayerRefMut, LightRefMut};
+use crate::transition_options::TransitionOptions;
 
 #[derive(Debug)]
 pub struct Style {

@@ -1,15 +1,17 @@
 // Ports include/mln/style/conversion/source.hpp and
 // src/mln/style/conversion/source.cpp.
 
-use super::{Converter, Convertible, Error};
-use crate::source::Source;
-use crate::sources::geojson_source::{GeoJSONOptions, GeoJSONSource};
-use crate::sources::tile_source::{RasterSource, UrlOrTileset, VectorSource};
+use std::sync::Arc;
+
 use geojson::GeoJSON;
 use mln_style_types::SourceType;
 use mln_util::constants;
 use mln_util::tileset::{Tileset, VectorEncoding};
-use std::sync::Arc;
+
+use super::{Converter, Convertible, Error};
+use crate::source::Source;
+use crate::sources::geojson_source::{GeoJSONOptions, GeoJSONSource};
+use crate::sources::tile_source::{RasterSource, UrlOrTileset, VectorSource};
 
 /// `convertURLOrTileset(value, error)`: a tile source can either specify a
 /// URL to TileJSON, or inline TileJSON.

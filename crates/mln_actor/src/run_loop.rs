@@ -23,13 +23,14 @@
 // TODO(port): fd watches (`addWatch`/`removeWatch`, only for libcurl),
 // `invokeCancellable`, `setPlatformCallback`.
 
-use crate::scheduler::{self, Scheduler};
-use crate::timer::TimerHandle;
 use std::cell::{Cell, RefCell};
 use std::collections::VecDeque;
 use std::rc::{Rc, Weak};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
+
+use crate::scheduler::{self, Scheduler};
+use crate::timer::TimerHandle;
 
 type Task = Box<dyn FnOnce() + Send + 'static>;
 
@@ -383,8 +384,9 @@ impl Scheduler for RunLoopHandle {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::sync::atomic::AtomicUsize;
+
+    use super::*;
 
     #[test]
     fn invoke_runs_on_run_once() {

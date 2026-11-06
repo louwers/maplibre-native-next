@@ -6,9 +6,10 @@
 // `Vertex<...>`, `AttributeBindings<TypeList>`, MBGL_DEFINE_ATTRIBUTE) belong
 // to the legacy program path and arrive with the first user.
 
+use std::rc::Rc;
+
 use crate::gfx_types::AttributeDataType;
 use crate::vertex_buffer::VertexBufferResource;
-use std::rc::Rc;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct AttributeDescriptor {

@@ -8,12 +8,13 @@
 // and the ids; the coordinates are not compared. The port compares the
 // same. //difftest/geometry compares everything exactly against the C++.
 
+use std::collections::BTreeMap;
+use std::f64::consts::PI;
+
 use feature::{Feature, Identifier, PropertyMap, Value};
 use geojson_vt::{EMPTY_TILE, GeoJSONVT, Options, TileOptions, geojson_to_tile};
 use geometry::{Geometry, Point};
 use serde_json::Value as Json;
-use std::collections::BTreeMap;
-use std::f64::consts::PI;
 
 fn load_file(name: &str) -> String {
     let root = std::env::var_os("RUNFILES_DIR")

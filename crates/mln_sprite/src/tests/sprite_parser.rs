@@ -1,12 +1,14 @@
 // Ports test/sprite/sprite_parser.test.cpp.
 
-use super::{FixtureLog, read_file};
-use crate::sprite_parser::{create_style_image, parse_sprite};
+use std::collections::BTreeSet;
+
 use mln_platform_default_image::decode_image;
 use mln_style_types::image::{ImageContent, TextFit};
 use mln_util::image::PremultipliedImage;
 use mln_util::logging::{Event, EventSeverity};
-use std::collections::BTreeSet;
+
+use super::{FixtureLog, read_file};
+use crate::sprite_parser::{create_style_image, parse_sprite};
 
 fn read_image(name: &str) -> PremultipliedImage {
     decode_image(&read_file(name)).unwrap()

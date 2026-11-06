@@ -8,12 +8,13 @@
 // too large for 64 bits). Encoding writes through //vendor/rapidjson's
 // `Writer`, so the stored definitions are byte-identical to C++'s.
 
-use crate::response::Error as ResponseError;
 use mln_util::geo::{LatLng, LatLngBounds};
 use mln_util::geometry::Geometry;
 use rapidjson::Writer;
 use rapidjson::writer::Type;
 use serde_json::Value as Json;
+
+use crate::response::Error as ResponseError;
 
 /// The exceptions the definition code throws: `std::runtime_error`
 /// ("Malformed offline region definition", geojson errors) and the logic

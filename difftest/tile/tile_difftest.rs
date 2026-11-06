@@ -20,9 +20,10 @@
 
 mod dump;
 
-use dump::*;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+
+use dump::*;
 
 fn runfiles() -> PathBuf {
     let base =

@@ -5,10 +5,12 @@
 // properties on it: each thread sees its own value, an unset value is
 // empty, and the storage does not take ownership.
 
-use crate::get;
-use mln_actor::{ActorRef, RunLoop, Thread};
 use std::cell::RefCell;
 use std::sync::{Arc, mpsc};
+
+use mln_actor::{ActorRef, RunLoop, Thread};
+
+use crate::get;
 
 thread_local! {
     // `static ThreadLocal<int> number;` of TestThread

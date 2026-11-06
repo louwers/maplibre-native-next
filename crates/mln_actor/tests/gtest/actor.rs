@@ -1,12 +1,14 @@
 // Ports test/actor/actor.test.cpp.
 
-use crate::{get, wait_for};
-use mln_actor::actor::{Actor, PoolActorRef};
-use mln_actor::scheduler::{self, Scheduler, SchedulerPtr, Task};
-use mln_actor::{AspiringActor, EstablishedActor, RunLoop};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, mpsc};
 use std::time::Duration;
+
+use mln_actor::actor::{Actor, PoolActorRef};
+use mln_actor::scheduler::{self, Scheduler, SchedulerPtr, Task};
+use mln_actor::{AspiringActor, EstablishedActor, RunLoop};
+
+use crate::{get, wait_for};
 
 // gtest: Actor.Construction
 #[test]

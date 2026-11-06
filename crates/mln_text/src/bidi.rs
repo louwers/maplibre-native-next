@@ -22,7 +22,6 @@ use unicode_bidi::utf16::BidiInfo;
 
 use crate::icu::ubidi_props::ubidi_get_mirror;
 use crate::icu::ushape::u_shape_arabic;
-
 pub use crate::tagged_string::StyledText;
 
 /// Takes UTF16 input in logical order and applies Arabic shaping to the

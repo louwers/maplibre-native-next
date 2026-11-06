@@ -4,12 +4,13 @@
 // GeoJSON tile can only have one layer, and it is always returned
 // regardless of which layer is requested.
 
+use std::cell::OnceCell;
+use std::sync::Arc;
+
 use feature::{Feature, Identifier, PropertyMap, Value};
 use mln_tile::{fixup_polygons, to_geometry_collection};
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileData, GeometryTileFeature, GeometryTileLayer};
 use mln_util::geometry::{FeatureType, to_feature_type};
-use std::cell::OnceCell;
-use std::sync::Arc;
 
 /// `mapbox::feature::feature_collection<int16_t>`.
 pub type TileFeatureCollection = Vec<Feature<i16>>;

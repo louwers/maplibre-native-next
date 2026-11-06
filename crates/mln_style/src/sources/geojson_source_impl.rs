@@ -2,9 +2,9 @@
 // src/mln/style/sources/geojson_source_impl.cpp (GeoJSONSource::Impl,
 // GeoJSONVTData, SuperclusterData and GeoJSONData::create).
 
-use super::geojson_source::{Features, GeoJSONData, GeoJSONOptions, TileFeatures};
-use crate::expression::{Expression, from_expression_value};
-use crate::source_impl::{self, ImplBase};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex, Weak};
+
 use feature::{Feature, PropertyMap, Value};
 use geojson::GeoJSON;
 use geometry::Geometry;
@@ -17,8 +17,10 @@ use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use mln_util::range::Range;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex, Weak};
+
+use super::geojson_source::{Features, GeoJSONData, GeoJSONOptions, TileFeatures};
+use crate::expression::{Expression, from_expression_value};
+use crate::source_impl::{self, ImplBase};
 
 /// `geoJSONVT_impl->getTile(z, x, y).features`. C++ `getTile` throws
 /// `std::runtime_error` for a zoom above maxZoom or a missing parent tile;

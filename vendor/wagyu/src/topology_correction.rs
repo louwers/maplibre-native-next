@@ -10,6 +10,10 @@
 // `for (auto c : ring->children)` captures the vector's length first, as the
 // range-for captures end().
 
+use std::collections::{HashMap, HashSet, VecDeque};
+
+use libstdcxx::stable_sort_by as stable_sort;
+
 use crate::point::{NIL, PointPtr, RingPtr};
 use crate::ring::{
     R, RingManager, assign_as_child, assign_as_sibling, create_new_ring, reassign_as_child, remove_ring,
@@ -17,8 +21,6 @@ use crate::ring::{
 };
 use crate::ring_util::{poly2_contains_poly1, update_points_ring};
 use crate::util::value_is_zero;
-use libstdcxx::stable_sort_by as stable_sort;
-use std::collections::{HashMap, HashSet, VecDeque};
 
 /// `point_ptr_pair<int32_t>`.
 #[derive(Clone, Copy, Debug)]

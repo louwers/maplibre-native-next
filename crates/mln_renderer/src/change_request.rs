@@ -3,10 +3,12 @@
 // The C++ class hierarchy (`ChangeRequest::execute(RenderOrchestrator&)`) is
 // an enum here; `RenderOrchestrator::process_changes` executes it.
 
-use crate::layer_tweaker::LayerTweaker;
-use mln_gfx::LayerGroupBasePtr;
 use std::cell::RefCell;
 use std::rc::Weak;
+
+use mln_gfx::LayerGroupBasePtr;
+
+use crate::layer_tweaker::LayerTweaker;
 
 pub enum ChangeRequest {
     /// `AddLayerGroupRequest`.

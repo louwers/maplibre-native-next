@@ -17,6 +17,11 @@
 
 #![allow(dead_code)]
 
+use std::cell::{Cell, RefCell, RefMut};
+use std::path::PathBuf;
+use std::rc::{Rc, Weak};
+use std::sync::{Arc, Mutex};
+
 use mln_actor::{LocalObject, RunLoop, Timer};
 use mln_map::{Map, MapLoadError, MapMode, MapObserver, MapOptions, RenderFrameStatus};
 use mln_platform_default::{HeadlessFrontend, RenderResult};
@@ -24,10 +29,6 @@ use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_storage::{AsyncRequest, Callback, ClientOptions, FileSource, Kind, Resource, ResourceOptions, Response};
 use mln_util::image::PremultipliedImage;
 use mln_util::logging::{Event, EventSeverity, Log};
-use std::cell::{Cell, RefCell, RefMut};
-use std::path::PathBuf;
-use std::rc::{Rc, Weak};
-use std::sync::{Arc, Mutex};
 
 // MARK: - Fixtures
 

@@ -6,13 +6,14 @@
 // 0.00015). Operations are not run, so tests with operations are skipped;
 // `//tools/render-test:m1_render_tests` is the authoritative run.
 
+use std::path::PathBuf;
+use std::rc::Rc;
+
 use mln_actor::RunLoop;
 use mln_map::{Map, MapMode, MapOptions, NullMapObserver};
 use mln_platform_default::HeadlessFrontend;
 use mln_platform_default_image::decode_image;
 use mln_util::size::Size;
-use std::path::PathBuf;
-use std::rc::Rc;
 
 fn render_tests_dir() -> PathBuf {
     let base =

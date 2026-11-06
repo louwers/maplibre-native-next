@@ -1,17 +1,19 @@
 // Ports include/mln/style/property_expression.hpp +
 // src/mln/style/property_expression.cpp.
 
-use crate::expression::{
-    Dependency, EvaluationContext, Expression, GlobalStateMap, Type, ValueConverter, ZoomCurvePtr,
-    collect_global_state_refs, find_zoom_curve_checked,
-};
+use std::collections::BTreeSet;
+use std::sync::Arc;
+
 use mln_expression::expression::FeatureState;
 use mln_expression::range::Range;
 use mln_expression::value::from_expression_values;
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::GeometryTileFeature;
-use std::collections::BTreeSet;
-use std::sync::Arc;
+
+use crate::expression::{
+    Dependency, EvaluationContext, Expression, GlobalStateMap, Type, ValueConverter, ZoomCurvePtr,
+    collect_global_state_refs, find_zoom_curve_checked,
+};
 
 fn check_gpu_capable(expression: &dyn Expression, zoom_curve: &ZoomCurvePtr<'_>) -> bool {
     expression.dependencies() == Dependency::ZOOM

@@ -5,10 +5,11 @@
 // `Send + Sync` senders, keyed by an id the subscriber keeps for
 // `unsubscribe`.
 
-use mln_actor::AsyncTaskSender;
 use std::collections::BTreeMap;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+
+use mln_actor::AsyncTaskSender;
 
 /// `NetworkStatus::Status`
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

@@ -3,6 +3,34 @@
 //
 // TODO(port): captureRenderedFeatures.
 
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_gfx::index_vector::IndexVectorBase;
+use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
+use mln_gfx::shaders::shader_defines::*;
+use mln_gfx::shaders::shader_program_base::ShaderProgramBasePtr;
+use mln_gfx::texture2d::{SamplerState, Texture2DPtr};
+use mln_gfx::types::{TextureFilterType, TextureWrapType};
+use mln_gfx::{
+    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableBuilder, ShaderRegistry,
+    UniqueDrawableBuilder, VertexAttributeArrayPtr,
+};
+use mln_map_types::TransformState;
+use mln_style::expression::{Dependency, GlobalStateMap, global_state_refs_intersect};
+use mln_style::layer::static_immutable_cast;
+use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
+use mln_style::layers::line_layer_impl::Impl as LineLayerImpl;
+use mln_style::layers::line_layer_properties::*;
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_style_types::LineCapType;
+use mln_util::Color;
+use mln_util::identity::SimpleIdentity;
+use mln_util::image::PremultipliedImage;
+use mln_util::immutable::Immutable;
+use mln_util::size::Size;
+
 use super::line_layer_tweaker::{LineDrawableData, LineLayerTweaker, LineType};
 use super::{
     TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot,
@@ -18,33 +46,6 @@ use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
 use crate::render_pass::RenderPass;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::index_vector::IndexVectorBase;
-use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
-use mln_gfx::shaders::shader_defines::*;
-use mln_gfx::shaders::shader_program_base::ShaderProgramBasePtr;
-use mln_gfx::texture2d::{SamplerState, Texture2DPtr};
-use mln_gfx::types::{TextureFilterType, TextureWrapType};
-use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableBuilder, ShaderRegistry,
-    UniqueDrawableBuilder, VertexAttributeArrayPtr,
-};
-use mln_map_types::TransformState;
-use mln_style::expression::{Dependency, GlobalStateMap, global_state_refs_intersect};
-use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
-use mln_style::layers::line_layer_impl::Impl as LineLayerImpl;
-use mln_style::layers::line_layer_properties::*;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_style_types::LineCapType;
-use mln_util::Color;
-use mln_util::identity::SimpleIdentity;
-use mln_util::image::PremultipliedImage;
-use mln_util::immutable::Immutable;
-use mln_util::size::Size;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &LineLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), LineLayerImpl::static_type_info()));

@@ -6,6 +6,8 @@
 //
 // The shaders on the M1 path must compile; the rest are reported only.
 
+use std::collections::HashMap;
+
 use mln_gfx::backend_scope::{BackendScope, ScopeType};
 use mln_gfx::renderer_backend::RendererBackend;
 use mln_util::size::Size;
@@ -13,7 +15,6 @@ use mln_webgpu::HeadlessBackend;
 use mln_webgpu::shaders::shader_program::ShaderProgram;
 use mln_webgpu::shaders::wgsl_preprocessor::preprocess_wgsl;
 use mln_webgpu::shaders::wgsl_sources::ALL;
-use std::collections::HashMap;
 
 const REQUIRED: &[&str] = &["BackgroundShader", "BackgroundPatternShader", "ClippingMaskProgram"];
 

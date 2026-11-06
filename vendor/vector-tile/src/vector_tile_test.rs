@@ -1,10 +1,12 @@
 // Ports vendor/vector-tile/test/unit/tags.test.cpp and
 // vendor/vector-tile/test/unit/vector_tile.test.cpp.
 
+use std::path::PathBuf;
+
+use feature::{Identifier, Value};
+
 use crate::config::{FeatureType, LayerType, TileType, ValueType};
 use crate::*;
-use feature::{Identifier, Value};
-use std::path::PathBuf;
 
 fn open_tile(path: &str) -> Vec<u8> {
     let base =

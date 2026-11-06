@@ -4,12 +4,9 @@
 // the features its filter accepted and gets the features again from the
 // source layer in `create_bucket`.
 
-use crate::bucket::{Bucket, BucketPtr};
-use crate::bucket_parameters::BucketParameters;
-use crate::buckets::circle_bucket::CircleBucket;
-use crate::geometry::feature_index::FeatureIndex;
-use crate::layout::layout::{Layout, SourceLayer};
-use crate::render_layer::LayerRenderData;
+use std::collections::{BTreeMap, HashMap};
+use std::sync::Arc;
+
 use mln_map_types::MapMode;
 use mln_style::PropertyEvaluationParameters;
 use mln_style::expression::{EvaluationContext, Value};
@@ -22,8 +19,13 @@ use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, G
 use mln_util::constants::EXTENT;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
-use std::collections::{BTreeMap, HashMap};
-use std::sync::Arc;
+
+use crate::bucket::{Bucket, BucketPtr};
+use crate::bucket_parameters::BucketParameters;
+use crate::buckets::circle_bucket::CircleBucket;
+use crate::geometry::feature_index::FeatureIndex;
+use crate::layout::layout::{Layout, SourceLayer};
+use crate::render_layer::LayerRenderData;
 
 /// `CircleLayout::CircleFeature` (without the feature, see above).
 #[derive(Clone, Copy, Debug)]

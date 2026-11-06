@@ -1,11 +1,13 @@
 // Ports include/mln/webgpu/layer_group.hpp and src/mln/webgpu/layer_group.cpp
 
-use crate::drawable::Drawable;
-use crate::upload_pass::UploadPass;
+use std::any::Any;
+
 use mln_gfx::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::{self, LayerGroupBaseData};
 use mln_gfx::uniform_buffer::UniformBufferArray;
-use std::any::Any;
+
+use crate::drawable::Drawable;
+use crate::upload_pass::UploadPass;
 
 pub struct LayerGroup {
     inner: layer_group::LayerGroup,

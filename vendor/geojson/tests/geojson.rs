@@ -5,11 +5,12 @@
 // TODO(port): test/test_value.cpp tests geojson_value_impl.hpp, which the
 // core does not compile (not ported).
 
+use std::path::PathBuf;
+
 use geojson::{
     Feature, GeoJSON, Geometry, Identifier, Value, convert, convert_geometry, parse, stringify, stringify_geometry,
     to_json, to_json_geometry,
 };
-use std::path::PathBuf;
 
 fn fixture(name: &str) -> PathBuf {
     let root = std::env::var_os("RUNFILES_DIR")

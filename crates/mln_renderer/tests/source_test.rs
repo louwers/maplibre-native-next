@@ -1,6 +1,10 @@
 // Ports the render-source tests of test/style/source.test.cpp (the ones that
 // need a RenderSource; the style-side ones are in mln_style's tests).
 
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+
 use mln_actor::{RunLoop, TaggedScheduler, Timer, scheduler};
 use mln_map::transform::{NullTransformObserver, Transform};
 use mln_map_types::{
@@ -37,9 +41,6 @@ use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, EventSeverity, Log, Observer as LogObserver};
 use mln_util::size::Size;
 use mln_util::tileset::{Tileset, VectorEncoding};
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 
 /// `SourceTest`.
 struct SourceTest {

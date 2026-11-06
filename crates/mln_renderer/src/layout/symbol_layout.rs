@@ -7,22 +7,9 @@
 // images across worker messages.
 //
 
-use crate::bucket::{Bucket, BucketPtr, get_retain_feature_id};
-use crate::bucket_parameters::BucketParameters;
-use crate::buckets::symbol_bucket::{
-    Buffer, CollisionBuffer, PlacedSymbol, SortKeyRange, SymbolBucket, SymbolBucketState,
-};
-use crate::geometry::anchor::{Anchor, Anchors};
-use crate::geometry::feature_index::{FeatureIndex, IndexedSubfeature};
-use crate::layout::clip_lines::clip_lines;
-use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
-use crate::layout::merge_lines::merge_lines;
-use crate::layout::symbol_feature::SymbolFeature;
-use crate::layout::symbol_instance::{ShapedTextOrientations, SymbolContent, SymbolInstance, SymbolInstanceSharedData};
-use crate::render_layer::LayerRenderData;
-use crate::text::get_anchors::{get_anchors, get_center_anchor};
-use crate::text::glyph_manager::HBShapeResults;
-use crate::text::quads::{SymbolQuad, SymbolQuads};
+use std::collections::{BTreeMap, HashMap};
+use std::sync::Arc;
+
 use geometry::{LinearRing, Point, Polygon};
 use mln_expression::Value;
 use mln_expression::formatted::K_FORMATTED_SECTION_TEXT_COLOR;
@@ -50,8 +37,23 @@ use mln_util::geometry::FeatureType;
 use mln_util::i18n;
 use mln_util::immutable::Immutable;
 use mln_util::range::Range;
-use std::collections::{BTreeMap, HashMap};
-use std::sync::Arc;
+
+use crate::bucket::{Bucket, BucketPtr, get_retain_feature_id};
+use crate::bucket_parameters::BucketParameters;
+use crate::buckets::symbol_bucket::{
+    Buffer, CollisionBuffer, PlacedSymbol, SortKeyRange, SymbolBucket, SymbolBucketState,
+};
+use crate::geometry::anchor::{Anchor, Anchors};
+use crate::geometry::feature_index::{FeatureIndex, IndexedSubfeature};
+use crate::layout::clip_lines::clip_lines;
+use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
+use crate::layout::merge_lines::merge_lines;
+use crate::layout::symbol_feature::SymbolFeature;
+use crate::layout::symbol_instance::{ShapedTextOrientations, SymbolContent, SymbolInstance, SymbolInstanceSharedData};
+use crate::render_layer::LayerRenderData;
+use crate::text::get_anchors::{get_anchors, get_center_anchor};
+use crate::text::glyph_manager::HBShapeResults;
+use crate::text::quads::{SymbolQuad, SymbolQuads};
 
 /// `has<Property>(layout)`: a constant that is not empty, or an expression.
 fn has_text_field(layout: &SymbolLayoutProperties::PossiblyEvaluated) -> bool {

@@ -1,13 +1,15 @@
 // Ports include/mln/style/conversion/filter.hpp +
 // src/mln/style/conversion/filter.cpp (legacy filters to expressions).
 
-use super::{Converter, Convertible, Error};
-use crate::expression::{Expression, Literal, ParseResult, ParsingContext, Type, Value};
-use crate::filter::Filter;
+use std::sync::Arc;
+
 use feature::Value as MbglValue;
 use mln_expression::boolean_operator::{All, Any};
 use mln_expression::compound_expression::create_compound_expression;
-use std::sync::Arc;
+
+use super::{Converter, Convertible, Error};
+use crate::expression::{Expression, Literal, ParseResult, ParsingContext, Type, Value};
+use crate::filter::Filter;
 
 impl Converter for Filter {
     fn convert(value: &Convertible<'_>, error: &mut Error) -> Option<Filter> {

@@ -1,6 +1,13 @@
 // Ports include/mln/style/expression/parsing_context.hpp and
 // src/mln/style/expression/parsing_context.cpp.
 
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_conversion::{Convertible, get_json_type};
+
 use crate::assertion::Assertion;
 use crate::at::At;
 use crate::boolean_operator::{All, Any};
@@ -31,11 +38,6 @@ use crate::step::Step;
 use crate::type_::Type;
 use crate::value::Value;
 use crate::within::Within;
-use mln_conversion::{Convertible, get_json_type};
-use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::rc::Rc;
-use std::sync::Arc;
 
 /// `expression::ParsingError`.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]

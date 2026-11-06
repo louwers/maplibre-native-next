@@ -3,14 +3,15 @@
 
 #![allow(dead_code)]
 
-use feature::{Identifier, Value};
-use mln_tile::{Error, VectorMVTTileData};
-use mln_tile_id::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
-use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use std::cell::RefCell;
 use std::fmt::Write;
 use std::os::raw::c_char;
 use std::sync::Arc;
+
+use feature::{Identifier, Value};
+use mln_tile::{Error, VectorMVTTileData};
+use mln_tile_id::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
+use mln_util::logging::{Event, EventSeverity, Log, Observer};
 
 unsafe extern "C" {
     fn mln_tile_ref_ndebug() -> i32;

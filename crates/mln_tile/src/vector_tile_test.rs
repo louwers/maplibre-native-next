@@ -4,12 +4,14 @@
 // VectorMVTTile, TileParameters and the renderer: they are in
 // crates/mln_renderer/tests/vector_tile_test.rs.
 
-use crate::{VectorMLTTileData, VectorMVTTileData};
+use std::path::PathBuf;
+use std::sync::Arc;
+
 use feature::Identifier;
 use mln_tile_id::GeometryTileData;
 use mln_util::geometry::FeatureType;
-use std::path::PathBuf;
-use std::sync::Arc;
+
+use crate::{VectorMLTTileData, VectorMVTTileData};
 
 fn read_file(path: &str) -> Vec<u8> {
     let base =

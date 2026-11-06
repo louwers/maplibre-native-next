@@ -1,9 +1,10 @@
 // Ports vendor/maplibre-native-base/deps/geojson-vt-cpp/include/mapbox/geojsonvt/types.hpp.
 
-use feature::{Identifier, PropertyMap};
-use geometry::Point;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
+
+use feature::{Identifier, PropertyMap};
+use geometry::Point;
 
 /// `vt_point`: a `point<double>` plus the simplification tolerance `z`.
 /// `==` is `point<double>`'s (x and y only), as in C++.

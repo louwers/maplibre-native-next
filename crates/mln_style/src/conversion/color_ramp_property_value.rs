@@ -1,10 +1,11 @@
 // Ports include/mln/style/conversion/color_ramp_property_value.hpp +
 // src/mln/style/conversion/color_ramp_property_value.cpp.
 
+use std::sync::Arc;
+
 use super::{Convertible, Error};
 use crate::color_ramp_property_value::ColorRampPropertyValue;
 use crate::expression::{Dependency, ParsingContext, Type, is_expression};
-use std::sync::Arc;
 
 /// `convert<ColorRampPropertyValue>(value, error, allowDataExpressions, convertTokens)`
 /// (the two flags are ignored, as in C++).

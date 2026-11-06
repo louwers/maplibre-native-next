@@ -6,8 +6,9 @@
 // RenderStyle update logic via a simple pointer equality check, greatly
 // improving performance.
 
-use mln_util::immutable::Immutable;
 use std::sync::Arc;
+
+use mln_util::immutable::Immutable;
 
 /// What C++ requires of an element type: an `Impl` type, an
 /// `Immutable<Impl> baseImpl` member and `getID()`.

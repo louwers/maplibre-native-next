@@ -27,6 +27,20 @@
 //   (the Map) then calls `process_style_responses`, which is the body of the
 //   C++ lambda.
 
+use std::cell::RefCell;
+use std::collections::{HashMap, VecDeque};
+use std::rc::Rc;
+use std::sync::Arc;
+
+use feature::Value;
+use mln_actor::{TaggedScheduler, scheduler};
+use mln_sprite::{SpriteLoader, SpriteLoaderObserver};
+use mln_storage::{AsyncRequest, FileSource, Resource, Response};
+use mln_util::exception::{ExceptionPtr, RuntimeError, StyleLoadException, StyleParseException};
+use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
+use mln_util::logging::{Event, Log};
+
 use crate::collection::{Collection, CollectionWithPersistentOrder, ImmutableVector};
 use crate::expression::GlobalStateMap;
 use crate::image;
@@ -38,19 +52,6 @@ use crate::parser::Parser;
 use crate::source::{self, Source};
 use crate::sprite::Sprite;
 use crate::transition_options::TransitionOptions;
-use feature::Value;
-use mln_actor::{TaggedScheduler, scheduler};
-use mln_sprite::{SpriteLoader, SpriteLoaderObserver};
-use mln_storage::{AsyncRequest, FileSource, Resource, Response};
-use mln_util::exception::{ExceptionPtr, RuntimeError, StyleLoadException, StyleParseException};
-use mln_util::identity::SimpleIdentity;
-use mln_util::immutable::Immutable;
-use mln_util::logging::{Event, Log};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::collections::VecDeque;
-use std::rc::Rc;
-use std::sync::Arc;
 
 pub type ImageImpls = Vec<Immutable<image::Impl>>;
 

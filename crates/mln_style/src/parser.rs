@@ -6,6 +6,15 @@
 // rapidjson's `GetParseError_En(code) + " at offset " + offset` (see
 // DEVIATIONS.md).
 
+use std::collections::{BTreeSet, HashMap, HashSet};
+
+use feature::{Value, ValueObject};
+use mln_conversion::{Convertible, Error};
+use mln_util::LatLng;
+use mln_util::constants::DEFAULT_TRANSITION_DURATION;
+use mln_util::exception::{ExceptionPtr, RuntimeError};
+use mln_util::logging::{Event, Log};
+
 use crate::conversion::layer::{convert_layer, set_paint_properties};
 use crate::conversion::{Converter, convert, convert_source};
 use crate::expression::GlobalStateMap;
@@ -14,13 +23,6 @@ use crate::light::Light;
 use crate::source::Source;
 use crate::sprite::Sprite;
 use crate::transition_options::TransitionOptions;
-use feature::{Value, ValueObject};
-use mln_conversion::{Convertible, Error};
-use mln_util::LatLng;
-use mln_util::constants::DEFAULT_TRANSITION_DURATION;
-use mln_util::exception::{ExceptionPtr, RuntimeError};
-use mln_util::logging::{Event, Log};
-use std::collections::{BTreeSet, HashMap, HashSet};
 
 /// `using StyleParseResult = std::exception_ptr`: `Err` holds the exception.
 pub type StyleParseResult = Result<(), ExceptionPtr>;

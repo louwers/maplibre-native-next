@@ -13,17 +13,11 @@
 // (`runRenderJobs` in begin/end frame, cleanup). None is on the
 // background-layer path.
 
-use crate::command_encoder::CommandEncoder;
-use crate::drawable_builder::DrawableBuilder;
-use crate::layer_group::LayerGroup;
-use crate::offscreen_texture::OffscreenTexture;
-use crate::render_pass::RenderPass;
-use crate::renderer_backend::BackendImpl;
-use crate::shaders::shader_program::{BindingType, VertexLayout, as_webgpu_shader};
-use crate::shaders::shader_source::shader_source;
-use crate::texture2d::Texture2D;
-use crate::tile_layer_group::TileLayerGroup;
-use crate::uniform_buffer::UniformBuffer;
+use std::any::Any;
+use std::cell::{Cell, Ref, RefCell, RefMut};
+use std::collections::HashMap;
+use std::rc::{Rc, Weak};
+
 use mln_gfx::color_mode::ColorMode;
 use mln_gfx::context::{Context as GfxContext, ContextBase};
 use mln_gfx::depth_mode::DepthMode;
@@ -44,10 +38,18 @@ use mln_gfx::util_hash::hash;
 use mln_gfx::vertex_attribute::{VertexAttributeArray, VertexAttributeArrayPtr};
 use mln_gfx::vertex_buffer::UniqueVertexBufferResource;
 use mln_util::size::Size;
-use std::any::Any;
-use std::cell::{Cell, Ref, RefCell, RefMut};
-use std::collections::HashMap;
-use std::rc::{Rc, Weak};
+
+use crate::command_encoder::CommandEncoder;
+use crate::drawable_builder::DrawableBuilder;
+use crate::layer_group::LayerGroup;
+use crate::offscreen_texture::OffscreenTexture;
+use crate::render_pass::RenderPass;
+use crate::renderer_backend::BackendImpl;
+use crate::shaders::shader_program::{BindingType, VertexLayout, as_webgpu_shader};
+use crate::shaders::shader_source::shader_source;
+use crate::texture2d::Texture2D;
+use crate::tile_layer_group::TileLayerGroup;
+use crate::uniform_buffer::UniformBuffer;
 
 pub struct Context {
     base: ContextBase,

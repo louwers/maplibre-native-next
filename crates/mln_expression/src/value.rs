@@ -2,11 +2,8 @@
 // src/mln/style/expression/value.cpp, plus the parts of
 // src/mln/style/conversion/stringify.hpp that `stringify` uses.
 
-use crate::collator::Collator;
-use crate::formatted::Formatted;
-use crate::image::Image;
-use crate::json_writer::Writer;
-use crate::type_::{self, Type};
+use std::collections::BTreeMap;
+
 use feature::{Value as MbglValue, ValueObject};
 use mln_style_types::{
     AlignmentType, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType, IconTextFitType,
@@ -16,7 +13,12 @@ use mln_style_types::{
 };
 use mln_util::enum_::Enum;
 use mln_util::{Color, Padding};
-use std::collections::BTreeMap;
+
+use crate::collator::Collator;
+use crate::formatted::Formatted;
+use crate::image::Image;
+use crate::json_writer::Writer;
+use crate::type_::{self, Type};
 
 /// The object alternative of `expression::Value`.
 // C++ uses std::unordered_map, whose iteration order is libstdc++-hash

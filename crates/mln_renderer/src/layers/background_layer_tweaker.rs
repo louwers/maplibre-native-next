@@ -2,9 +2,6 @@
 // src/mln/renderer/layers/background_layer_tweaker.cpp (MLN_UBO_CONSOLIDATION
 // branches: the port's backend is WebGPU).
 
-use super::{background_crossfade, background_layer_properties};
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
-use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::background_layer_ubo::{
     BackgroundDrawableUBO, BackgroundDrawableUnionUBO, BackgroundPatternDrawableUBO, BackgroundPatternPropsUBO,
@@ -21,6 +18,10 @@ use mln_style::layers::{BackgroundColor, BackgroundOpacity, BackgroundPattern};
 use mln_style_types::TranslateAnchorType;
 use mln_util::constants::TILE_SIZE_D;
 use mln_util::immutable::Immutable;
+
+use super::{background_crossfade, background_layer_properties};
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
+use crate::paint_parameters::PaintParameters;
 
 pub struct BackgroundLayerTweaker {
     base: LayerTweakerBase,

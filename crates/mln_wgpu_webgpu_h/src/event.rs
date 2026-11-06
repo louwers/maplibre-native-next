@@ -13,11 +13,12 @@
 // every future is eventually waited with a timeout (never only polled with
 // timeout 0, which would leak the promise).
 
-use crate::handle::InstanceHandle;
-use crate::sys::*;
 use core::ffi::c_void;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use crate::handle::InstanceHandle;
+use crate::sys::*;
 
 pub(crate) type Slot<T> = Rc<RefCell<Option<T>>>;
 

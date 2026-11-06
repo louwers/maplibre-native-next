@@ -4,9 +4,10 @@
 // include/mln/util/interpolate.hpp (as `VariableAnchorOffsetCollection::interpolate`,
 // because C++ throws on mismatched inputs).
 
-use crate::types::SymbolAnchorType;
 use feature::Value;
 use mln_util::enum_::Enum;
+
+use crate::types::SymbolAnchorType;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct AnchorOffsetPair {

@@ -1,6 +1,7 @@
 // Ports test/tile/raster_tile.test.cpp.
 
-use super::RasterTileTest;
+use std::sync::Arc;
+
 use mln_renderer::buckets::raster_bucket::RasterBucket;
 use mln_renderer::tile::raster_tile::RasterTile;
 use mln_renderer::tile::tile::Tile;
@@ -9,7 +10,8 @@ use mln_tile_id::OverscaledTileID;
 use mln_util::exception::RuntimeError;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
-use std::sync::Arc;
+
+use super::RasterTileTest;
 
 fn tile(test: &RasterTileTest) -> RasterTile {
     RasterTile::new(

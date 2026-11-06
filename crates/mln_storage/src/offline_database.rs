@@ -14,6 +14,16 @@
 // (`prepare_cached`) instead of the `statements` map; both are dropped with
 // the connection.
 
+use std::sync::Arc;
+
+use mln_platform_default_image::compression::{compress, decompress};
+use mln_util::chrono::{Timestamp, now};
+use mln_util::constants::DEFAULT_MAX_CACHE_SIZE;
+use mln_util::logging::{Event, EventSeverity, Log};
+use mln_util::mapbox::is_canonical_url;
+use mln_util::tile_server_options::TileServerOptions;
+use rusqlite::params;
+
 use crate::merge_sideloaded::MERGE_SIDELOADED_DATABASE_SQL;
 use crate::offline::{
     OfflineRegion, OfflineRegionDefinition, OfflineRegionMetadata, OfflineRegionStatus, OfflineRegions,
@@ -26,14 +36,6 @@ use crate::sqlite3::{
     self, Database, Exception, OpenFlag, Transaction, TransactionMode, extended_result_code, get_bool, get_bytes,
     get_i64, get_optional_bytes, get_optional_i64, get_optional_string, result_code,
 };
-use mln_platform_default_image::compression::{compress, decompress};
-use mln_util::chrono::{Timestamp, now};
-use mln_util::constants::DEFAULT_MAX_CACHE_SIZE;
-use mln_util::logging::{Event, EventSeverity, Log};
-use mln_util::mapbox::is_canonical_url;
-use mln_util::tile_server_options::TileServerOptions;
-use rusqlite::params;
-use std::sync::Arc;
 
 /// `util::mapbox::DEFAULT_OFFLINE_TILE_COUNT_LIMIT`.
 pub const DEFAULT_OFFLINE_TILE_COUNT_LIMIT: u64 = 6000;

@@ -2,12 +2,14 @@
 // src/mln/style/expression/let.cpp. (The module is `let_` because `let` is a
 // Rust keyword.)
 
+use std::sync::Arc;
+
+use feature::Value as MbglValue;
+use mln_conversion::{Convertible, get_json_type};
+
 use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{Bindings, ParseResult, ParsingContext};
 use crate::value::Value;
-use feature::Value as MbglValue;
-use mln_conversion::{Convertible, get_json_type};
-use std::sync::Arc;
 
 pub struct Let {
     base: ExpressionBase,

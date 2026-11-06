@@ -1,8 +1,9 @@
 // Ports include/mln/style/conversion/get_json_type.hpp and
 // src/mln/style/conversion/get_json_type.cpp.
 
-use crate::conversion::Convertible;
 use feature::Value;
+
+use crate::conversion::Convertible;
 
 pub fn get_json_type(value: &Convertible<'_>) -> String {
     if value.is_undefined() {
@@ -29,8 +30,9 @@ pub fn get_json_type(value: &Convertible<'_>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use serde_json::json;
+
+    use super::*;
 
     #[test]
     fn types() {

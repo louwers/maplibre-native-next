@@ -1,10 +1,11 @@
 // Ports include/mln/layermanager/background_layer_factory.hpp +
 // src/mln/layermanager/background_layer_factory.cpp (style half).
 
+use mln_conversion::Convertible;
+
 use super::layer_factory::LayerFactory;
 use crate::layer::{Layer, LayerTypeInfo};
 use crate::layers::background_layer::{BackgroundLayer, Impl};
-use mln_conversion::Convertible;
 
 pub struct BackgroundLayerFactory;
 

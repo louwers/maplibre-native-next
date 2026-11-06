@@ -1,5 +1,7 @@
 // Ports vendor/wagyu/include/mapbox/geometry/wagyu/snap_rounding.hpp.
 
+use libstdcxx::stable_sort_by as stable_sort;
+
 use crate::active_bound_list::{current_edge_is_horizontal, insert_bound_into_abl, next_edge_in_bound};
 use crate::bound::{Bound, BoundPtr};
 use crate::edge::is_horizontal;
@@ -10,7 +12,6 @@ use crate::ring::{R, RingManager};
 use crate::ring_util::{add_to_hot_pixels, sort_hot_pixels};
 use crate::scanbeam::{insert_sorted_scanbeam, pop_from_scanbeam, setup_scanbeam};
 use crate::util::wround;
-use libstdcxx::stable_sort_by as stable_sort;
 
 /// `process_hot_pixel_intersections`.
 fn process_hot_pixel_intersections(

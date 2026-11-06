@@ -1,14 +1,6 @@
 // Ports include/mln/style/conversion/property_value.hpp +
 // src/mln/style/conversion/property_value.cpp.
 
-use super::function::{
-    convert_function_to_expression, convert_token_string_to_expression, convert_token_string_to_format_expression,
-    convert_token_string_to_image_expression, has_tokens,
-};
-use super::{Converter, Convertible, Error, convert};
-use crate::expression::{Image, Kind, Literal, ParsingContext, ValueConverter, downcast, is_expression};
-use crate::property_expression::PropertyExpression;
-use crate::property_value::PropertyValue;
 use mln_expression::formatted::Formatted;
 use mln_style_types::{
     AlignmentType, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType, IconTextFitType,
@@ -17,6 +9,15 @@ use mln_style_types::{
     TranslateAnchorType, VariableAnchorOffsetCollection, VisibilityType,
 };
 use mln_util::{Color, Padding};
+
+use super::function::{
+    convert_function_to_expression, convert_token_string_to_expression, convert_token_string_to_format_expression,
+    convert_token_string_to_image_expression, has_tokens,
+};
+use super::{Converter, Convertible, Error, convert};
+use crate::expression::{Image, Kind, Literal, ParsingContext, ValueConverter, downcast, is_expression};
+use crate::property_expression::PropertyExpression;
+use crate::property_value::PropertyValue;
 
 /// `Converter<PropertyValue<T>>::maybeConvertTokens`: only strings,
 /// `Formatted` and `Image` values can hold `{token}`s.

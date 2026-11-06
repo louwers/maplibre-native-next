@@ -1,8 +1,9 @@
 // Ports test/util/mat3.test.cpp
 
+use std::f64::consts::PI;
+
 use super::*;
 use crate::vectors::Vec3f;
-use std::f64::consts::PI;
 
 /// gtest `EXPECT_FLOAT_EQ`: within 4 ULPs, NaN never equal.
 fn float_eq(a: f32, b: f32) -> bool {

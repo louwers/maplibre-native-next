@@ -1,8 +1,9 @@
 // Output helpers: a line writer and the `use` lines of the generated files.
 
+use std::collections::BTreeMap;
+
 use crate::spec::Property;
 use crate::types::{EvaluatedType, evaluated_type, is_color_ramp};
-use std::collections::BTreeMap;
 
 /// The line width the templates wrap at (`split120Line`, `reduceConditions`).
 pub const MAX_WIDTH: usize = 120;

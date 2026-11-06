@@ -2,13 +2,14 @@
 // src/mln/style/expression/in.cpp. (The module is `in_` because `in` is a
 // Rust keyword.)
 
+use mln_conversion::Convertible;
+
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{Value, to_string, type_of};
-use mln_conversion::Convertible;
 
 fn is_comparable_type(t: &Type) -> bool {
     *t == Type::Boolean || *t == Type::String || *t == Type::Number || *t == Type::Null || *t == Type::Value

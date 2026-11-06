@@ -11,47 +11,50 @@
 //
 // TODO(port): captureRenderedFeatures (queries).
 
-use super::collision_layer_tweaker::{CollisionDrawableData, CollisionLayerTweaker};
-use super::symbol_layer_tweaker::SymbolLayerTweaker;
-use super::{TileDrawables, drawable_binders_slot, drawable_render_tile_slot, shared_vertices};
-use crate::buckets::symbol_bucket::{Buffer, PaintProperties, SymbolBucket};
-use crate::buckets::symbol_bucket::{CollisionBoxDynamicVertex, CollisionBoxLayoutVertex, CollisionBuffer};
-use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
-use crate::gfx::drawable_atlases_tweaker::DrawableAtlasesTweaker;
-use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
-use crate::paint_parameters::PaintParameters;
-use crate::paint_property_binder::read_data_driven_paint_property;
-use crate::render_layer::{LayerPrepareParameters, RenderLayer, RenderLayerBase};
-use crate::render_layer::{activate_layer_group, change_layer_index};
-use crate::render_pass::RenderPass;
-use crate::render_tree::RenderTree;
-use crate::update_parameters::UpdateParameters;
-use mln_gfx::LayerGroupBasePtr;
-use mln_gfx::index_vector::IndexVectorBase;
-use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
-use mln_gfx::shaders::shader_defines::*;
-use mln_gfx::vertex_attribute::VertexAttributeArray;
-use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableTweakerPtr, ShaderRegistry,
-};
-use mln_map_types::TransformState;
-use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{LayerProperties, get_evaluated};
-use mln_style::layers::symbol_layer_impl::{Impl as SymbolLayerImpl, SymbolLayerPaintPropertyOverrides};
-use mln_style::layers::symbol_layer_properties::*;
-use mln_style::properties::Property;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_style_types::{AlignmentType, IconTextFitType, SymbolPlacementType, TranslateAnchorType};
-use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
-use mln_util::Color;
-use mln_util::identity::SimpleIdentity;
-use mln_util::immutable::Immutable;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
+
+use mln_gfx::index_vector::IndexVectorBase;
+use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
+use mln_gfx::shaders::shader_defines::*;
+use mln_gfx::vertex_attribute::VertexAttributeArray;
+use mln_gfx::{
+    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, DrawableTweakerPtr,
+    LayerGroupBasePtr, ShaderRegistry,
+};
+use mln_map_types::TransformState;
+use mln_style::layer::static_immutable_cast;
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
+use mln_style::layers::symbol_layer_impl::{Impl as SymbolLayerImpl, SymbolLayerPaintPropertyOverrides};
+use mln_style::layers::symbol_layer_properties::*;
+use mln_style::properties::Property;
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_style_types::{AlignmentType, IconTextFitType, SymbolPlacementType, TranslateAnchorType};
+use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
+use mln_util::Color;
+use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
+
+use super::collision_layer_tweaker::{CollisionDrawableData, CollisionLayerTweaker};
+use super::symbol_layer_tweaker::SymbolLayerTweaker;
+use super::{TileDrawables, drawable_binders_slot, drawable_render_tile_slot, shared_vertices};
+use crate::buckets::symbol_bucket::{
+    Buffer, CollisionBoxDynamicVertex, CollisionBoxLayoutVertex, CollisionBuffer, PaintProperties, SymbolBucket,
+};
+use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
+use crate::gfx::drawable_atlases_tweaker::DrawableAtlasesTweaker;
+use crate::layer_tweaker::{LayerTweakerPtr, layer_tweaker_slot};
+use crate::paint_parameters::PaintParameters;
+use crate::paint_property_binder::read_data_driven_paint_property;
+use crate::render_layer::{
+    LayerPrepareParameters, RenderLayer, RenderLayerBase, activate_layer_group, change_layer_index,
+};
+use crate::render_pass::RenderPass;
+use crate::render_tree::RenderTree;
+use crate::update_parameters::UpdateParameters;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &SymbolLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), SymbolLayerImpl::static_type_info()));

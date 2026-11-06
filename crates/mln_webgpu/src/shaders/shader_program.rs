@@ -10,8 +10,12 @@
 // TODO(port): the `ShaderProgram(name, backend, vertexModule, fragmentModule)`
 // constructor for precompiled modules (unused on the M1 path).
 
-use crate::context::Context;
-use crate::shaders::shader_source::{AttributeInfo, TextureInfo, prelude};
+use std::any::Any;
+use std::borrow::Cow;
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, HashMap};
+use std::rc::Rc;
+
 use mln_gfx::color_mode::{BlendFunction, ColorMode};
 use mln_gfx::depth_mode::DepthMode;
 use mln_gfx::gfx_types::DrawModeType;
@@ -24,11 +28,9 @@ use mln_gfx::types::{
 };
 use mln_gfx::vertex_attribute::VertexAttributeArray;
 use mln_util::identity::SimpleIdentity;
-use std::any::Any;
-use std::borrow::Cow;
-use std::cell::{Cell, RefCell};
-use std::collections::{BTreeMap, HashMap};
-use std::rc::Rc;
+
+use crate::context::Context;
+use crate::shaders::shader_source::{AttributeInfo, TextureInfo, prelude};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BindingType {

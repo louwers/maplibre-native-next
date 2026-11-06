@@ -1,6 +1,8 @@
 // Ports include/mln/style/expression/boolean_operator.hpp and
 // src/mln/style/expression/boolean_operator.cpp.
 
+use mln_conversion::Convertible;
+
 use crate::expression::{
     EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal, collect_dependencies,
     downcast,
@@ -8,7 +10,6 @@ use crate::expression::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use mln_conversion::Convertible;
 
 fn parse_boolean_op(value: &Convertible<'_>, ctx: &mut ParsingContext) -> Option<Vec<Box<dyn Expression>>> {
     debug_assert!(value.is_array());

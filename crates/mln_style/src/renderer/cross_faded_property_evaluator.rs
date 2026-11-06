@@ -1,11 +1,12 @@
 // Ports src/mln/renderer/cross_faded_property_evaluator.hpp + .cpp (a cut
 // point; see COORDINATION.md).
 
+use mln_util::interpolate::Interpolate;
+
 use crate::expression::{EvaluationContext, ValueConverter};
 use crate::property_expression::PropertyExpression;
 use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
 use crate::renderer::property_evaluator::Evaluator;
-use mln_util::interpolate::Interpolate;
 
 /// `Faded<T>`.
 #[derive(Clone, Debug, Default, PartialEq)]

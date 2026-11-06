@@ -1,12 +1,13 @@
 // Ports test/style/conversion/function.test.cpp. TokenStrings is in
 // conversion/function.rs.
 
+use mln_conversion::{Convertible, Error};
+
 use super::util::parse_json;
 use crate::conversion::convert_property_value;
 use crate::expression::Formatted;
 use crate::expression::dsl::{format, get, literal_str};
 use crate::property_value::PropertyValue;
-use mln_conversion::{Convertible, Error};
 
 fn convert_json<T>(json: &str, error: &mut Error, allow_data_expressions: bool) -> Option<PropertyValue<T>>
 where

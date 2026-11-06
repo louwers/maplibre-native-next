@@ -1,10 +1,12 @@
 // Ports test/actor/actor_ref.test.cpp.
 
-use crate::get;
-use mln_actor::actor::{Actor, PoolActorRef};
-use mln_actor::scheduler;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+
+use mln_actor::actor::{Actor, PoolActorRef};
+use mln_actor::scheduler;
+
+use crate::get;
 
 // gtest: ActorRef.CanOutliveActor
 #[test]

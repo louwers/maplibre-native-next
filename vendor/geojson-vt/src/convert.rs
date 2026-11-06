@@ -1,11 +1,13 @@
 // Ports vendor/maplibre-native-base/deps/geojson-vt-cpp/include/mapbox/geojsonvt/convert.hpp.
 
-use crate::simplify::simplify;
-use crate::types::*;
+use std::f64::consts::PI;
+
 use feature::Identifier;
 use geojson::FeatureCollection;
 use geometry::{Geometry, LineString, LinearRing, Point};
-use std::f64::consts::PI;
+
+use crate::simplify::simplify;
+use crate::types::*;
 
 /// `project` (the visitor that converts to projected `vt_geometry`).
 pub struct Project {

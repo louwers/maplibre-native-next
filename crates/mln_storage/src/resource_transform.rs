@@ -1,8 +1,9 @@
 // Ports include/mln/storage/resource_transform.hpp and
 // src/mln/storage/resource_transform.cpp.
 
-use crate::resource::Kind;
 use std::sync::Arc;
+
+use crate::resource::Kind;
 
 /// `ResourceTransform::FinishedCallback` (`std::function<void(const std::string&)>`).
 pub type FinishedCallback = Box<dyn FnOnce(String) + Send>;

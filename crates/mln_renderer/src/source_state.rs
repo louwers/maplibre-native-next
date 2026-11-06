@@ -5,8 +5,9 @@
 // `coalesce_changes` returns the states and the render source applies them
 // to the tiles of its pyramid (the same tiles).
 
-use crate::bucket::{FeatureStates, LayerFeatureStates};
 use mln_style::expression::expression::FeatureState;
+
+use crate::bucket::{FeatureStates, LayerFeatureStates};
 
 /// `SourceFeatureState`.
 #[derive(Debug, Default)]

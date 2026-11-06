@@ -3,14 +3,15 @@
 // OnlineFileSource -> HTTPFileSource (ureq), `Style::loadURL`, the Map's
 // style-response event and the parser. Needs network access.
 
+use std::cell::{Cell, RefCell};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_actor::{RunLoop, Timer};
 use mln_map::{Map, MapObserver, MapOptions};
 use mln_renderer::{RendererFrontend, RendererObserver, UpdateParameters};
 use mln_util::chrono::Duration;
 use mln_util::size::Size;
-use std::cell::{Cell, RefCell};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 const LIBERTY: &str = "https://tiles.openfreemap.org/styles/liberty";
 

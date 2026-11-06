@@ -3,12 +3,14 @@
 // C++ keeps a `gfx::RendererBackend&`; the frontend owns the backend, so the
 // renderer shares it through an `Rc`.
 
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
+use mln_gfx::{BackendScope, RendererBackend, ScopeType};
+
 use crate::renderer_impl::RendererImpl;
 use crate::renderer_observer::RendererObserver;
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::{BackendScope, RendererBackend, ScopeType};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 pub struct Renderer {
     /// Always `Some` until `drop`, which destroys the impl inside a

@@ -12,6 +12,9 @@
 #[rustfmt::skip]
 mod cases;
 
+use std::ffi::{CStr, CString};
+use std::os::raw::c_char;
+
 use feature::Value;
 use mln_conversion::{Convertible, Error};
 use mln_style::conversion::convert_layer;
@@ -26,8 +29,6 @@ use mln_style::renderer::possibly_evaluated_property_value::{
 use mln_style::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
 use mln_style::style_property::StyleProperty;
 use mln_util::chrono::{Duration, TimePoint};
-use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
 
 unsafe extern "C" {
     fn mln_codegen_ref_free(p: *mut c_char);

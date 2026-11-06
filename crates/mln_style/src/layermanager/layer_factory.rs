@@ -1,8 +1,9 @@
 // Ports include/mln/layermanager/layer_factory.hpp +
 // src/mln/layermanager/layer_factory.cpp (style half).
 
-use crate::layer::{Layer, LayerTypeInfo};
 use mln_conversion::Convertible;
+
+use crate::layer::{Layer, LayerTypeInfo};
 
 pub trait LayerFactory: Send + Sync {
     /// Returns the layer type data.

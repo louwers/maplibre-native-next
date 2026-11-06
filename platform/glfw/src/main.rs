@@ -18,6 +18,9 @@
 // process), the plugin registration, settings load/save, the action
 // journal, resetting the database (`I`).
 
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use mln_glfw::glfw_renderer_frontend::GLFWRendererFrontend;
 use mln_glfw::glfw_view::GLFWView;
 use mln_glfw::settings_json::SettingsJSON;
@@ -27,8 +30,6 @@ use mln_storage::{ClientOptions, FileSourceManager, FileSourceType, ResourceOpti
 use mln_util::geo::LatLng;
 use mln_util::logging::{Event, Log};
 use mln_util::tile_server_options::TileServerOptions;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
 
 const USAGE: &str = "  mln-glfw {OPTIONS}
 

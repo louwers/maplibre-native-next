@@ -8,12 +8,13 @@
 // Usage: glfw_surface_smoke [seconds]   (default 3)
 // Exit status 0 when the read-back frame has the clear colour.
 
+use std::time::{Duration, Instant};
+
 use mln_gfx::backend_scope::{BackendScope, ScopeType};
 use mln_gfx::render_pass::RenderPassDescriptor;
 use mln_glfw::glfw_backend::{self, GLFWBackend};
 use mln_glfw::glfw_webgpu_backend::GLFWWebGPUBackend;
 use mln_util::color::Color;
-use std::time::{Duration, Instant};
 
 fn main() {
     let seconds: f64 = std::env::args().nth(1).and_then(|s| s.parse().ok()).unwrap_or(3.0);

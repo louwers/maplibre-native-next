@@ -9,6 +9,15 @@
 // returns to its event loop, so Queue::present waits for the submitted work,
 // which suspends the wasm stack (JSPI) and lets the browser present.
 
+use core::ffi::CStr;
+use core::ptr::NonNull;
+use std::cell::RefCell;
+use std::ffi::CString;
+use std::rc::Rc;
+
+use wgpu::custom::*;
+use wgpu::rwh;
+
 use crate::conv;
 use crate::device::Device;
 use crate::event::{self, MessageResult, slot, take, userdata};
@@ -16,13 +25,6 @@ use crate::handle::{SurfaceHandle, TextureHandle, native_send_sync};
 use crate::instance::{Adapter, Instance};
 use crate::resource::{Texture, created};
 use crate::sys::*;
-use core::ffi::CStr;
-use core::ptr::NonNull;
-use std::cell::RefCell;
-use std::ffi::CString;
-use std::rc::Rc;
-use wgpu::custom::*;
-use wgpu::rwh;
 
 /// A surface target for the canvas `selector` (`#canvas`, or a name
 /// registered in Emscripten's `specialHTMLTargets`), for

@@ -9,6 +9,12 @@
 // thread the result is the same. If two threads create the same file source
 // at once, the first one registered wins and the other is dropped.
 
+use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex, OnceLock, Weak};
+
+use mln_util::client_options::ClientOptions;
+use mln_util::string::to_string_u64;
+
 use crate::asset_file_source::AssetFileSource;
 use crate::database_file_source::DatabaseFileSource;
 use crate::file_source::{FileSource, FileSourceType};
@@ -18,10 +24,6 @@ use crate::mbtiles_file_source::MBTilesFileSource;
 use crate::online_file_source::OnlineFileSource;
 use crate::pmtiles_file_source::PMTilesFileSource;
 use crate::resource_options::ResourceOptions;
-use mln_util::client_options::ClientOptions;
-use mln_util::string::to_string_u64;
-use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex, OnceLock, Weak};
 
 /// `FileSourceManager::FileSourceFactory`.
 pub type FileSourceFactory = Arc<dyn Fn(&ResourceOptions, &ClientOptions) -> Arc<dyn FileSource> + Send + Sync>;

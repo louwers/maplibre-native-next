@@ -13,18 +13,20 @@
 //   priority, id), the order of the C++ `sortedDrawables` set, with the
 //   (pass, tile) key alongside; C++ keeps an unordered_multimap plus the set.
 
+use std::any::Any;
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+
+use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
+use mln_util::identity::SimpleIdentity;
+
 use crate::context_observer::ContextObserver;
 use crate::drawable::{Drawable, UniqueDrawable};
 use crate::paint_parameters::PaintParameters;
 use crate::renderer::render_pass::RenderPass;
 use crate::uniform_buffer::UniformBufferArray;
 use crate::upload_pass::UploadPass;
-use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
-use mln_util::identity::SimpleIdentity;
-use std::any::Any;
-use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::rc::Rc;
 
 /// `LayerGroupBase::Type`
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

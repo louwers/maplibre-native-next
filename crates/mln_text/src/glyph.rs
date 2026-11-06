@@ -5,10 +5,9 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::sync::Mutex;
 
 use mln_style_types::image::RectU16;
+use mln_util::font_stack::{FontStack, font_stack_to_string};
 use mln_util::image::AlphaImage;
 use mln_util::immutable::Immutable;
-
-use mln_util::font_stack::{FontStack, font_stack_to_string};
 
 use crate::tagged_string::FontStackHash;
 

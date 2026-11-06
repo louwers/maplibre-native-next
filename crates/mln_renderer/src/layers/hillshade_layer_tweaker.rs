@@ -2,9 +2,6 @@
 // src/mln/renderer/layers/hillshade_layer_tweaker.cpp (MLN_UBO_CONSOLIDATION
 // branches: the port's backend is WebGPU).
 
-use super::{cast_matrix, check_tweak_drawable_ptr};
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
-use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::hillshade_layer_ubo::{
     HillshadeDrawableUBO, HillshadeEvaluatedPropsUBO, HillshadeTilePropsUBO, MAX_ILLUMINATION_SOURCES,
@@ -21,6 +18,10 @@ use mln_tile_id::UnwrappedTileID;
 use mln_util::Color;
 use mln_util::geo::LatLng;
 use mln_util::immutable::Immutable;
+
+use super::{cast_matrix, check_tweak_drawable_ptr};
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
+use crate::paint_parameters::PaintParameters;
 
 /// Structure to hold processed illumination properties
 struct IlluminationProperties {

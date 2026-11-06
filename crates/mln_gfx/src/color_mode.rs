@@ -1,7 +1,8 @@
 // Ports include/mln/gfx/color_mode.hpp
 
-use crate::types::{ColorBlendEquationType, ColorBlendFactorType};
 use mln_util::Color;
+
+use crate::types::{ColorBlendEquationType, ColorBlendFactorType};
 
 /// `ColorMode::LinearBlend<E>`: the equation is the variant of
 /// `BlendFunction`; the factors are data.

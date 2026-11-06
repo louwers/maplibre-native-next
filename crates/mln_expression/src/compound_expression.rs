@@ -7,6 +7,12 @@
 // arguments and unpacks the values the way `fromExpressionValue<T>` does.
 // The registry keeps the C++ definition order, which is the overload order.
 
+use std::sync::LazyLock;
+
+use feature::{Identifier as FeatureIdentifier, Value as MbglValue};
+use mln_conversion::Convertible;
+use mln_util::geometry::FeatureType;
+
 use crate::check_subtype::check_subtype;
 use crate::collator::Collator;
 use crate::expression::{
@@ -18,10 +24,6 @@ use crate::type_::{self, Type};
 use crate::utf8_op_helpers::{get_unicode_character_offset_on_validated_utf8, unicode_length_on_validated_utf8};
 use crate::util::rgba;
 use crate::value::{ObjectType, Value, to_string, type_of};
-use feature::{Identifier as FeatureIdentifier, Value as MbglValue};
-use mln_conversion::Convertible;
-use mln_util::geometry::FeatureType;
-use std::sync::LazyLock;
 
 /// The parameter list of a signature: fixed types or `VarargsType`.
 #[derive(Clone, Debug, PartialEq, Eq)]

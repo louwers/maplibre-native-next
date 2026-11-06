@@ -2,6 +2,9 @@
 // background-layer paint evaluation (every M1 render-test style.json and
 // generated legacy-function styles), and Transitioning. Bit-exact.
 
+use std::os::raw::c_char;
+use std::path::PathBuf;
+
 use mln_style::layer::static_immutable_cast;
 use mln_style::layers::background_layer::Impl as BackgroundLayerImpl;
 use mln_style::map::zoom_history::ZoomHistory;
@@ -16,8 +19,6 @@ use mln_style_types::VisibilityType;
 use mln_util::Color;
 use mln_util::chrono::{Duration, TimePoint, milliseconds};
 use proptest::prelude::*;
-use std::os::raw::c_char;
-use std::path::PathBuf;
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default)]

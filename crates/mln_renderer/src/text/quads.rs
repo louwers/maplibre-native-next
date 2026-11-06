@@ -468,14 +468,15 @@ pub fn get_glyph_quads(
 #[cfg(test)]
 mod tests {
     // Ports test/text/quads.test.cpp.
-    use super::*;
-    use crate::geometry::anchor::Anchor;
     use mln_style_types::image::Impl as ImageImpl;
     use mln_style_types::{IconTextFitType, SymbolAnchorType};
     use mln_text::glyph::{GlyphID, GlyphMetrics, PositionedGlyph, PositionedLine};
     use mln_tile_id::geometry_tile_data::GeometryCoordinates;
     use mln_util::image::PremultipliedImage;
     use mln_util::size::Size;
+
+    use super::*;
+    use crate::geometry::anchor::Anchor;
 
     /// gtest `EXPECT_FLOAT_EQ`: within 4 ULPs.
     fn assert_float_eq(actual: f32, expected: f32) {

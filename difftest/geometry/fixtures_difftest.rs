@@ -296,8 +296,9 @@ fn supercluster_fixtures() {
 
 /// supercluster_difftest.rs's procedure for one request.
 fn supercluster_rust(request: &Json) -> Json {
-    use feature::{PropertyMap, Value};
     use std::sync::Arc;
+
+    use feature::{PropertyMap, Value};
     let geojson::GeoJSON::FeatureCollection(fs) = geojson::convert(&request["features"]).unwrap() else { panic!() };
     let o = &request["options"];
     let mut options = supercluster::Options {

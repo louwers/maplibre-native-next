@@ -12,6 +12,28 @@
 // image-manager memory trimming, DynamicFeatureIndex (location indicator),
 // shape-annotation and feature-extension queries, debug layer groups.
 
+use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
+use mln_actor::{TaggedScheduler, scheduler};
+use mln_gfx::{Context, LayerGroupBase, LayerGroupBasePtr, ShaderRegistry};
+use mln_map_types::{MapMode, TransformState};
+use mln_style::collection::ImmutableVector;
+use mln_style::expression::{Dependency, GlobalStateMap};
+use mln_style::layer::layer_type_info;
+use mln_style::layer_properties::LayerProperties;
+use mln_style::map::zoom_history::ZoomHistory;
+use mln_style::{PropertyEvaluationParameters, TransitionOptions, TransitionParameters, image, layer, source};
+use mln_tile_id::OverscaledTileID;
+use mln_util::chrono::{Duration, TimePoint};
+use mln_util::constants::DEFAULT_TRANSITION_DURATION;
+use mln_util::exception::ExceptionPtr;
+use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
+use mln_util::logging::{Event, Log};
+
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlas, DynamicTextureAtlasPtr};
 use crate::image_manager::ImageManager;
@@ -29,28 +51,6 @@ use crate::text::glyph_manager::GlyphManager;
 use crate::tile::tile::TileOperation;
 use crate::tile_parameters::TileParameters;
 use crate::update_parameters::UpdateParameters;
-use mln_actor::{TaggedScheduler, scheduler};
-use mln_gfx::{Context, LayerGroupBase, LayerGroupBasePtr, ShaderRegistry};
-use mln_map_types::{MapMode, TransformState};
-use mln_style::collection::ImmutableVector;
-use mln_style::expression::{Dependency, GlobalStateMap};
-use mln_style::layer;
-use mln_style::layer::layer_type_info;
-use mln_style::layer_properties::LayerProperties;
-use mln_style::map::zoom_history::ZoomHistory;
-use mln_style::{PropertyEvaluationParameters, TransitionOptions, TransitionParameters, image, source};
-use mln_tile_id::OverscaledTileID;
-use mln_util::chrono::{Duration, TimePoint};
-use mln_util::exception::ExceptionPtr;
-use mln_util::identity::SimpleIdentity;
-use mln_util::immutable::Immutable;
-use mln_util::logging::{Event, Log};
-use std::cell::RefCell;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
-
-use mln_util::constants::DEFAULT_TRANSITION_DURATION;
 
 /// The keys whose values differ between two global state snapshots. Values
 /// of unchanged keys are copied verbatim between snapshots, so exact

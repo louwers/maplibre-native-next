@@ -1,10 +1,11 @@
 // Ports include/mln/layermanager/hillshade_layer_factory.hpp +
 // src/mln/layermanager/hillshade_layer_factory.cpp (style half).
 
+use mln_conversion::Convertible;
+
 use super::layer_factory::{LayerFactory, get_source};
 use crate::layer::{Layer, LayerTypeInfo};
 use crate::layers::hillshade_layer::{HillshadeLayer, Impl};
-use mln_conversion::Convertible;
 
 pub struct HillshadeLayerFactory;
 

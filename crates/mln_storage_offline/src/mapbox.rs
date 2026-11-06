@@ -6,6 +6,8 @@
 // std::regex, ECMAScript syntax: the patterns are built from the tile server
 // templates the same way and mean the same in both).
 
+use std::collections::BTreeMap;
+
 use mln_style_types::SourceType;
 use mln_util::constants::TILE_SIZE_I;
 use mln_util::mapbox::is_canonical_url;
@@ -13,7 +15,6 @@ use mln_util::tile_server_options::TileServerOptions;
 use mln_util::tileset::Tileset;
 use mln_util::url::{Path, URL};
 use regex::Regex;
-use std::collections::BTreeMap;
 
 fn ends_with(s: &str, search: &str) -> bool {
     s.ends_with(search)

@@ -2,9 +2,10 @@
 // that counts cases, and polygon strategies (random rings with holes and
 // degeneracies) used by the earcut and wagyu difftests.
 
+use std::cell::Cell;
+
 use proptest::prelude::*;
 use proptest::test_runner::{Config, RngAlgorithm, TestCaseResult, TestRng, TestRunner};
-use std::cell::Cell;
 
 /// Runs `test` on `cases` inputs from `strategy` with a fixed seed (so case
 /// counts and failures reproduce) and returns the number of cases run.

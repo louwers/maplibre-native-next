@@ -6,14 +6,16 @@
 // `background_layer::Impl` holds an `ImplBase` and implements the trait.
 // `dyn Impl` derefs to its `ImplBase`, so `impl_.id` reads as in C++.
 
+use std::collections::BTreeSet;
+use std::sync::Arc;
+
+use mln_style_types::VisibilityType;
+use mln_util::immutable::Immutable;
+
 use crate::expression::{Dependency, Expression};
 use crate::filter::Filter;
 use crate::layer::LayerTypeInfo;
 use crate::util::AsAny;
-use mln_style_types::VisibilityType;
-use mln_util::immutable::Immutable;
-use std::collections::BTreeSet;
-use std::sync::Arc;
 
 /// `mln::FontStack` (include/mln/util/font_stack.hpp).
 pub type FontStack = Vec<String>;

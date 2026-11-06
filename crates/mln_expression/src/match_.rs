@@ -2,15 +2,17 @@
 // src/mln/style/expression/match.cpp. (The module is `match_` because
 // `match` is a Rust keyword.)
 
+use std::collections::BTreeMap;
+use std::sync::Arc;
+
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+
 use crate::check_subtype::check_subtype;
 use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
-use std::collections::BTreeMap;
-use std::sync::Arc;
 
 /// A match label type: `int64_t` or `std::string`.
 pub trait MatchLabel: Ord + Clone + Send + Sync + 'static {

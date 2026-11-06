@@ -2,12 +2,14 @@
 // platform/default/src/mln/storage/local_file_request.cpp and the
 // `util::readFile(filename, dataRange)` it uses (src/mln/util/io.cpp).
 
-use crate::file_source_request::FileSourceRequestState;
-use crate::response::{Error, Reason, Response};
-use mln_actor::ActorRef;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::PathBuf;
 use std::sync::Arc;
+
+use mln_actor::ActorRef;
+
+use crate::file_source_request::FileSourceRequestState;
+use crate::response::{Error, Reason, Response};
 
 /// `util::pathFromUTF8`: the path bytes as they are (POSIX paths are bytes;
 /// on other platforms invalid UTF-8 is an error, as std::filesystem's UTF-8

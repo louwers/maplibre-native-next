@@ -1,9 +1,10 @@
 // Ports test/style/conversion/padding.test.cpp.
 
-use super::util::parse_json;
-use crate::conversion::{Converter, Error};
 use mln_conversion::Convertible;
 use mln_util::Padding;
+
+use super::util::parse_json;
+use crate::conversion::{Converter, Error};
 
 // gtest: StyleConversion.Padding
 #[test]

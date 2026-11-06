@@ -14,6 +14,10 @@
 // Both sides print the same text report; the comparison is on that text
 // (floats as bit patterns).
 
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::fmt::Write as _;
+use std::path::PathBuf;
+
 use feature::{Identifier, PropertyMap, Value};
 use geometry::Point;
 use mln_conversion::Convertible;
@@ -52,9 +56,6 @@ use mln_util::immutable::Immutable;
 use proptest::prelude::*;
 use proptest::test_runner::{Config, TestRunner};
 use serde_json::{Value as Json, json};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::fmt::Write as _;
-use std::path::PathBuf;
 
 // --- the oracle process ---
 

@@ -3,10 +3,11 @@
 // `stringifyLayout` are generated in C++ (layer.cpp.ejs); the first is in
 // fill_extrusion_layer.rs.
 
+use std::collections::BTreeSet;
+
 use crate::expression::Dependency;
 use crate::layer::{self, ImplBase, LayerTypeInfo};
 use crate::layers::fill_extrusion_layer_properties::{FillExtrusionLayoutProperties, FillExtrusionPaintProperties};
-use std::collections::BTreeSet;
 
 /// `FillExtrusionLayer::Impl`.
 #[derive(Clone, Debug)]

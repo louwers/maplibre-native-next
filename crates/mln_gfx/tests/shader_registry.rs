@@ -6,15 +6,16 @@
 // Deviation: shader groups store `ShaderProgramBase`s (see shader_group.rs),
 // so the stub programs implement it trivially.
 
+use std::any::Any;
+use std::cell::Cell;
+use std::rc::Rc;
+
 use mln_gfx::shader::Shader;
 use mln_gfx::shader_group::ShaderGroup;
 use mln_gfx::shader_registry::ShaderRegistry;
 use mln_gfx::shaders::shader_program_base::{ShaderProgramBase, ShaderProgramBasePtr};
 use mln_gfx::vertex_attribute::VertexAttributeArray;
 use mln_util::identity::SimpleIdentity;
-use std::any::Any;
-use std::cell::Cell;
-use std::rc::Rc;
 
 /// `StubProgramBase<token_value>` + `StubProgram_1` / `StubProgram_2`
 struct StubProgram {

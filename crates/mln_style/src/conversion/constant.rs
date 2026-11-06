@@ -1,7 +1,6 @@
 // Ports include/mln/style/conversion/constant.hpp +
 // src/mln/style/conversion/constant.cpp.
 
-use super::{Converter, Convertible, Error, convert};
 use mln_style_types::{
     AlignmentType, AnchorOffsetPair, CirclePitchScaleType, HillshadeIlluminationAnchorType, HillshadeMethodType,
     IconTextFitType, LightAnchorType, LineCapType, LineJoinType, RasterResamplingType, SymbolAnchorType,
@@ -10,6 +9,8 @@ use mln_style_types::{
 };
 use mln_util::enum_::Enum;
 use mln_util::{Color, Padding};
+
+use super::{Converter, Convertible, Error, convert};
 
 impl Converter for bool {
     fn convert(value: &Convertible<'_>, error: &mut Error) -> Option<bool> {

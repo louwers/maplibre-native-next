@@ -8,13 +8,15 @@
 // differences wrapping as the narrowing `point<int16_t>(int, int)`
 // constructor does.
 
-use crate::shaders::segment::SegmentBase;
+use std::f64::consts::PI;
+
 use geometry::Point;
 use mln_style_types::{LineCapType, LineJoinType};
 use mln_tile_id::geometry_tile_data::{GeometryCoordinate, GeometryCoordinates};
 use mln_util::constants::{EXTENT, TILE_SIZE_D};
 use mln_util::geometry::FeatureType;
-use std::f64::consts::PI;
+
+use crate::shaders::segment::SegmentBase;
 
 /// Sharp corners cause dashed lines to tilt because the distance along the
 /// line is the same at both the inner and outer corners. To improve the

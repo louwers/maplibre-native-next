@@ -7,15 +7,17 @@
 // `AsyncTask::send` from pool threads through an `AsyncTaskSender` (C++: an
 // `AsyncTask*`).
 
-use crate::{Failures, get};
-use mln_actor::actor::Actor;
-use mln_actor::scheduler::{self, SchedulerPtr, TaggedScheduler};
-use mln_actor::{AsyncTask, AsyncTaskSender, RunLoop};
-use mln_util::identity::SimpleIdentity;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use std::sync::atomic::{AtomicI32, AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, mpsc};
+
+use mln_actor::actor::Actor;
+use mln_actor::scheduler::{self, SchedulerPtr, TaggedScheduler};
+use mln_actor::{AsyncTask, AsyncTaskSender, RunLoop};
+use mln_util::identity::SimpleIdentity;
+
+use crate::{Failures, get};
 
 struct TestWorker {
     async_: AsyncTaskSender,

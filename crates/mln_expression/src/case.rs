@@ -1,11 +1,12 @@
 // Ports include/mln/style/expression/case.hpp and
 // src/mln/style/expression/case.cpp.
 
+use mln_conversion::Convertible;
+
 use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use mln_conversion::Convertible;
 
 pub type Branch = (Box<dyn Expression>, Box<dyn Expression>);
 

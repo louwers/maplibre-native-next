@@ -10,13 +10,15 @@
 // Deviation: C++ `swap()` ends with `glfwPollEvents()`; GLFWView polls once
 // per frame tick anyway, so the port leaves event polling to the view.
 
-use crate::glfw_backend::GLFWBackend;
+use std::rc::Rc;
+
 use mln_gfx::RendererBackend;
 use mln_gfx::renderable::Renderable;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
 use mln_webgpu::SurfaceBackend;
-use std::rc::Rc;
+
+use crate::glfw_backend::GLFWBackend;
 
 /// `GLFWWebGPUBackend`
 pub struct GLFWWebGPUBackend {

@@ -1,9 +1,10 @@
 // Ports include/mln/style/property_value.hpp.
 
+use std::collections::BTreeSet;
+
 use crate::expression::Dependency;
 use crate::property_expression::PropertyExpression;
 use crate::renderer::property_evaluator::Evaluator;
-use std::collections::BTreeSet;
 
 /// `PropertyValue<T>`: `variant<Undefined, T, PropertyExpression<T>>`, in
 /// that order (the default is `Undefined`).

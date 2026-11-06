@@ -9,11 +9,13 @@
 // Quirk ported: C++ casts the millisecond count to `uint64_t`, so a negative
 // timeout or repeat becomes a huge value and the timer never fires.
 
-use crate::run_loop::RunLoop;
-use mln_util::chrono::Duration;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use std::time::Instant;
+
+use mln_util::chrono::Duration;
+
+use crate::run_loop::RunLoop;
 
 /// The state of a `uv_timer_t`, shared with the RunLoop.
 pub(crate) struct TimerHandle {

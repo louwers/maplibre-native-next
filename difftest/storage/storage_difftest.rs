@@ -18,6 +18,11 @@
 // The databases are copied to TEST_TMPDIR first; neither side ever opens
 // the C++ repository's files.
 
+use std::cell::RefCell;
+use std::path::PathBuf;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+
 use mln_actor::RunLoop;
 use mln_sprite::parse_sprite;
 use mln_storage::response::Reason;
@@ -28,10 +33,6 @@ use mln_storage::{
 use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use mln_util::tile_server_options::TileServerOptions;
 use proptest::prelude::*;
-use std::cell::RefCell;
-use std::path::PathBuf;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 
 /// The C++ oracle process (oracle_main.cpp), shared by the tests: one call
 /// at a time.

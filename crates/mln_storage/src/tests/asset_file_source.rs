@@ -2,6 +2,13 @@
 // fixture directory read in place (C++: "test/fixtures/storage/assets"
 // relative to the working directory).
 
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
+
+use mln_actor::{RunLoop, Thread};
+
 use super::{cpp_path, req};
 use crate::ClientOptions;
 use crate::asset_file_source::AssetFileSource;
@@ -10,11 +17,6 @@ use crate::file_source::FileSource;
 use crate::resource::{Kind, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use mln_actor::{RunLoop, Thread};
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex};
 
 fn asset_file_source() -> AssetFileSource {
     AssetFileSource::new(

@@ -10,6 +10,13 @@
 // TODO(port): addWideVectorPolylineLocal/Global and the wide-vector setup in
 // flush (Impl::Mode::WideVector*): no user on the WebGPU path.
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use geometry::Point;
+use mln_tile_id::geometry_tile_data::GeometryCoordinates;
+use mln_util::identity::SimpleIdentity;
+
 use crate::color_mode::ColorMode;
 use crate::context::Context;
 use crate::cull_face_mode::CullFaceMode;
@@ -27,11 +34,6 @@ use crate::texture2d::Texture2DPtr;
 use crate::types::DepthMaskType;
 use crate::vertex_attribute::VertexAttributeArrayPtr;
 use crate::vertex_vector::VertexVector;
-use geometry::Point;
-use mln_tile_id::geometry_tile_data::GeometryCoordinates;
-use mln_util::identity::SimpleIdentity;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 /// `DrawableBuilder::Impl::Mode`
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

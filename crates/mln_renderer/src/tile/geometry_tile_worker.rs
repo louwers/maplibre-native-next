@@ -16,6 +16,27 @@
 // TODO(port): the ErrorScope for symbol errors, `setObserver`, font faces
 // (HarfBuzz shaping results for complex scripts).
 
+use std::cell::RefCell;
+use std::collections::{BTreeSet, HashMap};
+use std::panic::{AssertUnwindSafe, catch_unwind};
+use std::rc::Weak;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+use mln_actor::actor::PoolActorRef;
+use mln_actor::{ActorRef, LocalObject};
+use mln_map_types::MapMode;
+use mln_style::expression::{EvaluationContext, GlobalStateMap};
+use mln_style::layer::layer_type_info;
+use mln_style::layer_properties::LayerProperties;
+use mln_style_types::image::{ImageDependencies, ImageMap, ImagePositions};
+use mln_text::glyph::{GlyphDependencies, GlyphIDType, GlyphMap};
+use mln_text::tagged_string::font_stack_hash;
+use mln_tile_id::OverscaledTileID;
+use mln_tile_id::geometry_tile_data::GeometryTileData;
+use mln_util::exception::{ExceptionPtr, RuntimeError};
+use mln_util::immutable::Immutable;
+
 use crate::bucket::BucketPtr;
 use crate::bucket_parameters::BucketParameters;
 use crate::geometry::feature_index::FeatureIndex;
@@ -27,26 +48,6 @@ use crate::layout::pattern_layout::PatternLayerMap;
 use crate::render_layer::LayerRenderData;
 use crate::text::glyph_manager::HBShapeResults;
 use crate::tile::geometry_tile::{GeometryTileInner, LayoutResult};
-use mln_actor::actor::PoolActorRef;
-use mln_actor::{ActorRef, LocalObject};
-use mln_map_types::MapMode;
-use mln_style::expression::EvaluationContext;
-use mln_style::expression::GlobalStateMap;
-use mln_style::layer::layer_type_info;
-use mln_style::layer_properties::LayerProperties;
-use mln_style_types::image::{ImageDependencies, ImageMap, ImagePositions};
-use mln_text::glyph::{GlyphDependencies, GlyphIDType, GlyphMap};
-use mln_text::tagged_string::font_stack_hash;
-use mln_tile_id::OverscaledTileID;
-use mln_tile_id::geometry_tile_data::GeometryTileData;
-use mln_util::exception::{ExceptionPtr, RuntimeError};
-use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::collections::{BTreeSet, HashMap};
-use std::panic::{AssertUnwindSafe, catch_unwind};
-use std::rc::Weak;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
 
 /// The tile data the worker parses (C++ `std::unique_ptr<const
 /// GeometryTileData>`, shared here with the feature index instead of

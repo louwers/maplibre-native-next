@@ -10,12 +10,13 @@
 // point_count_abbreviated, ids) or errors. Also every
 // point_count_abbreviated text.
 
+use std::sync::Arc;
+
 use feature::{PropertyMap, Value};
 use geojson_canonical::{abbreviate, features};
 use geometry_difftest_support::run_cases;
 use proptest::prelude::*;
 use serde_json::{Value as Json, json};
-use std::sync::Arc;
 use supercluster::{Options, Supercluster};
 
 unsafe extern "C" {

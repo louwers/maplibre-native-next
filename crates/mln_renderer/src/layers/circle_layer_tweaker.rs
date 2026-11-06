@@ -2,10 +2,6 @@
 // src/mln/renderer/layers/circle_layer_tweaker.cpp (MLN_UBO_CONSOLIDATION
 // branches: the port's backend is WebGPU).
 
-use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, slot_bucket};
-use crate::buckets::circle_bucket::CircleBucket;
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
-use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::circle_layer_ubo::{CircleDrawableUBO, CircleEvaluatedPropsUBO};
 use mln_gfx::shaders::shader_defines::{ID_CIRCLE_DRAWABLE_UBO, ID_CIRCLE_EVALUATED_PROPS_UBO};
@@ -15,6 +11,11 @@ use mln_style::layers::circle_layer_properties::*;
 use mln_style::properties::Property;
 use mln_style_types::{AlignmentType, CirclePitchScaleType};
 use mln_util::immutable::Immutable;
+
+use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, slot_bucket};
+use crate::buckets::circle_bucket::CircleBucket;
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
+use crate::paint_parameters::PaintParameters;
 
 pub struct CircleLayerTweaker {
     base: LayerTweakerBase,

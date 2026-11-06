@@ -1,10 +1,11 @@
 // Ports include/mln/gfx/command_encoder.hpp
 
+use std::any::Any;
+
 use crate::debug_group::{DebugGroup, DebugGroupTarget};
 use crate::render_pass::{RenderPass, RenderPassDescriptor};
 use crate::renderable::Renderable;
 use crate::upload_pass::UploadPass;
-use std::any::Any;
 
 /// `gfx::CommandEncoder`. `&self` methods (backends use interior
 /// mutability) so passes and debug groups can coexist with other borrows of

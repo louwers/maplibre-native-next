@@ -24,10 +24,19 @@ pub mod render_raster_layer;
 pub mod render_symbol_layer;
 pub mod symbol_layer_tweaker;
 
+use std::any::Any;
+use std::rc::Rc;
+
 pub use background_layer_tweaker::BackgroundLayerTweaker;
 pub use circle_layer_tweaker::CircleLayerTweaker;
 pub use fill_layer_tweaker::FillLayerTweaker;
 pub use line_layer_tweaker::LineLayerTweaker;
+use mln_gfx::Drawable;
+use mln_gfx::vertex_vector::{VertexVector, VertexVectorBasePtr};
+use mln_style::CrossfadeParameters;
+use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
+use mln_style::layers::{BackgroundLayerProperties, BackgroundPaintProperties};
+use mln_util::immutable::Immutable;
 pub use render_background_layer::RenderBackgroundLayer;
 pub use render_circle_layer::RenderCircleLayer;
 pub use render_fill_extrusion_layer::RenderFillExtrusionLayer;
@@ -39,14 +48,6 @@ pub use render_symbol_layer::RenderSymbolLayer;
 use crate::bucket::{Bucket, BucketPtr};
 use crate::layer_tweaker::LayerTweakerPtr;
 use crate::render_tile::RenderTile;
-use mln_gfx::Drawable;
-use mln_gfx::vertex_vector::{VertexVector, VertexVectorBasePtr};
-use mln_style::CrossfadeParameters;
-use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
-use mln_style::layers::{BackgroundLayerProperties, BackgroundPaintProperties};
-use mln_util::immutable::Immutable;
-use std::any::Any;
-use std::rc::Rc;
 
 /// `getEvaluated<BackgroundLayerProperties>(properties)`.
 pub(crate) fn background_layer_properties(

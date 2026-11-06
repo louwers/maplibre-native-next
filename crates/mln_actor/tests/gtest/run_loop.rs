@@ -1,11 +1,12 @@
 // Ports test/util/run_loop.test.cpp.
 
-use mln_actor::run_loop::Priority;
-use mln_actor::{RunLoop, Timer};
-use mln_util::chrono::Duration;
 use std::cell::Cell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
+
+use mln_actor::run_loop::Priority;
+use mln_actor::{RunLoop, Timer};
+use mln_util::chrono::Duration;
 
 // gtest: RunLoop.Stop
 #[test]

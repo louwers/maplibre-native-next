@@ -5,11 +5,12 @@
 // (classifyRings, limitHoles, convertGeometry, fixupPolygons, ...) arrive
 // with mln_tile.
 
+use std::ops::{Deref, DerefMut, Range};
+use std::sync::Arc;
+
 use feature::{Identifier, PropertyMap, Value};
 use geometry::Point;
 use mln_util::geometry::FeatureType;
-use std::ops::{Deref, DerefMut, Range};
-use std::sync::Arc;
 
 /// Normalized vector tile coordinates. Each geometry coordinate represents a
 /// point in a bidimensional space, varying from -V...0...+V, where V is the

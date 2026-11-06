@@ -4,6 +4,11 @@
 // C++ `InterpolateImpl<T>` (a template over the output type) is the
 // `InterpolateOutput` tag here; there is one `Interpolate` struct.
 
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+use mln_style_types::VariableAnchorOffsetCollection;
+use mln_util::{Color, ColorSpace, Padding};
+
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
@@ -13,10 +18,6 @@ use crate::range::Range;
 use crate::stops::{Stops, get_covering_stops};
 use crate::type_::{self, Type};
 use crate::value::{Value, type_of};
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
-use mln_style_types::VariableAnchorOffsetCollection;
-use mln_util::{Color, ColorSpace, Padding};
 
 /// The `T` of `InterpolateImpl<T>`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

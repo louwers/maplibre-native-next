@@ -3,12 +3,13 @@
 // `stringifyLayout` are generated in C++ (layer.cpp.ejs); the first is in
 // location_indicator_layer.rs.
 
+use std::collections::BTreeSet;
+
 use crate::expression::Dependency;
 use crate::layer::{self, ImplBase, LayerTypeInfo};
 use crate::layers::location_indicator_layer_properties::{
     LocationIndicatorLayoutProperties, LocationIndicatorPaintProperties,
 };
-use std::collections::BTreeSet;
 
 /// `LocationIndicatorLayer::Impl`.
 #[derive(Clone, Debug)]

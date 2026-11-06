@@ -13,13 +13,13 @@
 // platform settings) and `platform::attachThread`/`detachThread` (no-ops on
 // Linux).
 
+use std::sync::{Mutex, OnceLock, mpsc};
+use std::thread::JoinHandle;
+
 use crate::actor_ref::ActorRef;
 use crate::established_actor::{AspiringActor, EstablishedActor};
 use crate::run_loop::{Priority, RunLoop, RunLoopHandle};
 use crate::scheduler;
-use std::sync::mpsc;
-use std::sync::{Mutex, OnceLock};
-use std::thread::JoinHandle;
 
 /// `util::Thread<Object>`.
 pub struct Thread<O: 'static> {
@@ -118,10 +118,11 @@ impl<O: 'static> Drop for Thread<O> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::cell::Cell;
     use std::sync::Arc;
     use std::sync::atomic::{AtomicUsize, Ordering};
+
+    use super::*;
 
     struct Counter {
         count: Cell<usize>,

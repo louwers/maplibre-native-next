@@ -1,16 +1,18 @@
 // Buffers, textures, views, samplers, shader modules, bind groups and
 // pipelines.
 
-use crate::device::DeviceState;
-use crate::event::{self, MessageResult, slot, take, userdata};
-use crate::handle::*;
-use crate::sys::*;
 use core::ops::Range;
 use core::ptr::NonNull;
 use std::cell::Cell;
 use std::pin::Pin;
 use std::rc::Rc;
+
 use wgpu::custom::*;
+
+use crate::device::DeviceState;
+use crate::event::{self, MessageResult, slot, take, userdata};
+use crate::handle::*;
+use crate::sys::*;
 
 /// The object behind a handle webgpu.h just returned; null only happens when
 /// the browser rejects the call outright (e.g. an impossible allocation).

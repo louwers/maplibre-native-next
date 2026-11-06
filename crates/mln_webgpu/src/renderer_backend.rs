@@ -13,15 +13,17 @@
 // fallbacks when a renderable has no views of its own; the headless
 // renderable always provides them.
 
-use crate::context::Context;
-use crate::shaders::shader_group::ShaderGroup;
-use crate::shaders::shader_source::shader_source;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use mln_gfx::renderer_backend::{ContextMode, RendererBackendBase};
 use mln_gfx::shader_registry::ShaderRegistry;
 use mln_gfx::shaders::program_parameters::ProgramParameters;
 use mln_gfx::shaders::shader_source::BuiltIn;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
+
+use crate::context::Context;
+use crate::shaders::shader_group::ShaderGroup;
+use crate::shaders::shader_source::shader_source;
 
 /// `RendererBackend::Impl`
 #[derive(Default)]

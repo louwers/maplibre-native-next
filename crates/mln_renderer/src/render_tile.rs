@@ -5,12 +5,8 @@
 // tile (its id and hold-for-fade state) when it is created and prepared;
 // both are only changed by the TilePyramid between frames.
 
-use crate::bucket::BucketPtr;
-use crate::buckets::debug_bucket::DebugBucket; // layers: debug
-use crate::render_layer::LayerRenderData;
-use crate::render_source::SourcePrepareParameters;
-use crate::tile::tile::Tile;
-use crate::tile_render_data::{TileAtlasTextures, TileRenderData};
+use std::rc::Rc;
+
 use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_map_types::{MapDebugOptions, TransformState};
@@ -19,7 +15,13 @@ use mln_style_types::TranslateAnchorType;
 use mln_style_types::image::ImagePosition;
 use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
 use mln_util::mat4::{Mat4, matrix};
-use std::rc::Rc;
+
+use crate::bucket::BucketPtr;
+use crate::buckets::debug_bucket::DebugBucket; // layers: debug
+use crate::render_layer::LayerRenderData;
+use crate::render_source::SourcePrepareParameters;
+use crate::tile::tile::Tile;
+use crate::tile_render_data::{TileAtlasTextures, TileRenderData};
 
 /// `util::rotate(Point<float>, float angle)` (util/math.hpp).
 fn rotate(a: Point<f32>, angle: f32) -> Point<f32> {

@@ -1,7 +1,8 @@
 // Ports test/util/color.test.cpp.
 
-use crate::{assert_float_eq, assert_near};
 use mln_util::color::{Color, ColorSpace};
+
+use crate::{assert_float_eq, assert_near};
 
 fn test_cases() -> Vec<(&'static str, Option<Color>)> {
     vec![

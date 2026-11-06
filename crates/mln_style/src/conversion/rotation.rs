@@ -1,8 +1,9 @@
 // Ports include/mln/style/conversion/rotation.hpp +
 // src/mln/style/conversion/rotation.cpp.
 
-use super::{Converter, Convertible, Error};
 use mln_style_types::Rotation;
+
+use super::{Converter, Convertible, Error};
 
 impl Converter for Rotation {
     fn convert(value: &Convertible<'_>, error: &mut Error) -> Option<Rotation> {

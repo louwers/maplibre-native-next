@@ -6,11 +6,12 @@
 // (glyph PBFs, protozero's test data, tiles), random bytes and generated
 // messages with random (sometimes malformed) fields.
 
-use proptest::prelude::*;
-use protozero::{Exception, FixedValue, IteratorRange, PbfReader, PbfWireType};
 use std::fmt::Write;
 use std::os::raw::c_char;
 use std::path::{Path, PathBuf};
+
+use proptest::prelude::*;
+use protozero::{Exception, FixedValue, IteratorRange, PbfReader, PbfWireType};
 
 unsafe extern "C" {
     fn mln_pbf_ref_walk(data: *const u8, size: usize, out_len: *mut usize) -> *mut c_char;

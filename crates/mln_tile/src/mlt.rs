@@ -34,12 +34,13 @@
 // Where mlt-core rejects a tile that the C++ decoder reads (or the other way
 // round), the tile fails here too; DEVIATIONS.md lists those cases.
 
-use mlt_core::wire::{Analyze as _, ColumnDecl, LogicalEncoding, PhysicalEncoding};
-use mlt_core::{GeometryType as WireGeometryType, GeometryValues, ParsedLayer01, ParsedProperty};
 use std::collections::HashMap;
 use std::fmt;
 use std::ops::Range;
 use std::sync::Arc;
+
+use mlt_core::wire::{Analyze as _, ColumnDecl, LogicalEncoding, PhysicalEncoding};
+use mlt_core::{GeometryType as WireGeometryType, GeometryValues, ParsedLayer01, ParsedProperty};
 
 /// A C++ exception from the decoder or from reading a property (all are
 /// `std::runtime_error`s); `what()` is the message. Messages of tiles that

@@ -1,8 +1,9 @@
 // Ports include/mln/gfx/drawable_tweaker.hpp
 
+use std::rc::Rc;
+
 use crate::drawable::Drawable;
 use crate::paint_parameters::PaintParameters;
-use std::rc::Rc;
 
 /// Base class for drawable tweakers, which manipulate drawables per frame.
 /// `&self`: tweakers are shared (`DrawableTweakerPtr`); implementations keep

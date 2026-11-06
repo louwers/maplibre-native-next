@@ -11,9 +11,10 @@
 // (`Padding{2}` is the one-value constructor). Initializers that would not
 // compile in C++ are generator errors.
 
+use serde_json::Value;
+
 use crate::spec::Property;
 use crate::types::{EvaluatedType, camelize, evaluated_type, evaluated_type_unnamed};
-use serde_json::Value;
 
 /// A C++ initializer as `defaultValue` writes it.
 #[derive(Clone, Debug, PartialEq)]

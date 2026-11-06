@@ -1,6 +1,8 @@
 // Ports vendor/wagyu/include/mapbox/geometry/wagyu/intersect.hpp,
 // intersect_util.hpp and bubble_sort.hpp.
 
+use libstdcxx::stable_sort_by as stable_sort;
+
 use crate::active_bound_list::{is_even_odd_fill_type, swap_rings, swap_sides};
 use crate::bound::{Bound, BoundPtr};
 use crate::config::{ClipType, FillType, PolygonType};
@@ -9,7 +11,6 @@ use crate::point::GPoint;
 use crate::ring::{R, RingManager};
 use crate::ring_util::{add_local_maximum_point, add_local_minimum_point, add_point, round_towards_max};
 use crate::util::values_are_equal;
-use libstdcxx::stable_sort_by as stable_sort;
 
 /// `intersect_node<int32_t>`.
 #[derive(Clone, Copy, Debug)]

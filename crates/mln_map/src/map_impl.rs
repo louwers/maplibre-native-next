@@ -14,9 +14,11 @@
 //   borrow ends (`StyleMut` drop). Calls made while the style is not
 //   borrowed mutably are handled immediately, as in C++.
 
-use crate::map_observer::{CameraChangeMode, MapLoadError, MapObserver, RenderFrameStatus};
-use crate::map_options::MapOptions;
-use crate::transform::{Transform, TransformObserver};
+use std::cell::{Cell, RefCell, RefMut};
+use std::ops::{Deref, DerefMut};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_actor::{TaggedScheduler, scheduler};
 use mln_map_types::{CameraOptions, MapDebugOptions, MapMode, TileLodMode};
 use mln_renderer::{ExceptionPtr, RenderMode, RendererFrontend, RendererObserver, UpdateParameters};
@@ -28,10 +30,10 @@ use mln_style::sprite::Sprite;
 use mln_util::chrono::{Clock, TimePoint};
 use mln_util::exception::{NotFoundException, StyleLoadException, StyleParseException};
 use mln_util::identity::SimpleIdentity;
-use std::cell::{Cell, RefCell, RefMut};
-use std::ops::{Deref, DerefMut};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
+
+use crate::map_observer::{CameraChangeMode, MapLoadError, MapObserver, RenderFrameStatus};
+use crate::map_options::MapOptions;
+use crate::transform::{Transform, TransformObserver};
 
 /// `Map::StillImageCallback`: called with `None` on success, or the error.
 pub type StillImageCallback = Box<dyn FnOnce(Option<ExceptionPtr>)>;

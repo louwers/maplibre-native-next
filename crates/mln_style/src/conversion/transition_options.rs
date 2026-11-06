@@ -1,9 +1,10 @@
 // Ports include/mln/style/conversion/transition_options.hpp +
 // src/mln/style/conversion/transition_options.cpp.
 
+use mln_util::chrono::Duration;
+
 use super::{Converter, Convertible, Error};
 use crate::transition_options::TransitionOptions;
-use mln_util::chrono::Duration;
 
 impl Converter for TransitionOptions {
     fn convert(value: &Convertible<'_>, error: &mut Error) -> Option<TransitionOptions> {

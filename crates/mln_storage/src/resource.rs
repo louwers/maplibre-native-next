@@ -1,6 +1,5 @@
 // Ports include/mln/storage/resource.hpp and src/mln/storage/resource.cpp.
 
-use crate::response::Data;
 use mln_util::chrono::{Duration, Timestamp};
 use mln_util::constants::{EARTH_RADIUS_M, M2PI};
 use mln_util::font_stack::{FontStack, font_stack_to_string};
@@ -8,6 +7,8 @@ use mln_util::string::{to_string_double, to_string_i32};
 use mln_util::tileset::Scheme;
 use mln_util::token::replace_tokens;
 use mln_util::url::{URL, percent_encode, substr};
+
+use crate::response::Data;
 
 /// `Resource::Kind` (the values are stored in the offline database).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

@@ -1,8 +1,9 @@
 // Ports render-test/metadata.hpp
 
+use std::collections::BTreeMap;
+
 use geometry::Point;
 use mln_util::size::Size;
-use std::collections::BTreeMap;
 
 /// `mln::MapMode` (include/mln/map/mode.hpp). The runner keeps its own copy
 /// so that it does not depend on the map crate; `TestRunnerImpl`

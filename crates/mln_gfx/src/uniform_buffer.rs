@@ -1,9 +1,10 @@
 // Ports include/mln/gfx/uniform_buffer.hpp and src/mln/gfx/uniform_buffer.cpp
 
-use crate::context::Context;
-use crate::shaders::shader_defines::MAX_UBO_COUNT_PER_SHADER;
 use std::any::Any;
 use std::rc::Rc;
+
+use crate::context::Context;
+use crate::shaders::shader_defines::MAX_UBO_COUNT_PER_SHADER;
 
 /// `gfx::UniformBuffer`. Created only by backends
 /// (`Context::create_uniform_buffer`). `update` takes `&self`: the buffer is

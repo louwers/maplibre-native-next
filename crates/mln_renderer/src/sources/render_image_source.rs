@@ -8,13 +8,10 @@
 // TODO(port): queryRenderedFeatures / querySourceFeatures (both empty in
 // C++).
 
-use crate::bucket::Bucket;
-use crate::buckets::raster_bucket::RasterBucket;
-use crate::render_pass::RenderPass;
-use crate::render_source::{RenderSource, RenderSourceBase, SourcePrepareParameters};
-use crate::render_tree::RenderItem;
-use crate::tile_parameters::TileParameters;
-use crate::util::tile_cover::{TileCoverParameters, tile_cover, tile_cover_bounds};
+use std::any::Any;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
@@ -30,9 +27,14 @@ use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use mln_util::mat4::{Mat4, matrix};
 use mln_util::range::Range;
-use std::any::Any;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::bucket::Bucket;
+use crate::buckets::raster_bucket::RasterBucket;
+use crate::render_pass::RenderPass;
+use crate::render_source::{RenderSource, RenderSourceBase, SourcePrepareParameters};
+use crate::render_tree::RenderItem;
+use crate::tile_parameters::TileParameters;
+use crate::util::tile_cover::{TileCoverParameters, tile_cover, tile_cover_bounds};
 
 /// `ImageSourceRenderData`.
 pub struct ImageSourceRenderData {

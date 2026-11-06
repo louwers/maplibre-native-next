@@ -7,11 +7,12 @@
 // `TileRef` (key + serial) stands in for the address: a tile re-created under
 // the same key compares unequal, like a new allocation in C++.
 
+use std::collections::{BTreeMap, BTreeSet};
+
 use mln_renderer::algorithm::update_renderables::{PrefetchedTile, RenderablesContext, update_renderables};
 use mln_renderer::tile::TileNecessity;
 use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
 use mln_util::range::Range;
-use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum LookupResult {

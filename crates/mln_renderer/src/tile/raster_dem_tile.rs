@@ -5,14 +5,11 @@
 // Same structure as raster_tile.rs: the state the worker's replies change
 // is `RasterDEMTileInner`, the target of the tile's mailbox.
 
-use crate::bucket::BucketPtr;
-use crate::buckets::hillshade_bucket::HillshadeBucket;
-use crate::tile::tile::{Kind, Tile, TileBase, TileNecessity, TileOperation, TileUpdateParameters};
-use crate::tile::tile_loader::{LoaderTile, TileLoader, VectorTileEncoding};
-use crate::tile::tile_observer::TileObserver;
-use crate::tile_mask::TileMask;
-use crate::tile_parameters::TileParameters;
-use crate::tile_render_data::{SharedBucketTileRenderData, TileRenderData};
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::actor::{Actor, PoolActorRef};
 use mln_actor::{ActorRef, Mailbox, scheduler};
 use mln_storage::Data;
@@ -22,10 +19,15 @@ use mln_util::chrono::Timestamp;
 use mln_util::exception::{ExceptionPtr, RuntimeError};
 use mln_util::immutable::Immutable;
 use mln_util::tileset::{RasterEncoding, Tileset};
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::bucket::BucketPtr;
+use crate::buckets::hillshade_bucket::HillshadeBucket;
+use crate::tile::tile::{Kind, Tile, TileBase, TileNecessity, TileOperation, TileUpdateParameters};
+use crate::tile::tile_loader::{LoaderTile, TileLoader, VectorTileEncoding};
+use crate::tile::tile_observer::TileObserver;
+use crate::tile_mask::TileMask;
+use crate::tile_parameters::TileParameters;
+use crate::tile_render_data::{SharedBucketTileRenderData, TileRenderData};
 
 /// `DEMTileNeighbors`: a bitmask of the backfilled neighbors.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

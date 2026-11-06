@@ -1,8 +1,9 @@
 // Ports vendor/wagyu/include/mapbox/geometry/wagyu/build_result.hpp.
 
+use geometry::{LinearRing, MultiPolygon, Point, Polygon};
+
 use crate::point::{NIL, RingPtr};
 use crate::ring::RingManager;
-use geometry::{LinearRing, MultiPolygon, Point, Polygon};
 
 /// The output coordinate type `T2` of `wagyu::execute`: `static_cast<T2>`
 /// of an int32 coordinate.

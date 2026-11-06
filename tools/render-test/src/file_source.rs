@@ -2,6 +2,9 @@
 // (`ProxyFileSource`), plus `TestRunner::registerProxyFileSource`
 // (render-test/runner.cpp).
 
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, Once};
+
 use feature::Value;
 use mln_storage::file_source::READ_ONLY_MODE_KEY;
 use mln_storage::{
@@ -9,8 +12,6 @@ use mln_storage::{
     Resource, ResourceOptions, Response,
 };
 use mln_util::logging::{Event, Log};
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex, Once};
 
 static REQUEST_COUNT: AtomicUsize = AtomicUsize::new(0);
 static TRANSFERRED_SIZE: AtomicUsize = AtomicUsize::new(0);

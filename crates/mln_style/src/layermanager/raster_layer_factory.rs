@@ -1,10 +1,11 @@
 // Ports include/mln/layermanager/raster_layer_factory.hpp +
 // src/mln/layermanager/raster_layer_factory.cpp (style half).
 
+use mln_conversion::Convertible;
+
 use super::layer_factory::{LayerFactory, get_source};
 use crate::layer::{Layer, LayerTypeInfo};
 use crate::layers::raster_layer::{Impl, RasterLayer};
-use mln_conversion::Convertible;
 
 pub struct RasterLayerFactory;
 

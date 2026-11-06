@@ -1,6 +1,9 @@
 // Ports test/gl/bucket.test.cpp (the Buckets.* tests; the OpenGL headless
 // backend is the WebGPU one here) and test/renderer/fill_bucket.test.cpp.
 
+use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex};
+
 use feature::{Identifier, PropertyMap, Value};
 use geometry::Point;
 use mln_gfx::backend_scope::{BackendScope, ScopeType};
@@ -25,8 +28,6 @@ use mln_util::image::PremultipliedImage;
 use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use mln_util::size::Size;
 use mln_webgpu::headless_backend::HeadlessBackend;
-use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex};
 
 /// `StubGeometryTileFeature(id, type, geometry, properties)`.
 struct StubGeometryTileFeature {

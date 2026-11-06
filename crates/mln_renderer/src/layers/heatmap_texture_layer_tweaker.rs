@@ -1,9 +1,6 @@
 // Ports src/mln/renderer/layers/heatmap_texture_layer_tweaker.hpp and
 // src/mln/renderer/layers/heatmap_texture_layer_tweaker.cpp.
 
-use super::cast_matrix;
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase};
-use crate::paint_parameters::PaintParameters;
 use mln_gfx::LayerGroupBase;
 use mln_gfx::shaders::heatmap_texture_layer_ubo::HeatmapTexturePropsUBO;
 use mln_gfx::shaders::shader_defines::ID_HEATMAP_TEXTURE_PROPS_UBO;
@@ -11,6 +8,10 @@ use mln_style::layer_properties::{LayerProperties, get_evaluated};
 use mln_style::layers::heatmap_layer_properties::*;
 use mln_util::immutable::Immutable;
 use mln_util::mat4::{Mat4, matrix};
+
+use super::cast_matrix;
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase};
+use crate::paint_parameters::PaintParameters;
 
 pub struct HeatmapTextureLayerTweaker {
     base: LayerTweakerBase,

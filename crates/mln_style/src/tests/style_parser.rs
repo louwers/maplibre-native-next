@@ -1,12 +1,14 @@
 // Ports test/style/style_parser.test.cpp.
 
+use std::collections::BTreeSet;
+use std::path::PathBuf;
+
+use mln_util::enum_::Enum;
+use mln_util::logging::{Event, EventSeverity, Log};
+
 use super::util::FixtureLog;
 use crate::layer::FontStack;
 use crate::parser::Parser;
-use mln_util::enum_::Enum;
-use mln_util::logging::{Event, EventSeverity, Log};
-use std::collections::BTreeSet;
-use std::path::PathBuf;
 
 fn fixtures_dir() -> PathBuf {
     let base =
@@ -250,9 +252,10 @@ fn font_stacks_get_expression() {
 // gtest: StyleParser.ZoomCurve
 #[test]
 fn zoom_curve() {
+    use mln_expression::value::Value;
+
     use crate::expression::dsl::{interpolate, linear, literal, zoom};
     use crate::expression::find_zoom_curve_checked;
-    use mln_expression::value::Value;
 
     let zoom_interp =
         || interpolate(linear(), zoom(), vec![(0.0, literal(Value::Number(0.0))), (0.0, literal(Value::Number(0.0)))]);

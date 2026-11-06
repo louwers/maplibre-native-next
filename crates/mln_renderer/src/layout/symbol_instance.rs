@@ -4,10 +4,8 @@
 // checkIndex, forceFail): they detect C++ memory corruption, which safe
 // Rust cannot have (DEVIATIONS.md [symbols]).
 
-use crate::geometry::anchor::Anchor;
-use crate::geometry::feature_index::IndexedSubfeature;
-use crate::text::collision_feature::CollisionFeature;
-use crate::text::quads::{SymbolQuads, get_glyph_quads, get_icon_quads};
+use std::sync::Arc;
+
 use mln_style::layers::symbol_layer_properties::SymbolLayoutProperties;
 use mln_style_types::image::ImageMap;
 use mln_style_types::{SymbolAnchorType, SymbolPlacementType, VariableAnchorOffsetCollection};
@@ -15,7 +13,11 @@ use mln_text::glyph::{Shaping, WritingModeType};
 use mln_text::shaping::PositionedIcon;
 use mln_tile_id::geometry_tile_data::GeometryCoordinates;
 use mln_util::Padding;
-use std::sync::Arc;
+
+use crate::geometry::anchor::Anchor;
+use crate::geometry::feature_index::IndexedSubfeature;
+use crate::text::collision_feature::CollisionFeature;
+use crate::text::quads::{SymbolQuads, get_glyph_quads, get_icon_quads};
 
 /// `enum class SymbolContent : uint8_t` (bit flags).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]

@@ -7,13 +7,14 @@
 // each); only the feature index's sort indices, used by queries, follow
 // the group order.
 
+use std::sync::Arc;
+
 use mln_style::expression::Expression;
 use mln_style::layer;
 use mln_style::layer::LayerTypeInfo;
 use mln_style::layer_properties::LayerProperties;
 use mln_style_types::VisibilityType;
 use mln_util::immutable::Immutable;
-use std::sync::Arc;
 
 /// `LayoutGroupKey`.
 pub struct LayoutGroupKey {

@@ -4,13 +4,15 @@
 // `ImplBase` and the virtual interface is the `Impl` trait (as for
 // `Layer::Impl`). `dyn Impl` derefs to its `ImplBase`.
 
-use crate::util::AsAny;
+use std::sync::Arc;
+
 use mln_style_types::SourceType;
 use mln_util::chrono::Duration;
 use mln_util::constants;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::sync::Arc;
+
+use crate::util::AsAny;
 
 /// `WarnIfOverscaleFactorCapsPrefetchDelta`.
 fn warn_if_overscale_factor_caps_prefetch_delta(overscale: &Option<u8>, prefetch: &Option<u8>) {

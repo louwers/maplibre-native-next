@@ -5,10 +5,11 @@
 // `Backend::Create<Backend::DefaultType>` in C++; with one backend in the
 // port, call `mln_webgpu::HeadlessBackend::new` directly.
 
-use crate::renderable::Renderable;
-use crate::renderer_backend::RendererBackend;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
+
+use crate::renderable::Renderable;
+use crate::renderer_backend::RendererBackend;
 
 /// `gfx::HeadlessBackend`: common headless backend interface, extends
 /// `gfx::Renderable` with `readStillImage`.

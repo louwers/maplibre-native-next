@@ -4,9 +4,10 @@
 // worker thread and shared with `Arc`); the render layer copies them into
 // the shared gfx vectors its drawables reference.
 
-use crate::bucket::{Bucket, BucketBase};
-use crate::paint_property_binder::PaintPropertyBinder;
-use crate::render_layer::RenderLayer;
+use std::collections::BTreeMap;
+use std::sync::RwLock;
+use std::sync::atomic::Ordering;
+
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_map_types::MapMode;
@@ -16,9 +17,10 @@ use mln_style::properties::Property;
 use mln_style_types::image::ImagePositions;
 use mln_util::Color;
 use mln_util::immutable::Immutable;
-use std::collections::BTreeMap;
-use std::sync::RwLock;
-use std::sync::atomic::Ordering;
+
+use crate::bucket::{Bucket, BucketBase};
+use crate::paint_property_binder::PaintPropertyBinder;
+use crate::render_layer::RenderLayer;
 
 crate::paint_property_binders!(
     /// `CircleBinders = PaintPropertyBinders<CirclePaintProperties::DataDrivenProperties>`.

@@ -6,17 +6,19 @@
 // `std::set<LayerRenderItem>` (ordered and deduplicated by `index`) is a
 // `BTreeMap<u32, LayerRenderItem>`.
 
-use crate::layer_tweaker::LayerTweaker; // layers: debug
-use crate::paint_parameters::{PaintParameters, TransformParameters};
-use crate::render_layer::RenderLayerPtr;
-use crate::render_pass::RenderPass;
+use std::cell::RefCell; // layers: debug
+use std::collections::BTreeMap;
+use std::rc::Weak;
+
 use mln_gfx::{LayerGroupBasePtr, UploadPass}; // layers: debug
 use mln_map_types::{MapDebugOptions, MapMode, TransformState};
 use mln_util::Color;
 use mln_util::chrono::TimePoint;
-use std::cell::RefCell; // layers: debug
-use std::collections::BTreeMap;
-use std::rc::Weak; // layers: debug
+
+use crate::layer_tweaker::LayerTweaker; // layers: debug
+use crate::paint_parameters::{PaintParameters, TransformParameters};
+use crate::render_layer::RenderLayerPtr;
+use crate::render_pass::RenderPass; // layers: debug
 
 /// `RenderItem::DebugType` (layers: debug).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]

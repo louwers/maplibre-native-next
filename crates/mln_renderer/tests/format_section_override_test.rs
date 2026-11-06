@@ -5,6 +5,9 @@
 // (test/style/expression/global_state.test.cpp) and Layer.SymbolLayerOverrides
 // (test/style/style_layer.test.cpp).
 
+use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
+
 use feature::{PropertyMap, Value as MbglValue};
 use mln_conversion::Convertible;
 use mln_expression::dsl::{format_str, get_str, literal_str, string, to_color};
@@ -27,8 +30,6 @@ use mln_style::transition_options::TransitionOptions;
 use mln_tile_id::geometry_tile_data::GeometryTileFeature;
 use mln_util::Color;
 use mln_util::geometry::FeatureType;
-use std::collections::{BTreeMap, BTreeSet};
-use std::sync::Arc;
 
 /// test/include/mln/test/stub_geometry_tile_feature.hpp (the property-map
 /// constructor).

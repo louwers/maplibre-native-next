@@ -1,10 +1,11 @@
 // Ports test/style/conversion/tileset.test.cpp.
 
-use super::util::parse_json;
-use crate::conversion::{Converter, Error};
 use mln_conversion::Convertible;
 use mln_util::geo::{LatLng, LatLngBounds};
 use mln_util::tileset::{Scheme, Tileset};
+
+use super::util::parse_json;
+use crate::conversion::{Converter, Error};
 
 /// `convertJSON<Tileset>(json, error)`.
 fn convert_json(json: &str, error: &mut Error) -> Option<Tileset> {

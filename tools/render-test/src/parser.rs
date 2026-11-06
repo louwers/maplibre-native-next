@@ -7,6 +7,16 @@
 // - rapidjson keeps duplicate object members, serde_json the last one; the
 //   ignore files are read member by member (`read_json_object_members`).
 
+use std::fmt;
+use std::sync::LazyLock;
+use std::time::Duration;
+
+use feature::Value;
+use mln_util::geo::LatLng;
+use mln_util::size::Size;
+use regex::Regex;
+use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
+
 use crate::file_source::ProxyFileSource;
 use crate::filesystem;
 use crate::log::{self, Event};
@@ -15,14 +25,6 @@ use crate::metadata::{
     TestMetrics, TestPaths, TestStatistics,
 };
 use crate::runner::{CameraOptions, MapError, TestContext, TestOperation, TestOperations};
-use feature::Value;
-use mln_util::geo::LatLng;
-use mln_util::size::Size;
-use regex::Regex;
-use serde::de::{Deserialize, Deserializer, MapAccess, Visitor};
-use std::fmt;
-use std::sync::LazyLock;
-use std::time::Duration;
 
 pub type ErrorMessage = String;
 

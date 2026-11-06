@@ -1,14 +1,16 @@
 // Ports include/mln/webgpu/tile_layer_group.hpp and src/mln/webgpu/tile_layer_group.cpp
 
-use crate::drawable::Drawable;
-use crate::upload_pass::UploadPass;
+use std::any::Any;
+
 use mln_gfx::depth_mode::DepthMode;
 use mln_gfx::drawable::Drawable as _;
 use mln_gfx::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::{self, LayerGroupBaseData};
 use mln_gfx::stencil_mode::StencilMode;
 use mln_gfx::uniform_buffer::UniformBufferArray;
-use std::any::Any;
+
+use crate::drawable::Drawable;
+use crate::upload_pass::UploadPass;
 
 pub struct TileLayerGroup {
     inner: layer_group::TileLayerGroup,

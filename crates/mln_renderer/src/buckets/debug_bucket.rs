@@ -8,12 +8,13 @@
 // bucket is still created as in C++, because the tile borders are drawn
 // for tiles that have one.
 
-use super::fill_bucket::FillLayoutVertex;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_map_types::MapDebugOptions;
 use mln_tile_id::OverscaledTileID;
 use mln_util::chrono::Timestamp;
+
+use super::fill_bucket::FillLayoutVertex;
 
 /// `DebugBucket`.
 pub struct DebugBucket {

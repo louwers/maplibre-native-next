@@ -8,12 +8,13 @@
 // TODO(port): `Actor<O>` (actor.hpp) on a thread pool scheduler: here the
 // object stays on the thread that established it (see mailbox.rs).
 
-use crate::actor_ref::ActorRef;
-use crate::mailbox::Mailbox;
-use crate::scheduler::SchedulerPtr;
 use std::any::Any;
 use std::rc::Rc;
 use std::sync::Arc;
+
+use crate::actor_ref::ActorRef;
+use crate::mailbox::Mailbox;
+use crate::scheduler::SchedulerPtr;
 
 /// `AspiringActor<O>`: the mailbox and the `ActorRef` handed out before the
 /// object exists.

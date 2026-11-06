@@ -2,11 +2,6 @@
 // src/mln/renderer/layers/line_layer_tweaker.cpp (MLN_RENDER_BACKEND_WEBGPU
 // and MLN_UBO_CONSOLIDATION branches; the GPU expressions are Metal-only).
 
-use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
-use crate::buckets::line_bucket::LineBucket;
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
-use crate::line_atlas::LinePatternCap;
-use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::line_layer_ubo::*;
 use mln_gfx::shaders::shader_defines::{
@@ -22,6 +17,12 @@ use mln_style::renderer::cross_faded_property_evaluator::Faded;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use mln_util::size::Size;
+
+use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
+use crate::buckets::line_bucket::LineBucket;
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
+use crate::line_atlas::LinePatternCap;
+use crate::paint_parameters::PaintParameters;
 
 /// `LineLayerTweaker::LineType`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

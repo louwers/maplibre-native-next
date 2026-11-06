@@ -3,10 +3,12 @@
 // Not to be confused with `crate::renderer::render_pass::RenderPass`, the
 // `mln::RenderPass` bitmask (Opaque/Translucent/Pass3D).
 
+use std::any::Any;
+
+use mln_util::Color;
+
 use crate::debug_group::{DebugGroup, DebugGroupTarget};
 use crate::renderable::Renderable;
-use mln_util::Color;
-use std::any::Any;
 
 /// `gfx::RenderPassDescriptor`
 #[derive(Clone, Copy)]

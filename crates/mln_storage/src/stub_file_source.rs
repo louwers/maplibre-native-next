@@ -11,18 +11,20 @@
 // TODO(port): ResponseType::Manual (`respondToAll`), the style/source/tile/
 // glyphs/image responders beyond the generic `set_response`.
 
+use std::cell::RefCell;
+use std::collections::{BTreeMap, HashMap};
+use std::rc::{Rc, Weak};
+use std::sync::Mutex;
+
+use feature::Value;
+use mln_actor::{AsyncTask, LocalObject};
+use mln_util::client_options::ClientOptions;
+
 use crate::async_request::AsyncRequest;
 use crate::file_source::{Callback, FileSource};
 use crate::resource::{Kind, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::Response;
-use feature::Value;
-use mln_actor::{AsyncTask, LocalObject};
-use mln_util::client_options::ClientOptions;
-use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
-use std::rc::{Rc, Weak};
-use std::sync::Mutex;
 
 /// `StubFileSource::ResponseType`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

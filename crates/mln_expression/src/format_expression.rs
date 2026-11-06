@@ -1,6 +1,12 @@
 // Ports include/mln/style/expression/format_expression.hpp and
 // src/mln/style/expression/format_expression.cpp.
 
+use std::sync::Arc;
+
+use feature::{Value as MbglValue, ValueObject};
+use mln_conversion::Convertible;
+use mln_util::Color;
+
 use crate::expression::{
     Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
@@ -11,10 +17,6 @@ use crate::formatted::{
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::{Value, from_expression_value, to_string, type_of};
-use feature::{Value as MbglValue, ValueObject};
-use mln_conversion::Convertible;
-use mln_util::Color;
-use std::sync::Arc;
 
 /// `FormatExpressionSection`.
 #[derive(Clone)]

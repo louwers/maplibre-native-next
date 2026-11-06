@@ -1,6 +1,12 @@
 // Ports include/mln/style/expression/coercion.hpp and
 // src/mln/style/expression/coercion.cpp.
 
+use feature::{Value as MbglValue, ValueObject};
+use mln_conversion::Convertible;
+use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection};
+use mln_util::Padding;
+use mln_util::enum_::Enum;
+
 use crate::expression::{
     Dependency, EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, children_equal,
     collect_dependencies, default_serialize, downcast,
@@ -11,11 +17,6 @@ use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::util::rgba;
 use crate::value::{Value, stringify, to_string};
-use feature::{Value as MbglValue, ValueObject};
-use mln_conversion::Convertible;
-use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection};
-use mln_util::Padding;
-use mln_util::enum_::Enum;
 
 type CoerceFunction = fn(&Value) -> EvaluationResult;
 

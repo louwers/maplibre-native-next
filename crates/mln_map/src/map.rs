@@ -1,23 +1,23 @@
 // Ports include/mln/map/map.hpp and src/mln/map/map.cpp (the parts M1 runs).
 
-use crate::map_impl::{MapImpl, StillImageCallback, StillImageRequest, StyleMut};
-use crate::map_observer::MapObserver;
-use crate::map_options::MapOptions;
+use std::cell::Ref;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_map_types::{
     AnimationOptions, BoundOptions, CameraOptions, ConstrainMode, MapDebugOptions, MapMode, NorthOrientation,
     ProjectionMode, TileLodMode, TransformState, ViewportMode,
 };
 use mln_renderer::{ExceptionPtr, RendererFrontend};
-use mln_storage::FileSource;
-use mln_storage::{ClientOptions, FileSourceManager, FileSourceType, ResourceOptions};
+use mln_storage::{ClientOptions, FileSource, FileSourceManager, FileSourceType, ResourceOptions};
 use mln_style::Style;
 use mln_util::exception::MisuseException;
-use mln_util::geo::{EdgeInsets, ScreenCoordinate};
-use mln_util::geo::{LatLng, LatLngBounds, WrapMode};
+use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds, ScreenCoordinate, WrapMode};
 use mln_util::size::Size;
-use std::cell::Ref;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::map_impl::{MapImpl, StillImageCallback, StillImageRequest, StyleMut};
+use crate::map_observer::MapObserver;
+use crate::map_options::MapOptions;
 
 pub struct Map {
     impl_: Rc<MapImpl>,

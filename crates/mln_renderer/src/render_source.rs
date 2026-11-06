@@ -8,16 +8,10 @@
 // by the orchestrator), which forwards to the source's observer exactly as
 // RenderSource::onTileChanged etc. do.
 
-use crate::image_manager::ImageManager;
-use crate::paint_parameters::TransformParameters;
-use crate::render_tile::RenderTile;
-use crate::render_tree::RenderItem;
-use crate::sources::render_geojson_source::RenderGeoJSONSource;
-use crate::sources::render_raster_source::RenderRasterSource;
-use crate::sources::render_vector_source::RenderVectorSource;
-use crate::tile::tile::{TileBase, TileOperation};
-use crate::tile::tile_observer::TileObserver;
-use crate::tile_parameters::TileParameters;
+use std::any::Any;
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use mln_actor::TaggedScheduler;
 use mln_map_types::MapDebugOptions;
 use mln_style::layer_properties::LayerProperties;
@@ -28,9 +22,17 @@ use mln_tile_id::OverscaledTileID;
 use mln_util::constants;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
-use std::any::Any;
-use std::cell::RefCell;
-use std::rc::Rc;
+
+use crate::image_manager::ImageManager;
+use crate::paint_parameters::TransformParameters;
+use crate::render_tile::RenderTile;
+use crate::render_tree::RenderItem;
+use crate::sources::render_geojson_source::RenderGeoJSONSource;
+use crate::sources::render_raster_source::RenderRasterSource;
+use crate::sources::render_vector_source::RenderVectorSource;
+use crate::tile::tile::{TileBase, TileOperation};
+use crate::tile::tile_observer::TileObserver;
+use crate::tile_parameters::TileParameters;
 
 /// `SourcePrepareParameters`.
 pub struct SourcePrepareParameters<'a> {

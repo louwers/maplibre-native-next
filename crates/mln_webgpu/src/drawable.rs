@@ -4,13 +4,11 @@
 // Logging: the C++ `Log::Warning`/`Log::Error` calls print to stderr here.
 // TODO(port): route them through mln::Log once a logging port exists.
 
-use crate::context::Context;
-use crate::render_pass::RenderPass;
-use crate::shaders::shader_program::{BindingType, ShaderProgram, VertexLayout, as_webgpu_shader};
-use crate::texture2d::Texture2D;
-use crate::uniform_buffer::UniformBuffer;
-use crate::upload_pass::UploadPass;
-use crate::vertex_buffer_resource::{IndexBufferResource, VertexBufferResource};
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+use std::time::Instant;
+
 use bytemuck::{Pod, Zeroable};
 use mln_gfx::attribute::AttributeBindingArray;
 use mln_gfx::color_mode::{BlendFunction, ColorMode};
@@ -33,10 +31,14 @@ use mln_gfx::upload_pass::UploadPass as _;
 use mln_gfx::util_hash::hash;
 use mln_gfx::vertex_attribute::{VertexAttribute, VertexAttributeArray, VertexAttributeArrayPtr};
 use mln_gfx::vertex_buffer::{IndexBuffer as GfxIndexBuffer, UniqueVertexBufferResource};
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::time::Instant;
+
+use crate::context::Context;
+use crate::render_pass::RenderPass;
+use crate::shaders::shader_program::{BindingType, ShaderProgram, VertexLayout, as_webgpu_shader};
+use crate::texture2d::Texture2D;
+use crate::uniform_buffer::UniformBuffer;
+use crate::upload_pass::UploadPass;
+use crate::vertex_buffer_resource::{IndexBufferResource, VertexBufferResource};
 
 #[derive(Clone, Copy, Pod, Zeroable)]
 #[repr(C, align(16))]

@@ -4,6 +4,28 @@
 //
 // TODO(port): captureRenderedFeatures (UpdateParameters::captureRenderedFeatures).
 
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_gfx::drawable_tweaker::DrawableTweakerPtr;
+use mln_gfx::index_vector::IndexVectorBase;
+use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
+use mln_gfx::shaders::shader_defines::*;
+use mln_gfx::{
+    AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, DrawableBuilder, ShaderRegistry,
+    UniqueDrawableBuilder,
+};
+use mln_map_types::TransformState;
+use mln_style::layer::static_immutable_cast;
+use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
+use mln_style::layers::fill_extrusion_layer_impl::Impl as FillExtrusionLayerImpl;
+use mln_style::layers::fill_extrusion_layer_properties::*;
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_style_types::AlignmentType;
+use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
+
 use super::fill_extrusion_layer_tweaker::FillExtrusionLayerTweaker;
 use super::{
     TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot, shared_vertices,
@@ -18,27 +40,6 @@ use crate::render_layer::{RenderLayer, RenderLayerBase};
 use crate::render_pass::RenderPass;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::drawable_tweaker::DrawableTweakerPtr;
-use mln_gfx::index_vector::IndexVectorBase;
-use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
-use mln_gfx::shaders::shader_defines::*;
-use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DrawMode, DrawableBuilder, ShaderRegistry,
-    UniqueDrawableBuilder,
-};
-use mln_map_types::TransformState;
-use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{LayerProperties, get_crossfade, get_evaluated};
-use mln_style::layers::fill_extrusion_layer_impl::Impl as FillExtrusionLayerImpl;
-use mln_style::layers::fill_extrusion_layer_properties::*;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_style_types::AlignmentType;
-use mln_util::identity::SimpleIdentity;
-use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &FillExtrusionLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), FillExtrusionLayerImpl::static_type_info()));

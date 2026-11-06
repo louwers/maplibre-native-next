@@ -2,8 +2,9 @@
 // tests that fail but are not listed in expected_failures.txt. Tests listed
 // there that pass are reported so the list can shrink.
 
-use expression_test::{find_metrics_dir, print_stats, run};
 use std::collections::BTreeSet;
+
+use expression_test::{find_metrics_dir, print_stats, run};
 
 #[test]
 fn expression_corpus() {

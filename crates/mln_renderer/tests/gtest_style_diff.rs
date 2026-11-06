@@ -1,9 +1,10 @@
 // Ports test/renderer/style_diff.test.cpp.
 
+use std::sync::Arc;
+
 use mln_renderer::style_diff::diff_layers;
 use mln_style::layer::{Impl, ImplBase, LayerTypeInfo, layer_type_info};
 use mln_util::immutable::Immutable;
-use std::sync::Arc;
 
 #[derive(Debug)]
 struct TestLayerImpl {

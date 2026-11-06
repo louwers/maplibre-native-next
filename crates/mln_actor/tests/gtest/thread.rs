@@ -1,14 +1,16 @@
 // Ports test/util/thread.test.cpp.
 
-use crate::{Failures, get};
+use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex, mpsc};
+use std::thread::ThreadId;
+
 use mln_actor::actor::Actor;
 use mln_actor::scheduler::{self, SchedulerPtr, TaggedScheduler, Task};
 use mln_actor::{ActorRef, RunLoop, Thread, Timer};
 use mln_util::chrono::{Duration, milliseconds};
 use mln_util::identity::SimpleIdentity;
-use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex, mpsc};
-use std::thread::ThreadId;
+
+use crate::{Failures, get};
 
 struct TestObject {
     tid: ThreadId,

@@ -11,10 +11,10 @@
 // (emdawnwebgpu, as the C++ core uses there), via mln_wgpu_webgpu_h: wgpu
 // itself only has GLES on that target.
 
-use crate::context::Context;
-use crate::offscreen_texture::OffscreenTextureResource;
-use crate::renderable_resource::{RenderableResource, RenderableResourceBox, downcast_resource};
-use crate::renderer_backend::RendererBackend;
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use mln_gfx::context::Context as GfxContext;
 use mln_gfx::headless_backend;
 use mln_gfx::renderable::{Renderable, RenderableBase, SwapBehaviour};
@@ -25,9 +25,11 @@ use mln_gfx::texture2d::Texture2DPtr;
 use mln_gfx::types::TextureChannelDataType;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
+
+use crate::context::Context;
+use crate::offscreen_texture::OffscreenTextureResource;
+use crate::renderable_resource::{RenderableResource, RenderableResourceBox, downcast_resource};
+use crate::renderer_backend::RendererBackend;
 
 /// `HeadlessRenderableResource`: renders into an offscreen texture.
 struct HeadlessRenderableResource {

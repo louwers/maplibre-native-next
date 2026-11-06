@@ -9,10 +9,11 @@
 // Every mismatch is reported. Mismatches with a known, documented cause
 // (DEVIATIONS.md) are counted per cause; any other mismatch fails the test.
 
+use std::collections::BTreeMap;
+
 use mln_text::{FreeTypeLibrary, GlyphID, HBShapeAdjust, HBShaper};
 use proptest::strategy::{Strategy, ValueTree};
 use proptest::test_runner::{Config, TestRng, TestRunner};
-use std::collections::BTreeMap;
 use text_reference::*;
 
 /// Like println!, but not captured by the test harness, so the summary is

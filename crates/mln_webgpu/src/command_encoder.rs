@@ -8,17 +8,19 @@
 // rejects `finish()` while a pass is still open, as WebGPU requires (the
 // renderer drops its pass before `present`).
 
-use crate::context::Context;
-use crate::render_pass::RenderPass;
-use crate::renderable_resource::as_webgpu;
-use crate::upload_pass::UploadPass;
+use std::any::Any;
+use std::cell::{RefCell, RefMut};
+use std::rc::Rc;
+
 use mln_gfx::command_encoder;
 use mln_gfx::debug_group::DebugGroupTarget;
 use mln_gfx::render_pass::RenderPassDescriptor;
 use mln_gfx::renderable::Renderable;
-use std::any::Any;
-use std::cell::{RefCell, RefMut};
-use std::rc::Rc;
+
+use crate::context::Context;
+use crate::render_pass::RenderPass;
+use crate::renderable_resource::as_webgpu;
+use crate::upload_pass::UploadPass;
 
 pub struct CommandEncoder {
     context: Rc<Context>,

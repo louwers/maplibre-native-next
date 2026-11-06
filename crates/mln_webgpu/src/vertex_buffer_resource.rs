@@ -4,11 +4,13 @@
 // Both are shared through `Rc` (gfx::AttributeBinding keeps a clone) and
 // updated in place, so the buffer sits behind a `RefCell`.
 
-use crate::buffer_resource::BufferResource;
-use mln_gfx::vertex_buffer;
 use std::any::Any;
 use std::cell::{Cell, Ref, RefCell, RefMut};
 use std::time::Instant;
+
+use mln_gfx::vertex_buffer;
+
+use crate::buffer_resource::BufferResource;
 
 pub struct VertexBufferResource {
     buffer: RefCell<BufferResource>,

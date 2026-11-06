@@ -2,6 +2,11 @@
 // PropertyExpression, PropertyValue, Filter, ColorRampPropertyValue and
 // FormatSectionOverride, which are mln_style / renderer types; see below).
 
+use std::collections::BTreeSet;
+
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+
 use crate::expression::{
     Dependency, EvaluationContext, Expression, GlobalStateMap, Kind, collect_global_state_refs,
     global_state_refs_intersect,
@@ -10,9 +15,6 @@ use crate::is_constant::{is_feature_constant, is_runtime_constant, is_zoom_const
 use crate::parsing_context::ParsingContext;
 use crate::type_::Type;
 use crate::value::Value;
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
-use std::collections::BTreeSet;
 
 fn parse_expression(json: &str, expected: Option<Type>) -> Option<Box<dyn Expression>> {
     let document: serde_json::Value = serde_json::from_str(json).unwrap();

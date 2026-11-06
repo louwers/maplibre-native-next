@@ -3,16 +3,17 @@
 // test target because it needs mln_map and mln_platform_default, which
 // depend on mln_storage.
 
+use std::collections::HashMap;
+use std::path::PathBuf;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+
 use mln_actor::RunLoop;
 use mln_map::{Map, MapOptions, NullMapObserver};
 use mln_platform_default::HeadlessFrontend;
 use mln_storage::response::{Error, Reason};
 use mln_storage::{AsyncRequest, Callback, ClientOptions, FileSource, Resource, ResourceOptions, Response};
 use mln_util::size::Size;
-use std::collections::HashMap;
-use std::path::PathBuf;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 
 fn read_file(relative: &str) -> Vec<u8> {
     let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");

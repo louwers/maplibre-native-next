@@ -12,6 +12,12 @@
 //
 // Responses are compared as text in the format of oracle_main.cpp.
 
+use std::any::Any;
+use std::cell::RefCell;
+use std::io::{BufRead, Write};
+use std::path::PathBuf;
+use std::rc::Rc;
+
 use feature::{Identifier, Value};
 use mln_actor::{RunLoop, TaggedScheduler, scheduler};
 use mln_conversion::{Convertible, Error};
@@ -34,11 +40,6 @@ use mln_util::geo::LatLng;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
-use std::any::Any;
-use std::cell::RefCell;
-use std::io::{BufRead, Write};
-use std::path::PathBuf;
-use std::rc::Rc;
 
 /// The C++ oracle process, shared by the tests.
 struct Oracle {

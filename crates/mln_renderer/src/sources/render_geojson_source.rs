@@ -4,13 +4,10 @@
 // TODO(port): queryFeatureExtensions (supercluster children/leaves/
 // expansion-zoom, M6).
 
-use crate::render_source::{RenderSource, RenderSourceBase, RenderTiles, SourcePrepareParameters};
-use crate::render_tile::RenderTile;
-use crate::render_tree::RenderItem;
-use crate::sources::render_tile_source::RenderTileSource;
-use crate::tile::geojson_tile::GeoJSONTile;
-use crate::tile::tile::Tile;
-use crate::tile_parameters::TileParameters;
+use std::any::Any;
+use std::rc::Rc;
+use std::sync::{Arc, Weak};
+
 use mln_actor::TaggedScheduler;
 use mln_map_types::MapMode;
 use mln_style::layer_properties::LayerProperties;
@@ -20,9 +17,14 @@ use mln_style::sources::geojson_source::GeoJSONData;
 use mln_style::sources::geojson_source_impl;
 use mln_util::constants;
 use mln_util::immutable::Immutable;
-use std::any::Any;
-use std::rc::Rc;
-use std::sync::{Arc, Weak};
+
+use crate::render_source::{RenderSource, RenderSourceBase, RenderTiles, SourcePrepareParameters};
+use crate::render_tile::RenderTile;
+use crate::render_tree::RenderItem;
+use crate::sources::render_tile_source::RenderTileSource;
+use crate::tile::geojson_tile::GeoJSONTile;
+use crate::tile::tile::Tile;
+use crate::tile_parameters::TileParameters;
 
 /// `std::weak_ptr::lock()` equality: both empty or both the same object.
 fn same_data(a: &Option<Arc<dyn GeoJSONData>>, b: &Option<Arc<dyn GeoJSONData>>) -> bool {

@@ -1,13 +1,15 @@
 // Ports src/mln/renderer/tile_render_data.hpp and
 // src/mln/renderer/tile_render_data.cpp.
 
-use crate::bucket::BucketPtr;
-use crate::render_layer::LayerRenderData;
-use crate::render_source::SourcePrepareParameters;
+use std::rc::Rc;
+
 use mln_gfx::UploadPass;
 use mln_style::layer;
 use mln_style_types::image::ImagePosition;
-use std::rc::Rc;
+
+use crate::bucket::BucketPtr;
+use crate::render_layer::LayerRenderData;
+use crate::render_source::SourcePrepareParameters;
 
 /// `TileAtlasTextures`: the glyph and icon (+ pattern) atlas textures of a
 /// tile, set in the upload pass (`RefCell`: C++ assigns through the shared

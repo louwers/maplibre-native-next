@@ -1,5 +1,18 @@
 // Ports test/style/style.test.cpp.
 
+use std::cell::Cell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use feature::Value;
+use mln_conversion::Convertible;
+use mln_style_types::VisibilityType;
+use mln_util::LatLng;
+use mln_util::chrono::milliseconds;
+use mln_util::image::PremultipliedImage;
+use mln_util::logging::{Event, EventSeverity};
+use mln_util::size::Size;
+
 use super::util::{FixtureLog, parse_json, read_file};
 use crate::image;
 use crate::layer::Layer;
@@ -9,17 +22,6 @@ use crate::observer::{Observer, SourceObserver};
 use crate::sources::tile_source::{UrlOrTileset, VectorSource};
 use crate::style::{Impl, Style};
 use crate::transition_options::TransitionOptions;
-use feature::Value;
-use mln_conversion::Convertible;
-use mln_style_types::VisibilityType;
-use mln_util::LatLng;
-use mln_util::chrono::milliseconds;
-use mln_util::image::PremultipliedImage;
-use mln_util::logging::{Event, EventSeverity};
-use mln_util::size::Size;
-use std::cell::Cell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 /// `Style::Impl style{fileSource, 1.0, threadPool}` with
 /// `auto fileSource = std::make_shared<StubFileSource>();`, as the C++ style

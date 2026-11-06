@@ -1,11 +1,12 @@
 // Ports test/style/expression/semiliteral.test.cpp.
 
+use feature::Feature;
+use mln_conversion::Convertible;
+
 use crate::expression::{EvaluationContext, Kind, evaluate_feature};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use feature::Feature;
-use mln_conversion::Convertible;
 
 fn parse_semiliteral(json: &str, ctx: &mut ParsingContext, property: bool) -> ParseResult {
     let document: serde_json::Value = serde_json::from_str(json).unwrap();

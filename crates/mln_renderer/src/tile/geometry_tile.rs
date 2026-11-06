@@ -22,18 +22,13 @@
 // image updates), queries, feature state, HarfBuzz shaping of font-face
 // glyphs in onGlyphsAvailable.
 
-use crate::bucket::BucketPtr;
-use crate::geometry::feature_index::FeatureIndex;
-use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlasPtr, GlyphAtlas, ImageAtlas, ImageVersionMap};
-use crate::image_manager::{ImageManager, ImageRequestPair, ImageRequestor, ImageRequestorBase, requestor_key};
-use crate::render_layer::LayerRenderData;
-use crate::render_source::SourcePrepareParameters;
-use crate::text::glyph_manager::{GlyphManager, GlyphRequestor, HBShapeResults, glyph_requestor_key};
-use crate::tile::geometry_tile_worker::{GeometryTileWorker, ParentRef, SharedTileData};
-use crate::tile::tile::{Kind, Tile, TileBase, TileOperation};
-use crate::tile::tile_observer::TileObserver;
-use crate::tile_parameters::TileParameters;
-use crate::tile_render_data::{TileAtlasTextures, TileRenderData};
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeSet, HashMap};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use mln_actor::actor::{Actor, PoolActorRef};
 use mln_actor::{ActorRef, LocalObject, Mailbox, scheduler};
 use mln_gfx::UploadPass;
@@ -49,12 +44,19 @@ use mln_text::glyph::{GlyphDependencies, GlyphMap, HBShapeRequests};
 use mln_tile_id::OverscaledTileID;
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::collections::{BTreeSet, HashMap};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+
+use crate::bucket::BucketPtr;
+use crate::geometry::feature_index::FeatureIndex;
+use crate::gfx::dynamic_texture_atlas::{DynamicTextureAtlasPtr, GlyphAtlas, ImageAtlas, ImageVersionMap};
+use crate::image_manager::{ImageManager, ImageRequestPair, ImageRequestor, ImageRequestorBase, requestor_key};
+use crate::render_layer::LayerRenderData;
+use crate::render_source::SourcePrepareParameters;
+use crate::text::glyph_manager::{GlyphManager, GlyphRequestor, HBShapeResults, glyph_requestor_key};
+use crate::tile::geometry_tile_worker::{GeometryTileWorker, ParentRef, SharedTileData};
+use crate::tile::tile::{Kind, Tile, TileBase, TileOperation};
+use crate::tile::tile_observer::TileObserver;
+use crate::tile_parameters::TileParameters;
+use crate::tile_render_data::{TileAtlasTextures, TileRenderData};
 
 /// The atlases of a `LayoutResult`; dropping the last reference releases
 /// their bins (C++ `~LayoutResult`). Shared, so that copies of a
@@ -820,11 +822,12 @@ impl Tile for GeometryTile {
 }
 
 // query
+use mln_util::feature::Feature;
+use mln_util::mat4::Mat4;
+
 use crate::geometry::feature_index::{QueryLayers, QueryResults};
 use crate::query::{RenderedQueryOptions, SourceQueryOptions};
 use crate::source_state::SourceFeatureState;
-use mln_util::feature::Feature;
-use mln_util::mat4::Mat4;
 
 /// The feature loop of `GeometryTile::querySourceFeatures` and
 /// `GeoJSONTile::querySourceFeatures`.

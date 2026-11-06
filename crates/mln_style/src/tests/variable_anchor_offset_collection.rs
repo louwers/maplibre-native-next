@@ -1,12 +1,13 @@
 // Ports test/style/variable_anchor_offset_collection.test.cpp (the type is
 // in mln_style_types, its converter in mln_style).
 
+use mln_conversion::Convertible;
+use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection};
+
 use super::util::parse_json;
 use crate::conversion::{Converter, Error, convert_layer, convert_property_value};
 use crate::property_expression::PropertyExpression;
 use crate::property_value::PropertyValue;
-use mln_conversion::Convertible;
-use mln_style_types::{AnchorOffsetPair, SymbolAnchorType, VariableAnchorOffsetCollection};
 
 fn parse(src: &str, error: &mut Error) -> Option<VariableAnchorOffsetCollection> {
     let value = parse_json(src);

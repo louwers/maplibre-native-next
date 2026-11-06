@@ -3,9 +3,8 @@
 // strings: the runner computes test ids by string offsets into them, as C++
 // does.
 
-use std::fs;
-use std::io;
 use std::path::Path;
+use std::{fs, io};
 
 /// `path::is_relative()` (POSIX: no leading `/`).
 pub fn is_relative(path: &str) -> bool {

@@ -5,6 +5,8 @@
 // `Drawable::draw`, `LayerGroupBase::render` and `DrawableTweaker::execute`.
 // The renderer's struct implements this trait; the backends only see it.
 
+use mln_tile_id::UnwrappedTileID;
+
 use crate::command_encoder::CommandEncoder;
 use crate::context::Context;
 use crate::depth_mode::DepthMode;
@@ -13,7 +15,6 @@ use crate::renderer::render_pass::RenderPass;
 use crate::scissor_rect::ScissorRect;
 use crate::stencil_mode::StencilMode;
 use crate::types::DepthMaskType;
-use mln_tile_id::UnwrappedTileID;
 
 pub trait PaintParameters {
     /// `gfx::Context& context`

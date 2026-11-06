@@ -1,14 +1,16 @@
 // Ports include/mln/webgpu/drawable_builder.hpp and src/mln/webgpu/drawable_builder.cpp
 
-use crate::drawable::Drawable;
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use mln_gfx::draw_mode::DrawMode;
 use mln_gfx::drawable::{DrawSegment, Drawable as _, UniqueDrawSegment, UniqueDrawable};
 use mln_gfx::drawable_builder::{self, DrawableBuilderBase};
 use mln_gfx::gfx_types::AttributeDataType;
 use mln_gfx::index_vector::IndexVectorBase;
 use mln_gfx::shaders::segment::SegmentBase;
-use std::cell::RefCell;
-use std::rc::Rc;
+
+use crate::drawable::Drawable;
 
 pub struct DrawableBuilder {
     base: DrawableBuilderBase,

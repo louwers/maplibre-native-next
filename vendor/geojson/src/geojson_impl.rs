@@ -15,13 +15,14 @@
 // debug builds and reads garbage in release builds; the port returns an
 // error instead (marked TODO(port) below).
 
-use crate::{Error, FeatureCollection, GeoJSON};
 use feature::{Feature, Identifier, PropertyMap, Value};
 use geometry::{
     Geometry, GeometryCollection, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon,
 };
 use rapidjson::Writer;
 use serde_json::Value as Json;
+
+use crate::{Error, FeatureCollection, GeoJSON};
 
 type Result<T> = std::result::Result<T, Error>;
 

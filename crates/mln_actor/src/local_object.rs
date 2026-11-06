@@ -96,8 +96,9 @@ impl<T: 'static> Drop for LocalObject<T> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::cell::Cell;
+
+    use super::*;
 
     #[test]
     fn only_the_home_thread_sees_the_value() {

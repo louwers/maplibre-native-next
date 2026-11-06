@@ -8,9 +8,10 @@
 // `getBackend()`, `getCommandEncoder()` and `getRenderPassEncoder()` return
 // dummies in every C++ implementation; they are not ported.
 
-use mln_gfx::renderable;
 use std::any::Any;
 use std::rc::Rc;
+
+use mln_gfx::renderable;
 
 pub trait RenderableResource {
     /// WebGPU binding happens at the command encoder level; a no-op.

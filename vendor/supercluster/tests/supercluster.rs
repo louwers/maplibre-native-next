@@ -1,10 +1,11 @@
 // Ports vendor/supercluster/test/test.cpp over test/fixtures/places.json,
 // read in place (parseFeatures reads the same properties the same way).
 
+use std::sync::Arc;
+
 use feature::{Feature, Identifier, PropertyMap, Value};
 use geometry::{Geometry, Point};
 use serde_json::Value as Json;
-use std::sync::Arc;
 use supercluster::{Options, Supercluster};
 
 fn parse_features() -> Vec<Feature<f64>> {

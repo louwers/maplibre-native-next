@@ -5,11 +5,9 @@
 // Quirk kept: the conversion interpolates with ColorSpace::RGB; the legacy
 // "colorSpace" member is not read.
 
-use super::{Converter, Convertible, Error, convert};
-use crate::expression::{
-    Expression, Image, ParsingContext, Step, Stops, Type, Value, ValueConverter, create_interpolate, dsl,
-};
-use crate::property_expression::PropertyExpression;
+use std::collections::BTreeMap;
+use std::sync::Arc;
+
 use mln_expression::Interpolator;
 use mln_expression::case::Case;
 use mln_expression::format_expression::{FormatExpression, FormatExpressionSection};
@@ -18,8 +16,12 @@ use mln_expression::image_expression::ImageExpression;
 use mln_expression::match_::{Match, MatchLabel};
 use mln_style_types::VariableAnchorOffsetCollection;
 use mln_util::{Color, ColorSpace, Padding};
-use std::collections::BTreeMap;
-use std::sync::Arc;
+
+use super::{Converter, Convertible, Error, convert};
+use crate::expression::{
+    Expression, Image, ParsingContext, Step, Stops, Type, Value, ValueConverter, create_interpolate, dsl,
+};
+use crate::property_expression::PropertyExpression;
 
 const TOKEN_RESERVED_CHARS: &[u8] = b"{}";
 

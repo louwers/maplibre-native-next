@@ -2,17 +2,19 @@
 // these check the ported behaviour on the shared fixtures (through
 // runfiles) and on small generated suites with a mock TestRunnerImpl.
 
+use std::cell::RefCell;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
+
+use mln_platform_default_image::encode_png;
+use mln_util::image::PremultipliedImage;
+use mln_util::size::Size;
+
 use crate::manifest_parser::ManifestParser;
 use crate::metadata::{MapDebugOptions, MapMode, TestMetadata};
 use crate::parser::{parse_test_metadata, parse_test_operations};
 use crate::render_test::{Arguments, RunResult, parse_arguments, run_render_tests_with};
 use crate::runner::{ImplFactory, MapError, ResourceOptions, TestContext, TestRunner, TestRunnerImpl, UpdateResults};
-use mln_platform_default_image::encode_png;
-use mln_util::image::PremultipliedImage;
-use mln_util::size::Size;
-use std::cell::RefCell;
-use std::path::{Path, PathBuf};
-use std::rc::Rc;
 
 const OUR_MANIFEST: &str = "tools/render-test/manifests/linux-wgpu.json";
 const CPP_MANIFEST: &str = "../maplibre+/metrics/linux-opengl.json";

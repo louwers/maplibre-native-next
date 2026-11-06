@@ -4,10 +4,11 @@
 // functions of the default platform (uppercase/lowercase/unaccent) and
 // nu_strcoll/nu_strcasecoll (exact return values).
 
+use std::path::PathBuf;
+
 use nunicode::casemap::{nu_tolower, nu_tounaccent, nu_toupper};
 use nunicode::ducet::nu_ducet_weight;
 use proptest::prelude::*;
-use std::path::PathBuf;
 
 unsafe extern "C" {
     fn ref_nu_strcoll(a: *const u8, alen: usize, b: *const u8, blen: usize) -> i32;

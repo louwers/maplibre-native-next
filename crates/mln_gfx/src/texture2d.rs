@@ -1,11 +1,13 @@
 // Ports include/mln/gfx/texture2d.hpp
 
-use crate::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
-use mln_util::image::PremultipliedImage;
-use mln_util::size::Size;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use mln_util::image::PremultipliedImage;
+use mln_util::size::Size;
+
+use crate::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
 
 pub const MAX_ACTIVE_TEXTURE_UNITS: i32 = 8;
 

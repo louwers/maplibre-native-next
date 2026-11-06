@@ -4,15 +4,17 @@
 // scheduled by background workers) arrives with the first user; the WebGPU
 // context calls `runRenderJobs()` in begin/endFrame, a no-op until then.
 
+use std::any::Any;
+use std::cell::OnceCell;
+use std::rc::Rc;
+
+use mln_util::identity::SimpleIdentity;
+
 use crate::backend_scope::BackendScope;
 use crate::context::Context;
 use crate::renderable::Renderable;
 use crate::shader_registry::ShaderRegistry;
 use crate::shaders::program_parameters::ProgramParameters;
-use mln_util::identity::SimpleIdentity;
-use std::any::Any;
-use std::cell::OnceCell;
-use std::rc::Rc;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ContextMode {

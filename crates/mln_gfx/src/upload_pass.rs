@@ -3,6 +3,9 @@
 // TODO(port): the typed `createVertexBuffer<Vertex>` / `createIndexBuffer<DrawMode>`
 // helpers of the legacy program path.
 
+use std::any::Any;
+use std::time::Instant;
+
 use crate::attribute::AttributeBindingArray;
 use crate::context::Context;
 use crate::debug_group::{DebugGroup, DebugGroupTarget};
@@ -10,8 +13,6 @@ use crate::gfx_types::AttributeDataType;
 use crate::types::BufferUsageType;
 use crate::vertex_attribute::VertexAttributeArray;
 use crate::vertex_buffer::{IndexBufferResource, UniqueVertexBufferResource, VertexBufferResource};
-use std::any::Any;
-use std::time::Instant;
 
 pub trait UploadPass: DebugGroupTarget + Any {
     fn get_context(&self) -> &dyn Context;

@@ -6,10 +6,12 @@
 // the released tiles are cancelled as in C++ and dropped on the render
 // thread in `defer_pending_releases`.
 
-use crate::tile::tile::Tile;
+use std::collections::BTreeMap;
+
 use mln_actor::TaggedScheduler;
 use mln_tile_id::OverscaledTileID;
-use std::collections::BTreeMap;
+
+use crate::tile::tile::Tile;
 
 /// `TileCache`.
 pub struct TileCache {
@@ -147,14 +149,16 @@ impl Drop for TileCache {
 // mock; vector tiles are not ported yet (M4), so the mock is a plain tile.
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::tile::tile::{Kind, TileBase};
-    use crate::tile_render_data::TileRenderData;
+    use std::any::Any;
+
     use mln_actor::scheduler;
     use mln_style::layer_properties::LayerProperties;
     use mln_util::identity::SimpleIdentity;
     use mln_util::immutable::Immutable;
-    use std::any::Any;
+
+    use super::*;
+    use crate::tile::tile::{Kind, TileBase};
+    use crate::tile_render_data::TileRenderData;
 
     struct VectorTileMock {
         base: TileBase,

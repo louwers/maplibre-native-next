@@ -1,11 +1,12 @@
 // Ports include/mln/style/conversion/light.hpp +
 // src/mln/style/conversion/light.cpp.
 
+use mln_style_types::{LightAnchorType, Position};
+use mln_util::Color;
+
 use super::{Converter, Convertible, Error, convert, convert_property_value};
 use crate::light::Light;
 use crate::transition_options::TransitionOptions;
-use mln_style_types::{LightAnchorType, Position};
-use mln_util::Color;
 
 impl Converter for Light {
     fn convert(value: &Convertible<'_>, error: &mut Error) -> Option<Light> {

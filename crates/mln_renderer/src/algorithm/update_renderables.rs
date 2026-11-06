@@ -5,10 +5,12 @@
 // and tiles are named by their key in the caller's tile storage (the
 // `OverscaledTileID` the tile was stored under).
 
-use crate::tile::tile::TileNecessity;
+use std::collections::HashSet;
+
 use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
 use mln_util::range::Range;
-use std::collections::HashSet;
+
+use crate::tile::tile::TileNecessity;
 
 /// The tile storage and the callbacks `updateRenderables` works with.
 pub trait RenderablesContext {

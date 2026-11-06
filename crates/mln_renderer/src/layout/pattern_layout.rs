@@ -12,13 +12,9 @@
 // again in `create_bucket` (C++ keeps the `unique_ptr<GeometryTileFeature>`).
 // Getting a feature twice yields the same feature.
 
-use crate::bucket::{Bucket, BucketPtr};
-use crate::bucket_parameters::BucketParameters;
-use crate::buckets::fill_bucket::FillBucket;
-use crate::buckets::line_bucket::LineBucket;
-use crate::geometry::feature_index::FeatureIndex;
-use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
-use crate::render_layer::LayerRenderData;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::sync::Arc;
+
 use mln_style::PropertyEvaluationParameters;
 use mln_style::expression::{EvaluationContext, Image};
 use mln_style::layer_properties::{LayerProperties, get_evaluated};
@@ -32,8 +28,14 @@ use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, GeometryTileLayer};
 use mln_util::exception::ExceptionPtr;
 use mln_util::immutable::Immutable;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::sync::Arc;
+
+use crate::bucket::{Bucket, BucketPtr};
+use crate::bucket_parameters::BucketParameters;
+use crate::buckets::fill_bucket::FillBucket;
+use crate::buckets::line_bucket::LineBucket;
+use crate::geometry::feature_index::FeatureIndex;
+use crate::layout::layout::{Layout, LayoutParameters, SourceLayer};
+use crate::render_layer::LayerRenderData;
 
 /// `PatternDependency`.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]

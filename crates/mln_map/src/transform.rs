@@ -5,22 +5,23 @@
 // C++ `updateTransitions`, they are moved out of the Transform before they
 // are called.
 
-use crate::map_observer::CameraChangeMode;
+use std::f64::consts::PI;
+use std::rc::Rc;
+
 use geometry::Point;
 use mln_map_types::{
     AnimationOptions, CameraOptions, ConstrainMode, FreeCameraOptions, NorthOrientation, ProjectionMode,
     TransformState, TransformStateProperties, ViewportMode,
 };
 use mln_util::chrono::{Clock, Duration, TimePoint};
+use mln_util::constants::{DEFAULT_TRANSITION_EASE, M2PI, PITCH_MAX};
 use mln_util::geo::{EdgeInsets, LatLng, LatLngBounds, ScreenCoordinate, WrapMode};
 use mln_util::interpolate::interpolate;
 use mln_util::logging::{Event, Log};
 use mln_util::projection::Projection;
 use mln_util::size::Size;
-use std::f64::consts::PI;
-use std::rc::Rc;
 
-use mln_util::constants::{DEFAULT_TRANSITION_EASE, M2PI, PITCH_MAX};
+use crate::map_observer::CameraChangeMode;
 
 /// `std::min`.
 fn std_min(a: f64, b: f64) -> f64 {

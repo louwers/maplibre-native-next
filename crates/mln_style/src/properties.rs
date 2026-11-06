@@ -16,6 +16,17 @@
 // Interpolation with a float `t` is `mln_util::interpolate::Interpolate::interpolate_f32`
 // (C++ `util::interpolate(a, b, float t)`).
 
+use std::cell::RefCell;
+use std::collections::BTreeSet;
+use std::fmt::Debug;
+
+use mln_expression::expression::FeatureState;
+use mln_tile_id::CanonicalTileID;
+use mln_tile_id::geometry_tile_data::GeometryTileFeature;
+use mln_util::chrono::{Duration, TimePoint};
+use mln_util::constants::DEFAULT_TRANSITION_EASE;
+use mln_util::interpolate::Interpolate;
+
 use crate::expression::{Dependency, ValueConverter};
 use crate::property_value::PropertyValue;
 use crate::renderer::possibly_evaluated_property_value::PossiblyEvaluatedPropertyValue;
@@ -23,15 +34,6 @@ use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameter
 use crate::renderer::property_evaluator::Evaluator;
 use crate::renderer::transition_parameters::TransitionParameters;
 use crate::transition_options::TransitionOptions;
-use mln_expression::expression::FeatureState;
-use mln_tile_id::CanonicalTileID;
-use mln_tile_id::geometry_tile_data::GeometryTileFeature;
-use mln_util::chrono::{Duration, TimePoint};
-use mln_util::constants::DEFAULT_TRANSITION_EASE;
-use mln_util::interpolate::Interpolate;
-use std::cell::RefCell;
-use std::collections::BTreeSet;
-use std::fmt::Debug;
 
 /// What `Transitioning<Value>` / `Transitionable<Value>` need from `Value`
 /// (`PropertyValue<T>`; later `ColorRampPropertyValue`).

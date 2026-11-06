@@ -8,6 +8,15 @@
 //
 // TODO(port): `setResourceTransform`; MBGL_TIMING logs.
 
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::{Rc, Weak};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
+
+use mln_actor::{ActorRef, Thread};
+use mln_util::client_options::ClientOptions;
+
 use crate::async_request::AsyncRequest;
 use crate::file_source::{Callback, FileSource, FileSourceType};
 use crate::file_source_manager::FileSourceManager;
@@ -15,13 +24,6 @@ use crate::file_source_request::{FileSourceRequest, FileSourceRequestState};
 use crate::resource::{LoadingMethod, Priority, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Error, Reason, Response};
-use mln_actor::{ActorRef, Thread};
-use mln_util::client_options::ClientOptions;
-use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::rc::{Rc, Weak};
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, Mutex};
 
 type FileSourcePtr = Option<Arc<dyn FileSource>>;
 

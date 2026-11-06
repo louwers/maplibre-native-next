@@ -1,6 +1,9 @@
 // Ports include/mln/style/expression/semiliteral.hpp and
 // src/mln/style/expression/semiliteral.cpp.
 
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+
 use crate::expression::{
     EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal, collect_dependencies,
     downcast,
@@ -9,8 +12,6 @@ use crate::literal::Literal;
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::Value;
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
 
 fn array_type(elements: &[Box<dyn Expression>]) -> type_::Array {
     let item_type = if elements.is_empty() { Type::Value } else { elements[0].get_type().clone() };

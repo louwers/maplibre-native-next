@@ -3,18 +3,20 @@
 // The C++ `ShaderGroup<BuiltIn ShaderID>` template is one type here holding
 // the `BuiltIn` value.
 
-use crate::context::Context;
-use crate::shaders::shader_program::ShaderProgram;
-use crate::shaders::shader_source::shader_source;
-use crate::shaders::wgsl_preprocessor::preprocess_wgsl;
+use std::collections::HashMap;
+use std::rc::Rc;
+
 use mln_gfx::context::Context as GfxContext;
 use mln_gfx::shader_group::{self, ShaderGroupData, StringIDSetsPair, get_shader_name, property_hash};
 use mln_gfx::shaders::program_parameters::ProgramParameters;
 use mln_gfx::shaders::shader_program_base::ShaderProgramBasePtr;
 use mln_gfx::shaders::shader_source::BuiltIn;
 use mln_gfx::util_hash::hash_combine;
-use std::collections::HashMap;
-use std::rc::Rc;
+
+use crate::context::Context;
+use crate::shaders::shader_program::ShaderProgram;
+use crate::shaders::shader_source::shader_source;
+use crate::shaders::wgsl_preprocessor::preprocess_wgsl;
 
 const UNIFORM_PREFIX: &str = "HAS_UNIFORM_u_";
 

@@ -5,18 +5,20 @@
 // `getRenderPipeline`). The port keeps the size and an identity of the
 // renderable instead of the reference.
 
-use crate::command_encoder::CommandEncoder;
-use crate::context::Context;
-use crate::renderable_resource::as_webgpu;
+use std::any::Any;
+use std::cell::{Cell, Ref, RefCell, RefMut};
+use std::rc::Rc;
+use std::sync::OnceLock;
+
 use mln_gfx::context::Context as _;
 use mln_gfx::debug_group::DebugGroupTarget;
 use mln_gfx::render_pass::{self, RenderPassDescriptor};
 use mln_gfx::uniform_buffer::UniformBufferArray;
 use mln_util::size::Size;
-use std::any::Any;
-use std::cell::{Cell, Ref, RefCell, RefMut};
-use std::rc::Rc;
-use std::sync::OnceLock;
+
+use crate::command_encoder::CommandEncoder;
+use crate::context::Context;
+use crate::renderable_resource::as_webgpu;
 
 pub struct RenderPass {
     context: Rc<Context>,

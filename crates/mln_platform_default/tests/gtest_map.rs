@@ -10,6 +10,11 @@ mod gtest_map_snapshotter;
 mod gtest_prefetch;
 mod support;
 
+use std::cell::{Cell, RefCell};
+use std::collections::HashSet;
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use feature::Value;
 use geojson::{Feature, GeoJSON, Geometry, Point};
 use mln_actor::{RunLoop, Timer};
@@ -44,10 +49,6 @@ use mln_util::image::PremultipliedImage;
 use mln_util::logging::{Event, EventSeverity};
 use mln_util::size::Size;
 use mln_util::tileset::{Scheme, Tileset, VectorEncoding};
-use std::cell::{Cell, RefCell};
-use std::collections::HashSet;
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 use support::*;
 
 fn ll(lat: f64, lon: f64) -> LatLng {

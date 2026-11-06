@@ -1,8 +1,9 @@
 // Ports src/mln/algorithm/update_tile_masks.hpp.
 
+use mln_tile_id::{CanonicalTileID, UnwrappedTileID};
+
 use crate::tile::tile::Tile;
 use crate::tile_mask::TileMask;
-use mln_tile_id::{CanonicalTileID, UnwrappedTileID};
 
 /// `tileNeedsMask(tile)`.
 fn tile_needs_mask(tile: &dyn Tile) -> bool {
@@ -74,14 +75,16 @@ pub fn update_tile_masks(renderables: &[(UnwrappedTileID, &dyn Tile)]) {
 // Ports test/algorithm/update_tile_masks.test.cpp.
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::tile::tile::{Kind, TileBase};
-    use crate::tile_render_data::TileRenderData;
+    use std::any::Any;
+    use std::cell::RefCell;
+
     use mln_style::layer_properties::LayerProperties;
     use mln_tile_id::OverscaledTileID;
     use mln_util::immutable::Immutable;
-    use std::any::Any;
-    use std::cell::RefCell;
+
+    use super::*;
+    use crate::tile::tile::{Kind, TileBase};
+    use crate::tile_render_data::TileRenderData;
 
     struct FakeTile {
         base: TileBase,

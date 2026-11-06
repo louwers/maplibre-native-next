@@ -1,9 +1,11 @@
 // Ports src/mln/gfx/offscreen_texture.hpp
 
+use std::any::Any;
+
+use mln_util::image::PremultipliedImage;
+
 use crate::renderable::Renderable;
 use crate::texture2d::Texture2DPtr;
-use mln_util::image::PremultipliedImage;
-use std::any::Any;
 
 /// `gfx::OffscreenTexture`: a renderable backed by a texture.
 pub trait OffscreenTexture: Renderable + Any {

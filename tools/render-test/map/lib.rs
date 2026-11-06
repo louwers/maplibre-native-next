@@ -3,6 +3,10 @@
 // `resetContext` and the map/style calls of the operations, over mln_map and
 // mln_platform_default.
 
+use std::cell::Cell;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::RunLoop;
 use mln_gfx::{ContextMode, SwapBehaviour};
 use mln_map::{BoundOptions, Map, MapLoadError, MapObserver, MapOptions, ProjectionMode, RenderMode};
@@ -12,9 +16,6 @@ use mln_util::image::PremultipliedImage;
 use render_test::metadata::{MapMode, TestMetadata};
 use render_test::runner::{CameraOptions, ImplFactory, MapError, QueryGeometry, ResourceOptions, TestRunnerImpl};
 use render_test_style as style_ops;
-use std::cell::Cell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 /// `TestRunnerMapObserver` (runner.hpp).
 #[derive(Default)]

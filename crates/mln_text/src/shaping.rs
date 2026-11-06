@@ -10,9 +10,8 @@ use std::collections::BTreeSet;
 
 use mln_style_types::image::{ImagePosition, ImagePositions, RectU16, TextFit};
 use mln_style_types::types::{IconTextFitType, SymbolAnchorType, TextJustifyType};
-use mln_util::Padding;
 use mln_util::constants::ONE_EM;
-use mln_util::i18n;
+use mln_util::{Padding, i18n};
 
 use crate::bidi::{BiDi, StyledText};
 use crate::glyph::{

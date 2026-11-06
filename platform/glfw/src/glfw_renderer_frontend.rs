@@ -5,12 +5,14 @@
 // because the Map keeps one (C++: a reference). C++ holds the GLFWView to
 // call `invalidate()`; here it holds the view's shared `invalidate` state.
 
-use crate::glfw_view::ViewShared;
-use mln_gfx::{BackendScope, RendererBackend, ScopeType};
-use mln_renderer::{Renderer, RendererFrontend, RendererObserver, UpdateParameters};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 use std::sync::Arc;
+
+use mln_gfx::{BackendScope, RendererBackend, ScopeType};
+use mln_renderer::{Renderer, RendererFrontend, RendererObserver, UpdateParameters};
+
+use crate::glfw_view::ViewShared;
 
 struct Shared {
     view: Rc<ViewShared>,

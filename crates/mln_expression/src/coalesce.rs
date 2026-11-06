@@ -1,6 +1,8 @@
 // Ports include/mln/style/expression/coalesce.hpp and
 // src/mln/style/expression/coalesce.cpp.
 
+use mln_conversion::Convertible;
+
 use crate::check_subtype::check_subtype;
 use crate::expression::{
     EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, children_equal, collect_dependencies,
@@ -10,7 +12,6 @@ use crate::image::Image;
 use crate::parsing_context::{ParseResult, ParsingContext, TypeAnnotationOption};
 use crate::type_::Type;
 use crate::value::{Value, from_expression_value};
-use mln_conversion::Convertible;
 
 pub type Args = Vec<Box<dyn Expression>>;
 

@@ -1,14 +1,16 @@
 // Ports src/mln/renderer/possibly_evaluated_property_value.hpp (a cut point;
 // see COORDINATION.md).
 
-use crate::expression::{Dependency, ValueConverter};
-use crate::property_expression::PropertyExpression;
-use crate::renderer::cross_faded_property_evaluator::Faded;
+use std::collections::BTreeSet;
+
 use mln_expression::expression::FeatureState;
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::GeometryTileFeature;
 use mln_util::interpolate::Interpolate;
-use std::collections::BTreeSet;
+
+use crate::expression::{Dependency, ValueConverter};
+use crate::property_expression::PropertyExpression;
+use crate::renderer::cross_faded_property_evaluator::Faded;
 
 /// `PossiblyEvaluatedPropertyValue<T>`: `variant<T, PropertyExpression<T>>`.
 #[derive(Clone, Debug, PartialEq)]

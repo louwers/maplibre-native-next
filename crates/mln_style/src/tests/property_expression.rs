@@ -1,20 +1,21 @@
 // Ports test/style/property_expression.test.cpp.
 
-use super::util::{StubGeometryTileFeature, property_map};
-use crate::expression::EvaluationContext;
-use crate::expression::dsl::{get, get_str, image, interpolate, linear, literal, literal_str, number, step, zoom};
-use crate::expression::{Dependency, Image, Value};
-use crate::property_expression::PropertyExpression;
-use crate::property_value::PropertyValue;
-use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
-use crate::renderer::property_evaluator::PropertyEvaluator;
+use std::collections::BTreeSet;
+
 use feature::Value as MbglValue;
 use geometry::{Geometry, Point};
 use mln_expression::dsl::create_expression_from_str;
 use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::GeometryCollection;
 use mln_util::geometry::FeatureType;
-use std::collections::BTreeSet;
+
+use super::util::{StubGeometryTileFeature, property_map};
+use crate::expression::dsl::{get, get_str, image, interpolate, linear, literal, literal_str, number, step, zoom};
+use crate::expression::{Dependency, EvaluationContext, Image, Value};
+use crate::property_expression::PropertyExpression;
+use crate::property_value::PropertyValue;
+use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
+use crate::renderer::property_evaluator::PropertyEvaluator;
 
 fn one_integer() -> StubGeometryTileFeature {
     StubGeometryTileFeature::new(property_map(&[("property", MbglValue::Uint(1))]))

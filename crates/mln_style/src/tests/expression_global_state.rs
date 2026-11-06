@@ -3,17 +3,19 @@
 // The expression-only ones are in mln_expression's tests, the
 // FormatSectionOverride one in mln_renderer's.
 
+use std::collections::BTreeSet;
+use std::sync::Arc;
+
+use feature::Value;
+use mln_conversion::Convertible;
+use mln_util::Color;
+
 use super::util::parse_json;
 use crate::color_ramp_property_value::ColorRampPropertyValue;
 use crate::conversion::{Converter, Error, convert_property_value};
 use crate::expression::{Dependency, EvaluationContext, Expression, GlobalStateMap, ParsingContext, Type};
 use crate::filter::Filter;
 use crate::property_expression::PropertyExpression;
-use feature::Value;
-use mln_conversion::Convertible;
-use mln_util::Color;
-use std::collections::BTreeSet;
-use std::sync::Arc;
 
 /// `parseExpression(json, expected)`.
 fn parse_expression(json: &str, expected: Option<Type>) -> Option<Box<dyn Expression>> {

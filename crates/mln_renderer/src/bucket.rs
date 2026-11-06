@@ -10,8 +10,9 @@
 // TODO(port): `registerAtCrossTileIndex`, `place`,
 // `updateVertices` (symbol buckets, M5), `getRenderThreadID`, `check`.
 
-use crate::layout::pattern_layout::PatternLayerMap;
-use crate::render_layer::RenderLayer;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+
 use mln_gfx::UploadPass;
 use mln_style::util::AsAny;
 use mln_style_types::image::ImagePositions;
@@ -20,8 +21,9 @@ use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryTileFeature, G
 use mln_util::exception::ExceptionPtr;
 use mln_util::feature::feature_id_to_string;
 use mln_util::identity::SimpleIdentity;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+
+use crate::layout::pattern_layout::PatternLayerMap;
+use crate::render_layer::RenderLayer;
 
 pub type BucketPtr = Arc<dyn Bucket>;
 

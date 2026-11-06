@@ -1,8 +1,9 @@
 // Smoke tests for the HeadlessFrontend + Map still-image path (the C++
 // tree tests this through test/api/*.test.cpp and the render tests).
 
-use super::*;
 use mln_map::{MapMode, MapOptions, NullMapObserver};
+
+use super::*;
 
 fn pixel(image: &PremultipliedImage, x: u32, y: u32) -> [u8; 4] {
     let i = ((y * image.size.width + x) * 4) as usize;

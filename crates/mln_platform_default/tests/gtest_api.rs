@@ -7,6 +7,9 @@ mod gtest_annotations;
 mod gtest_query;
 mod support;
 
+use std::rc::Rc;
+use std::sync::Arc;
+
 use geojson::{GeoJSON, Geometry, Point};
 use mln_actor::RunLoop;
 use mln_map::{Map, MapMode, MapOptions, NullMapObserver};
@@ -15,8 +18,6 @@ use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_style::PropertyValue;
 use mln_style::layers::symbol_layer::SymbolLayer;
 use mln_style::sources::geojson_source::GeoJSONSource;
-use std::rc::Rc;
-use std::sync::Arc;
 use support::*;
 
 /// `std::make_unique<style::Image>(id, image, pixelRatio)`.

@@ -1,8 +1,9 @@
 // Ports the helpers of include/mln/util/feature.hpp (`numericValue`,
 // `featureIDtoString`). `mln::Feature` arrives with queries.
 
-use crate::string::{to_string_double, to_string_i64, to_string_u64};
 use feature::{Identifier, Value};
+
+use crate::string::{to_string_double, to_string_i64, to_string_u64};
 
 /// `numericValue<double>(const Value&)`.
 pub fn numeric_value_f64(value: &Value) -> Option<f64> {

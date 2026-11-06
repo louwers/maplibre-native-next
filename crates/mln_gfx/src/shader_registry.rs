@@ -1,8 +1,9 @@
 // Ports include/mln/gfx/shader_registry.hpp and src/mln/gfx/shader_registry.cpp
 
-use crate::shader_group::{BasicShaderGroup, ShaderGroupPtr};
 use std::cell::RefCell;
 use std::collections::HashMap;
+
+use crate::shader_group::{BasicShaderGroup, ShaderGroupPtr};
 
 /// A collection of `ShaderGroup`s, registered or replaced by name at run
 /// time. `&self` methods: the C++ `shared_mutex` becomes a `RefCell`.

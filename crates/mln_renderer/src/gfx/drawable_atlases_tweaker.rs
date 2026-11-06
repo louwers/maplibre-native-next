@@ -2,14 +2,16 @@
 // src/mln/gfx/drawable_atlases_tweaker.cpp. It reads the renderer's
 // `TileAtlasTextures`, so it lives in mln_renderer.
 
-use crate::tile_render_data::TileAtlasTextures;
+use std::rc::Rc;
+
 use mln_gfx::drawable::Drawable;
 use mln_gfx::drawable_tweaker::DrawableTweaker;
 use mln_gfx::paint_parameters::PaintParameters;
 use mln_gfx::texture2d::SamplerState;
 use mln_gfx::types::{TextureFilterType, TextureWrapType};
 use mln_style_types::AlignmentType;
-use std::rc::Rc;
+
+use crate::tile_render_data::TileAtlasTextures;
 
 /// Tweaker that applies the latest values from a retained
 /// `TileAtlasTexturesPtr`.

@@ -4,9 +4,10 @@
 mod sprite_loader;
 mod sprite_parser;
 
-use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+
+use mln_util::logging::{Event, EventSeverity, Log, Observer};
 
 /// A path in the runfiles tree of the C++ repository (`maplibre+`).
 pub fn cpp_path(relative: &str) -> PathBuf {

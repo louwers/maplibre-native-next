@@ -7,15 +7,16 @@
 // `updateAssumedState` and `getExtensionFunctionPointer` have no
 // counterpart).
 
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use mln_gfx::context::Context;
 use mln_gfx::renderable::Renderable;
 use mln_gfx::renderer_backend::{ContextMode, RendererBackend, RendererBackendBase};
 use mln_gfx::shader_registry::ShaderRegistry;
 use mln_gfx::shaders::program_parameters::ProgramParameters;
 use mln_gfx::{BackendScope, ScopeType};
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
 
 type Callback = RefCell<Option<Box<dyn Fn()>>>;
 

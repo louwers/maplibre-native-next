@@ -17,16 +17,12 @@
 //
 // TODO(port): thread priority.
 
-use crate::async_request::AsyncRequest;
-use crate::file_source::{API_BASE_URL_KEY, API_KEY_KEY, Callback, FileSource, MAX_CONCURRENT_REQUESTS_KEY};
-use crate::file_source_request::{FileSourceRequest, FileSourceRequestState};
-use crate::http_file_source::HTTPFileSource;
-use crate::http_timeout::{error_retry_timeout, expiration_timeout};
-use crate::network_status::{NetworkStatus, Status};
-use crate::resource::{Kind, Priority, Resource};
-use crate::resource_options::ResourceOptions;
-use crate::resource_transform::ResourceTransform;
-use crate::response::{Error, Reason, Response};
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::rc::{Rc, Weak};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
+
 use feature::Value;
 use mln_actor::{ActorRef, AsyncTask, Mailbox, Thread, Timer, scheduler};
 use mln_util::chrono::{Duration, Timestamp, now};
@@ -37,11 +33,17 @@ use mln_util::constants::{
 use mln_util::logging::{Event, Log};
 use mln_util::mapbox;
 use mln_util::tile_server_options::TileServerOptions;
-use std::cell::{Cell, RefCell};
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
-use std::rc::{Rc, Weak};
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, Mutex};
+
+use crate::async_request::AsyncRequest;
+use crate::file_source::{API_BASE_URL_KEY, API_KEY_KEY, Callback, FileSource, MAX_CONCURRENT_REQUESTS_KEY};
+use crate::file_source_request::{FileSourceRequest, FileSourceRequestState};
+use crate::http_file_source::HTTPFileSource;
+use crate::http_timeout::{error_retry_timeout, expiration_timeout};
+use crate::network_status::{NetworkStatus, Status};
+use crate::resource::{Kind, Priority, Resource};
+use crate::resource_options::ResourceOptions;
+use crate::resource_transform::ResourceTransform;
+use crate::response::{Error, Reason, Response};
 
 /// For testing only
 pub const ONLINE_STATUS_KEY: &str = "online-status";

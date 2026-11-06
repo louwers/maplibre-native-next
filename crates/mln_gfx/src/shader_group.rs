@@ -5,11 +5,12 @@
 // program, so the port stores `ShaderProgramBasePtr` (upcast to `dyn Shader`
 // where needed). The `shared_mutex` becomes a `RefCell` (one render thread).
 
-use crate::context::Context;
-use crate::shaders::shader_program_base::ShaderProgramBasePtr;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
+
+use crate::context::Context;
+use crate::shaders::shader_program_base::ShaderProgramBasePtr;
 
 /// `StringIDSetsPair = pair<unordered_set<string_view>, unordered_set<size_t>>`
 pub type StringIDSetsPair = (HashSet<String>, HashSet<usize>);

@@ -1,12 +1,14 @@
 // Ports test/style/expression/expression.test.cpp.
 
+use std::path::PathBuf;
+
+use mln_conversion::Convertible;
+
 use crate::dsl;
 use crate::expression::{Expression, Kind};
 use crate::is_expression::is_expression;
 use crate::parsing_context::ParsingContext;
 use crate::value::Value;
-use mln_conversion::Convertible;
-use std::path::PathBuf;
 
 /// A path relative to the C++ repository, read in place from the runfiles
 /// tree (`maplibre+`).

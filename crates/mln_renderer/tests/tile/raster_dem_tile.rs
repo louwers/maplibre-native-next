@@ -1,6 +1,7 @@
 // Ports test/tile/raster_dem_tile.test.cpp.
 
-use super::RasterTileTest;
+use std::sync::Arc;
+
 use mln_renderer::buckets::hillshade_bucket::HillshadeBucket;
 use mln_renderer::tile::raster_dem_tile::RasterDEMTile;
 use mln_renderer::tile::tile::Tile;
@@ -10,7 +11,8 @@ use mln_util::exception::RuntimeError;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
 use mln_util::tileset::RasterEncoding;
-use std::sync::Arc;
+
+use super::RasterTileTest;
 
 fn tile(test: &RasterTileTest) -> RasterDEMTile {
     RasterDEMTile::new(

@@ -4,6 +4,11 @@
 // C++ opens the database through test::SQLite3TestFS without limiting it
 // (a pass-through); the port opens a file in TEST_TMPDIR directly.
 
+use std::cell::{Cell, RefCell};
+use std::path::PathBuf;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::RunLoop;
 use mln_map::{CameraOptions, Map, MapMode, MapObserver, MapOptions, RenderFrameStatus, RenderMode};
 use mln_platform_default::HeadlessFrontend;
@@ -19,10 +24,6 @@ use mln_storage::{Kind, Resource, Response};
 use mln_storage_offline::OfflineDownload;
 use mln_util::geo::{LatLng, LatLngBounds};
 use mln_util::tile_server_options::TileServerOptions;
-use std::cell::{Cell, RefCell};
-use std::path::PathBuf;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn cpp_path(relative: &str) -> PathBuf {
     let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");

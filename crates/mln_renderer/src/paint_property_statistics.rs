@@ -1,7 +1,8 @@
 // Ports src/mln/renderer/paint_property_statistics.hpp
 
-use mln_util::Color;
 use std::marker::PhantomData;
+
+use mln_util::Color;
 
 /// The value types a binder keeps statistics for: only `float` tracks a
 /// maximum (the C++ `PaintPropertyStatistics<float>` specialization).

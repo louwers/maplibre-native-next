@@ -1,10 +1,11 @@
 // Ports include/mln/style/conversion/geojson_options.hpp and
 // src/mln/style/conversion/geojson_options.cpp.
 
+use std::sync::Arc;
+
 use super::{Converter, Convertible, Error};
 use crate::expression::dsl;
 use crate::sources::geojson_source::{ClusterProperties, GeoJSONOptions};
-use std::sync::Arc;
 
 // The C++ `static_cast<uint8_t/uint16_t/size_t>(float)` of out-of-range
 // values is UB; the port saturates (`as`), see DEVIATIONS.md.

@@ -1,6 +1,12 @@
 // Ports test/storage/http_file_source.test.cpp against the in-process test
 // server (tests/http_server.rs) instead of the C++ one on port 3000.
 
+use std::cell::Cell;
+use std::rc::Rc;
+
+use mln_actor::RunLoop;
+use mln_util::chrono::{Timestamp, now};
+
 use super::http_server::HttpServer;
 use super::{Req, req};
 use crate::ClientOptions;
@@ -9,10 +15,6 @@ use crate::http_file_source::HTTPFileSource;
 use crate::resource::{Kind, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use mln_actor::RunLoop;
-use mln_util::chrono::{Timestamp, now};
-use std::cell::Cell;
-use std::rc::Rc;
 
 fn http_file_source() -> HTTPFileSource {
     HTTPFileSource::new(&ResourceOptions::default_options(), &ClientOptions::default())

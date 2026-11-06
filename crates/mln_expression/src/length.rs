@@ -1,6 +1,8 @@
 // Ports include/mln/style/expression/length.hpp and
 // src/mln/style/expression/length.cpp.
 
+use mln_conversion::Convertible;
+
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
@@ -8,7 +10,6 @@ use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::utf8_op_helpers::unicode_length_on_validated_utf8;
 use crate::value::{Value, type_of};
-use mln_conversion::Convertible;
 
 pub struct Length {
     base: ExpressionBase,

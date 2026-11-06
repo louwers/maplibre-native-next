@@ -1,7 +1,8 @@
 // Ports src/mln/renderer/tile_mask.hpp.
 
-use mln_tile_id::CanonicalTileID;
 use std::collections::BTreeSet;
+
+use mln_tile_id::CanonicalTileID;
 
 /// A TileMask is a set of TileIDs that describe what part of a tile should
 /// be rendered. It omits those parts of the tile that are covered by

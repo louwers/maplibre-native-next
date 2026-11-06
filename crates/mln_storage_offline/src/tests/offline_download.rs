@@ -2,8 +2,10 @@
 // which renders a map: tests/offline_download_map.rs). Fixtures are read in
 // place from test/fixtures/offline_download.
 
-use super::cpp_path;
-use crate::offline_download::{OfflineDownload, WeakOfflineDownload};
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
+
 use feature::Value;
 use mln_actor::{AsyncTask, LocalObject, RunLoop};
 use mln_platform_default_image::compression::compress;
@@ -24,9 +26,9 @@ use mln_text::glyph::NON_IDEOGRAPH_GLYPH_RANGES_PER_FONT_STACK;
 use mln_util::geo::{LatLng, LatLngBounds};
 use mln_util::tile_server_options::TileServerOptions;
 use mln_util::tileset::Scheme;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+
+use super::cpp_path;
+use crate::offline_download::{OfflineDownload, WeakOfflineDownload};
 
 /// `MockObserver`.
 #[derive(Default)]

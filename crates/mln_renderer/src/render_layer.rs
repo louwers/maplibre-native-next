@@ -7,6 +7,23 @@
 // the render tree's items (C++: `unique_ptr` + `reference_wrapper`s), so
 // they are `Rc<RefCell<dyn RenderLayer>>`.
 
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_gfx::{Context, LayerGroupBasePtr, ShaderRegistry, UploadPass};
+use mln_map_types::TransformState;
+use mln_style::expression::Dependency;
+use mln_style::layer::layer_type_info;
+use mln_style::layer_properties::LayerProperties;
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_style_types::VisibilityType;
+use mln_tile_id::OverscaledTileID;
+use mln_util::Color;
+use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
+
 use crate::bucket::BucketPtr;
 use crate::change_request::{ChangeRequest, UniqueChangeRequestVec};
 use crate::layer_tweaker::LayerTweakerPtr;
@@ -18,22 +35,6 @@ use crate::render_source::{RenderSource, RenderTiles};
 use crate::render_tile::RenderTile;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::{Context, LayerGroupBasePtr, ShaderRegistry, UploadPass};
-use mln_map_types::TransformState;
-use mln_style::expression::Dependency;
-use mln_style::layer;
-use mln_style::layer::layer_type_info;
-use mln_style::layer_properties::LayerProperties;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_style_types::VisibilityType;
-use mln_tile_id::OverscaledTileID;
-use mln_util::Color;
-use mln_util::identity::SimpleIdentity;
-use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::rc::Rc;
-use std::sync::Arc;
 
 pub type RenderLayerPtr = Rc<RefCell<dyn RenderLayer>>;
 pub type RenderLayerReferences = Vec<RenderLayerPtr>;

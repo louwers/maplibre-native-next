@@ -10,13 +10,15 @@
 // closure only calls `on_camera_did_change`, and `update_transitions` only
 // moves the closures back.
 
-use super::*;
+use std::cell::{Cell, RefCell};
+
 use mln_map_types::util_camera::Camera as UtilCamera;
 use mln_util::chrono::{milliseconds, seconds};
 use mln_util::constants::{LATITUDE_MAX, LONGITUDE_MAX, MAX_ZOOM};
 use mln_util::quaternion::Quaternion;
 use mln_util::vectors::{Vec3, Vec4};
-use std::cell::{Cell, RefCell};
+
+use super::*;
 
 fn new_transform() -> Transform {
     Transform::new(Rc::new(NullTransformObserver), ConstrainMode::HeightOnly, ViewportMode::Default)

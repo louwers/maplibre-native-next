@@ -9,11 +9,12 @@
 // (image_impl.hpp) were added by `layers` (M3: buckets and paint property
 // binders take ImagePositions).
 
+use std::sync::Arc;
+
 use mln_util::exception::StyleImageException;
 use mln_util::image::PremultipliedImage;
 use mln_util::immutable::Immutable;
 use mln_util::size::Size;
-use std::sync::Arc;
 
 /// `style::ImageStretch`.
 pub type ImageStretch = (f32, f32);

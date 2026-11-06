@@ -1,5 +1,9 @@
 // Ports test/tile/geojson_tile.test.cpp.
 
+use std::cell::RefCell;
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use feature::Feature;
 use geometry::{Geometry, Point};
 use mln_actor::{RunLoop, TaggedScheduler, scheduler};
@@ -18,9 +22,6 @@ use mln_tile_id::{CanonicalTileID, OverscaledTileID};
 use mln_util::exception::RuntimeError;
 use mln_util::identity::SimpleIdentity;
 use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 /// `GeoJSONTileTest`.
 struct GeoJSONTileTest {

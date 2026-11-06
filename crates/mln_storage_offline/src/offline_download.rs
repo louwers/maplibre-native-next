@@ -13,6 +13,11 @@
 // `requests` is keyed by an id (C++: a `std::list` of requests, erased by
 // iterator). `RunLoop::invokeCancellable` is `invoke_cancellable` below.
 
+use std::cell::{Cell, RefCell};
+use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use feature::Value;
 use mln_actor::{LocalObject, RunLoop};
 use mln_conversion::Error as ConversionError;
@@ -39,10 +44,6 @@ use mln_util::constants::{DEFAULT_MAXIMUM_CONCURRENT_REQUESTS, TILE_SIZE_I};
 use mln_util::i18n::glyph_range_is_entirely_locally_generated;
 use mln_util::range::Range;
 use mln_util::tileset::Tileset;
-use std::cell::{Cell, RefCell};
-use std::collections::{BTreeMap, HashSet, VecDeque};
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
 
 use crate::mapbox::{canonicalize_glyph_url, canonicalize_source_url, canonicalize_sprite_url, canonicalize_tileset};
 

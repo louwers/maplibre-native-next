@@ -10,17 +10,19 @@
 // render-thread objects (`Rc`), so the render layer keeps them per bucket
 // id instead (see render_raster_layer.rs).
 
-use crate::bucket::{Bucket, BucketBase};
-use crate::tile_mask::TileMask;
+use std::sync::atomic::Ordering;
+use std::sync::{Arc, Mutex, MutexGuard};
+use std::time::Instant;
+
 use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
 use mln_tile_id::CanonicalTileID;
 use mln_util::constants;
 use mln_util::image::PremultipliedImage;
-use std::sync::atomic::Ordering;
-use std::sync::{Arc, Mutex, MutexGuard};
-use std::time::Instant;
+
+use crate::bucket::{Bucket, BucketBase};
+use crate::tile_mask::TileMask;
 
 /// `RasterLayoutVertex = gfx::Vertex<TypeList<attributes::pos, attributes::texture_pos>>`.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, bytemuck::Pod, bytemuck::Zeroable)]
@@ -222,8 +224,9 @@ impl Bucket for RasterBucket {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use mln_util::size::Size;
+
+    use super::*;
 
     #[test]
     fn full_mask_uses_the_static_geometry() {

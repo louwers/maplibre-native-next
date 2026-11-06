@@ -6,6 +6,10 @@
 // run on every C++ platform; PingFang* are Apple-only and NotoSansCJK is
 // Qt-on-Linux-only (platform fonts and expectations), so they stay ignored.
 
+use std::path::PathBuf;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::RunLoop;
 use mln_map::{Map, MapMode, MapOptions, NullMapObserver};
 use mln_map_types::CameraOptions;
@@ -16,9 +20,6 @@ use mln_storage::{FileSource, Kind, Resource, Response};
 use mln_util::geo::EdgeInsets;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
-use std::path::PathBuf;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn cpp_path(relative: &str) -> PathBuf {
     let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");

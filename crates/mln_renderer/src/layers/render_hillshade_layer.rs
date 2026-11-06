@@ -12,6 +12,34 @@
 //   frame; the port does so only when the bucket's masked geometry changed
 //   since (the drawable's data holds the geometry time it was built from).
 
+use std::cell::RefCell;
+use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
+use std::sync::Arc;
+use std::time::Instant;
+
+use mln_gfx::index_vector::{IndexVectorBase, IndexVectorBasePtr};
+use mln_gfx::shaders::segment::SegmentBase;
+use mln_gfx::shaders::shader_defines::*;
+use mln_gfx::texture2d::SamplerState;
+use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TextureWrapType};
+use mln_gfx::vertex_attribute::VertexAttributeArrayPtr;
+use mln_gfx::vertex_vector::VertexVectorBasePtr;
+use mln_gfx::{
+    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, Drawable, ShaderProgramBasePtr,
+    ShaderRegistry,
+};
+use mln_map_types::TransformState;
+use mln_style::layer::static_immutable_cast;
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
+use mln_style::layers::hillshade_layer_impl::Impl as HillshadeLayerImpl;
+use mln_style::layers::hillshade_layer_properties::*;
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_util::constants;
+use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
+use mln_util::size::Size;
+
 use super::hillshade_layer_tweaker::HillshadeLayerTweaker;
 use super::hillshade_prepare_layer_tweaker::{HillshadePrepareDrawableData, HillshadePrepareLayerTweaker};
 use super::render_heatmap_layer::activate_render_target;
@@ -26,33 +54,6 @@ use crate::render_static_data::RenderStaticData;
 use crate::render_target::{RenderTarget, RenderTargetPtr};
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::index_vector::{IndexVectorBase, IndexVectorBasePtr};
-use mln_gfx::shaders::segment::SegmentBase;
-use mln_gfx::shaders::shader_defines::*;
-use mln_gfx::texture2d::SamplerState;
-use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TextureWrapType};
-use mln_gfx::vertex_attribute::VertexAttributeArrayPtr;
-use mln_gfx::vertex_vector::VertexVectorBasePtr;
-use mln_gfx::{
-    AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, Drawable, ShaderProgramBasePtr,
-    ShaderRegistry,
-};
-use mln_map_types::TransformState;
-use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{LayerProperties, get_evaluated};
-use mln_style::layers::hillshade_layer_impl::Impl as HillshadeLayerImpl;
-use mln_style::layers::hillshade_layer_properties::*;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_util::constants;
-use mln_util::identity::SimpleIdentity;
-use mln_util::immutable::Immutable;
-use mln_util::size::Size;
-use std::cell::RefCell;
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
-use std::sync::Arc;
-use std::time::Instant;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &HillshadeLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), HillshadeLayerImpl::static_type_info()));

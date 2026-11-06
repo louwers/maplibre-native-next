@@ -5,15 +5,17 @@
 // `uint32_t` arithmetic on `tileY` wraps (`wrapping_*`); shifts by the zoom
 // mask the count like x86 does (`wrapping_shl`), as in mln_tile_id.
 
-use crate::util::tile_cover::std_sort;
+use std::collections::{BTreeMap, VecDeque, btree_map};
+use std::iter::Peekable;
+
 use geometry::Point;
 use mln_math::clamp_f64;
 use mln_tile_id::UnwrappedTileID;
 use mln_util::geo::LatLng;
 use mln_util::geometry::{FeatureType, Geometry, MultiPoint, Polygon, to_feature_type};
 use mln_util::projection::Projection;
-use std::collections::{BTreeMap, VecDeque, btree_map};
-use std::iter::Peekable;
+
+use crate::util::tile_cover::std_sort;
 
 pub type Bounds = Vec<Bound>;
 /// `std::map<uint32_t, Bounds>`.

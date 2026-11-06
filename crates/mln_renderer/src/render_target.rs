@@ -7,9 +7,10 @@
 // contained layer groups are kept by the orchestrator (see
 // change_request.rs), so `render` runs them through it.
 
-use crate::paint_parameters::PaintParameters;
-use crate::render_orchestrator::RenderOrchestrator;
-use crate::render_pass::RenderPass;
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+
 use mln_gfx::offscreen_texture::OffscreenTexture;
 use mln_gfx::render_pass::RenderPassDescriptor;
 use mln_gfx::renderable::Renderable;
@@ -19,9 +20,10 @@ use mln_gfx::types::TextureChannelDataType;
 use mln_gfx::{Context, LayerGroupBasePtr, UploadPass};
 use mln_util::Color;
 use mln_util::size::Size;
-use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::rc::Rc;
+
+use crate::paint_parameters::PaintParameters;
+use crate::render_orchestrator::RenderOrchestrator;
+use crate::render_pass::RenderPass;
 
 /// `RenderTargetPtr = std::shared_ptr<RenderTarget>`.
 pub type RenderTargetPtr = Rc<RefCell<RenderTarget>>;

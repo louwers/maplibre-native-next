@@ -2,6 +2,8 @@
 // the expression and function cases need mln_style (PropertyExpression and
 // the style conversions), which sits far above mln_util.
 
+use std::sync::Arc;
+
 use feature::{PropertyMap, Value as MbglValue};
 use mln_conversion::{Convertible, Error};
 use mln_expression::EvaluationContext;
@@ -12,7 +14,6 @@ use mln_style::property_value::PropertyValue;
 use mln_tile_id::geometry_tile_data::GeometryTileFeature;
 use mln_util::Padding;
 use mln_util::geometry::FeatureType;
-use std::sync::Arc;
 
 /// `StubGeometryTileFeature{{}, FeatureType::Unknown, {}, properties}`
 /// (test/src/mln/test/stub_geometry_tile_feature.hpp).

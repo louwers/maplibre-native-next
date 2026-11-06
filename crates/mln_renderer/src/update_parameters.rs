@@ -1,5 +1,7 @@
 // Ports src/mln/renderer/update_parameters.hpp
 
+use std::sync::Arc;
+
 use mln_map_types::{MapDebugOptions, MapMode, TileLodMode, TransformState};
 use mln_style::collection::ImmutableVector;
 use mln_style::expression::GlobalStateMap;
@@ -7,7 +9,6 @@ use mln_style::transition_options::TransitionOptions;
 use mln_style::{image, layer, light, source};
 use mln_util::chrono::TimePoint;
 use mln_util::immutable::Immutable;
-use std::sync::Arc;
 
 // Port-only Clone: a renderer on another thread than the map (a host's
 // graphics thread) receives a copy, since TransformState's caches aren't Sync.

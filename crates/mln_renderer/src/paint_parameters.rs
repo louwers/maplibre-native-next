@@ -1,17 +1,16 @@
 // Ports src/mln/renderer/paint_parameters.hpp and src/mln/renderer/paint_parameters.cpp
 // (non-OpenGL backend branches; the port's backend is WebGPU).
 
-use crate::line_atlas::LineAtlas;
-use crate::pattern_atlas::PatternAtlas;
-use crate::render_pass::RenderPass;
-use crate::render_static_data::RenderStaticData;
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+
 use mln_gfx::color_mode::{BlendFunction, LinearBlend, Mask};
 use mln_gfx::paint_parameters::PaintParameters as GfxPaintParameters;
 use mln_gfx::render_pass::RenderPass as GfxRenderPass;
 use mln_gfx::shaders::clipping_mask_ubo::ClipUBO;
 use mln_gfx::stencil_mode::Test;
-use mln_gfx::types::ColorBlendFactorType;
-use mln_gfx::types::{DepthFunctionType, StencilOpType};
+use mln_gfx::types::{ColorBlendFactorType, DepthFunctionType, StencilOpType};
 use mln_gfx::{
     ColorMode, CommandEncoder, Context, DepthMaskType, DepthMode, RendererBackend, ScissorRect, ShaderRegistry,
     StencilMode,
@@ -22,9 +21,11 @@ use mln_util::Color;
 use mln_util::chrono::TimePoint;
 use mln_util::mat4::{Mat4, matrix};
 use mln_util::size::Size;
-use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::rc::Rc;
+
+use crate::line_atlas::LineAtlas;
+use crate::pattern_atlas::PatternAtlas;
+use crate::render_pass::RenderPass;
+use crate::render_static_data::RenderStaticData;
 
 /// `TransformParameters`.
 pub struct TransformParameters {

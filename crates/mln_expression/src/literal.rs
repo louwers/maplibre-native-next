@@ -1,12 +1,13 @@
 // Ports include/mln/style/expression/literal.hpp and
 // src/mln/style/expression/literal.cpp.
 
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+
 use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{ObjectType, Value, from_mbgl_value, to_mbgl_value, type_of};
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
 
 pub struct Literal {
     base: ExpressionBase,

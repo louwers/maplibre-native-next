@@ -3,9 +3,10 @@
 // C++ passes the `Tile&`; observers only read its data members, so the port
 // passes the tile's `TileBase` (see tile.rs).
 
-use crate::tile::tile::{TileBase, TileOperation};
 use mln_tile_id::OverscaledTileID;
 use mln_util::exception::ExceptionPtr;
+
+use crate::tile::tile::{TileBase, TileOperation};
 
 /// `TileObserver`. All methods have the C++ default (empty) bodies.
 // TODO(port): the SymbolErrorObserver base (`onSymbolError`, M5).

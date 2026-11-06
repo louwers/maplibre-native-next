@@ -5,20 +5,22 @@
 // Like the other sources, an ImageSource is a handle to an `Rc`'d state
 // (see source.rs); the image request callback holds a `Weak` to it.
 
-use crate::layer::LayerTypeInfo;
-use crate::layer::layer_type_info::TileKind;
-use crate::source::{Source, SourceBase, static_immutable_cast};
-use crate::source_impl::{self, ImplBase};
+use std::any::Any;
+use std::cell::RefCell;
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_storage::{AsyncRequest, FileSource, Resource, Response};
 use mln_style_types::SourceType;
 use mln_util::LatLng;
 use mln_util::exception::{ExceptionPtr, RuntimeError};
 use mln_util::image::PremultipliedImage;
 use mln_util::immutable::Immutable;
-use std::any::Any;
-use std::cell::RefCell;
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
+
+use crate::layer::LayerTypeInfo;
+use crate::layer::layer_type_info::TileKind;
+use crate::source::{Source, SourceBase, static_immutable_cast};
+use crate::source_impl::{self, ImplBase};
 
 /// `ImageSource::Impl`.
 #[derive(Clone, Debug)]

@@ -8,9 +8,10 @@
 // `on_light_changed` methods the `LayerRefMut` / `LightRefMut` guards call
 // (see layer.rs).
 
+use mln_util::exception::ExceptionPtr;
+
 use crate::source::Source;
 use crate::sprite::Sprite;
-use mln_util::exception::ExceptionPtr;
 
 /// `style::SourceObserver`.
 pub trait SourceObserver {

@@ -7,8 +7,9 @@
 // arithmetic on promoted `int16_t`s; products that overflow `int` wrap, as
 // they do on the platforms C++ runs on.
 
-use crate::math::{dist_sqr_i16, dist_sqr_i16_f32};
 use geometry::Point;
+
+use crate::math::{dist_sqr_i16, dist_sqr_i16_f32};
 
 type GeometryCoordinate = Point<i16>;
 

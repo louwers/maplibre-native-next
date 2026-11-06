@@ -1,9 +1,10 @@
 // Ports src/mln/style/expression/util.hpp and
 // src/mln/style/expression/util.cpp.
 
+use mln_util::Color;
+
 use crate::expression::{EvalResult, EvaluationError};
 use crate::value::{Value, stringify};
-use mln_util::Color;
 
 fn stringify_color(r: f64, g: f64, b: f64, a: f64) -> String {
     format!(

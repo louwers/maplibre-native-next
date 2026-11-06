@@ -12,14 +12,10 @@
 //
 // TODO(port): queryRenderedFeatures / querySourceFeatures (C++: empty).
 
-use crate::algorithm::update_tile_masks::update_tile_masks;
-use crate::render_source::{RenderSource, RenderSourceBase, RenderTiles, SourcePrepareParameters};
-use crate::render_tile::RenderTile;
-use crate::render_tree::RenderItem;
-use crate::sources::render_tile_source::RenderTileSource;
-use crate::tile::raster_dem_tile::{DEMTileNeighbors, RasterDEMTile};
-use crate::tile::tile::Tile;
-use crate::tile_parameters::TileParameters;
+use std::any::Any;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::TaggedScheduler;
 use mln_map_types::MapMode;
 use mln_style::layer_properties::LayerProperties;
@@ -30,9 +26,15 @@ use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
 use mln_util::constants;
 use mln_util::immutable::Immutable;
 use mln_util::tileset::Tileset;
-use std::any::Any;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::algorithm::update_tile_masks::update_tile_masks;
+use crate::render_source::{RenderSource, RenderSourceBase, RenderTiles, SourcePrepareParameters};
+use crate::render_tile::RenderTile;
+use crate::render_tree::RenderItem;
+use crate::sources::render_tile_source::RenderTileSource;
+use crate::tile::raster_dem_tile::{DEMTileNeighbors, RasterDEMTile};
+use crate::tile::tile::Tile;
+use crate::tile_parameters::TileParameters;
 
 /// `RenderRasterDEMSource` (a `RenderTileSetSource`).
 pub struct RenderRasterDEMSource {

@@ -6,14 +6,16 @@
 // `ActorRef<FileSourceRequestState>` whose messages run in the requesting
 // thread's RunLoop, as the C++ mailbox on `Scheduler::GetCurrent()` does.
 
-use crate::async_request::AsyncRequest;
-use crate::file_source::Callback;
-use crate::response::Response;
-use mln_actor::{ActorRef, Mailbox, scheduler};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
+
+use mln_actor::{ActorRef, Mailbox, scheduler};
+
+use crate::async_request::AsyncRequest;
+use crate::file_source::Callback;
+use crate::response::Response;
 
 /// The members of `FileSourceRequest` that its messages use.
 pub struct FileSourceRequestState {

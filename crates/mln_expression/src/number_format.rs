@@ -1,12 +1,13 @@
 // Ports include/mln/style/expression/number_format.hpp and
 // src/mln/style/expression/number_format.cpp.
 
+use feature::{Value as MbglValue, ValueObject};
+use mln_conversion::Convertible;
+
 use crate::expression::{EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::{self, Type};
 use crate::value::{Value, to_string};
-use feature::{Value as MbglValue, ValueObject};
-use mln_conversion::Convertible;
 
 const LOCALE_KEY: &str = "locale";
 const CURRENCY_KEY: &str = "currency";

@@ -1,9 +1,10 @@
 // Ports include/mln/style/expression/is_expression.hpp and
 // src/mln/style/expression/is_expression.cpp.
 
+use mln_conversion::Convertible;
+
 use crate::compound_expression::CompoundExpression;
 use crate::parsing_context::is_expression_name;
-use mln_conversion::Convertible;
 
 pub fn is_expression(value: &Convertible<'_>) -> bool {
     if !value.is_array() || value.array_length() == 0 {

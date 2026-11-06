@@ -21,8 +21,9 @@
 // writes (cross-faded binders) is behind a `Mutex`.
 //
 
-use crate::layout::pattern_layout::PatternDependency;
-use crate::paint_property_statistics::{PaintPropertyStatistics, StatisticValue};
+use std::collections::BTreeMap;
+use std::sync::Mutex;
+
 use mln_expression::range::Range;
 use mln_gfx::gfx_types::AttributeDataType;
 use mln_gfx::shader_group::StringIDSetsPair;
@@ -40,8 +41,9 @@ use mln_tile_id::CanonicalTileID;
 use mln_tile_id::geometry_tile_data::{GeometryTileFeature, GeometryTileLayer};
 use mln_util::Color;
 use mln_util::feature::feature_id_to_string;
-use std::collections::BTreeMap;
-use std::sync::Mutex;
+
+use crate::layout::pattern_layout::PatternDependency;
+use crate::paint_property_statistics::{PaintPropertyStatistics, StatisticValue};
 
 /// Maps vertex range to feature index.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

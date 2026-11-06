@@ -11,11 +11,12 @@
 // around the test turns that into an errored test and drops the map. A
 // test that hangs without running the loop is not caught.
 
-use mln_actor::{RunLoop, RunLoopHandle};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
+
+use mln_actor::{RunLoop, RunLoopHandle};
 
 /// The panic payload of a test that ran out of time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

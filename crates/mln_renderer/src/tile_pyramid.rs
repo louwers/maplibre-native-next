@@ -4,13 +4,9 @@
 // maps to the key of the tile in `tiles`: every rendered tile is one of the
 // pyramid's tiles.
 
-use crate::algorithm::update_renderables::{PrefetchedTile, RenderablesContext, update_renderables};
-use crate::tile::tile::{Tile, TileNecessity, TileUpdateParameters};
-use crate::tile::tile_cache::TileCache;
-use crate::tile::tile_observer::{NullTileObserver, TileObserver};
-use crate::tile_parameters::TileParameters;
-use crate::util::tile_cover::{TileCoverParameters, covering_zoom_level, tile_cover};
-use crate::util::tile_range::TileRange;
+use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
 use mln_actor::TaggedScheduler;
 use mln_map_types::{MapDebugOptions, MapMode, TileLodMode};
 use mln_style::layer::layer_type_info;
@@ -22,8 +18,14 @@ use mln_util::geo::{LatLngBounds, WrapMode};
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use mln_util::range::Range;
-use std::collections::{BTreeMap, BTreeSet};
-use std::rc::Rc;
+
+use crate::algorithm::update_renderables::{PrefetchedTile, RenderablesContext, update_renderables};
+use crate::tile::tile::{Tile, TileNecessity, TileUpdateParameters};
+use crate::tile::tile_cache::TileCache;
+use crate::tile::tile_observer::{NullTileObserver, TileObserver};
+use crate::tile_parameters::TileParameters;
+use crate::util::tile_cover::{TileCoverParameters, covering_zoom_level, tile_cover};
+use crate::util::tile_range::TileRange;
 
 /// `util::clamp<double>(value, min, max)`.
 fn clamp(value: f64, min: f64, max: f64) -> f64 {

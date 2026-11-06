@@ -4,10 +4,6 @@
 // spaces). MLN_USE_SYMBOL_INSTANCING is off: four dynamic vertices per
 // glyph.
 
-use crate::buckets::symbol_bucket::{
-    PlacedSymbol, SymbolBucket, SymbolDynamicLayoutVertex, SymbolSizeBinder, ZoomEvaluatedSize,
-};
-use crate::render_tile::RenderTile;
 use geometry::Point;
 use mln_map_types::TransformState;
 use mln_text::glyph::WritingModeType;
@@ -15,6 +11,11 @@ use mln_tile_id::geometry_tile_data::GeometryCoordinates;
 use mln_util::constants::ONE_EM;
 use mln_util::mat4::{Mat4, matrix};
 use mln_util::vectors::Vec4;
+
+use crate::buckets::symbol_bucket::{
+    PlacedSymbol, SymbolBucket, SymbolDynamicLayoutVertex, SymbolSizeBinder, ZoomEvaluatedSize,
+};
+use crate::render_tile::RenderTile;
 
 /// `getTileSkewVectors(state, vecEast, vecSouth)`.
 pub fn get_tile_skew_vectors(state: &TransformState) -> ([f64; 2], [f64; 2]) {

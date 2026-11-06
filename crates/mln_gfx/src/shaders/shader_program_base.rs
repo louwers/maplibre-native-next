@@ -1,9 +1,11 @@
 // Ports include/mln/shaders/shader_program_base.hpp
 
+use std::rc::Rc;
+
+use mln_util::identity::SimpleIdentity;
+
 use crate::shader::Shader;
 use crate::vertex_attribute::{ElementType, VertexAttributeArray};
-use mln_util::identity::SimpleIdentity;
-use std::rc::Rc;
 
 /// `gfx::ShaderProgramBase`
 pub trait ShaderProgramBase: Shader {

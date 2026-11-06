@@ -3,10 +3,11 @@
 // gtests-core: added for test/map/map.test.cpp (LatLngForPixelUnwrapped,
 // PixelForLatLngAfterZoomAroundAPointAcrossTheAntimeridian).
 
-use crate::map::{Map, camera_for_lat_lngs};
-use crate::transform::Transform;
 use mln_map_types::{CameraOptions, TransformState};
 use mln_util::geo::{EdgeInsets, LatLng, ScreenCoordinate, WrapMode};
+
+use crate::map::{Map, camera_for_lat_lngs};
+use crate::transform::Transform;
 
 pub struct MapProjection {
     transform: Transform,

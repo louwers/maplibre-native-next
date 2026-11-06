@@ -1,10 +1,10 @@
 // Ports include/mln/webgpu/upload_pass.hpp, src/mln/webgpu/upload_pass.cpp
 // and src/mln/webgpu/vertex_attribute.cpp (`VertexAttribute::getBuffer`)
 
-use crate::buffer_resource::BufferResource;
-use crate::command_encoder::CommandEncoder;
-use crate::context::Context;
-use crate::vertex_buffer_resource::{IndexBufferResource, VertexBufferResource};
+use std::any::Any;
+use std::rc::Rc;
+use std::time::Instant;
+
 use mln_gfx::attribute::{AttributeBinding, AttributeBindingArray, AttributeDescriptor};
 use mln_gfx::debug_group::DebugGroupTarget;
 use mln_gfx::gfx_types::AttributeDataType;
@@ -14,9 +14,11 @@ use mln_gfx::upload_pass;
 use mln_gfx::vertex_attribute::{VertexAttribute, VertexAttributeArray};
 use mln_gfx::vertex_buffer::{self, UniqueVertexBufferResource};
 use mln_gfx::vertex_vector::{VertexBufferBase, VertexVectorBasePtr};
-use std::any::Any;
-use std::rc::Rc;
-use std::time::Instant;
+
+use crate::buffer_resource::BufferResource;
+use crate::command_encoder::CommandEncoder;
+use crate::context::Context;
+use crate::vertex_buffer_resource::{IndexBufferResource, VertexBufferResource};
 
 pub struct UploadPass {
     context: Rc<Context>,

@@ -1,6 +1,11 @@
 // Ports test/storage/local_file_source.test.cpp. The fixtures are read in
 // place (C++: relative to the working directory).
 
+use std::path::{Path, PathBuf};
+
+use mln_actor::RunLoop;
+use mln_util::constants::FILE_PROTOCOL;
+
 use super::{cpp_path, req, temp_path};
 use crate::ClientOptions;
 use crate::file_source::FileSource;
@@ -8,9 +13,6 @@ use crate::local_file_source::LocalFileSource;
 use crate::resource::{Kind, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use mln_actor::RunLoop;
-use mln_util::constants::FILE_PROTOCOL;
-use std::path::{Path, PathBuf};
 
 /// `fileURL(path)`: percent-encodes everything but unreserved characters,
 /// '/' and ':'.

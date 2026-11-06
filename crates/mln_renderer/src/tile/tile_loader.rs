@@ -6,19 +6,21 @@
 // a `Weak` (a dropped loader = C++ `shared->aborted`), and the tile is the
 // GeometryTile's render-thread state.
 
-use crate::tile::geometry_tile::GeometryTileInner;
-use crate::tile::geometry_tile_worker::SharedTileData;
-use crate::tile::tile::{TileNecessity, TileOperation, TileUpdateParameters};
-use crate::tile_parameters::TileParameters;
+use std::cell::RefCell;
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use mln_storage::response::Reason;
 use mln_storage::{AsyncRequest, Data, FileSource, LoadingMethod, Resource, Response, StoragePolicy};
 use mln_tile_id::OverscaledTileID;
 use mln_util::chrono::Duration;
 use mln_util::exception::{ExceptionPtr, RuntimeError};
 use mln_util::tileset::Tileset;
-use std::cell::RefCell;
-use std::rc::{Rc, Weak};
-use std::sync::Arc;
+
+use crate::tile::geometry_tile::GeometryTileInner;
+use crate::tile::geometry_tile_worker::SharedTileData;
+use crate::tile::tile::{TileNecessity, TileOperation, TileUpdateParameters};
+use crate::tile_parameters::TileParameters;
 
 /// `getCantLoadTileError()`.
 fn get_cant_load_tile_error() -> ExceptionPtr {

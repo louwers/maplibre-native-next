@@ -1,12 +1,14 @@
 // Ports include/mln/style/color_ramp_property_value.hpp.
 
+use std::collections::BTreeSet;
+use std::sync::Arc;
+
+use mln_expression::value::from_expression_value;
+use mln_util::Color;
+
 use crate::expression::{Dependency, EvaluationContext, Expression, GlobalStateMap, collect_global_state_refs};
 use crate::properties::PropertyValueLike;
 use crate::renderer::property_evaluator::Evaluator;
-use mln_expression::value::from_expression_value;
-use mln_util::Color;
-use std::collections::BTreeSet;
-use std::sync::Arc;
 
 /// Special-case implementation of (a subset of) the `PropertyValue<T>`
 /// interface used for building the paint property traits classes for

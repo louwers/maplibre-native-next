@@ -365,8 +365,9 @@ uninterpolated_enums!(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use mln_util::enum_::Enum;
+
+    use super::*;
 
     #[test]
     fn visibility_names() {

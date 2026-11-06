@@ -10,16 +10,18 @@
 // everything around parsing; its port needs `catch_unwind` or the `try_*`
 // methods). See DEVIATIONS.md.
 
-use crate::geometry_tile_data::fixup_polygons;
+use std::cell::OnceCell;
+use std::collections::BTreeMap;
+use std::sync::Arc;
+
 use feature::{Identifier, PropertyMap, Value};
 use mln_tile_id::{GeometryCollection, GeometryTileData, GeometryTileFeature, GeometryTileLayer};
 use mln_util::constants::EXTENT;
 use mln_util::geometry::FeatureType;
 use mln_util::logging::{Event, Log};
-use std::cell::OnceCell;
-use std::collections::BTreeMap;
-use std::sync::Arc;
 use vector_tile::{Error, GeomType};
+
+use crate::geometry_tile_data::fixup_polygons;
 
 fn unwrap_or_throw<T>(r: Result<T, Error>) -> T {
     match r {

@@ -1,5 +1,7 @@
 // Ports test/style/properties.test.cpp.
 
+use mln_util::chrono::{Duration, TimePoint, milliseconds};
+
 use crate::expression::dsl;
 use crate::map::zoom_history::ZoomHistory;
 use crate::properties::Transitioning;
@@ -10,7 +12,6 @@ use crate::renderer::possibly_evaluated_property_value::PossiblyEvaluatedPropert
 use crate::renderer::property_evaluation_parameters::PropertyEvaluationParameters;
 use crate::renderer::property_evaluator::PropertyEvaluator;
 use crate::transition_options::TransitionOptions;
-use mln_util::chrono::{Duration, TimePoint, milliseconds};
 
 fn evaluate(property: &Transitioning<PropertyValue<f32>>, delta: Duration) -> f32 {
     let mut zoom_history = ZoomHistory::default();
@@ -154,15 +155,16 @@ fn transition_completes_and_drops_prior() {
 /// circle layer and the line bucket call it.
 #[test]
 fn possibly_evaluated_evaluate_per_feature() {
+    use mln_expression::dsl::{get_str, number};
+    use mln_style_types::{AlignmentType, LineJoinType};
+    use mln_tile_id::CanonicalTileID;
+
     use crate::layers::circle_layer_properties::{CirclePitchAlignment, CircleRadius};
     use crate::layers::line_layer_properties::LineJoin;
     use crate::layers::{CirclePaintProperties, LineLayoutProperties};
     use crate::property_expression::PropertyExpression;
     use crate::renderer::possibly_evaluated_property_value::PossiblyEvaluatedPropertyValue;
     use crate::tests::util::{StubGeometryTileFeature, property_map};
-    use mln_expression::dsl::{get_str, number};
-    use mln_style_types::{AlignmentType, LineJoinType};
-    use mln_tile_id::CanonicalTileID;
 
     let feature = StubGeometryTileFeature::new(property_map(&[("r", feature::Value::Double(7.5))]));
 

@@ -5,6 +5,11 @@
 // `Weak`s) and `Drop` calls `remove_requestor_key`, which is what the
 // renderer's own requestors do.
 
+use std::cell::{Cell, RefCell};
+use std::path::PathBuf;
+use std::rc::{Rc, Weak};
+use std::sync::{Arc, Mutex};
+
 use mln_actor::RunLoop;
 use mln_renderer::gfx::dynamic_texture_atlas::ImageVersionMap;
 use mln_renderer::image_manager::{ImageManager, ImageManagerObserver, ImageRequestor, ImageRequestorBase};
@@ -13,10 +18,6 @@ use mln_util::image::PremultipliedImage;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, EventSeverity, Log, Observer};
 use mln_util::size::Size;
-use std::cell::{Cell, RefCell};
-use std::path::PathBuf;
-use std::rc::{Rc, Weak};
-use std::sync::{Arc, Mutex};
 
 /// `util::read_file("test/fixtures/...")`, from the runfiles of
 /// `@maplibre//test:fixtures`.

@@ -3,6 +3,11 @@
 // platform/default/src/mln/layermanager/layer_manager.cpp
 // (`LayerManagerDefault`), style half.
 
+use std::collections::BTreeMap;
+use std::sync::OnceLock;
+
+use mln_conversion::{Convertible, Error};
+
 use super::background_layer_factory::BackgroundLayerFactory;
 use super::circle_layer_factory::CircleLayerFactory;
 use super::color_relief_layer_factory::ColorReliefLayerFactory;
@@ -16,9 +21,6 @@ use super::location_indicator_layer_factory::LocationIndicatorLayerFactory;
 use super::raster_layer_factory::RasterLayerFactory;
 use super::symbol_layer_factory::SymbolLayerFactory;
 use crate::layer::{Layer, LayerTypeInfo};
-use mln_conversion::{Convertible, Error};
-use std::collections::BTreeMap;
-use std::sync::OnceLock;
 
 pub struct LayerManager {
     factories: Vec<Box<dyn LayerFactory>>,

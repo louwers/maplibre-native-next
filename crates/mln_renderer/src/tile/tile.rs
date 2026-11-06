@@ -9,19 +9,21 @@
 // in an `Rc` that the reply closures reach through a `Weak` (see
 // geometry_tile.rs).
 
-use crate::tile::tile_observer::{NullTileObserver, TileObserver};
-use crate::tile_mask::TileMask;
-use crate::tile_render_data::TileRenderData;
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_style::expression::GlobalStateMap;
 use mln_style::layer_properties::LayerProperties;
 use mln_tile_id::OverscaledTileID;
 use mln_util::chrono::{Duration, Timestamp};
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::tile::tile_observer::{NullTileObserver, TileObserver};
+use crate::tile_mask::TileMask;
+use crate::tile_render_data::TileRenderData;
 
 /// `TileNecessity`: tiles can have two states: optional or required.
 /// - optional means that only low-cost actions should be taken to obtain

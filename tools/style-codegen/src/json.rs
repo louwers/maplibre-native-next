@@ -1,8 +1,9 @@
 // `JSON.stringify` for the spec values the templates embed (the
 // heatmap-color default in layer.cpp.ejs).
 
-use crate::defaults::js_number;
 use serde_json::Value;
+
+use crate::defaults::js_number;
 
 /// `JSON.stringify(value)`: compact, object members in document order, JS
 /// number formatting.

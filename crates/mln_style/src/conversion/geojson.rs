@@ -1,8 +1,9 @@
 // Ports include/mln/style/conversion/geojson.hpp and
 // src/mln/style/conversion/geojson.cpp.
 
-use super::{Converter, Convertible, Error};
 use geojson::GeoJSON;
+
+use super::{Converter, Convertible, Error};
 
 /// `Converter<GeoJSON>`: the front end's `toGeoJSON`.
 impl Converter for GeoJSON {

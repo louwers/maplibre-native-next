@@ -1,7 +1,8 @@
 // Ports test/util/bounding_volumes.test.cpp
 
-use super::*;
 use std::f64::consts::PI;
+
+use super::*;
 
 // gtest: BoundingVolumes.CreateAabb
 #[test]

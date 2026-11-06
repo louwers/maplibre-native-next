@@ -15,6 +15,19 @@
 //
 // TODO(port): makeThreadPrioritySetter(EXPERIMENTAL_THREAD_PRIORITY_FILE).
 
+use std::cell::RefCell;
+use std::collections::BTreeMap;
+use std::rc::Rc;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, Mutex};
+
+use mln_actor::{ActorRef, Thread};
+use mln_platform_default_image::compression::{decompress, is_compressed};
+use mln_util::client_options::ClientOptions;
+use mln_util::constants::{FILE_PROTOCOL, PMTILES_PROTOCOL};
+use pmtiles::{EntryV3, HeaderV3};
+use serde_json::Value as Json;
+
 use crate::async_request::AsyncRequest;
 use crate::file_source::{Callback, FileSource, FileSourceType};
 use crate::file_source_manager::FileSourceManager;
@@ -23,17 +36,6 @@ use crate::mbtiles_file_source::{Document, strtol};
 use crate::resource::{Kind, LoadingMethod, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Error, Reason, Response};
-use mln_actor::{ActorRef, Thread};
-use mln_platform_default_image::compression::{decompress, is_compressed};
-use mln_util::client_options::ClientOptions;
-use mln_util::constants::{FILE_PROTOCOL, PMTILES_PROTOCOL};
-use pmtiles::{EntryV3, HeaderV3};
-use serde_json::Value as Json;
-use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::rc::Rc;
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, Mutex};
 
 // https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md#3-header
 const PMTILES_HEADER_OFFSET: u64 = 0;

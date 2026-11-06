@@ -2,14 +2,10 @@
 // src/mln/renderer/sources/render_raster_source.cpp (with the
 // RenderTileSetSource half of render_tile_source.cpp).
 
-use crate::algorithm::update_tile_masks::update_tile_masks;
-use crate::render_source::{RenderSource, RenderSourceBase, RenderTiles, SourcePrepareParameters};
-use crate::render_tile::RenderTile;
-use crate::render_tree::RenderItem;
-use crate::sources::render_tile_source::RenderTileSource;
-use crate::tile::raster_tile::RasterTile;
-use crate::tile::tile::Tile;
-use crate::tile_parameters::TileParameters;
+use std::any::Any;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::TaggedScheduler;
 use mln_map_types::MapMode;
 use mln_style::layer_properties::LayerProperties;
@@ -20,9 +16,15 @@ use mln_tile_id::UnwrappedTileID;
 use mln_util::constants;
 use mln_util::immutable::Immutable;
 use mln_util::tileset::Tileset;
-use std::any::Any;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::algorithm::update_tile_masks::update_tile_masks;
+use crate::render_source::{RenderSource, RenderSourceBase, RenderTiles, SourcePrepareParameters};
+use crate::render_tile::RenderTile;
+use crate::render_tree::RenderItem;
+use crate::sources::render_tile_source::RenderTileSource;
+use crate::tile::raster_tile::RasterTile;
+use crate::tile::tile::Tile;
+use crate::tile_parameters::TileParameters;
 
 /// `RenderRasterSource` (a `RenderTileSetSource`).
 pub struct RenderRasterSource {

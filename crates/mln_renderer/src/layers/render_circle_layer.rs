@@ -3,6 +3,24 @@
 //
 // TODO(port): captureRenderedFeatures (UpdateParameters::captureRenderedFeatures).
 
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_gfx::index_vector::IndexVectorBase;
+use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
+use mln_gfx::shaders::shader_defines::*;
+use mln_gfx::{AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, ShaderRegistry};
+use mln_map_types::TransformState;
+use mln_style::layer::static_immutable_cast;
+use mln_style::layer_properties::{LayerProperties, get_evaluated};
+use mln_style::layers::circle_layer_impl::Impl as CircleLayerImpl;
+use mln_style::layers::circle_layer_properties::*;
+use mln_style::{PropertyEvaluationParameters, TransitionParameters, layer};
+use mln_util::Color;
+use mln_util::identity::SimpleIdentity;
+use mln_util::immutable::Immutable;
+
 use super::circle_layer_tweaker::CircleLayerTweaker;
 use super::{
     TileDrawables, drawable_binders_slot, drawable_has_layer_tweaker, drawable_render_tile_slot,
@@ -17,23 +35,6 @@ use crate::render_layer::{RenderLayer, RenderLayerBase};
 use crate::render_pass::RenderPass;
 use crate::render_tree::RenderTree;
 use crate::update_parameters::UpdateParameters;
-use mln_gfx::index_vector::IndexVectorBase;
-use mln_gfx::shader_group::{ShaderGroupPtr, StringIDSetsPair};
-use mln_gfx::shaders::shader_defines::*;
-use mln_gfx::{AttributeDataType, ColorMode, Context, CullFaceMode, DepthMaskType, DrawMode, ShaderRegistry};
-use mln_map_types::TransformState;
-use mln_style::layer;
-use mln_style::layer::static_immutable_cast;
-use mln_style::layer_properties::{LayerProperties, get_evaluated};
-use mln_style::layers::circle_layer_impl::Impl as CircleLayerImpl;
-use mln_style::layers::circle_layer_properties::*;
-use mln_style::{PropertyEvaluationParameters, TransitionParameters};
-use mln_util::Color;
-use mln_util::identity::SimpleIdentity;
-use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
 
 fn impl_cast(impl_: &Immutable<dyn layer::Impl>) -> &CircleLayerImpl {
     debug_assert!(std::ptr::eq(impl_.get_type_info(), CircleLayerImpl::static_type_info()));
@@ -231,8 +232,9 @@ impl RenderLayer for RenderCircleLayer {
         pos_matrix: &mln_util::mat4::Mat4,
         feature_state: &mln_style::expression::expression::FeatureState,
     ) -> bool {
-        use crate::geometry::feature_index::FeatureIndex;
         use mln_style_types::{AlignmentType, CirclePitchScaleType};
+
+        use crate::geometry::feature_index::FeatureIndex;
 
         let evaluated = get_evaluated::<CircleLayerProperties>(&self.base.evaluated_properties);
         // Translate query geometry

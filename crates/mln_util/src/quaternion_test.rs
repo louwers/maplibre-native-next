@@ -1,8 +1,9 @@
 // Not in the C++ suite (there is no test/util/quaternion.test.cpp): sanity
 // checks for the quaternion port.
 
-use super::*;
 use std::f64::consts::FRAC_PI_2;
+
+use super::*;
 
 #[test]
 fn default_identity_and_vec4_view() {

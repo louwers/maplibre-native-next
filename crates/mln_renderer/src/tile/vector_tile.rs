@@ -3,20 +3,22 @@
 // and src/mln/tile/vector_mlt_tile.{hpp,cpp}: `VectorTile` with the
 // encoding of its subclass (VectorMVTTile or VectorMLTTile).
 
+use std::any::Any;
+use std::rc::Rc;
+use std::sync::Arc;
+
+use mln_style::expression::GlobalStateMap;
+use mln_style::layer_properties::LayerProperties;
+use mln_tile_id::OverscaledTileID;
+use mln_util::immutable::Immutable;
+use mln_util::tileset::Tileset;
+
 use crate::tile::geometry_tile::GeometryTile;
 use crate::tile::tile::{Tile, TileBase, TileNecessity, TileUpdateParameters};
 use crate::tile::tile_loader::{TileLoader, VectorTileEncoding};
 use crate::tile::tile_observer::TileObserver;
 use crate::tile_parameters::TileParameters;
 use crate::tile_render_data::TileRenderData;
-use mln_style::expression::GlobalStateMap;
-use mln_style::layer_properties::LayerProperties;
-use mln_tile_id::OverscaledTileID;
-use mln_util::immutable::Immutable;
-use mln_util::tileset::Tileset;
-use std::any::Any;
-use std::rc::Rc;
-use std::sync::Arc;
 
 /// `VectorMVTTile` / `VectorMLTTile` (a `VectorTile`).
 pub struct VectorTile {

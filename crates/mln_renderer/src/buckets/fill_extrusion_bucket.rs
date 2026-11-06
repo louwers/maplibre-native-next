@@ -11,10 +11,10 @@
 // GeometryCollectionFloat): no render test sets it; the polygon is
 // extruded without rounding (logged once).
 
-use crate::bucket::{Bucket, BucketBase};
-use crate::layout::pattern_layout::{PatternLayerMap, PatternLayoutSpec};
-use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
-use crate::render_layer::RenderLayer;
+use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, RwLock};
+
 use geometry::Point;
 use mln_gfx::UploadPass;
 use mln_gfx::shaders::segment::SegmentBase;
@@ -37,9 +37,11 @@ use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
 use mln_util::mat3::{Mat3, matrix as mat3};
 use mln_util::vectors::Vec3f;
-use std::collections::BTreeMap;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, RwLock};
+
+use crate::bucket::{Bucket, BucketBase};
+use crate::layout::pattern_layout::{PatternLayerMap, PatternLayoutSpec};
+use crate::paint_property_binder::{CrossFadedPaintPropertyBinder, PaintPropertyBinder};
+use crate::render_layer::RenderLayer;
 
 crate::paint_property_binders!(
     /// `FillExtrusionBinders = PaintPropertyBinders<FillExtrusionPaintProperties::DataDrivenProperties>`.

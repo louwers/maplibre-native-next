@@ -8,6 +8,13 @@
 //
 // TODO(port): makeThreadPrioritySetter(EXPERIMENTAL_THREAD_PRIORITY_FILE).
 
+use std::sync::Mutex;
+
+use mln_actor::{ActorRef, Thread};
+use mln_util::client_options::ClientOptions;
+use mln_util::constants::FILE_PROTOCOL;
+use mln_util::url::percent_decode;
+
 use crate::async_request::AsyncRequest;
 use crate::file_source::{Callback, FileSource};
 use crate::file_source_request::{FileSourceRequest, FileSourceRequestState};
@@ -15,11 +22,6 @@ use crate::local_file_request::request_local_file;
 use crate::resource::Resource;
 use crate::resource_options::ResourceOptions;
 use crate::response::{Error, Reason, Response};
-use mln_actor::{ActorRef, Thread};
-use mln_util::client_options::ClientOptions;
-use mln_util::constants::FILE_PROTOCOL;
-use mln_util::url::percent_decode;
-use std::sync::Mutex;
 
 fn accepts_url(url: &str) -> bool {
     url.starts_with(FILE_PROTOCOL)

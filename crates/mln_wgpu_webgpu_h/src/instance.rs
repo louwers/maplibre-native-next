@@ -1,17 +1,19 @@
 // wgpu::Instance and wgpu::Adapter over WGPUInstance and WGPUAdapter.
 
+use std::cell::RefCell;
+use std::pin::Pin;
+use std::rc::{Rc, Weak};
+
+use wgpu::custom::{
+    AdapterInterface, DispatchAdapter, DispatchDevice, DispatchQueue, DispatchSurface, EnumerateAdapterFuture,
+    InstanceInterface, RequestAdapterFuture, RequestDeviceFuture,
+};
+
 use crate::conv;
 use crate::device::{Device, DeviceState, Queue};
 use crate::event::{self, RequestAdapterResult, RequestDeviceResult, slot, take, userdata};
 use crate::handle::{AdapterHandle, DeviceHandle, InstanceHandle, native_send_sync};
 use crate::sys::*;
-use std::cell::RefCell;
-use std::pin::Pin;
-use std::rc::{Rc, Weak};
-use wgpu::custom::{
-    AdapterInterface, DispatchAdapter, DispatchDevice, DispatchQueue, DispatchSurface, EnumerateAdapterFuture,
-    InstanceInterface, RequestAdapterFuture, RequestDeviceFuture,
-};
 
 /// A `wgpu::Instance` backend over webgpu.h. Create it with
 /// [`crate::create_instance`].

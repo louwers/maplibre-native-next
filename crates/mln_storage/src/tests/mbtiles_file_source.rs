@@ -1,6 +1,12 @@
 // Ports test/storage/mbtiles_file_source.test.cpp. The fixture is read in
 // place (C++: relative to the working directory).
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use mln_actor::RunLoop;
+use mln_util::tileset::Scheme;
+
 use super::{cpp_path, req};
 use crate::ClientOptions;
 use crate::file_source::FileSource;
@@ -8,10 +14,6 @@ use crate::mbtiles_file_source::MBTilesFileSource;
 use crate::resource::{Kind, LoadingMethod, Resource};
 use crate::resource_options::ResourceOptions;
 use crate::response::{Reason, Response};
-use mln_actor::RunLoop;
-use mln_util::tileset::Scheme;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 fn to_absolute_url(file_name: &str) -> String {
     let path = cpp_path("test/fixtures/storage/mbtiles").join(file_name);

@@ -3,10 +3,11 @@
 // `stringifyLayout` are generated in C++ (layer.cpp.ejs); the first is in
 // line_layer.rs.
 
+use std::collections::BTreeSet;
+
 use crate::expression::Dependency;
 use crate::layer::{self, ImplBase, LayerTypeInfo};
 use crate::layers::line_layer_properties::{LineLayoutProperties, LinePaintProperties};
-use std::collections::BTreeSet;
 
 /// `LineLayer::Impl`.
 #[derive(Clone, Debug)]

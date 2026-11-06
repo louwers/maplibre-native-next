@@ -2,11 +2,12 @@
 // platform/default/src/mln/util/async_task.cpp: a coalescing wake-up whose
 // callback runs on the RunLoop of the thread that created it.
 
-use crate::run_loop::{AsyncHandle, Core, RunLoop};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+
+use crate::run_loop::{AsyncHandle, Core, RunLoop};
 
 /// `util::AsyncTask`.
 pub struct AsyncTask {
@@ -66,8 +67,9 @@ impl AsyncTaskSender {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::cell::Cell;
+
+    use super::*;
 
     #[test]
     fn coalesces() {

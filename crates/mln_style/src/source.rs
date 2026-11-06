@@ -14,17 +14,18 @@
 // observer (see style_impl.rs) then reads the changed `baseImpl` through the
 // source, as C++ `sources.update(source)` does.
 
-use crate::layer::LayerTypeInfo;
-use crate::observer::SourceObserver;
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
 use mln_storage::FileSource;
 use mln_style_types::SourceType;
 use mln_util::chrono::Duration;
 use mln_util::immutable::Immutable;
 use mln_util::logging::{Event, Log};
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
 
+use crate::layer::LayerTypeInfo;
+use crate::observer::SourceObserver;
 pub use crate::source_impl::{Impl, ImplBase, static_immutable_cast};
 
 /// The data members of `Source`.

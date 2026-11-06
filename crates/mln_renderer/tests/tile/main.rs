@@ -10,6 +10,8 @@ mod raster_tile;
 mod tile_coordinate;
 mod tile_lod;
 
+use std::sync::Arc;
+
 use mln_actor::{TaggedScheduler, scheduler};
 use mln_map_types::{MapDebugOptions, MapMode, TileLodMode, TransformState};
 use mln_renderer::tile_parameters::TileParameters;
@@ -17,7 +19,6 @@ use mln_storage::stub_file_source::{ResponseType, StubFileSource};
 use mln_util::identity::SimpleIdentity;
 use mln_util::range::Range;
 use mln_util::tileset::Tileset;
-use std::sync::Arc;
 
 /// The fixture shared by `RasterTileTest` and `RasterDEMTileTest`
 /// (test/tile/raster_tile.test.cpp, raster_dem_tile.test.cpp).

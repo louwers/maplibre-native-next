@@ -2,12 +2,6 @@
 // src/mln/renderer/layers/symbol_layer_tweaker.cpp (MLN_UBO_CONSOLIDATION
 // branches: the port's backend is WebGPU).
 
-use super::render_symbol_layer::{SymbolDrawableData, SymbolType};
-use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
-use crate::buckets::symbol_bucket::SymbolBucket;
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
-use crate::layout::symbol_projection::{get_gl_coord_matrix, get_label_plane_matrix};
-use crate::paint_parameters::PaintParameters;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shaders::shader_defines::*;
 use mln_gfx::shaders::symbol_layer_ubo::{SymbolDrawableUBO, SymbolEvaluatedPropsUBO, SymbolTilePropsUBO};
@@ -19,6 +13,13 @@ use mln_style_types::{AlignmentType, IconTextFitType, SymbolPlacementType};
 use mln_util::constants::EXTENT;
 use mln_util::immutable::Immutable;
 use mln_util::mat4::{Mat4, matrix};
+
+use super::render_symbol_layer::{SymbolDrawableData, SymbolType};
+use super::{cast_matrix, check_tweak_drawable_ptr, get_drawable_binders, get_drawable_render_tile, slot_bucket};
+use crate::buckets::symbol_bucket::SymbolBucket;
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
+use crate::layout::symbol_projection::{get_gl_coord_matrix, get_label_plane_matrix};
+use crate::paint_parameters::PaintParameters;
 
 pub struct SymbolLayerTweaker {
     base: LayerTweakerBase,

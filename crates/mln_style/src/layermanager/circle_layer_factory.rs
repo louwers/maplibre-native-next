@@ -1,10 +1,11 @@
 // Ports include/mln/layermanager/circle_layer_factory.hpp +
 // src/mln/layermanager/circle_layer_factory.cpp (style half).
 
+use mln_conversion::Convertible;
+
 use super::layer_factory::{LayerFactory, get_source};
 use crate::layer::{Layer, LayerTypeInfo};
 use crate::layers::circle_layer::{CircleLayer, Impl};
-use mln_conversion::Convertible;
 
 pub struct CircleLayerFactory;
 

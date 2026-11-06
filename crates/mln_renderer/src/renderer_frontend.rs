@@ -1,9 +1,10 @@
 // Ports include/mln/renderer/renderer_frontend.hpp
 
-use crate::renderer_observer::RendererObserver;
-use crate::update_parameters::UpdateParameters;
 use std::rc::Weak;
 use std::sync::Arc;
+
+use crate::renderer_observer::RendererObserver;
+use crate::update_parameters::UpdateParameters;
 
 /// The RenderFrontend is the bridge between the Map and platform used to
 /// update and observe the Renderer.

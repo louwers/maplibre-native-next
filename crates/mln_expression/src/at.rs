@@ -1,14 +1,15 @@
 // Ports include/mln/style/expression/at.hpp and
 // src/mln/style/expression/at.cpp.
 
+use mln_conversion::Convertible;
+use mln_util::string::to_string_double;
+
 use crate::expression::{
     EvaluationContext, EvaluationError, EvaluationResult, Expression, ExpressionBase, Kind, downcast,
 };
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::Value;
-use mln_conversion::Convertible;
-use mln_util::string::to_string_double;
 
 pub struct At {
     base: ExpressionBase,

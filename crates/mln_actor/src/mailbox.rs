@@ -14,13 +14,15 @@
 // queue and the closed flag gives the same guarantees: after `close()` no
 // message runs, and messages pushed to a closed mailbox are dropped.
 
-use crate::local_object;
-use crate::scheduler::{Scheduler, WeakScheduler};
-use mln_util::identity::SimpleIdentity;
 use std::any::Any;
 use std::collections::VecDeque;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, Weak};
+
+use mln_util::identity::SimpleIdentity;
+
+use crate::local_object;
+use crate::scheduler::{Scheduler, WeakScheduler};
 
 /// `actor::Message`: a call on the mailbox's target object.
 pub type Message = Box<dyn FnOnce(&dyn Any) + Send + 'static>;

@@ -1,10 +1,12 @@
 // Ports include/mln/util/projection.hpp
 
-use crate::constants::{DEGREES_MAX, LATITUDE_MAX, LONGITUDE_MAX, MAX_ZOOM, MIN_ZOOM};
-use crate::geo::{LatLng, WrapMode};
+use std::f64::consts::PI;
+
 use geometry::Point;
 use mln_math::{clamp_f64, deg2rad, rad2deg};
-use std::f64::consts::PI;
+
+use crate::constants::{DEGREES_MAX, LATITUDE_MAX, LONGITUDE_MAX, MAX_ZOOM, MIN_ZOOM};
+use crate::geo::{LatLng, WrapMode};
 
 // TODO(port): use mln_util::constants::TILE_SIZE_D once it exists (constants.rs
 // currently calls tileSize_D `TILE_SIZE`).

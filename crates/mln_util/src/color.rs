@@ -5,9 +5,10 @@
 // `stringify` un-premultiply back to 0..255 channels (with alpha rounded to
 // two decimals).
 
+use feature::{Value, ValueObject};
+
 use crate::interpolate::interpolate as util_interpolate;
 use crate::string::to_string_double;
-use feature::{Value, ValueObject};
 
 /// The space a color interpolation runs in: RGB blends the premultiplied
 /// channels, LAB and HCL the straight color.

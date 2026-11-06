@@ -2,9 +2,10 @@
 // (`http::errorRetryTimeout`, `http::expirationTimeout`). They live here
 // rather than in mln_util because they take `Response::Error::Reason`.
 
-use crate::response::Reason;
 use mln_util::chrono::{Duration, Timestamp, now};
 use mln_util::constants::DEFAULT_RATE_LIMIT_TIMEOUT;
+
+use crate::response::Reason;
 
 fn seconds(secs: i64) -> Duration {
     Duration::from_secs(secs)

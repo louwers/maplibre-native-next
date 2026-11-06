@@ -2,11 +2,13 @@
 // mln_style because style/properties.hpp needs it (a cut point; see
 // COORDINATION.md).
 
-use crate::expression::GlobalStateMap;
-use crate::map::zoom_history::ZoomHistory;
-use mln_util::chrono::{Duration, TimePoint};
 use std::collections::BTreeSet;
 use std::sync::Arc;
+
+use mln_util::chrono::{Duration, TimePoint};
+
+use crate::expression::GlobalStateMap;
+use crate::map::zoom_history::ZoomHistory;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct CrossfadeParameters {

@@ -7,8 +7,9 @@
 // default parse can be off by one ULP), and, without `preserve_order`,
 // iterates object members in key order (rapidjson: document order).
 
-use crate::conversion::{ConversionTraits, Convertible, Error};
 use feature::Value;
+
+use crate::conversion::{ConversionTraits, Convertible, Error};
 
 impl ConversionTraits for serde_json::Value {
     fn is_undefined(&self) -> bool {
@@ -108,8 +109,9 @@ impl ConversionTraits for serde_json::Value {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use serde_json::json;
+
+    use super::*;
 
     #[test]
     fn primitives() {

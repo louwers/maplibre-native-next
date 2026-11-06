@@ -3,13 +3,15 @@
 // TODO(port): the stats bookkeeping of texture creation is not in the C++
 // WebGPU backend either.
 
-use crate::context::Context;
+use std::any::Any;
+use std::rc::Rc;
+
 use mln_gfx::texture2d::{self, SamplerState};
 use mln_gfx::types::{TextureChannelDataType, TextureFilterType, TexturePixelType, TextureWrapType};
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
-use std::any::Any;
-use std::rc::Rc;
+
+use crate::context::Context;
 
 const BYTES_PER_ROW_ALIGNMENT: usize = 256;
 

@@ -1,5 +1,7 @@
 // Ports vendor/wagyu/include/mapbox/geometry/wagyu/vatti.hpp.
 
+use libstdcxx::stable_sort_by as stable_sort;
+
 use crate::active_bound_list::insert_local_minima_into_abl;
 use crate::bound::{Bound, BoundPtr};
 use crate::config::{ClipType, FillType};
@@ -9,7 +11,6 @@ use crate::process_maxima::process_edges_at_top_of_scanbeam;
 use crate::ring::{R, RingManager};
 use crate::ring_util::update_current_hp_itr;
 use crate::scanbeam::{pop_from_scanbeam, setup_scanbeam};
-use libstdcxx::stable_sort_by as stable_sort;
 
 /// `execute_vatti`.
 pub(crate) fn execute_vatti(

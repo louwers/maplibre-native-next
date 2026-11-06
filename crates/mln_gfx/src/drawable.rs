@@ -6,6 +6,16 @@
 // are provided methods over `base()`, the C++ virtuals are trait methods
 // (with the base-class behaviour as default where C++ has one).
 
+use std::any::Any;
+use std::cell::RefCell;
+use std::cmp::Ordering;
+use std::rc::Rc;
+use std::time::Instant;
+
+use geometry::Point;
+use mln_tile_id::OverscaledTileID;
+use mln_util::identity::SimpleIdentity;
+
 use crate::color_mode::ColorMode;
 use crate::cull_face_mode::CullFaceMode;
 use crate::draw_mode::DrawMode;
@@ -21,14 +31,6 @@ use crate::texture2d::Texture2DPtr;
 use crate::types::DepthMaskType;
 use crate::uniform_buffer::UniformBufferArray;
 use crate::vertex_attribute::VertexAttributeArrayPtr;
-use geometry::Point;
-use mln_tile_id::OverscaledTileID;
-use mln_util::identity::SimpleIdentity;
-use std::any::Any;
-use std::cell::RefCell;
-use std::cmp::Ordering;
-use std::rc::Rc;
-use std::time::Instant;
 
 pub type DrawPriority = i64;
 

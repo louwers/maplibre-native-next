@@ -126,13 +126,14 @@ pub fn merge_lines(features: &mut [SymbolFeature]) {
 #[cfg(test)]
 mod tests {
     // Ports test/util/merge_lines.test.cpp.
-    use super::*;
     use feature::Value;
     use geometry::Point;
     use mln_text::glyph::GlyphIDType;
     use mln_text::{SectionOptions, TaggedString};
     use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinates, GeometryTileFeature};
     use mln_util::geometry::FeatureType;
+
+    use super::*;
 
     struct StubGeometryTileFeature {
         geometry: GeometryCollection,

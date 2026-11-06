@@ -211,9 +211,11 @@ pub fn get_center_anchor(
 #[cfg(test)]
 mod tests {
     // Ports test/text/get_anchors.test.cpp.
-    use super::*;
-    use geometry::Point;
     use std::f32::consts::PI;
+
+    use geometry::Point;
+
+    use super::*;
 
     fn make_line(shift: usize) -> GeometryCoordinates {
         let mut line = GeometryCoordinates::new();

@@ -1,12 +1,13 @@
 // Ports include/mln/storage/file_source.hpp.
 
+use feature::Value;
+use mln_util::client_options::ClientOptions;
+
 use crate::async_request::AsyncRequest;
 use crate::resource::Resource;
 use crate::resource_options::ResourceOptions;
 use crate::resource_transform::ResourceTransform;
 use crate::response::Response;
-use feature::Value;
-use mln_util::client_options::ClientOptions;
 
 // TODO: Rename to ResourceProviderType
 /// `FileSourceType`.

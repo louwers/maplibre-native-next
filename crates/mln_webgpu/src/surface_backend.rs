@@ -23,8 +23,11 @@
 //   `PremultipliedImage` (the surface is configured with COPY_SRC when the
 //   surface supports it), so a frame can be checked without screenshots.
 
-use crate::renderable_resource::{RenderableResource, RenderableResourceBox};
-use crate::renderer_backend::RendererBackend;
+use std::any::Any;
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+use std::time::{Duration, Instant};
+
 use mln_gfx::context::Context as GfxContext;
 use mln_gfx::renderable::{Renderable, RenderableBase};
 use mln_gfx::renderer_backend::{self, ContextMode, RendererBackendBase};
@@ -33,10 +36,9 @@ use mln_gfx::shaders::program_parameters::ProgramParameters;
 use mln_util::image::PremultipliedImage;
 use mln_util::logging::{Event, Log};
 use mln_util::size::Size;
-use std::any::Any;
-use std::cell::{Cell, RefCell};
-use std::rc::Rc;
-use std::time::{Duration, Instant};
+
+use crate::renderable_resource::{RenderableResource, RenderableResourceBox};
+use crate::renderer_backend::RendererBackend;
 
 /// `maxConsecutiveErrors`
 const MAX_CONSECUTIVE_ERRORS: i32 = 3;

@@ -6,10 +6,11 @@
 // TODO(port): the attribute/texture tables of the other shader types
 // (fill_extrusion.cpp, symbol.cpp, raster.cpp, ...) arrive with their layers.
 
-use super::wgsl_sources;
 use mln_gfx::gfx_types::AttributeDataType;
 use mln_gfx::shaders::shader_defines::*;
 use mln_gfx::shaders::shader_source::BuiltIn;
+
+use super::wgsl_sources;
 
 /// The WGSL members of a `ShaderSource` specialisation, as extracted.
 #[derive(Debug)]

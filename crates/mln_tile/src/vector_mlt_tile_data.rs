@@ -12,7 +12,9 @@
 // GeometryTileWorker port catches it like C++ `catch (...)`). See
 // DEVIATIONS.md.
 
-use crate::mlt::{self, Coordinate, MapLibreTile, Property, Shape};
+use std::cell::OnceCell;
+use std::sync::{Arc, Mutex};
+
 use feature::{Identifier, PropertyMap, Value};
 use mln_tile_id::{
     GeometryCollection, GeometryCoordinate, GeometryCoordinates, GeometryTileData, GeometryTileFeature,
@@ -21,8 +23,8 @@ use mln_tile_id::{
 use mln_util::constants::EXTENT;
 use mln_util::geometry::FeatureType;
 use mln_util::logging::{Event, Log};
-use std::cell::OnceCell;
-use std::sync::{Arc, Mutex};
+
+use crate::mlt::{self, Coordinate, MapLibreTile, Property, Shape};
 
 fn unwrap_or_throw<T>(r: Result<T, mlt::Error>) -> T {
     match r {

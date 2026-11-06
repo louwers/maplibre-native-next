@@ -1,11 +1,10 @@
 // Ports the style-side tests of test/style/source.test.cpp (the ones that
 // need no RenderSource; those are in mln_renderer/tests/source_test.rs).
 
-use crate::observer::SourceObserver;
-use crate::source::Source;
-use crate::sources::geojson_source::GeoJSONSource;
-use crate::sources::image_source::ImageSource;
-use crate::sources::tile_source::{UrlOrTileset, VectorSource};
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+
 use mln_actor::RunLoop;
 use mln_storage::response::{Error as ResponseError, Reason};
 use mln_storage::stub_file_source::{ResponseType, StubFileSource};
@@ -15,9 +14,12 @@ use mln_util::geo::LatLng;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
 use mln_util::tileset::{Tileset, VectorEncoding};
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::Arc;
+
+use crate::observer::SourceObserver;
+use crate::source::Source;
+use crate::sources::geojson_source::GeoJSONSource;
+use crate::sources::image_source::ImageSource;
+use crate::sources::tile_source::{UrlOrTileset, VectorSource};
 
 /// `StubStyleObserver` (test/src/mln/test/stub_style_observer.hpp), the
 /// SourceObserver half.

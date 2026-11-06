@@ -11,20 +11,13 @@
 // drawables for MapDebugOptions::Timestamps / ParseStatus (the DebugBucket
 // has no text yet, see buckets/debug_bucket.rs).
 
-use crate::render_source::{RenderSourceBase, RenderTiles, SourcePrepareParameters};
-use crate::render_tile::RenderTile;
-use crate::render_tree::RenderItem;
-// layers: debug
-use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
-use crate::layers::cast_matrix;
-use crate::paint_parameters::PaintParameters;
-use crate::render_pass::RenderPass;
-use crate::render_tree::{DebugLayerGroupMap, DebugLayerTweakers, DebugType};
-use crate::tile::tile::Tile;
-use crate::tile_pyramid::TilePyramid;
+use std::cell::RefCell;
+use std::collections::HashSet;
+use std::rc::{Rc, Weak};
+use std::sync::Arc;
+
 use geometry::Point;
 use mln_actor::TaggedScheduler;
-use mln_gfx::UploadPass;
 use mln_gfx::polyline_generator::PolylineGeneratorOptions;
 use mln_gfx::renderer::layer_group::visit_layer_group_drawables;
 use mln_gfx::shader_group::StringIDSetsPair;
@@ -37,26 +30,32 @@ use mln_gfx::shaders::shader_defines::{
     ID_LINE_POS_NORMAL_VERTEX_ATTRIBUTE, ID_LINE_WIDTH_VERTEX_ATTRIBUTE,
 };
 use mln_gfx::shaders::shader_program_base::ShaderProgramBasePtr;
-use mln_gfx::{ColorMode, CullFaceMode, LayerGroupBase, LayerGroupBasePtr, UniformBufferPtr, UniqueDrawableBuilder};
+use mln_gfx::{
+    ColorMode, CullFaceMode, LayerGroupBase, LayerGroupBasePtr, UniformBufferPtr, UniqueDrawableBuilder, UploadPass,
+};
 use mln_map_types::MapDebugOptions;
 use mln_style::expression::Dependency;
-use mln_style::layer;
 use mln_style::layer::{LayerTypeInfo, layer_type_info};
 use mln_style::layer_properties::{LayerProperties, LayerPropertiesBase};
-use mln_style::source;
+use mln_style::{layer, source};
 use mln_style_types::TranslateAnchorType;
-use mln_tile_id::OverscaledTileID;
-use mln_tile_id::UnwrappedTileID;
 use mln_tile_id::geometry_tile_data::GeometryCoordinates;
+use mln_tile_id::{OverscaledTileID, UnwrappedTileID};
 use mln_util::Color;
 use mln_util::constants::EXTENT;
 use mln_util::geometry::FeatureType;
 use mln_util::immutable::Immutable;
-use std::cell::RefCell;
-use std::collections::HashSet;
-use std::rc::Rc;
-use std::rc::Weak;
-use std::sync::Arc;
+
+// layers: debug
+use crate::layer_tweaker::{LayerTweaker, LayerTweakerBase, get_tile_matrix};
+use crate::layers::cast_matrix;
+use crate::paint_parameters::PaintParameters;
+use crate::render_pass::RenderPass;
+use crate::render_source::{RenderSourceBase, RenderTiles, SourcePrepareParameters};
+use crate::render_tile::RenderTile;
+use crate::render_tree::{DebugLayerGroupMap, DebugLayerTweakers, DebugType, RenderItem};
+use crate::tile::tile::Tile;
+use crate::tile_pyramid::TilePyramid;
 
 /// `TileSourceRenderItem`.
 pub struct TileSourceRenderItem {

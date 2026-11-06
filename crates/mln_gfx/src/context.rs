@@ -9,6 +9,12 @@
 // `visualizeStencilBuffer`/`visualizeDepthBuffer` (debug builds) and
 // `threadSafeAccessRenderingStats` arrive with their first user.
 
+use std::any::Any;
+use std::cell::{Ref, RefCell, RefMut};
+use std::rc::Rc;
+
+use mln_util::size::Size;
+
 use crate::color_mode::ColorMode;
 use crate::command_encoder::CommandEncoder;
 use crate::context_observer::ContextObserver;
@@ -25,10 +31,6 @@ use crate::texture2d::Texture2DPtr;
 use crate::types::TextureChannelDataType;
 use crate::uniform_buffer::{UniformBufferArray, UniformBufferPtr, UniqueUniformBufferArray};
 use crate::vertex_attribute::VertexAttributeArrayPtr;
-use mln_util::size::Size;
-use std::any::Any;
-use std::cell::{Ref, RefCell, RefMut};
-use std::rc::Rc;
 
 /// The data members of `gfx::Context`.
 pub struct ContextBase {

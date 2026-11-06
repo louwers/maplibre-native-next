@@ -1,11 +1,12 @@
 // Ports test/style/conversion/light.test.cpp.
 
-use super::util::parse_json;
-use crate::conversion::{Converter, Error};
-use crate::light::Light;
 use mln_conversion::Convertible;
 use mln_style_types::Position;
 use mln_util::Color;
+
+use super::util::parse_json;
+use crate::conversion::{Converter, Error};
+use crate::light::Light;
 
 // gtest: StyleConversion.Light
 #[test]

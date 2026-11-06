@@ -10,9 +10,9 @@
 // RenderLayer*>`) is `QueryLayers`. `DynamicFeatureIndex` (filled only by
 // the location indicator layer) is TODO(port).
 
-use crate::query::RenderedQueryOptions;
-use crate::render_layer::RenderLayer;
-use crate::source_state::SourceFeatureState;
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::sync::Arc;
+
 use geometry::Point;
 use mln_map_types::TransformState;
 use mln_style::expression::expression::FeatureState;
@@ -25,8 +25,10 @@ use mln_util::constants;
 use mln_util::feature::{Feature, feature_id_to_string};
 use mln_util::grid_index::{BBox, GridIndex};
 use mln_util::mat4::Mat4;
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::sync::Arc;
+
+use crate::query::RenderedQueryOptions;
+use crate::render_layer::RenderLayer;
+use crate::source_state::SourceFeatureState;
 
 /// The render layers a query looks at, by id.
 pub type QueryLayers<'a> = HashMap<String, &'a dyn RenderLayer>;

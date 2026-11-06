@@ -1,7 +1,8 @@
 // Ports include/mln/storage/response.hpp and src/mln/storage/response.cpp.
 
-use mln_util::chrono::{Timestamp, now};
 use std::sync::Arc;
+
+use mln_util::chrono::{Timestamp, now};
 
 /// `std::shared_ptr<const std::string>`: response bodies are bytes.
 pub type Data = Arc<Vec<u8>>;

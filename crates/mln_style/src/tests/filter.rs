@@ -1,12 +1,13 @@
 // Ports test/style/filter.test.cpp.
 
+use feature::{Identifier, Value};
+use mln_conversion::Convertible;
+use mln_util::geometry::FeatureType;
+
 use super::util::{StubGeometryTileFeature, parse_json, property_map};
 use crate::conversion::{Converter, Error};
 use crate::expression::EvaluationContext;
 use crate::filter::Filter;
-use feature::{Identifier, Value};
-use mln_conversion::Convertible;
-use mln_util::geometry::FeatureType;
 
 fn convert_json(json: &str, error: &mut Error) -> Option<Filter> {
     let value = parse_json(json);

@@ -1,14 +1,16 @@
 // Ports include/mln/style/expression/image_expression.hpp and
 // src/mln/style/expression/image_expression.cpp.
 
+use std::sync::Arc;
+
+use feature::Value as MbglValue;
+use mln_conversion::Convertible;
+
 use crate::expression::{Dependency, EvaluationContext, EvaluationResult, Expression, ExpressionBase, Kind, downcast};
 use crate::image::Image;
 use crate::parsing_context::{ParseResult, ParsingContext};
 use crate::type_::Type;
 use crate::value::{Value, to_string};
-use feature::Value as MbglValue;
-use mln_conversion::Convertible;
-use std::sync::Arc;
 
 pub struct ImageExpression {
     base: ExpressionBase,

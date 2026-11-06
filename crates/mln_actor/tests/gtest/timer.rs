@@ -7,11 +7,12 @@
 // `std::time::Instant`; durations are compared in whole milliseconds, as the
 // C++ `duration_cast<Milliseconds>` does.
 
-use mln_actor::{RunLoop, Timer};
-use mln_util::chrono::{Duration, milliseconds};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use std::time::Instant;
+
+use mln_actor::{RunLoop, Timer};
+use mln_util::chrono::{Duration, milliseconds};
 
 /// `duration_cast<Milliseconds>(now - first).count()`.
 fn elapsed_ms(first: Instant) -> f64 {

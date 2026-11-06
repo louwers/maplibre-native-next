@@ -7,14 +7,16 @@
 // TODO(port): roundPolygonCorners (fill-extrusion rounded corners; needs
 // util/math.hpp dist/normal/perp/crossProduct/angle_between).
 
-use crate::stl_algo::nth_element;
+use std::f64::consts::PI;
+
 use feature::Feature;
 use geometry::{Geometry, LineString, LinearRing, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon};
 use mln_tile_id::{CanonicalTileID, GeometryCollection, GeometryCoordinates, GeometryTileFeature};
 use mln_util::constants::EXTENT;
 use mln_util::geometry::FeatureType;
-use std::f64::consts::PI;
 use vector_tile::Error;
+
+use crate::stl_algo::nth_element;
 
 /// `signedArea` (anonymous namespace). The products are C++ `int`
 /// arithmetic, which can overflow for coordinates near the int16 limits;
