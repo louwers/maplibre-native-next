@@ -55,8 +55,9 @@ port, not a redesign:
   "Adding a library").
 - The C++ core is never linked into the port. Only `//difftest/...` links
   `@maplibre//:mbgl-core`, as the reference implementation.
-- On NixOS everything runs through `scripts/bazel` (the C++ repo's `#linux`
-  flake shell plus bazelisk) with machine-local flags in `user.bazelrc`.
+- Everything runs through the justfile (`just bazel`, `just test`, ...). On
+  NixOS, `just bazel` runs inside the C++ repo's `#linux` flake shell plus
+  bazelisk, with machine-local flags in `user.bazelrc`.
 - Test data comes from the C++ repo as Bazel data deps:
   `@maplibre//metrics:render-test-files` and
   `@maplibre//metrics:expression-test-files`. Nothing is copied.

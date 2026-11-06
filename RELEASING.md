@@ -19,11 +19,11 @@ The ports nothing in the release uses (`vendor/cheap-ruler`,
 1. Bump the version in `Cargo.toml`: `[workspace.package] version` and the
    `=<version>` of every in-repo entry in `[workspace.dependencies]`. A missed
    one fails every cargo command. Run `cargo check` to update `Cargo.lock`,
-   and a Bazel command (`scripts/bazel query @next_crates//:all`) to update
+   and a Bazel command (`just bazel query @next_crates//:all`) to update
    `MODULE.bazel.lock`, which records both files; merge that change to
    main. crates.io never replaces a published version.
-2. Run the **release** workflow on main: Actions → release → Run workflow, or
-   `gh workflow run release.yml --repo louwers/maplibre-native-next --ref main`.
+2. Run the **release** workflow on main: `just release`, or Actions →
+   release → Run workflow.
 
 If the workflow fails part way, run it again on the same commit: packages
 that crates.io already has at this version are skipped, and so is an existing
@@ -51,14 +51,15 @@ first.
 4. Creates the tag `v<version>` on the workflow's commit and a GitHub release
    with the `.crate` files.
 
-CI (`release-crate` in `ci.yml`) runs step 2 on every push and PR. It
+CI (`release-crate` in `ci.yml`, `just ci-package`) runs step 2 on every
+push and PR. It
 catches a dependency that is in a `BUILD.bazel` but missing from the
 `Cargo.toml` next to it, and a manifest crates.io would reject.
 
 ## Locally
 
 ```sh
-cargo package --workspace
+just package
 ```
 
 On NixOS, run it inside `nix develop path:.nix-shell#linux` if a build script
@@ -105,7 +106,7 @@ goes into `third_party/bazel_crates/Cargo.toml` instead.
 ## Shaders
 
 The WGSL shaders come from the C++ core's `include/mln/shaders/webgpu/*.hpp`.
-`scripts/vendor-shaders [maplibre-native checkout]` extracts them, unchanged,
+`just vendor-shaders [maplibre-native checkout]` extracts them, unchanged,
 into `crates/mln_webgpu/src/shaders/wgsl_sources.rs` (default checkout:
 `../maplibre-native`). Rerun it when the C++ shaders change, and commit the
 result.

@@ -1,5 +1,6 @@
 """For selected (src module -> dst module) edges, list which files include
-which headers. Usage: python3 -I back_edges.py <repo-root>"""
+which headers. Usage: python3 -I back_edges.py <repo-root>, or
+`just include-back-edges`."""
 import os
 import re
 import sys

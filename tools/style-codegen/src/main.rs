@@ -3,12 +3,7 @@
 //! `style-codegen --spec <v8.json> --difftest <reference.cpp> <cases.rs>`
 //! writes the //difftest/style_codegen sources.
 //!
-//! Regenerate the checked-in files from the repository root:
-//!
-//!     scripts/bazel build //tools/style-codegen
-//!     bazel-bin/tools/style-codegen/style-codegen \
-//!         --spec ../maplibre-native/scripts/style-spec-reference/v8.json \
-//!         --out crates/mln_style/src
+//! `just generate-style-code` regenerates the checked-in files.
 
 use std::path::PathBuf;
 use std::process::ExitCode;

@@ -6,7 +6,7 @@
 //! generates `<type>_layer.{hpp,cpp}` and `<type>_layer_properties.{hpp,cpp}`;
 //! `//tools/style-codegen:generated_code_test` checks them. The
 //! `<type>_layer_impl.rs` files are ported by hand, as their C++ files are
-//! written by hand. rustfmt skips the generated ones (scripts/fmt).
+//! written by hand. rustfmt skips the generated ones (`just fmt`).
 
 #[rustfmt::skip]
 pub mod background_layer;

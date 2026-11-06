@@ -23,8 +23,7 @@ rust_test(
     crate = ":style_codegen",
 )
 
-# Regenerates the checked-in files (see src/main.rs). `scripts/bazel run`
-# does not work on NixOS (no /bin/bash): build it and run it from bazel-bin.
+# Regenerates the checked-in files: `just generate-style-code`.
 rust_binary(
     name = "style-codegen",
     srcs = ["src/main.rs"],

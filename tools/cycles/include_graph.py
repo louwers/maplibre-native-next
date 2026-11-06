@@ -1,6 +1,6 @@
 """Module-level include graph of src/mln + include/mln, with SCCs.
 
-Usage: python3 -I include_graph.py <repo-root>
+Usage: python3 -I include_graph.py <repo-root>, or `just include-graph`.
 A "module" is the first directory under mln/ (style, tile, ...); for style we
 also split out style/expression and style/conversion as their own nodes,
 since those are candidate crates.

@@ -22,7 +22,7 @@ rust_library(
     ],
 )
 
-# `scripts/bazel run //tools/expression-test -- [test names...]`
+# `just bazel run //tools/expression-test -- [test names...]`
 rust_binary(
     name = "expression-test",
     srcs = ["src/main.rs"],

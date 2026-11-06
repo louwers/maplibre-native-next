@@ -2,6 +2,8 @@
 """Converts nunicode's generated C tables into the checked-in Rust sources
 under vendor/nunicode/src/tables/.
 
+`just generate-nunicode-tables` runs it with the paths below.
+
 Usage: gen_tables.py <nunicode dir> <output dir>
   <nunicode dir>: ../maplibre-native/vendor/nunicode
   <output dir>:   vendor/nunicode/src/tables

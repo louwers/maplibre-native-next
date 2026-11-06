@@ -71,9 +71,12 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
 
+      - uses: taiki-e/install-action@v2
+        with: { tool: just }
+
       - name: Test
         working-directory: maplibre-native-next
-        run: bazel test --config=ci //... //tools/render-test:render_tests
+        run: just ci-test
 
       - name: Upload test logs
         if: failure()
@@ -90,8 +93,6 @@ jobs:
   release-crate:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
-    env:
-      CARGO_BUILD_WARNINGS: deny
     steps:
       - uses: actions/checkout@v5
         with:
@@ -106,23 +107,23 @@ jobs:
           key: release-crate-${{ runner.os }}-${{ hashFiles('maplibre-native-next/Cargo.lock') }}
           restore-keys: release-crate-${{ runner.os }}-
 
+      - uses: taiki-e/install-action@v2
+        with: { tool: just }
+
       - name: Package
         working-directory: maplibre-native-next
         run: |
           rustup toolchain install stable --profile minimal --no-self-update
           rustup default stable
-          cargo package --workspace --locked
-          cargo test --workspace --locked --no-run
+          just ci-package
 
-  # What the Bazel build does not check, all with warnings as errors:
-  # formatting (scripts/fmt, every Rust file), clippy with the workspace's
-  # lints (Cargo.toml) and the API docs as docs.rs builds them.
+  # What the Bazel build does not check, all with warnings as errors (the
+  # justfile denies them in CI): formatting (`just fmt`, every Rust file),
+  # clippy with the workspace's lints (Cargo.toml) and the API docs as docs.rs
+  # builds them.
   lint:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
-    env:
-      CARGO_BUILD_WARNINGS: deny
-      RUSTDOCFLAGS: -D warnings
     steps:
       - uses: actions/checkout@v5
 
@@ -134,19 +135,16 @@ jobs:
           key: lint-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: lint-${{ runner.os }}-
 
+      - uses: taiki-e/install-action@v2
+        with: { tool: just }
+
       - name: Install Rust
         run: |
           rustup toolchain install stable --profile minimal --component clippy,rustfmt --no-self-update
           rustup default stable
 
-      - name: rustfmt
-        run: scripts/fmt --check
-
-      - name: Clippy
-        run: cargo clippy --workspace --all-targets --locked
-
-      - name: Docs
-        run: cargo doc --workspace --no-deps --locked
+      - name: Lint
+        run: just ci-lint
 
   # The oldest Rust the packages declare (`rust-version` in Cargo.toml) still
   # builds them and their tests.
@@ -164,14 +162,11 @@ jobs:
           key: msrv-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: msrv-${{ runner.os }}-
 
-      - name: Install the MSRV
-        run: |
-          msrv=$(sed -n 's/^rust-version = "\(.*\)"$/\1/p' Cargo.toml)
-          rustup toolchain install "$msrv" --profile minimal --no-self-update
-          rustup default "$msrv"
+      - uses: taiki-e/install-action@v2
+        with: { tool: just }
 
       - name: Check
-        run: cargo check --workspace --all-targets --locked
+        run: just ci-test-msrv
 
   # The one check for branch protection to require: it fails when a job above
   # failed or was cancelled.

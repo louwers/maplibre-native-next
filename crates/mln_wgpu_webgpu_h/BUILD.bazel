@@ -3,7 +3,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 # A wgpu custom backend over webgpu.h (Dawn's emdawnwebgpu), so the port
 # renders with the browser's WebGPU in an Emscripten module. Natively it only
 # type-checks: the webgpu.h functions are stubs there (src/sys.rs).
-# gen_bindings.sh regenerates src/sys/generated.rs.
+# `just generate-webgpu-bindings` regenerates src/sys/generated.rs.
 rust_library(
     name = "mln_wgpu_webgpu_h",
     srcs = glob(["src/**/*.rs"]),

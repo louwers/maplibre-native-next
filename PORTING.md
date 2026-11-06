@@ -32,8 +32,9 @@ everyone working in this repo).
 
 ## Build and test
 
-- Bazel only, always through `scripts/bazel` (for example
-  `scripts/bazel test //crates/mln_style/...`). Wrap long commands in `timeout`.
+- Bazel only, always through `just bazel` (for example
+  `just bazel test //crates/mln_style/...`). Wrap long commands in `timeout`.
+  `just` lists the other tasks (justfile).
 - **One Bazel server is shared by everyone.** Commands queue on it, so:
   - build and test only your own targets, plus targets you depend on;
   - never build `//...` (other people's packages may be mid-edit);
@@ -47,7 +48,7 @@ everyone working in this repo).
   with sources, test-only dependencies in `[dev-dependencies]`. A new
   library needs the steps in RELEASING.md ("Adding a library"). CI's
   `release-crate` job checks the manifests.
-- Format with `scripts/fmt` (rustfmt, `rustfmt.toml`); leave generated
+- Format with `just fmt` (rustfmt, `rustfmt.toml`); leave generated
   files ("Do not edit") as their generator writes them, and put
   `#[rustfmt::skip]` on a new one's `mod` declaration. CI's `lint` job also
   runs clippy (`cargo clippy --workspace --all-targets`) and rustdoc with
@@ -136,7 +137,7 @@ Exceptions:
   `COORDINATION.md` for changes to them. New files must not need new deps in
   `crates/mln_util/BUILD.bazel` without asking first.
 - `COORDINATION.md`: everyone appends; never rewrite others' entries.
-- Shared files (`MODULE.bazel`, `.bazelrc`, `user.bazelrc`, `scripts/`,
+- Shared files (`MODULE.bazel`, `.bazelrc`, `user.bazelrc`, `justfile`,
   `PLAN.md`, `PORTING.md`, the root `BUILD.bazel`, `../maplibre-native`)
   belong to the coordinator. Request changes in `COORDINATION.md`.
 - Don't commit. Others are editing the same working tree.

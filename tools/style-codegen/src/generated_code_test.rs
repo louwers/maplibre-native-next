@@ -17,10 +17,7 @@ fn generated_code_is_up_to_date() {
     let stale = style_codegen::check(&spec, &root).expect("generator");
     assert!(
         stale.is_empty(),
-        "generated style code is out of date: {stale:?}\nRegenerate from the repository root with\n  \
-         scripts/bazel build //tools/style-codegen\n  \
-         bazel-bin/tools/style-codegen/style-codegen --spec ../maplibre-native/scripts/style-spec-reference/v8.json \
-         --out crates/mln_style/src"
+        "generated style code is out of date: {stale:?}\nRegenerate it with `just generate-style-code`."
     );
 }
 

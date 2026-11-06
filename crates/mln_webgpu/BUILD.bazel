@@ -1,7 +1,7 @@
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_test")
 
 # Extracts the WGSL raw string literals from the C++ headers
-# (include/mln/shaders/webgpu/*.hpp), unchanged. scripts/vendor-shaders runs
+# (include/mln/shaders/webgpu/*.hpp), unchanged. `just vendor-shaders` runs
 # it to write src/shaders/wgsl_sources.rs, which is checked in.
 rust_binary(
     name = "extract_wgsl",

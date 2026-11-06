@@ -16,7 +16,7 @@ all of its markers are on `#[ignore]`d tests. A test the C++ CI does not run
 either (`DISABLED_*`, `TEST_REQUIRES_ACCURATE_TIMING(...)`,
 `TEST_DISABLED_ON_CI(...)`) counts as ported when its port is `#[ignore]`d.
 
-Usage (from anywhere):
+Usage (from anywhere; `just gtest-parity [options]` runs it too):
     python3 -I tools/gtest-parity/gtest_parity.py              # table per test/ dir
     python3 -I tools/gtest-parity/gtest_parity.py --missing util
     python3 -I tools/gtest-parity/gtest_parity.py --ignored util  # with reasons

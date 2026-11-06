@@ -8,6 +8,8 @@ Both files are UTrie2 data that ICU compiles into libicuuc
 `uchar_props_data.h`: General_Category), so these tables are the data the
 C++ oracle uses, not a re-derivation from the UCD.
 
+`just generate-icu-tables <dir>/icu/source/common` writes both tables.
+
 Usage, from crates/mln_text:
   nix-store --realise /nix/store/...-icu4c-78.3-sources.tgz.drv   # or any ICU 78.3 source tree
   tar xzf <icu4c-78.3-sources.tgz> icu/source/common/ubidi_props_data.h icu/source/common/uchar_props_data.h

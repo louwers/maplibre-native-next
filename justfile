@@ -1,0 +1,393 @@
+#!/usr/bin/env just --justfile
+
+# The package that re-exports every library (the crates.io release).
+main_crate := 'mln-rs'
+# How to call the current just executable. Note that just_executable() may have `\` in Windows paths, so we need to quote it.
+just := quote(just_executable())
+# cargo-binstall needs a workaround due to caching when used in CI
+binstall_args := if env('CI', '') != '' {'--no-confirm --no-track --disable-telemetry'} else {''}
+
+# The C++ core the port is tested against (MODULE.bazel's local_path_override).
+cpp := justfile_directory() / '..' / 'maplibre-native'
+
+# On NixOS, Bazel and the binaries it builds run inside the C++ repo's #linux
+# dev shell (clang, zlib, icu, the Vulkan loader, ...), with bazelisk from
+# nixpkgs. Every local Bazel invocation goes through `just bazel` so that each
+# one sees the same environment: a changed environment makes the shared Bazel
+# server reconfigure the C++ toolchain and rebuild the C++ core. Elsewhere
+# (macOS, CI) the system's tools are the environment.
+nixos := path_exists('/etc/NIXOS')
+dev_shell := if nixos == 'true' {'nix develop ' + quote('path:' + justfile_directory() / '.nix-shell#linux') + ' --command'} else {''}
+bazel := if nixos == 'true' {'nix shell nixpkgs#bazelisk --command bazelisk'} else {'"$(command -v bazelisk || command -v bazel)"'}
+
+# if running in CI, treat warnings as errors by setting CARGO_BUILD_WARNINGS to 'deny' unless it is already set
+# Use `CI=true just ci-lint` to run the same checks as in GitHub CI.
+# Use `just env-info` to see the current value of CARGO_BUILD_WARNINGS
+ci_mode := if env('CI', '') != '' {'1'} else {''}
+export CARGO_BUILD_WARNINGS := env('CARGO_BUILD_WARNINGS', if ci_mode == '1' {'deny'} else {'warn'})
+export RUST_BACKTRACE := env('RUST_BACKTRACE', if ci_mode == '1' {'1'} else {'0'})
+
+@_default:
+    {{just}} --list
+
+# Run Bazel with the given arguments, e.g. `just bazel test //crates/mln_style/...`
+[positional-arguments]
+bazel *args: _dev-shell
+    {{dev_shell}} {{bazel}} "$@"
+
+# Build everything Bazel builds
+build:  (bazel 'build' '//...')
+
+# Quick compile of the Cargo workspace without building a binary
+check:
+    cargo check --workspace --all-targets
+
+# Run the Bazel tests as CI does (Linux and macOS)
+ci-test:  env-info (bazel 'test' '--config=ci' '//...' '//tools/render-test:render_tests')
+
+# Run the checks of CI's lint job: formatting, clippy and the API docs, warnings as errors
+ci-lint:  env-info test-fmt clippy test-doc && assert-git-is-clean
+
+# Package every crate and compile every Cargo test target, as CI's release-crate job does
+ci-package:  env-info package && assert-git-is-clean
+
+# Check the Cargo workspace with the oldest Rust it declares, as CI's msrv job does
+ci-test-msrv:  env-info test-msrv && assert-git-is-clean
+
+# Clean the Cargo build (Bazel's output is shared by everyone working here, so it is never cleaned from here)
+clean:
+    cargo clean
+
+# Run cargo clippy to lint the code
+clippy *args:
+    cargo clippy --workspace --all-targets {{args}}
+
+# Build and open code documentation
+docs *args='--open':
+    DOCS_RS=1 cargo doc --no-deps {{args}} --workspace
+
+# Print environment info
+env-info:
+    @echo "Running for '{{main_crate}}' crate {{if ci_mode == '1' {'in CI mode'} else {'in dev mode'} }} on {{os()}} / {{arch()}}"
+    @echo "PWD {{justfile_directory()}}"
+    {{just}} --version
+    rustc --version
+    cargo --version
+    rustup --version
+    @echo "Bazel $(cat .bazelversion) (.bazelversion){{if nixos == 'true' {' in the NixOS dev shell'} else {''} }}"
+    @echo "CARGO_BUILD_WARNINGS='$CARGO_BUILD_WARNINGS'"
+    @echo "RUST_BACKTRACE='$RUST_BACKTRACE'"
+
+# Generated files (their first lines say "Do not edit" or "@generated") stay as their generators write them: they are not passed to
+# rustfmt, and their `mod` declarations carry #[rustfmt::skip], so formatting the module that declares them leaves them alone too.
+[doc('Reformat every Rust file with rustfmt, the Bazel-only crates included. If nightly is available, use it for better results')]
+fmt *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    files=()
+    while IFS= read -r -d '' file; do
+        head -n 5 "$file" | grep -q -e 'Do not edit' -e '@generated' || files+=("$file")
+    done < <(git ls-files -z '*.rs')
+    if (rustup toolchain list | grep nightly && rustup component list --toolchain nightly --installed | grep rustfmt) &> /dev/null; then
+        echo 'Reformatting Rust code using nightly Rust fmt to sort imports'
+        rustfmt +nightly --config imports_granularity=Module,group_imports=StdExternalCrate {{args}} "${files[@]}"
+    else
+        echo 'Reformatting Rust with the stable rustfmt.  Install nightly with `rustup install nightly` for better results'
+        rustfmt {{args}} "${files[@]}"
+    fi
+
+# Regenerate the HarfBuzz Unicode tables (crates/mln_text's, and a difftest's) from the C++ core's HarfBuzz
+generate-hb-ucd-tables:
+    python3 -I crates/mln_text/tools/gen_hb_ucd.py {{quote(cpp)}} > crates/mln_text/src/hb_ucd_table.rs
+    python3 -I crates/mln_text/tools/gen_hb_ucd.py {{quote(cpp)}} --full-gc > difftest/text/hb_ucd15_full_gc.rs
+
+# crates/mln_text/tools/gen_icu_tables.py says where to get the ICU 78.3 sources.
+[doc("Regenerate the ICU property tables (Bidi_Class, General_Category) from an ICU 78.3 source tree's icu/source/common")]
+generate-icu-tables icu_common:
+    python3 -I crates/mln_text/tools/gen_icu_tables.py bidi {{quote(icu_common)}} > crates/mln_text/src/icu/ubidi_props_data.rs
+    python3 -I crates/mln_text/tools/gen_icu_tables.py gc {{quote(icu_common)}} > crates/mln_util/src/i18n/uchar_props.rs
+
+# Regenerate vendor/nunicode's tables from the C++ core's vendored nunicode
+generate-nunicode-tables:
+    python3 -I vendor/nunicode/tools/gen_tables.py {{quote(cpp / 'vendor/nunicode')}} vendor/nunicode/src/tables
+
+# Regenerate crates/mln_style's generated style code from the C++ repo's style spec (checked by generated_code_test)
+generate-style-code:  (bazel 'build' '//tools/style-codegen')
+    bazel-bin/tools/style-codegen/style-codegen --spec {{quote(cpp / 'scripts/style-spec-reference/v8.json')}} --out crates/mln_style/src
+
+# Needs bindgen and emcc, e.g. `nix shell nixpkgs#rust-bindgen nixpkgs#emscripten --command just generate-webgpu-bindings`.
+#
+# bindgen emits no functions when clang targets wasm32, so it runs for the host target. That is fine: without layout tests the type
+# definitions are identical (webgpu.h uses fixed-size integers, size_t and pointers only). The #define constants (WGPU_STRLEN, ...) are
+# written by hand in src/sys.rs, because they depend on the target's size_t. The functions are wrapped in `webgpu_functions! { ... }`
+# (src/sys.rs): an extern block on Emscripten, panicking stubs elsewhere, so native builds type-check the backend without undefined
+# wgpu* symbols.
+[doc('Regenerate crates/mln_wgpu_webgpu_h/src/sys/generated.rs from the webgpu.h of the emdawnwebgpu port that Emscripten pins')]
+generate-webgpu-bindings:  (assert-cmd 'bindgen') (assert-cmd 'emcc')
+    #!/usr/bin/env bash
+    set -euo pipefail
+    out=crates/mln_wgpu_webgpu_h/src/sys/generated.rs
+    export EM_CACHE="${EM_CACHE:-$(mktemp -d)}"
+    emcc_dir="$(dirname "$(readlink -f "$(command -v emcc)")")"
+    # Fetches the port into EM_CACHE if it isn't there yet.
+    echo 'int main(void){return 0;}' > "$EM_CACHE/port_probe.c"
+    emcc --use-port=emdawnwebgpu -c "$EM_CACHE/port_probe.c" -o "$EM_CACHE/port_probe.o"
+    pkg="$EM_CACHE/ports/emdawnwebgpu/emdawnwebgpu_pkg"
+    sysroot="$emcc_dir/../share/emscripten/cache/sysroot"
+    [ -d "$sysroot" ] || sysroot="$EM_CACHE/sysroot"
+    version="$(grep -o "v[0-9][0-9.]*" "$pkg/VERSION.txt" | head -1)"
+    raw="$(mktemp)"
+    bindgen "$pkg/webgpu/include/webgpu/webgpu.h" \
+      --no-layout-tests --no-doc-comments --no-prepend-enum-name --use-core \
+      --allowlist-function 'wgpu.*' --allowlist-type 'WGPU.*' --allowlist-var 'WGPU.*' \
+      -o "$raw" -- -I"$pkg/webgpu/include" -isystem "$sysroot/include"
+    python3 -I - "$raw" "$out" "$version" <<'PY'
+    import re, sys
+    raw, out, version = sys.argv[1:]
+    src = open(raw).read()
+    blocks = re.compile(r'unsafe extern "C" \{\n(.*?)\n\}\n', re.S)
+    functions = [m.group(1) for m in blocks.finditer(src)]
+    types = blocks.sub("", src).replace("/* automatically generated by rust-bindgen", "// Generated by rust-bindgen", 1)
+    types = types.replace(" */\n", "\n", 1)
+    header = (
+        "// @generated by `just generate-webgpu-bindings` from webgpu.h of\n"
+        f"// emdawnwebgpu: {version}\n"
+        "// Do not edit.\n\n"
+    )
+    open(out, "w").write(header + types.rstrip() + "\n\nwebgpu_functions! {\n" + "\n".join(functions) + "\n}\n")
+    PY
+    rm -f "$raw"
+    # The repository's formatting (rustfmt would reformat it through sys.rs anyway).
+    rustfmt --edition 2024 --config max_width=120,use_small_heuristics=Max "$out"
+    echo "wrote $out ($version)"
+
+# Get a package field from the metadata
+get-crate-field field package=main_crate:  (assert-cmd 'jq')
+    @cargo metadata --no-deps --format-version 1 | jq -e -r '.packages | map(select(.name == "{{package}}")) | first | .{{field}} // error("Field \"{{field}}\" is missing in Cargo.toml for package {{package}}")'
+
+# Get the minimum supported Rust version (MSRV) for the crate
+get-msrv package=main_crate:  (get-crate-field 'rust_version' package)
+
+# `bazel run` does not work on NixOS (no /bin/bash), so the app runs from bazel-bin.
+[doc('Run the GLFW app: OpenFreeMap Liberty in a window (needs a display and the system GLFW). Arguments go to the app')]
+[positional-arguments]
+glfw *args:  (bazel 'build' '//platform/glfw:mln-glfw')
+    {{dev_shell}} bazel-bin/platform/glfw/mln-glfw "$@"
+
+# Report which C++ gtests have Rust ports (`// gtest: Group.Name` markers), e.g. `just gtest-parity --missing util`
+[positional-arguments]
+gtest-parity *args:
+    python3 -I tools/gtest-parity/gtest_parity.py --cpp {{quote(cpp)}} "$@"
+
+# List which C++ files include which headers across selected module edges (PLAN.md, "Include cycles")
+include-back-edges:
+    python3 -I tools/cycles/back_edges.py {{quote(cpp)}}
+
+# Print the C++ core's module-level include graph and its cycles (PLAN.md, "Include cycles")
+include-graph:
+    python3 -I tools/cycles/include_graph.py {{quote(cpp)}}
+
+# The views prepared by liberty-references are rendered offline from the C++ cache database and compared with the C++ references
+# (tools/liberty-compare/README.md). `filter` is matched against the test id, e.g. 'liberty/' or 'positron/ams13'. Results:
+# $LIBERTY_COMPARE_DIR/results/manifest.html (+ actual/diff PNGs).
+#
+# Environment:
+#   RENDER_TEST          Rust render-test binary (default: the one this recipe builds, bazel-bin/tools/render-test/render-test)
+#   LIBERTY_COMPARE_DIR  work directory (default ~/.cache/mln-liberty-compare)
+#   VK_DRIVER_FILES      Vulkan ICD (default: lavapipe on NixOS)
+[doc('Render the OpenFreeMap views with the Rust render-test runner and compare them with the C++ references')]
+liberty-compare filter='.':  _dev-shell (bazel 'build' '//tools/render-test:render-test')
+    #!/usr/bin/env bash
+    set -euo pipefail
+    here=tools/liberty-compare
+    work="${LIBERTY_COMPARE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/mln-liberty-compare}"
+    icd="${VK_DRIVER_FILES:-/run/opengl-driver/share/vulkan/icd.d/lvp_icd.x86_64.json}"
+    binary="${RENDER_TEST:-bazel-bin/tools/render-test/render-test}"
+    if [ ! -f "$work/cache.db" ] || [ ! -d "$work/tests/render-tests" ]; then
+        echo "no references in $work: run just liberty-references first" >&2
+        exit 1
+    fi
+    # A private copy, so a concurrent Bazel build can't replace it mid-run.
+    mkdir -p "$work/bin" "$work/results"
+    install -m 755 "$binary" "$work/bin/render-test"
+    sed "s#@WORK_DIR@#$work#g" "$here/manifest.template.json" >"$work/manifest.json"
+    cd "$work"
+    exec {{dev_shell}} env VK_DRIVER_FILES="$icd" \
+        "$work/bin/render-test" -p "$work/manifest.json" -f {{quote(filter)}} --output "$work/results"
+
+# For every view in views.txt whose "style/name" matches `filter`, run the C++ mbgl-render against https://tiles.openfreemap.org/styles/<style>, write the PNG as the view's expected.png and
+# create the matching style.json (the OpenFreeMap style with the view's camera and test metadata) for the Rust render-test runner. Every
+# resource mbgl-render downloads lands in the C++ cache database $LIBERTY_COMPARE_DIR/cache.db, which liberty-compare then reads offline.
+#
+# Environment:
+#   MBGL_RENDER            path to a C++ mbgl-render binary (required; see README.md)
+#   LIBERTY_COMPARE_DIR    work directory (default ~/.cache/mln-liberty-compare)
+#   VK_DRIVER_FILES        Vulkan ICD (default: lavapipe on NixOS)
+#   LIBERTY_COMPARE_VIEWS  view list (default: tools/liberty-compare/views.txt)
+[doc('Render the C++ reference images of tools/liberty-compare with mbgl-render (needs MBGL_RENDER and the network)')]
+liberty-references filter='.':  _dev-shell
+    #!/usr/bin/env bash
+    set -euo pipefail
+    work="${LIBERTY_COMPARE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/mln-liberty-compare}"
+    icd="${VK_DRIVER_FILES:-/run/opengl-driver/share/vulkan/icd.d/lvp_icd.x86_64.json}"
+    views="${LIBERTY_COMPARE_VIEWS:-tools/liberty-compare/views.txt}"
+    if [ -z "${MBGL_RENDER:-}" ] || [ ! -x "$MBGL_RENDER" ]; then
+        echo "MBGL_RENDER must point to a C++ mbgl-render binary (see tools/liberty-compare/README.md)" >&2
+        exit 1
+    fi
+    mkdir -p "$work/styles" "$work/tests/render-tests"
+    grep -v '^#' "$views" | while read -r style name lon lat zoom bearing pitch ratio width height; do
+        [ -n "$style" ] || continue
+        echo "$style/$name" | grep -Eq -- {{quote(filter)}} || continue
+
+        if [ ! -s "$work/styles/$style.json" ]; then
+            curl -sSf -m 60 -o "$work/styles/$style.json" "https://tiles.openfreemap.org/styles/$style"
+        fi
+
+        dir="$work/tests/render-tests/$style/$name"
+        mkdir -p "$dir"
+        if {{dev_shell}} env VK_DRIVER_FILES="$icd" \
+            "$MBGL_RENDER" -s "https://tiles.openfreemap.org/styles/$style" \
+            -x "$lon" -y "$lat" -z "$zoom" -b "$bearing" -p "$pitch" -r "$ratio" \
+            -w "$width" -h "$height" -o "$dir/expected.png" -c "$work/cache.db" \
+            >"$dir/cpp.log" 2>&1; then
+            echo "rendered $style/$name"
+        else
+            echo "mbgl-render failed for $style/$name (see $dir/cpp.log)" >&2
+        fi
+
+        python3 -I - "$work/styles/$style.json" "$dir/style.json" \
+            "$lon" "$lat" "$zoom" "$bearing" "$pitch" "$ratio" "$width" "$height" <<'EOF'
+    import json, sys
+    src, dst, lon, lat, zoom, bearing, pitch, ratio, width, height = sys.argv[1:]
+    style = json.load(open(src))
+    style["center"] = [float(lon), float(lat)]
+    style["zoom"] = float(zoom)
+    style["bearing"] = float(bearing)
+    style["pitch"] = float(pitch)
+    style["metadata"] = {"test": {"width": int(width), "height": int(height), "pixelRatio": float(ratio)}}
+    json.dump(style, open(dst, "w"), indent=1)
+    EOF
+    done
+
+# Package every crate from its packaged sources as the release does (RELEASING.md), and compile every Cargo test target
+package:
+    cargo package --workspace --locked
+    cargo test --workspace --locked --no-run
+
+# Run the release workflow on main: publish the crates at the version in Cargo.toml (RELEASING.md)
+release:
+    gh workflow run release.yml --repo louwers/maplibre-native-next --ref main
+
+# Run all tests: every Bazel test (library tests, difftests, the tools' suites), the render test suite, and the Cargo tests
+test:  test-bazel test-cargo
+
+# Run every Bazel test and the render test suite. Arguments go to `bazel test`, e.g. `just test-bazel --config=oracle-opt`
+[positional-arguments]
+test-bazel *args:  _dev-shell
+    {{dev_shell}} {{bazel}} test "$@" //... //tools/render-test:render_tests
+
+# Run the library tests with Cargo (the crates.io build). Arguments go to `cargo test`.
+[positional-arguments]
+test-cargo *args:
+    cargo test --workspace "$@"
+
+# Test documentation generation
+test-doc:  (docs '')
+
+# Test code formatting
+test-fmt:  (fmt '--check')
+
+# Check the Cargo workspace with the oldest Rust its packages declare (rust-version)
+test-msrv:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    msrv="$({{just}} get-msrv)"
+    rustup toolchain install "$msrv" --profile minimal --no-self-update
+    cargo "+$msrv" check --workspace --all-targets
+
+# Find unused dependencies. Uses `cargo-udeps`
+udeps:  (cargo-install 'cargo-udeps')
+    cargo +nightly udeps --workspace --all-targets
+
+# Cargo.lock also sets Bazel's crates, so MODULE.bazel.lock is refreshed too.
+[doc('Update the dependencies within their Cargo.toml requirements')]
+update:
+    cargo update
+    {{just}} bazel query @next_crates//:all > /dev/null
+
+# Rerun it when the C++ shaders change, and commit the result.
+[doc("Vendor the C++ core's WGSL shaders, unchanged, into crates/mln_webgpu/src/shaders/wgsl_sources.rs")]
+vendor-shaders checkout=cpp:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    shopt -s nullglob
+    headers=({{quote(checkout)}}/include/mln/shaders/webgpu/*.hpp)
+    if [[ ${#headers[@]} -eq 0 ]]; then
+        echo "no WGSL headers in {{checkout}}/include/mln/shaders/webgpu" >&2
+        exit 1
+    fi
+    tool_dir="$(mktemp -d)"
+    trap 'rm -rf "$tool_dir"' EXIT
+    rustc --edition 2024 -O -o "$tool_dir/extract_wgsl" crates/mln_webgpu/tools/extract_wgsl.rs
+    "$tool_dir/extract_wgsl" crates/mln_webgpu/src/shaders/wgsl_sources.rs "${headers[@]}"
+    echo "vendored ${#headers[@]} headers from {{checkout}} ($(git -C {{quote(checkout)}} describe --always --dirty 2>/dev/null || echo "not a git checkout"))"
+
+# The C++ repo's dev shell flake, used from a copy in .nix-shell: `nix develop path:<repo>` would copy the whole C++ working tree into the
+# store on every call. Nothing to do outside NixOS.
+_dev-shell:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [[ "{{nixos}}" == true ]] || exit 0
+    mkdir -p .nix-shell
+    for f in flake.nix flake.lock; do
+        cmp -s {{quote(cpp)}}/"$f" ".nix-shell/$f" || cp {{quote(cpp)}}/"$f" ".nix-shell/$f"
+    done
+
+# Ensure that a certain command is available
+[private]
+assert-cmd command:
+    @if ! type {{command}} > /dev/null; then \
+        echo "Command '{{command}}' could not be found. Please make sure it has been installed on your computer." ;\
+        exit 1 ;\
+    fi
+
+# Make sure the git repo has no uncommitted changes. Fails if CI envvar is set.
+[private]
+assert-git-is-clean:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+        >&2 echo "::error::git repo is not clean. Make sure compilation and tests artifacts are in the .gitignore, and no repo files are modified."
+        if [[ "{{ci_mode}}" == "1" ]]; then
+            >&2 echo "::group::git status"
+            git status
+            >&2 echo "::endgroup::"
+            >&2 echo "::group::git diff (tracked changes)"
+            git add . --intent-to-add
+            git --no-pager diff
+            >&2 echo "::endgroup::"
+            exit 1
+        else
+            >&2 echo "git repo is not clean, but not failing because CI mode is not enabled."
+        fi
+    fi
+
+# Check if a certain Cargo command is installed, and install it if needed
+[private]
+cargo-install $COMMAND $INSTALL_CMD='' $BINSTALL_EXTRA_ARGS='' *args='':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    unset CARGO_BUILD_WARNINGS
+    if ! command -v $COMMAND > /dev/null; then
+        echo "$COMMAND could not be found. Installing..."
+        if ! command -v cargo-binstall > /dev/null; then
+            set -x
+            cargo install ${INSTALL_CMD:-$COMMAND} --locked {{args}}
+            { set +x; } 2>/dev/null
+        else
+            set -x
+            cargo binstall ${INSTALL_CMD:-$COMMAND} {{binstall_args}} $BINSTALL_EXTRA_ARGS --locked
+            { set +x; } 2>/dev/null
+        fi
+    fi

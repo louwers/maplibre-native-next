@@ -7,6 +7,8 @@ HB_NO_UCD_UNASSIGNED, so hb-ucd-table.hh compiles its third variant (the
 `#else` branch). This script ports exactly that variant's general category
 (`_hb_ucd_gc`) and script (`_hb_ucd_sc`) lookups and `_hb_ucd_sc_map`.
 
+`just generate-hb-ucd-tables` writes both tables below.
+
 Usage: gen_hb_ucd.py <path to ../maplibre-native> > src/hb_ucd_table.rs
 
 With `--full-gc` it emits instead the general category of the first variant

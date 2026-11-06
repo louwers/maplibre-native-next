@@ -12,8 +12,9 @@ Files:
 
 - `views.txt`: the views (style, name, lon, lat, zoom, bearing, pitch, pixel
   ratio, width, height).
-- `mklib.sh [regex]`: C++ references for the views matching `style/name`.
-- `rtlib.sh [regex]`: the Rust renders and the comparison.
+- `just liberty-references [regex]`: C++ references for the views matching
+  `style/name`.
+- `just liberty-compare [regex]`: the Rust renders and the comparison.
 - `manifest.template.json`: the render-test manifest (`@WORK_DIR@` is
   replaced by the work directory).
 
@@ -23,10 +24,10 @@ Everything generated goes to `$LIBERTY_COMPARE_DIR` (default
 `~/.cache/mln-liberty-compare`), outside the repository:
 
 - `cache.db`: the C++ resource cache (style, TileJSON, vector and raster
-  tiles, glyph PBFs, sprites), downloaded by mklib.sh;
+  tiles, glyph PBFs, sprites), downloaded by `just liberty-references`;
 - `styles/<style>.json`: the OpenFreeMap style documents;
 - `tests/render-tests/<style>/<view>/{style.json,expected.png,cpp.log}`;
-- `bin/render-test`: the copy of the Rust binary rtlib.sh runs;
+- `bin/render-test`: the copy of the Rust binary `just liberty-compare` runs;
 - `manifest.json`, `results/manifest.html`, `results/render-tests/**/{actual,diff}.png`.
 
 ## Steps
@@ -46,13 +47,14 @@ Everything generated goes to `$LIBERTY_COMPARE_DIR` (default
    preset sets ccache as compiler launcher; add
    `-DCMAKE_CXX_COMPILER_LAUNCHER= -DCMAKE_C_COMPILER_LAUNCHER=` if the
    shell has none.) The binary runs inside this repo's `.nix-shell`
-   (created by `scripts/bazel`), with lavapipe.
-2. The Rust runner: `scripts/bazel build //tools/render-test:render-test`.
+   (created by the justfile on NixOS), with lavapipe.
+2. The Rust runner: `just liberty-compare` builds it
+   (`//tools/render-test:render-test`).
 3. References (network: tiles.openfreemap.org):
 
    ```
-   MBGL_RENDER=<path>/mbgl-render tools/liberty-compare/mklib.sh            # all views
-   MBGL_RENDER=<path>/mbgl-render tools/liberty-compare/mklib.sh '^liberty/'
+   MBGL_RENDER=<path>/mbgl-render just liberty-references             # all views
+   MBGL_RENDER=<path>/mbgl-render just liberty-references '^liberty/'
    ```
 
    Each view takes 1-2 s once its resources are cached.
@@ -60,8 +62,8 @@ Everything generated goes to `$LIBERTY_COMPARE_DIR` (default
 4. Comparison (offline):
 
    ```
-   tools/liberty-compare/rtlib.sh            # all prepared views
-   tools/liberty-compare/rtlib.sh 'liberty/' # one style
+   just liberty-compare             # all prepared views
+   just liberty-compare 'liberty/'  # one style
    ```
 
    The summary ("N passed / M failed") is printed at the end; per-view
