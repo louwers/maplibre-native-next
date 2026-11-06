@@ -527,8 +527,8 @@ impl SurfaceBackend {
     }
 
     /// Port-only: a backend on a device and surface that the host created,
-    /// as maplibre-native-ffi's `mln_map_attach_web_gpu_surface` passes them
-    /// (wrapped by `mln_wgpu_webgpu_h::wrap_host_objects`). There is no
+    /// as maplibre-native-ffi's `mln_map_attach_web_gpu_surface` passes them,
+    /// or a browser's WebGPU through a custom wgpu backend. There is no
     /// adapter: the surface is configured with `format`, for rendering only,
     /// and presents in FIFO order, which every surface supports.
     pub fn from_host(

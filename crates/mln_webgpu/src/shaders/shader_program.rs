@@ -4,8 +4,8 @@
 // wgpu vs. Dawn: shader module creation runs inside a validation error scope
 // so that a WGSL compile error yields "no module" (the C++ null check); the
 // C++ backend gets null only on catastrophic failure and Dawn reports the
-// compile error asynchronously. On Emscripten the scope is skipped (see
-// `validated`).
+// compile error asynchronously. On a browser's WebGPU the scope is skipped
+// (see `validated`).
 //
 // TODO(port): the `ShaderProgram(name, backend, vertexModule, fragmentModule)`
 // constructor for precompiled modules (unused on the M1 path).
@@ -52,24 +52,19 @@ pub struct BindingInfo {
 }
 
 /// Runs `create` inside a validation error scope and returns the error the
-/// scope caught, which stands in for the C++ null result. On Emscripten the
-/// scope is skipped: popping it waits in `wgpuInstanceWaitAny`, which yields
-/// to the browser in the middle of a frame and expires the canvas texture.
-/// Errors there reach the device's uncaptured-error callback instead.
+/// scope caught, which stands in for the C++ null result. On a browser's
+/// WebGPU the scope is skipped: popping it waits for the browser, which in
+/// the middle of a frame expires the canvas texture. Errors there reach the
+/// device's uncaptured-error callback instead.
 fn validated<T>(device: &wgpu::Device, create: impl FnOnce() -> T) -> Result<T, wgpu::Error> {
-    #[cfg(target_os = "emscripten")]
-    {
-        let _ = device;
-        Ok(create())
+    if device.adapter_info().backend == wgpu::Backend::BrowserWebGpu {
+        return Ok(create());
     }
-    #[cfg(not(target_os = "emscripten"))]
-    {
-        let scope = device.push_error_scope(wgpu::ErrorFilter::Validation);
-        let value = create();
-        match pollster::block_on(scope.pop()) {
-            None => Ok(value),
-            Some(error) => Err(error),
-        }
+    let scope = device.push_error_scope(wgpu::ErrorFilter::Validation);
+    let value = create();
+    match pollster::block_on(scope.pop()) {
+        None => Ok(value),
+        Some(error) => Err(error),
     }
 }
 

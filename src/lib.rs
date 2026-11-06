@@ -1,6 +1,6 @@
 //! A Rust port of the MapLibre Native map rendering core.
 //!
-//! Every library crate of <https://github.com/louwers/maplibre-native-next> is
+//! Every library crate of <https://github.com/louwers/mln-rs> is
 //! re-exported here under its crate name: `mln_rs::mln_map`,
 //! `mln_rs::mln_util`, `mln_rs::earcut`, and so on. They are published as
 //! the `mln-rs-*` packages, which only exist for this crate.
@@ -33,7 +33,6 @@ pub use mln_tile;
 pub use mln_tile_id;
 pub use mln_util;
 pub use mln_webgpu;
-pub use mln_wgpu_webgpu_h;
 pub use nunicode;
 pub use pmtiles;
 pub use polylabel;

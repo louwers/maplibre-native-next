@@ -6,10 +6,8 @@
 // (all backends) and takes the HighPerformance adapter. The port restricts
 // the instance to `WGPU_BACKEND` if set (wgpu's env var, e.g. "vulkan"),
 // else Vulkan on Linux, so tests run on lavapipe (VK_DRIVER_FILES) like
-// the C++ CI; other platforms use wgpu's defaults.
-// On Emscripten the instance is the browser's WebGPU through Dawn's webgpu.h
-// (emdawnwebgpu, as the C++ core uses there), via mln_wgpu_webgpu_h: wgpu
-// itself only has GLES on that target.
+// the C++ CI; other platforms use wgpu's defaults. A host that brings its
+// own WebGPU (a browser's) renders through `SurfaceBackend::from_host`.
 
 use std::any::Any;
 use std::cell::{Cell, RefCell};
@@ -103,19 +101,8 @@ fn instance_backends() -> wgpu::Backends {
 }
 
 /// Creates the wgpu instance for `backends`. Shared with `SurfaceBackend`.
-#[cfg(not(target_os = "emscripten"))]
 pub(crate) fn create_instance(backends: wgpu::Backends) -> wgpu::Instance {
     wgpu::Instance::new(wgpu::InstanceDescriptor { backends, ..wgpu::InstanceDescriptor::new_without_display_handle() })
-}
-
-/// Creates the wgpu instance for `backends`, through webgpu.h (see the top
-/// of this file). Shared with `SurfaceBackend`.
-#[cfg(target_os = "emscripten")]
-pub(crate) fn create_instance(backends: wgpu::Backends) -> wgpu::Instance {
-    mln_wgpu_webgpu_h::create_instance(wgpu::InstanceDescriptor {
-        backends,
-        ..wgpu::InstanceDescriptor::new_without_display_handle()
-    })
 }
 
 impl HeadlessBackend {

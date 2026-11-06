@@ -7,6 +7,6 @@
 
 Ports polylabel (`mapbox/polylabel.hpp`), which finds the pole of inaccessibility of a polygon for label placement.
 
-Part of [maplibre-native-next](https://github.com/louwers/maplibre-native-next),
+Part of [mln-rs](https://github.com/louwers/mln-rs),
 a Rust port of the [MapLibre Native](https://github.com/maplibre/maplibre-native)
 map rendering core. All its crates are released together, at the same version.

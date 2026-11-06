@@ -23,7 +23,7 @@ use crate::cull_face_mode::CullFaceMode;
 use crate::draw_mode::DrawMode;
 use crate::drawable::{DrawPriority, Textures, UniqueDrawSegment, UniqueDrawable};
 use crate::drawable_tweaker::DrawableTweakerPtr;
-use crate::gfx_types::{AttributeDataType, DrawModeType};
+use crate::gfx_types::AttributeDataType;
 use crate::index_vector::{IndexVectorBase, IndexVectorBasePtr};
 use crate::polyline_generator::{PolylineGenerator, PolylineGeneratorOptions};
 use crate::renderer::render_pass::RenderPass;
@@ -487,6 +487,7 @@ pub trait DrawableBuilder {
         for seg in segments {
             #[cfg(debug_assertions)]
             {
+                use crate::gfx_types::DrawModeType;
                 if mode.type_ == DrawModeType::Triangles {
                     debug_assert!(seg.index_length % 3 == 0);
                 } else if mode.type_ == DrawModeType::Lines {

@@ -7,6 +7,6 @@
 
 Ports the libstdc++ (GCC 16) algorithms whose results the C++ code depends on beyond what the C++ standard specifies: `std::sort`, `std::stable_sort`, the heap functions and `std::priority_queue`.
 
-Part of [maplibre-native-next](https://github.com/louwers/maplibre-native-next),
+Part of [mln-rs](https://github.com/louwers/mln-rs),
 a Rust port of the [MapLibre Native](https://github.com/maplibre/maplibre-native)
 map rendering core. All its crates are released together, at the same version.

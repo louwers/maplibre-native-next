@@ -1,4 +1,4 @@
-# maplibre-native-next: porting the MapLibre Native core to Rust
+# mln-rs: porting the MapLibre Native core to Rust
 
 This repository is a **port** of the MapLibre Native C++ core
 (`src/mln`, `include/mln` in `../maplibre-native`, about 167k lines). It is a
@@ -45,7 +45,7 @@ port, not a redesign:
 - Everything runs through the justfile (`just test`, ...). On NixOS, the
   tests and apps run inside the C++ repo's `#linux` flake shell.
 - Test data comes from the C++ repo, copied into the packages' `testdata/`
-  (README.md, "Test data") from the reference checkout: the
+  (PORTING.md, "Build and test") from the reference checkout: the
   `maplibre-native-next-support` branch of `louwers/maplibre-native`,
   currently `4e03abe94cf562b10562c528578d109c7273694d` (upstream
   `maplibre/maplibre-native` commit

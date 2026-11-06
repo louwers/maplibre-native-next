@@ -50,13 +50,23 @@ everyone working in this repo).
   `[workspace.dependencies]` (with their features). If you need another
   one, ask in `COORDINATION.md`; don't add it yourself.
 - C++ test data (fixtures, the render, query and expression suites, the
-  style spec): copy the files a test reads into its package's `testdata/`,
-  at their paths in maplibre-native (README.md, "Test data"), and read them
-  from `Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata")`. Write
-  outputs (actual and diff images) to `env!("CARGO_TARGET_TMPDIR")` in
-  integration tests, or the system's temporary directory.
+  style spec): each package's `testdata/` holds copies of the files of
+  maplibre-native its tests read, at their paths there. Copy the files a new
+  test reads in the same way, and read them from
+  `Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata")`. They come from
+  [louwers/maplibre-native@4e03abe](https://github.com/louwers/maplibre-native/commit/4e03abe94cf562b10562c528578d109c7273694d)
+  (maplibre/maplibre-native 8e144d0 plus build changes), under its licenses.
+  `just update-testdata [checkout]` copies them again from a maplibre-native
+  checkout (by default `../maplibre-native`); the render, query and
+  expression suites are copied whole, so new tests come along. Write outputs
+  (actual and diff images) to `env!("CARGO_TARGET_TMPDIR")` in integration
+  tests, or the system's temporary directory.
 - GPU tests need an adapter: Metal on macOS, Vulkan on Linux (lavapipe
-  through `VK_DRIVER_FILES` without a GPU).
+  through `VK_DRIVER_FILES` without a GPU). On NixOS, the justfile runs the
+  tests and the apps inside the C++ repo's `#linux` dev shell.
+- CI runs the justfile's `ci-*` recipes: `just ci-lint` checks the
+  formatting, and runs clippy and rustdoc with warnings as errors;
+  `just ci-coverage` runs the tests and writes their coverage for Codecov.
 
 ## Differential tests (`//difftest/<area>`)
 

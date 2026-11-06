@@ -1784,7 +1784,7 @@ Append-only. One entry per message, newest last:
   Liberty in a window over HTTPS, pan (drag), zoom (scroll, double-click,
   +/-), rotate (right-drag or Ctrl+drag), pitch (Shift+drag), Esc quits:
   ```
-  cd /home/bart/src/maplibre-native-next && scripts/bazel build //platform/glfw:mln-glfw && \
+  cd /home/bart/src/mln-rs && scripts/bazel build //platform/glfw:mln-glfw && \
   nix develop path:$PWD/.nix-shell#linux --command env WAYLAND_DISPLAY=wayland-0 \
     XDG_RUNTIME_DIR=/run/user/1000 bazel-bin/platform/glfw/mln-glfw
   ```
@@ -2580,7 +2580,7 @@ Append-only. One entry per message, newest last:
   `--symlink_prefix=/` so `bazel-bin` keeps pointing at fastbuild for
   everyone else):
   ```
-  cd /home/bart/src/maplibre-native-next && \
+  cd /home/bart/src/mln-rs && \
     scripts/bazel build -c opt --symlink_prefix=/ //platform/glfw:mln-glfw && \
     nix develop path:$PWD/.nix-shell#linux --command env WAYLAND_DISPLAY=wayland-0 \
       XDG_RUNTIME_DIR=/run/user/1000 bazel-out/k8-opt/bin/platform/glfw/mln-glfw

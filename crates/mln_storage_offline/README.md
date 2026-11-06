@@ -7,6 +7,6 @@
 
 Ports the offline download (`OfflineDownload`), which downloads an offline region's resources into the offline database.
 
-Part of [maplibre-native-next](https://github.com/louwers/maplibre-native-next),
+Part of [mln-rs](https://github.com/louwers/mln-rs),
 a Rust port of the [MapLibre Native](https://github.com/maplibre/maplibre-native)
 map rendering core. All its crates are released together, at the same version.

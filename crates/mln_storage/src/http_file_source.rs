@@ -16,11 +16,9 @@
 // `ETag`, `Retry-After`, `X-Rate-Limit-Reset`). Status codes map to the same
 // Response fields and errors.
 //
-// Under Emscripten the transfer is an `emscripten_fetch` on the same worker
-// threads, which wait for it by suspending through JSPI, so the browser does
-// the HTTP: CORS, its cache, compression. It sends no `If-None-Match` /
-// `If-Modified-Since` (they would force a CORS preflight; the browser cache
-// revalidates instead) and can't set the user agent. See `transport`.
+// The transfer itself is an `HttpTransport`: ureq by default, or another HTTP
+// stack a host sets with `set_transport` (mln-rs-web sets the browser's
+// fetch). Where ureq doesn't build (Emscripten), there is no default.
 //
 // Differences (DEVIATIONS.md [glfw]): ureq sends `Accept-Encoding: gzip` and
 // decodes gzip (curl: "gzip, deflate"); a connection failure's message is
@@ -100,15 +98,66 @@ fn getdate(value: &str) -> Timestamp {
 
 /// What a transport hands back: the status code, the response headers in
 /// order, and the body, which only a 200 or 206 reads.
-struct Transfer {
-    status: i64,
-    headers: Vec<(String, String)>,
-    body: Result<Vec<u8>, Box<Error>>,
+pub struct Transfer {
+    pub status: i64,
+    pub headers: Vec<(String, String)>,
+    pub body: Result<Vec<u8>, Box<Error>>,
+}
+
+/// How an `HTTPFileSource` performs a request: one blocking transfer, on one
+/// of the file source's worker threads. A transfer that fails before a
+/// response (a connection error) is an `Err`.
+pub trait HttpTransport: Send + Sync {
+    fn transfer(&self, resource: &Resource) -> Result<Transfer, Box<Error>>;
+
+    /// How many transfers run at a time: one worker thread each. By default
+    /// as many as the online file source's default maximum of concurrent
+    /// requests.
+    fn workers(&self) -> u32 {
+        mln_util::constants::DEFAULT_MAXIMUM_CONCURRENT_REQUESTS
+    }
+}
+
+static TRANSPORT: Mutex<Option<Arc<dyn HttpTransport>>> = Mutex::new(None);
+
+/// Sets the transport of the `HTTPFileSource`s created from now on, instead of
+/// the default (ureq): for a host with its own HTTP stack, such as a
+/// browser's fetch.
+pub fn set_transport(transport: Arc<dyn HttpTransport>) {
+    *TRANSPORT.lock().unwrap() = Some(transport);
+}
+
+/// The transport `set_transport` set, else ureq.
+fn current_transport() -> Arc<dyn HttpTransport> {
+    if let Some(transport) = TRANSPORT.lock().unwrap().clone() {
+        return transport;
+    }
+    default_transport()
+}
+
+#[cfg(not(target_os = "emscripten"))]
+fn default_transport() -> Arc<dyn HttpTransport> {
+    Arc::new(transport::Transport::new())
+}
+
+/// ureq doesn't build here, so requests fail until a host sets a transport.
+#[cfg(target_os = "emscripten")]
+fn default_transport() -> Arc<dyn HttpTransport> {
+    struct NoTransport;
+    impl HttpTransport for NoTransport {
+        fn transfer(&self, resource: &Resource) -> Result<Transfer, Box<Error>> {
+            Err(Box::new(Error::new(
+                Reason::Connection,
+                format!("no HTTP transport for {} (see http_file_source::set_transport)", resource.url),
+            )))
+        }
+    }
+    Arc::new(NoTransport)
 }
 
 /// The worker half of `HTTPRequest`: performs the transfer and builds the
 /// response as the header callback and `handleResult(CURLcode)` do.
-fn perform(transport: &transport::Transport, resource: &Resource) -> Response {
+fn perform(transport: &dyn HttpTransport, resource: &Resource) -> Response {
     // Make sure a response object exists in case we haven't got any headers or content.
     let mut response = Response::new();
     let transfer = match transport.transfer(resource) {
@@ -171,8 +220,8 @@ fn perform(transport: &transport::Transport, resource: &Resource) -> Response {
     response
 }
 
-/// The `Range` request header for a data range.
-fn range_header(resource: &Resource) -> Option<String> {
+/// The `Range` request header for a resource's data range, for transports.
+pub fn range_header(resource: &Resource) -> Option<String> {
     resource.data_range.map(|(first, second)| format!("bytes={first}-{second}"))
 }
 
@@ -198,10 +247,6 @@ mod transport {
     use super::{Transfer, range_header};
     use crate::resource::Resource;
     use crate::response::{Error, Reason};
-
-    /// The worker threads of a file source: as many as the online file
-    /// source's default maximum of concurrent requests.
-    pub const WORKERS: u32 = mln_util::constants::DEFAULT_MAXIMUM_CONCURRENT_REQUESTS;
 
     /// curl's default `CURLOPT_HAPPY_EYEBALLS_TIMEOUT_MS`.
     const HAPPY_EYEBALLS_DELAY: Duration = Duration::from_millis(200);
@@ -331,6 +376,12 @@ mod transport {
         // Add human-readable error code
         let reason = if is_connection_error(&error) { Reason::Connection } else { Reason::Other };
         Box::new(Error::new(reason, error.to_string()))
+    }
+
+    impl super::HttpTransport for Transport {
+        fn transfer(&self, resource: &Resource) -> Result<Transfer, Box<Error>> {
+            Transport::transfer(self, resource)
+        }
     }
 
     impl Transport {
@@ -485,204 +536,7 @@ mod transport {
     }
 }
 
-/// The browser's fetch through Emscripten (`-sFETCH=1`, `-sJSPI`). The worker
-/// thread waits for the transfer as it waits for a ureq one, but by
-/// suspending in `emscripten_sleep`, which lets its event loop deliver the
-/// response. (A synchronous XMLHttpRequest from these threads intermittently
-/// fails with a NetworkError in Chromium.)
-///
-/// Chromium also aborts an occasional request from these threads right after
-/// it starts (net::ERR_ABORTED), which emscripten_fetch reports through no
-/// callback, only through `readyState` reaching DONE. Such a request is tried
-/// again a few times before it fails with a connection error.
-#[cfg(target_os = "emscripten")]
-// FFI to emscripten_fetch.
-#[allow(unsafe_code)]
-mod transport {
-    use std::ffi::{CStr, CString, c_char, c_void};
-    use std::ptr::null;
-    use std::sync::atomic::{AtomicBool, Ordering};
-
-    use super::{Transfer, range_header};
-    use crate::resource::Resource;
-    use crate::response::{Error, Reason};
-
-    /// Browsers run a handful of requests per host at a time, and every
-    /// worker is a pthread, so fewer than natively.
-    pub const WORKERS: u32 = 6;
-
-    const EMSCRIPTEN_FETCH_LOAD_TO_MEMORY: u32 = 1;
-    const EMSCRIPTEN_FETCH_REPLACE: u32 = 16;
-
-    /// `emscripten_fetch_attr_t` (emscripten/fetch.h).
-    #[repr(C)]
-    struct FetchAttr {
-        request_method: [c_char; 32],
-        user_data: *mut c_void,
-        onsuccess: Option<unsafe extern "C" fn(*mut Fetch)>,
-        onerror: Option<unsafe extern "C" fn(*mut Fetch)>,
-        onprogress: Option<unsafe extern "C" fn(*mut Fetch)>,
-        onreadystatechange: Option<unsafe extern "C" fn(*mut Fetch)>,
-        attributes: u32,
-        timeout_msecs: u32,
-        with_credentials: bool,
-        destination_path: *const c_char,
-        user_name: *const c_char,
-        password: *const c_char,
-        request_headers: *const *const c_char,
-        overridden_mime_type: *const c_char,
-        request_data: *const c_char,
-        request_data_size: usize,
-    }
-
-    /// `emscripten_fetch_t` (emscripten/fetch.h).
-    #[repr(C)]
-    struct Fetch {
-        id: u32,
-        user_data: *mut c_void,
-        url: *const c_char,
-        data: *const c_char,
-        num_bytes: u64,
-        data_offset: u64,
-        total_bytes: u64,
-        ready_state: u16,
-        status: u16,
-        status_text: [c_char; 64],
-        attributes: FetchAttr,
-        response_url: *const c_char,
-    }
-
-    unsafe extern "C" {
-        fn emscripten_fetch_attr_init(attr: *mut FetchAttr);
-        fn emscripten_fetch(attr: *mut FetchAttr, url: *const c_char) -> *mut Fetch;
-        fn emscripten_fetch_close(fetch: *mut Fetch) -> i32;
-        fn emscripten_fetch_get_response_headers_length(fetch: *mut Fetch) -> usize;
-        fn emscripten_fetch_get_response_headers(fetch: *mut Fetch, dst: *mut c_char, size: usize) -> usize;
-        fn emscripten_sleep(ms: u32);
-    }
-
-    /// The fetch's `onsuccess` and `onerror`: they run on the requesting
-    /// thread, from its event loop, while it sleeps.
-    unsafe extern "C" fn finished(fetch: *mut Fetch) {
-        // SAFETY: user_data is the requesting thread's flag, which outlives
-        // the fetch.
-        unsafe { (*(*fetch).user_data.cast::<AtomicBool>()).store(true, Ordering::SeqCst) };
-    }
-
-    /// `XMLHttpRequest.DONE`.
-    const READY_STATE_DONE: u16 = 4;
-    const ATTEMPTS: u32 = 4;
-
-    #[derive(Clone)]
-    pub struct Transport;
-
-    /// `Name: value` lines of the browser's raw header block, in order.
-    fn parse_headers(raw: &str) -> Vec<(String, String)> {
-        raw.split("\r\n")
-            .filter_map(|line| {
-                let (name, value) = line.split_once(':')?;
-                Some((name.trim().to_owned(), value.trim().to_owned()))
-            })
-            .collect()
-    }
-
-    impl Transport {
-        pub fn new() -> Self {
-            Transport
-        }
-
-        pub fn transfer(&self, resource: &Resource) -> Result<Transfer, Box<Error>> {
-            for attempt in 1..ATTEMPTS {
-                match self.attempt(resource) {
-                    Some(result) => return result,
-                    // SAFETY: sleeping suspends this thread through JSPI.
-                    None => unsafe { emscripten_sleep(50 * attempt) },
-                }
-            }
-            self.attempt(resource).unwrap_or_else(|| {
-                Err(Box::new(Error::new(
-                    Reason::Connection,
-                    format!("the browser aborted the request for {}", resource.url),
-                )))
-            })
-        }
-
-        /// One fetch: `None` when the browser aborted it before it finished.
-        fn attempt(&self, resource: &Resource) -> Option<Result<Transfer, Box<Error>>> {
-            let connection = |message: String| Box::new(Error::new(Reason::Connection, message));
-            let url = match CString::new(resource.url.as_str()) {
-                Ok(url) => url,
-                Err(_) => return Some(Err(connection("URL contains a NUL byte".into()))),
-            };
-            let range = range_header(resource).map(|range| CString::new(range).unwrap());
-            let range_name = c"Range";
-            let headers: Vec<*const c_char> = match &range {
-                Some(range) => vec![range_name.as_ptr(), range.as_ptr(), null()],
-                None => vec![null()],
-            };
-            let done = AtomicBool::new(false);
-            // SAFETY: emscripten_fetch_attr_init initializes every field; the
-            // strings, the header list and `done` outlive the fetch, which
-            // finishes before this returns.
-            unsafe {
-                let mut attr = std::mem::MaybeUninit::<FetchAttr>::uninit();
-                emscripten_fetch_attr_init(attr.as_mut_ptr());
-                let mut attr = attr.assume_init();
-                for (slot, byte) in attr.request_method.iter_mut().zip(b"GET\0") {
-                    *slot = *byte as c_char;
-                }
-                // REPLACE: straight to the network, never to emscripten_fetch's
-                // IndexedDB cache.
-                attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_REPLACE;
-                attr.request_headers = headers.as_ptr();
-                attr.user_data = (&raw const done).cast_mut().cast();
-                attr.onsuccess = Some(finished);
-                attr.onerror = Some(finished);
-                let fetch = emscripten_fetch(&mut attr, url.as_ptr());
-                if fetch.is_null() {
-                    return Some(Err(connection(format!("emscripten_fetch failed for {}", resource.url))));
-                }
-                while !done.load(Ordering::SeqCst) {
-                    if (*fetch).ready_state == READY_STATE_DONE && (*fetch).status == 0 {
-                        // Aborted: give a late callback one more turn, then
-                        // stop waiting.
-                        emscripten_sleep(1);
-                        if !done.load(Ordering::SeqCst) {
-                            emscripten_fetch_close(fetch);
-                            return None;
-                        }
-                    }
-                    emscripten_sleep(1);
-                }
-                let status = i64::from((*fetch).status);
-                if status == 0 {
-                    // A network error or a CORS rejection: the browser reports
-                    // no status.
-                    let text = CStr::from_ptr((*fetch).status_text.as_ptr()).to_string_lossy().into_owned();
-                    emscripten_fetch_close(fetch);
-                    let message = if text.is_empty() { "network error".to_owned() } else { text };
-                    return Some(Err(connection(message)));
-                }
-                let length = emscripten_fetch_get_response_headers_length(fetch);
-                let mut raw = vec![0u8; length + 1];
-                emscripten_fetch_get_response_headers(fetch, raw.as_mut_ptr().cast(), raw.len());
-                raw.truncate(length);
-                let headers = parse_headers(&String::from_utf8_lossy(&raw));
-                let body = if status == 200 || status == 206 {
-                    let data = (*fetch).data.cast::<u8>();
-                    let size = (*fetch).num_bytes as usize;
-                    Ok(if data.is_null() { Vec::new() } else { std::slice::from_raw_parts(data, size).to_vec() })
-                } else {
-                    Ok(Vec::new())
-                };
-                emscripten_fetch_close(fetch);
-                Some(Ok(Transfer { status, headers, body }))
-            }
-        }
-    }
-}
-
-fn worker(transport: transport::Transport, jobs: Arc<Mutex<mpsc::Receiver<Job>>>) {
+fn worker(transport: Arc<dyn HttpTransport>, jobs: Arc<Mutex<mpsc::Receiver<Job>>>) {
     loop {
         let job = match jobs.lock() {
             Ok(receiver) => receiver.recv(),
@@ -694,7 +548,7 @@ fn worker(transport: transport::Transport, jobs: Arc<Mutex<mpsc::Receiver<Job>>>
         if job.cancelled.load(Ordering::SeqCst) {
             continue;
         }
-        let response = perform(&transport, &job.resource);
+        let response = perform(transport.as_ref(), &job.resource);
         if !job.cancelled.load(Ordering::SeqCst) {
             job.reply.invoke(move |request: &HTTPRequestState| request.handle_result(response));
         }
@@ -708,12 +562,12 @@ pub struct HTTPFileSource {
 
 impl HTTPFileSource {
     /// `HTTPFileSource(const ResourceOptions&, const ClientOptions&)`: starts
-    /// the transfer threads (`transport::WORKERS`).
+    /// the transfer threads (`HttpTransport::workers`).
     pub fn new(resource_options: &ResourceOptions, client_options: &ClientOptions) -> Self {
-        let transport = transport::Transport::new();
+        let transport = current_transport();
         let (sender, receiver) = mpsc::channel::<Job>();
         let receiver = Arc::new(Mutex::new(receiver));
-        for i in 0..transport::WORKERS {
+        for i in 0..transport.workers() {
             let transport = transport.clone();
             let receiver = receiver.clone();
             // Detached: a worker exits when the channel closes, after its

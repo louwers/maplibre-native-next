@@ -7,6 +7,6 @@
 
 Reads earcut.hpp's test fixtures (`test/fixtures/*.cpp`) for the tests of `mln-rs-earcut`.
 
-Part of [maplibre-native-next](https://github.com/louwers/maplibre-native-next),
+Part of [mln-rs](https://github.com/louwers/mln-rs),
 a Rust port of the [MapLibre Native](https://github.com/maplibre/maplibre-native)
 map rendering core. All its crates are released together, at the same version.
