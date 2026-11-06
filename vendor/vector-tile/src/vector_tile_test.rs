@@ -1,7 +1,7 @@
 // Ports vendor/vector-tile/test/unit/tags.test.cpp and
 // vendor/vector-tile/test/unit/vector_tile.test.cpp.
 
-use std::path::PathBuf;
+use std::path::Path;
 
 use feature::{Identifier, Value};
 
@@ -9,9 +9,7 @@ use crate::config::{FeatureType, LayerType, TileType, ValueType};
 use crate::*;
 
 fn open_tile(path: &str) -> Vec<u8> {
-    let base =
-        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
-    let full = PathBuf::from(base).join("maplibre+/vendor/vector-tile").join(path);
+    let full = Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/vendor/vector-tile").join(path);
     std::fs::read(&full).unwrap_or_else(|e| panic!("could not open: '{}': {e}", full.display()))
 }
 

@@ -8,10 +8,9 @@ use mln_style_types::image::Impl as ImageImpl;
 use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
 
-/// The runfiles path of `test/fixtures/...` (`@maplibre//test:fixtures`).
+/// The path of `test/fixtures/...` in the copy of the C++ files (testdata/).
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+").join(relative)
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative)
 }
 
 /// `util::read_file`.

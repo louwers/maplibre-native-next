@@ -10,11 +10,10 @@ use crate::is_expression::is_expression;
 use crate::parsing_context::ParsingContext;
 use crate::value::Value;
 
-/// A path relative to the C++ repository, read in place from the runfiles
-/// tree (`maplibre+`).
+/// A path relative to the C++ repository, in the copy of the files these
+/// tests read (testdata/).
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+").join(relative)
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative)
 }
 
 fn read_file(relative: &str) -> String {

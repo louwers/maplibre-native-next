@@ -32,17 +32,21 @@ impl Fixture {
     }
 }
 
-/// Directory of the fixtures in the test's runfiles.
+/// Directory of the fixtures in this repository: the copy of earcut.hpp's
+/// in testdata/ (not in the published package).
 pub fn fixtures_dir() -> PathBuf {
-    let root = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    Path::new(&root).join("maplibre+/vendor/earcut.hpp/test/fixtures")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/vendor/earcut.hpp/test/fixtures")
 }
 
-/// All fixtures, sorted by name (as `FixtureTester::collection()` sorts).
+/// All fixtures of [`fixtures_dir`], sorted by name.
 pub fn load_all() -> Vec<Fixture> {
-    let mut fixtures: Vec<Fixture> = std::fs::read_dir(fixtures_dir())
+    load_all_in(&fixtures_dir())
+}
+
+/// All fixtures in `dir` (earcut.hpp's test/fixtures), sorted by name (as
+/// `FixtureTester::collection()` sorts).
+pub fn load_all_in(dir: &Path) -> Vec<Fixture> {
+    let mut fixtures: Vec<Fixture> = std::fs::read_dir(dir)
         .expect("earcut fixtures directory")
         .map(|e| e.unwrap().path())
         .filter(|p| p.extension().is_some_and(|e| e == "cpp"))
@@ -52,8 +56,14 @@ pub fn load_all() -> Vec<Fixture> {
     fixtures
 }
 
+/// The fixture `name` of [`fixtures_dir`].
 pub fn load(name: &str) -> Fixture {
-    let path = fixtures_dir().join(format!("{name}.cpp"));
+    load_in(&fixtures_dir(), name)
+}
+
+/// The fixture `name` in `dir`.
+pub fn load_in(dir: &Path, name: &str) -> Fixture {
+    let path = dir.join(format!("{name}.cpp"));
     parse(&std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display())))
 }
 

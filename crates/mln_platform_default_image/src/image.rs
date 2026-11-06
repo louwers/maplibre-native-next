@@ -55,8 +55,7 @@ mod fixture_tests {
     use super::*;
 
     fn read_file(path: &str) -> Vec<u8> {
-        let root = std::env::var_os("RUNFILES_DIR").or_else(|| std::env::var_os("TEST_SRCDIR")).expect("runfiles");
-        let path = std::path::Path::new(&root).join("maplibre+").join(path);
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(path);
         std::fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
     }
 

@@ -3,7 +3,7 @@
 // Ports, for the tests in this directory:
 // - test/src/mln/test/util.cpp: `checkImage` / `getImageDiff` (pixelmatch
 //   against `<base>/expected.png`; actual and diff images go to
-//   `$TEST_UNDECLARED_OUTPUTS_DIR/<base>/`, never next to the fixture);
+//   target/tmp/<base>/, never next to the fixture);
 // - test/include/mln/test/stub_map_observer.hpp (`StubMapObserver`);
 // - test/include/mln/test/fake_file_source.hpp (`FakeFileSource`);
 // - test/include/mln/test/fixture_log_observer.hpp (`FixtureLog`, per
@@ -11,9 +11,9 @@
 // - the `MapTest` fixture of test/map/map.test.cpp (C++ `MapAdapter` is
 //   `Map::with_file_source`).
 //
-// Fixtures are read in place from `@maplibre//test:fixtures`
-// (`<runfiles>/maplibre+/test/fixtures/...`); paths are written as in C++,
-// relative to the maplibre-native root ("test/fixtures/api/empty.json").
+// Fixtures are read from the copy of the C++ repository's files in
+// testdata/; paths are written as in C++, relative to the maplibre-native
+// root ("test/fixtures/api/empty.json").
 
 #![allow(dead_code)]
 
@@ -32,12 +32,9 @@ use mln_util::logging::{Event, EventSeverity, Log};
 
 // MARK: - Fixtures
 
-/// `<runfiles>/maplibre+`, the C++ checkout's root in the runfiles.
+/// testdata/, the copy of the C++ repository's files these tests read.
 pub fn cpp_root() -> PathBuf {
-    let base = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+")
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata")
 }
 
 /// `util::read_file(path)` with `path` relative to the C++ root.
@@ -65,10 +62,7 @@ pub fn file_response(path: &str) -> Response {
 // MARK: - checkImage (test/src/mln/test/util.cpp)
 
 fn write_output(base: &str, name: &str, image: &PremultipliedImage) {
-    let Some(dir) = std::env::var_os("TEST_UNDECLARED_OUTPUTS_DIR") else {
-        return;
-    };
-    let dir = PathBuf::from(dir).join(base);
+    let dir = PathBuf::from(env!("CARGO_TARGET_TMPDIR")).join(base);
     if std::fs::create_dir_all(&dir).is_ok() {
         let _ = std::fs::write(dir.join(name), mln_platform_default_image::encode_png(image));
     }
@@ -397,7 +391,7 @@ impl Drop for FixtureLog {
 // MARK: - RunLoop with an emergency stop
 
 /// `runLoop.run()`, stopped (and failed) after `seconds` if nothing stopped
-/// it: a hang fails the test instead of running into the Bazel timeout.
+/// it: a hang fails the test instead of hanging the test run.
 #[track_caller]
 pub fn run_with_timeout(run_loop: &RunLoop, seconds: i64) {
     let timed_out = Rc::new(Cell::new(false));

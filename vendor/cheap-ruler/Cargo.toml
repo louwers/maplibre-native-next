@@ -7,20 +7,21 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# Nothing in the release uses it.
-publish = false
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# Nothing in mln-rs uses it; published for the difftests
+# (louwers/mln-rs-difftests).
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "cheap_ruler"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [dependencies]
 geometry.workspace = true
 
+# Port of cheap-ruler-cpp/test/cheap_ruler.cpp over its fixtures (C++
+# headers with the turf.js expectations), read in place.
 [[test]]
 name = "cheap_ruler_fixtures_test"
 path = "tests/cheap_ruler.rs"

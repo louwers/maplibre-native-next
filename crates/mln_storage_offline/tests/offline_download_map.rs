@@ -2,7 +2,8 @@
 // test/storage/offline_download.test.cpp, which renders a map after the
 // download (a separate target for the mln_map / mln_platform_default deps).
 // C++ opens the database through test::SQLite3TestFS without limiting it
-// (a pass-through); the port opens a file in TEST_TMPDIR directly.
+// (a pass-through); the port opens a file in the temporary directory
+// directly.
 
 use std::cell::{Cell, RefCell};
 use std::path::PathBuf;
@@ -26,8 +27,7 @@ use mln_util::geo::{LatLng, LatLngBounds};
 use mln_util::tile_server_options::TileServerOptions;
 
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+").join(relative)
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative)
 }
 
 /// `test.response(path)`.
@@ -66,7 +66,7 @@ fn resource_offline_usage_unset() {
     // `OfflineTest test{filename_test_fs}`.
     let run_loop = RunLoop::new();
     let file_source = Arc::new(StubFileSource::new(ResponseType::Asynchronous));
-    let dir = std::env::var("TEST_TMPDIR").unwrap_or_else(|_| std::env::temp_dir().to_string_lossy().into_owned());
+    let dir = std::env::temp_dir().to_string_lossy().into_owned();
     let filename = format!("{dir}/offline_download.db");
     let _ = std::fs::remove_file(&filename);
     let db =

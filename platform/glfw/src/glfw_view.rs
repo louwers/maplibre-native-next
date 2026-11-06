@@ -572,11 +572,11 @@ impl ViewState {
             } else if debug.contains(MapDebugOptions::COLLISION) {
                 debug = MapDebugOptions::OVERDRAW;
             } else if debug.contains(MapDebugOptions::TIMESTAMPS) {
-                debug = debug | MapDebugOptions::COLLISION;
+                debug |= MapDebugOptions::COLLISION;
             } else if debug.contains(MapDebugOptions::PARSE_STATUS) {
-                debug = debug | MapDebugOptions::TIMESTAMPS;
+                debug |= MapDebugOptions::TIMESTAMPS;
             } else if debug.contains(MapDebugOptions::TILE_BORDERS) {
-                debug = debug | MapDebugOptions::PARSE_STATUS;
+                debug |= MapDebugOptions::PARSE_STATUS;
             } else {
                 debug = MapDebugOptions::TILE_BORDERS;
             }

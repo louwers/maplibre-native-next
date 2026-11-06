@@ -33,49 +33,24 @@ port, not a redesign:
 
 ## 1. Build
 
-- **Bazel** builds and tests everything (rules_rust 0.74, Rust edition
-  2024). The root `Cargo.toml` builds the same libraries for the crates.io
-  release (RELEASING.md), as the `mln-rs-*` packages behind `mln-rs`, and
-  runs their tests (`cargo test --workspace`; not the difftests or the
-  tools' suites). `MODULE.bazel` depends
-  on the C++ repo as the `maplibre` module through
-  `local_path_override(path = "../maplibre-native")`, so tests see uncommitted
-  C++ changes. The reference checkout is the `maplibre-native-next-support`
-  branch of `louwers/maplibre-native` (CI pins its tip, currently
-  `4e03abe94cf562b10562c528578d109c7273694d`): upstream
+- **Cargo** builds and tests everything (Rust edition 2024): the root
+  `Cargo.toml` workspace, released to crates.io as the `mln-rs-*` packages
+  behind `mln-rs` (RELEASING.md). Crates are listed in it; a new one also
+  needs the steps in RELEASING.md ("Adding a library").
+- Third-party crates are set in the root `Cargo.toml` workspace only.
+- The C++ core is never linked into the port. The differential tests
+  (`//difftest/<area>`) link it as the reference implementation; they live
+  in [mln-rs-difftests](https://github.com/louwers/mln-rs-difftests), which
+  builds the C++ core with Bazel and tests the released crates against it.
+- Everything runs through the justfile (`just test`, ...). On NixOS, the
+  tests and apps run inside the C++ repo's `#linux` flake shell.
+- Test data comes from the C++ repo, copied into the packages' `testdata/`
+  (README.md, "Test data") from the reference checkout: the
+  `maplibre-native-next-support` branch of `louwers/maplibre-native`,
+  currently `4e03abe94cf562b10562c528578d109c7273694d` (upstream
   `maplibre/maplibre-native` commit
-  `8e144d0eca082e8350335b2172a6dfdc939b9cef` plus the dependency changes
-  below (and a `cc_static_library` load() that Bazel 9 needs).
-- Third-party crates are set in the root `Cargo.toml` workspace only:
-  `MODULE.bazel` reads it and `Cargo.lock` (`crate.from_cargo`) into
-  `@next_crates`, so both builds use the same versions and features. The
-  ones only Bazel targets use (difftests, tools, platform/glfw) are
-  dev-dependencies of `third_party/bazel_crates`, which Cargo never builds.
-  Crates in this repo are `rust_library` targets with a `Cargo.toml` next to
-  them; a new one is also listed in the root `Cargo.toml` (RELEASING.md,
-  "Adding a library").
-- The C++ core is never linked into the port. Only `//difftest/...` links
-  `@maplibre//:mbgl-core`, as the reference implementation.
-- Everything runs through the justfile (`just bazel`, `just test`, ...). On
-  NixOS, `just bazel` runs inside the C++ repo's `#linux` flake shell plus
-  bazelisk, with machine-local flags in `user.bazelrc`.
-- Test data comes from the C++ repo: as Bazel data deps
-  (`@maplibre//metrics:render-test-files`, `:expression-test-files`) for
-  Bazel tests, through `.cargo/runfiles/maplibre+` (a link to
-  `../maplibre-native`) for Cargo tests, which include the render, query and
-  expression suites (`tools/`). Nothing is copied.
-
-Changes made in `../maplibre-native` so it works as a dependency (to upstream
-as one PR):
-
-1. `MODULE.bazel`: `node`/`npm` extensions are no longer dev dependencies
-   (`//:BUILD.bazel` loads `@npm`); the rustutils `crate` extension is (a
-   non-root crate_universe call would have to ship a generated lockfile).
-2. `BUILD.bazel`: the style and shader code generators get their root from
-   `repo_name()`, because in a dependency their files live under
-   `external/<repo>`.
-3. `metrics/BUILD.bazel`: the render and expression test filegroups are
-   public.
+  `8e144d0eca082e8350335b2172a6dfdc939b9cef` plus the changes that make its
+  Bazel module usable as a dependency, which mln-rs-difftests needs).
 
 ## 2. Crate map
 
@@ -139,7 +114,7 @@ per pair when we get there, from the measured edges.
 | freetype (`text/freetype.cpp`: face loading, cmaps, rasterization) | the needed parts of FreeType 2.13 ported (face loading, cmap formats 0-14, charmap selection, the ftgrays rasterizer) plus hb-ft; outlines and hinting via `skrifa` | cmap lookups identical (19.1M); SDF step bit-identical; bitmaps 68% identical, 1.1% of pixels differ (skrifa vs. FreeType hinting) |
 | csscolorparser, rapidjson dtoa, pixelmatch, earcut, kdbush, supercluster, geojson-vt, polylabel, wagyu | ported | exact |
 | earcut: the `earcut` crate (georust) instead? | evaluated, rejected | `//difftest/earcut_crate`: identical without holes, but with holes only 25% identical and 1.1% of polygons cover a different area (earcut.js 3.x hole bridging); the port stays |
-| maplibre-tile-spec C++ decoder (MLT) | the `mlt-core` crate (user decision) | assumed correct (user decision, 2026-11-04); the difftest against the C++ decoder was removed, and `MODULE.bazel` fetches `maplibre-tile-spec` (which mbgl-core links) from GitHub, so that vendor submodule is never needed |
+| maplibre-tile-spec C++ decoder (MLT) | the `mlt-core` crate (user decision) | assumed correct (user decision, 2026-11-04); the difftest against the C++ decoder was removed, and mln-rs-difftests' `MODULE.bazel` fetches `maplibre-tile-spec` (which mbgl-core links) from GitHub, so that vendor submodule is never needed |
 | protozero + vector-tile | hand-rolled MVT reader | exact |
 | sqlite | `rusqlite` (same engine) | exact; offline databases interchangeable both ways |
 | nunicode (collation, case mapping) | ported (`//vendor/nunicode`, tables generated from the vendored sources) | exact: every code point compared against C++ |
@@ -149,8 +124,9 @@ per pair when we get there, from the measured edges.
 
 ## 5. Tests
 
-1. **Differential tests** (`//difftest/<area>`): a small `cc_library` on
-   `@maplibre//:mbgl-core` exposes the C++ functions through `extern "C"`
+1. **Differential tests** (`//difftest/<area>`, in mln-rs-difftests): a
+   small `cc_library` on `@maplibre//:mbgl-core` exposes the C++ functions
+   through `extern "C"`
    (POD and JSON strings across the boundary); a `rust_test` calls both
    implementations on proptest-generated and edge-case inputs and requires
    identical results. Comparisons are bit-exact; any NaN equals any NaN. They
@@ -162,7 +138,8 @@ per pair when we get there, from the measured edges.
    it elsewhere; the rest (the text stack, MVT, geo, string, expression
    types, the vendored geometry fixtures) also run and pass on macOS/arm64,
    where `.bazelrc` builds the oracle with `-Wno-error`.
-2. **Shared data suites**, read in place from `@maplibre//metrics`:
+2. **Shared data suites**, from the copy of the C++ repo's `metrics/` in
+   `tools/render-test/testdata` and `tools/expression-test/testdata`:
    - render tests (`integration/render-tests`, 184 groups) and query tests:
      same `style.json` files, fixtures, `expected*.png` and pixelmatch metric
      as the C++ runner. Baselines are never overwritten; a justified Rust
@@ -190,11 +167,10 @@ per pair when we get there, from the measured edges.
 Status 2026-11-03 17:40 (verified): full shared render suite **1326 of 1460 passed, 0 failed**; all of Liberty's layer types render in `//platform/glfw:mln-glfw`. Next focus (user): unit-test parity.
 
 Status 2026-11-04 (verified): the suite also runs on macOS, where wgpu
-renders through Metal (`manifests/macos-wgpu.json`, selected by OS in the
-BUILD): **1353 of 1460 passed, 0 failed** (79 ignored failed, 28 ignored
-passed). `//crates/...`, `//vendor/...` and `//tools/...` pass on macOS;
-`//difftest/...` stays Linux-only (the oracle comparisons are pinned to
-Linux x86-64).
+renders through Metal (`manifests/macos-wgpu.json`, selected by OS):
+**1353 of 1460 passed, 0 failed** (79 ignored failed, 28 ignored passed).
+The libraries' tests pass on macOS; most difftests stay Linux-only (the
+oracle comparisons are pinned to Linux x86-64).
 
 Near-term target (2026-11-03), **OpenFreeMap Liberty**: 111 layers
 (background, raster PNG z0-6, 16 fill incl. 2 `fill-pattern`, 67 line incl. 17
@@ -246,5 +222,5 @@ types.
   suites' per-test `allowed` diff absorbs rasterizer differences.
 - **Text stack**: HarfRust shaping should match exactly; rasterization and
   ICU-dependent behaviour are the expected deviations.
-- **Shared build server**: agents queue on one Bazel server (memory and disk
-  are limited on the dev machine); nobody builds `//...` or cleans.
+- **Shared machine**: memory and disk are limited on the dev machine; run
+  the tests of the packages you change rather than everything at once.

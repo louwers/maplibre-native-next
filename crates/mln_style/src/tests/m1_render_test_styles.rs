@@ -27,9 +27,7 @@ use crate::style::Impl;
 use crate::transition_options::TransitionOptions;
 
 fn render_tests_dir() -> PathBuf {
-    let base =
-        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+/metrics/integration/render-tests")
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/metrics/integration/render-tests")
 }
 
 fn load(test: &str) -> Impl {

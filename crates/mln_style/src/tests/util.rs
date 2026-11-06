@@ -70,17 +70,15 @@ impl Drop for FixtureLog {
 }
 
 /// `mln::util::read_file(path)` for a path relative to the C++ repository
-/// (read in place from the runfiles tree, `maplibre+`).
+/// (in the copy of the files these tests read, testdata/).
 pub fn read_file(relative: &str) -> String {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    let path = std::path::PathBuf::from(base).join("maplibre+").join(relative);
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative);
     std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 
 /// `mln::util::read_file(path)` as bytes.
 pub fn read_file_bytes(relative: &str) -> Vec<u8> {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    let path = std::path::PathBuf::from(base).join("maplibre+").join(relative);
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative);
     std::fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 

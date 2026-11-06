@@ -1,6 +1,5 @@
 // Ports test/style/style_layer.test.cpp.
 
-use std::path::PathBuf;
 use std::sync::Arc;
 
 use mln_conversion::{Convertible, Error};
@@ -263,9 +262,7 @@ fn observer() {
 }
 
 fn fixture(path: &str) -> String {
-    let base =
-        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
-    let path = PathBuf::from(base).join("maplibre+").join(path);
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(path);
     std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 

@@ -6,10 +6,10 @@ use kdbush::KDBush;
 type TPoint = (i32, i32);
 
 fn test_source() -> String {
-    let root = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    std::fs::read_to_string(std::path::Path::new(&root).join("maplibre+/vendor/kdbush.hpp/test.cpp")).unwrap()
+    std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/vendor/kdbush.hpp/test.cpp"),
+    )
+    .unwrap()
 }
 
 /// The `{ ... }` initializer after `marker`.

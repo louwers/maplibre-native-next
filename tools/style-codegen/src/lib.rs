@@ -5,8 +5,8 @@
 //! (property order, data-driven / cross-faded / color-ramp kinds, type
 //! mapping, default values, enum names, the per-layer overrides) and emits
 //! Rust shaped like the C++ output into crates/mln_style/src. The output is
-//! checked in; `//tools/style-codegen:generated_code_test` fails when it
-//! differs from fresh generator output.
+//! checked in; the generated_code_test fails when it differs from fresh
+//! generator output.
 
 pub mod defaults;
 pub mod difftest;

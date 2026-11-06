@@ -115,16 +115,8 @@ mod glyph_pbf {
     use crate::glyph::GlyphIDType;
 
     fn fixture(path: &str) -> Vec<u8> {
-        let base = std::env::var_os("RUNFILES_DIR")
-            .or_else(|| std::env::var_os("TEST_SRCDIR"))
-            .expect("RUNFILES_DIR or TEST_SRCDIR");
-        for repo in ["maplibre+", "maplibre"] {
-            let p = std::path::Path::new(&base).join(repo).join(path);
-            if p.exists() {
-                return std::fs::read(p).unwrap();
-            }
-        }
-        panic!("{path} not in the runfiles");
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(path);
+        std::fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
     }
 
     // gtest: GlyphPBF.Parsing

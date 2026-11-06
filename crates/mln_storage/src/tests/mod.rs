@@ -37,16 +37,16 @@ pub fn serial() -> MutexGuard<'static, ()> {
     LOCK.lock().unwrap_or_else(|e| e.into_inner())
 }
 
-/// A path in the runfiles tree of the C++ repository (`maplibre+`).
+/// A path of the C++ repository, in the copy of its files these tests read
+/// (testdata/).
 pub fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+").join(relative)
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative)
 }
 
 /// A fresh path in the test's temporary directory (C++ tests write next to
 /// the fixtures in the source tree; the port never writes there).
 pub fn temp_path(name: &str) -> String {
-    let dir = std::env::var("TEST_TMPDIR").unwrap_or_else(|_| std::env::temp_dir().to_string_lossy().into_owned());
+    let dir = std::env::temp_dir().to_string_lossy().into_owned();
     static COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
     let n = COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
     format!("{dir}/{n}-{name}")

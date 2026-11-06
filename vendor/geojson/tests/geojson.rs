@@ -13,10 +13,9 @@ use geojson::{
 };
 
 fn fixture(name: &str) -> PathBuf {
-    let root = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    PathBuf::from(root).join("maplibre+/vendor/maplibre-native-base/deps/geojson.hpp/test/fixtures").join(name)
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("testdata/vendor/maplibre-native-base/deps/geojson.hpp/test/fixtures")
+        .join(name)
 }
 
 fn read_file(name: &str) -> String {

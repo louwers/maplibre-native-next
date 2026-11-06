@@ -7,13 +7,12 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "mln_util"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [dependencies]
@@ -23,10 +22,13 @@ geometry.workspace = true
 mln_math.workspace = true
 rapidjson.workspace = true
 
+# Ported C++ gtests of test/util (markers `// gtest: Group.Name`), for
+# mln_util and the low crates next to it.
 [[test]]
 name = "mln_util_gtest"
 path = "tests/gtest/main.rs"
 
+# Ports test/util/padding.test.cpp: its expression cases need mln_style.
 [[test]]
 name = "gtest_padding"
 path = "tests/gtest_padding.rs"

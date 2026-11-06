@@ -1,14 +1,14 @@
 {
-  "base_test_path": "../../../.cargo/runfiles/maplibre+/metrics/integration",
-  "cache_path": "../../../.cargo/runfiles/maplibre+/metrics/cache-style.db",
+  "base_test_path": "../testdata/metrics/integration",
+  "cache_path": "../testdata/metrics/cache-style.db",
   "expectation_paths": [
-      "../../../.cargo/runfiles/maplibre+/metrics/expectations/platform-macos",
-      "../../../.cargo/runfiles/maplibre+/metrics/expectations/platform-linux"
+      "../testdata/metrics/expectations/platform-macos",
+      "../testdata/metrics/expectations/platform-linux"
   ],
   "ignore_paths": [
-      "../../../.cargo/runfiles/maplibre+/metrics/ignores/platform-all.json",
-      "../../../.cargo/runfiles/maplibre+/metrics/ignores/platform-linux.json",
+      "../testdata/metrics/ignores/platform-all.json",
+      "../testdata/metrics/ignores/platform-linux.json",
       "../ignores/rust-port.json"
   ],
-  "metric_path": "../../../.cargo/runfiles/maplibre+/metrics/linux-gcc8-release"
+  "metric_path": "../testdata/metrics/linux-gcc8-release"
 }

@@ -1,0 +1,9 @@
+{
+  "version": 8,
+  "sources": {
+    "source": {
+      "type": "geojson",
+      "data": 24
+    }
+  }
+}

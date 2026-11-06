@@ -9,18 +9,14 @@ binstall_args := if env('CI', '') != '' {'--no-confirm --no-track --disable-tele
 # Where `just ci-coverage` writes the LCOV report that CI uploads to Codecov
 coverage_lcov := 'target/llvm-cov/lcov.info'
 
-# The C++ core the port is tested against (MODULE.bazel's local_path_override).
+# The C++ core the port is ported from, for the recipes that read its sources (update-testdata, vendor-shaders, the
+# generate-* and the analysis recipes).
 cpp := justfile_directory() / '..' / 'maplibre-native'
 
-# On NixOS, Bazel and the binaries it builds run inside the C++ repo's #linux
-# dev shell (clang, zlib, icu, the Vulkan loader, ...), with bazelisk from
-# nixpkgs. Every local Bazel invocation goes through `just bazel` so that each
-# one sees the same environment: a changed environment makes the shared Bazel
-# server reconfigure the C++ toolchain and rebuild the C++ core. Elsewhere
-# (macOS, CI) the system's tools are the environment.
+# On NixOS, the tests and the apps build and run inside the C++ repo's #linux dev shell, which has the libraries they link
+# and load (GLFW, the Vulkan loader, ...). Elsewhere (macOS, CI) the system's libraries are the environment.
 nixos := path_exists('/etc/NIXOS')
 dev_shell := if nixos == 'true' {'nix develop ' + quote('path:' + justfile_directory() / '.nix-shell#linux') + ' --command'} else {''}
-bazel := if nixos == 'true' {'nix shell nixpkgs#bazelisk --command bazelisk'} else {'"$(command -v bazelisk || command -v bazel)"'}
 
 # if running in CI, treat warnings as errors by setting CARGO_BUILD_WARNINGS to 'deny' unless it is already set
 # Use `CI=true just ci-lint` to run the same checks as in GitHub CI.
@@ -32,25 +28,34 @@ export RUST_BACKTRACE := env('RUST_BACKTRACE', if ci_mode == '1' {'1'} else {'0'
 @_default:
     {{just}} --list
 
-# Run Bazel with the given arguments, e.g. `just bazel test //crates/mln_style/...`
-[positional-arguments]
-bazel *args: _dev-shell
-    {{dev_shell}} {{bazel}} "$@"
-
-# Build everything Bazel builds
-build:  (bazel 'build' '//...')
+# Build every package and test target
+build:  _dev-shell
+    {{dev_shell}} cargo build --workspace --all-targets
 
 # Quick compile of the Cargo workspace without building a binary
 check:
     cargo check --workspace --all-targets
 
+# One `cargo check` per crate, so that a failure in one does not hide the others. Some still fail on open toolchain gaps
+# (getrandom, the build scripts of sqlite-wasm-rs) that need a wasm32 C compiler and a getrandom backend.
+[doc("Check that the GLFW app's render path compiles for the browser (wasm32-unknown-unknown)")]
+check-wasm:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    rustup target add wasm32-unknown-unknown
+    failed=()
+    for crate in math util tile-id style-types conversion actor tile expression text platform-default-image storage sprite style map-types gfx webgpu renderer map; do
+        cargo check --target wasm32-unknown-unknown -p "mln-rs-$crate" || failed+=("mln-rs-$crate")
+    done
+    if [[ ${#failed[@]} -gt 0 ]]; then
+        echo "failed for wasm32: ${failed[*]}" >&2
+        exit 1
+    fi
+
 # Run the Cargo tests as CI does (Linux and macOS), writing their coverage as LCOV for CI to upload to codecov.io
 ci-coverage:  env-info && (_coverage '--lcov' '--output-path' quote(coverage_lcov))
     rm -rf {{quote(parent_directory(coverage_lcov))}}
     mkdir -p {{quote(parent_directory(coverage_lcov))}}
-
-# Run the Bazel tests as CI does (Linux and macOS)
-ci-test:  env-info (bazel 'test' '--config=ci' '//...')
 
 # Run the checks of CI's lint job: formatting, clippy and the API docs, warnings as errors
 ci-lint:  env-info test-fmt clippy test-doc && assert-git-is-clean
@@ -61,7 +66,7 @@ ci-package:  env-info package && assert-git-is-clean
 # Check the Cargo workspace with the oldest Rust it declares, as CI's msrv job does
 ci-test-msrv:  env-info test-msrv && assert-git-is-clean
 
-# Clean the Cargo build (Bazel's output is shared by everyone working here, so it is never cleaned from here)
+# Clean the Cargo build
 clean:
     cargo clean
 
@@ -84,13 +89,12 @@ env-info:
     rustc --version
     cargo --version
     rustup --version
-    @echo "Bazel $(cat .bazelversion) (.bazelversion){{if nixos == 'true' {' in the NixOS dev shell'} else {''} }}"
     @echo "CARGO_BUILD_WARNINGS='$CARGO_BUILD_WARNINGS'"
     @echo "RUST_BACKTRACE='$RUST_BACKTRACE'"
 
 # Generated files (their first lines say "Do not edit" or "@generated") stay as their generators write them: they are not passed to
 # rustfmt, and their `mod` declarations carry #[rustfmt::skip], so formatting the module that declares them leaves them alone too.
-[doc('Reformat every Rust file with rustfmt, the Bazel-only crates included. If nightly is available, use it for better results')]
+[doc('Reformat every Rust file with rustfmt. If nightly is available, use it for better results')]
 fmt *args:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -121,9 +125,10 @@ generate-icu-tables icu_common:
 generate-nunicode-tables:
     python3 -I vendor/nunicode/tools/gen_tables.py {{quote(cpp / 'vendor/nunicode')}} vendor/nunicode/src/tables
 
-# Regenerate crates/mln_style's generated style code from the C++ repo's style spec (checked by generated_code_test)
-generate-style-code:  (bazel 'build' '//tools/style-codegen')
-    bazel-bin/tools/style-codegen/style-codegen --spec {{quote(cpp / 'scripts/style-spec-reference/v8.json')}} --out crates/mln_style/src
+# The spec is the copy of the C++ repo's v8.json in tools/style-codegen/testdata (`just update-testdata` refreshes it).
+[doc("Regenerate crates/mln_style's generated style code from the style spec (checked by style-codegen's generated_code_test)")]
+generate-style-code:
+    cargo run -p mln-rs-style-codegen -- --spec tools/style-codegen/testdata/scripts/style-spec-reference/v8.json --out crates/mln_style/src
 
 # Needs bindgen and emcc, e.g. `nix shell nixpkgs#rust-bindgen nixpkgs#emscripten --command just generate-webgpu-bindings`.
 #
@@ -178,11 +183,10 @@ get-crate-field field package=main_crate:  (assert-cmd 'jq')
 # Get the minimum supported Rust version (MSRV) for the crate
 get-msrv package=main_crate:  (get-crate-field 'rust_version' package)
 
-# `bazel run` does not work on NixOS (no /bin/bash), so the app runs from bazel-bin.
-[doc('Run the GLFW app: OpenFreeMap Liberty in a window (needs a display and the system GLFW). Arguments go to the app')]
+# Run the GLFW app: OpenFreeMap Liberty in a window (needs a display and the system GLFW). Arguments go to the app
 [positional-arguments]
-glfw *args:  (bazel 'build' '//platform/glfw:mln-glfw')
-    {{dev_shell}} bazel-bin/platform/glfw/mln-glfw "$@"
+glfw *args:  _dev-shell
+    {{dev_shell}} cargo run -p mln-rs-glfw --bin mln-glfw -- "$@"
 
 # Report which C++ gtests have Rust ports (`// gtest: Group.Name` markers), e.g. `just gtest-parity --missing util`
 [positional-arguments]
@@ -281,28 +285,20 @@ liberty-references filter='.':  _dev-shell
     EOF
     done
 
-# The test runners in tools/ are never released, and depend on unreleased crates by path, which packaging rejects.
-[doc('Package every crate from its packaged sources as the release does (RELEASING.md), and compile every Cargo test target')]
+# The GLFW app is never released, and its tools/ binary is outside the packaged files.
+[doc('Package every crate from its packaged sources as the release does (RELEASING.md), and compile every test target')]
 package:
-    cargo package --workspace --locked --exclude mln-rs-render-test --exclude mln-rs-expression-test
+    cargo package --workspace --locked --exclude mln-rs-glfw
     cargo test --workspace --locked --no-run
 
 # Run the release workflow on main: publish the crates at the version in Cargo.toml (RELEASING.md)
 release:
     gh workflow run release.yml --repo louwers/maplibre-native-next --ref main
 
-# Run all tests: every Bazel test (library tests and difftests) and every Cargo test (library tests, render, query and expression tests)
-test:  test-bazel test-cargo
-
-# Run every Bazel test. Arguments go to `bazel test`, e.g. `just test-bazel --config=oracle-opt`
+# Run every test: the libraries' tests and the render, query and expression test suites. Arguments go to `cargo test`.
 [positional-arguments]
-test-bazel *args:  _dev-shell
-    {{dev_shell}} {{bazel}} test "$@" //...
-
-# Run the library tests and the render, query and expression test suites with Cargo. Arguments go to `cargo test`.
-[positional-arguments]
-test-cargo *args:
-    cargo test --workspace "$@"
+test *args:  _dev-shell
+    {{dev_shell}} cargo test --workspace "$@"
 
 # Test documentation generation
 test-doc:  (docs '')
@@ -322,11 +318,23 @@ test-msrv:
 udeps:  (cargo-install 'cargo-udeps')
     cargo +nightly udeps --workspace --all-targets
 
-# Cargo.lock also sets Bazel's crates, so MODULE.bazel.lock is refreshed too.
-[doc('Update the dependencies within their Cargo.toml requirements')]
+# Update the dependencies within their Cargo.toml requirements
 update:
     cargo update
-    {{just}} bazel query @next_crates//:all > /dev/null
+
+# The shared suites' directories are copied whole, so new tests come along; every other file that is there is copied again.
+[doc("Refresh the copies of maplibre-native's files in the packages' testdata/ (README.md) from a checkout of it")]
+update-testdata checkout=cpp:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for dir in tools/render-test/testdata/metrics/{integration/render-tests,integration/query-tests,expectations/platform-linux,expectations/platform-macos,ignores,linux-gcc8-release} \
+            tools/expression-test/testdata/metrics/integration/expression-tests; do
+        rsync -a --delete {{quote(checkout)}}/"${dir#*/testdata/}"/ "$dir"/
+    done
+    git ls-files -z '*/testdata/*' | while IFS= read -r -d '' file; do
+        cp {{quote(checkout)}}/"${file#*/testdata/}" "$file"
+    done
+    echo "copied from {{checkout}} ($(git -C {{quote(checkout)}} describe --always --dirty 2>/dev/null || echo "not a git checkout"))"
 
 # Rerun it when the C++ shaders change, and commit the result.
 [doc("Vendor the C++ core's WGSL shaders, unchanged, into crates/mln_webgpu/src/shaders/wgsl_sources.rs")]
@@ -345,10 +353,10 @@ vendor-shaders checkout=cpp:
     "$tool_dir/extract_wgsl" crates/mln_webgpu/src/shaders/wgsl_sources.rs "${headers[@]}"
     echo "vendored ${#headers[@]} headers from {{checkout}} ($(git -C {{quote(checkout)}} describe --always --dirty 2>/dev/null || echo "not a git checkout"))"
 
-# Measure the coverage of the Cargo tests (`just test-cargo`) from a clean start, then report it with the given arguments
-_coverage *report_args:  (cargo-install 'cargo-llvm-cov')
+# Measure the coverage of the tests (`just test`) from a clean start, then report it with the given arguments
+_coverage *report_args:  _dev-shell (cargo-install 'cargo-llvm-cov')
     cargo llvm-cov clean --workspace
-    cargo llvm-cov --no-report --workspace
+    {{dev_shell}} cargo llvm-cov --no-report --workspace
     cargo llvm-cov report --workspace {{report_args}}
 
 # The C++ repo's dev shell flake, used from a copy in .nix-shell: `nix develop path:<repo>` would copy the whole C++ working tree into the

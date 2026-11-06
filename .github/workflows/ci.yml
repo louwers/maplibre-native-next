@@ -13,119 +13,116 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  # The C++ core the port is tested against (MODULE.bazel expects it at
-  # ../maplibre-native): maplibre-native plus the changes that make its Bazel
-  # module usable as a dependency. The ref is the tip of that fork's
-  # maplibre-native-next-support branch: upstream maplibre/maplibre-native
-  # commit 8e144d0eca082e8350335b2172a6dfdc939b9cef plus those changes.
-  MAPLIBRE_NATIVE_REPOSITORY: louwers/maplibre-native
-  MAPLIBRE_NATIVE_REF: 4e03abe94cf562b10562c528578d109c7273694d
-
 jobs:
-  # The Bazel tests (the libraries' tests and the difftests against the C++
-  # core), on Linux (wgpu renders through Vulkan/lavapipe) and macOS (through
-  # Metal).
+  # Every test (`just ci-coverage`): the libraries' tests and the shared
+  # render, query and expression suites, on Linux (wgpu renders through
+  # Vulkan/lavapipe) and macOS (through Metal), with their line coverage
+  # uploaded to Codecov (codecov.yml). The differential tests against the C++
+  # core are in louwers/mln-rs-difftests.
   test:
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-26.04, macos-15]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 240
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
-        with:
-          path: maplibre-native-next
 
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ env.MAPLIBRE_NATIVE_REPOSITORY }}
-          ref: ${{ env.MAPLIBRE_NATIVE_REF }}
-          path: maplibre-native
-
-      # The difftests' C++ oracle (mbgl-core) builds from these; the
-      # maplibre-tile-spec module is fetched from GitHub by MODULE.bazel's
-      # git_override and needs no checkout.
-      - name: Fetch the C++ core's vendored submodules
-        run: git -C maplibre-native submodule update --init --recursive --depth 1 --jobs 8 -- vendor
-
+      # GLFW for platform/glfw (found through pkg-config), and lavapipe for
+      # the GPU tests on Linux.
       - name: Install system packages
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          # libgl-dev, libgles-dev and libx11-dev: the difftest oracles that
-          # link @maplibre//platform/linux:impl.
-          sudo apt-get install -y --no-install-recommends \
-            clang libcurl4-openssl-dev libgl-dev libgles-dev libglfw3-dev \
-            libicu-dev libjpeg-dev libpng-dev libuv1-dev libvulkan1 \
-            libwebp-dev libx11-dev mesa-vulkan-drivers pkg-config zlib1g-dev
+          sudo apt-get install -y --no-install-recommends libglfw3-dev libvulkan1 mesa-vulkan-drivers pkg-config
+          echo "VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.json" >> "$GITHUB_ENV"
 
       - name: Install system packages
         if: runner.os == 'macOS'
-        run: brew install glfw
+        run: brew install glfw pkgconf
 
-      - uses: bazel-contrib/setup-bazel@0.19.1
+      - uses: actions/cache@v6
         with:
-          bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
-          repository-cache: true
+          path: |
+            ~/.cargo/registry
+            target
+          key: test-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: test-${{ runner.os }}-
 
       - uses: taiki-e/install-action@v2
-        with: { tool: just }
+        with: { tool: 'just,cargo-llvm-cov' }
+
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component llvm-tools-preview --no-self-update
+          rustup default stable
 
       - name: Test
-        working-directory: maplibre-native-next
-        run: just ci-test
+        run: just ci-coverage
 
-      - name: Upload test logs
+      # The render suite's report and actual/diff images (cargo-llvm-cov
+      # builds in target/llvm-cov-target).
+      - name: Upload the render test results
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: testlogs-${{ runner.os }}
-          path: maplibre-native-next/bazel-testlogs/**/test.log
+          name: render-tests-${{ runner.os }}
+          path: target/llvm-cov-target/tmp/render_tests
           if-no-files-found: ignore
+
+      - name: Upload the coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/llvm-cov/lcov.info
 
   # The Cargo manifests: build each crates.io package from its packaged
   # sources, as the release does (RELEASING.md), and every test target, so a
-  # dependency or test missing from a Cargo.toml shows up here. test-cargo
+  # dependency or test missing from a Cargo.toml shows up here. The test job
   # runs the tests.
   release-crate:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
-        with:
-          path: maplibre-native-next
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libglfw3-dev pkg-config
 
       - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
-            maplibre-native-next/target
+            target
           # Saved once per lockfile: the third-party crates dominate.
-          key: release-crate-${{ runner.os }}-${{ hashFiles('maplibre-native-next/Cargo.lock') }}
+          key: release-crate-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: release-crate-${{ runner.os }}-
 
       - uses: taiki-e/install-action@v2
         with: { tool: just }
 
       - name: Package
-        working-directory: maplibre-native-next
         run: |
           rustup toolchain install stable --profile minimal --no-self-update
           rustup default stable
           just ci-package
 
-  # What the Bazel build does not check, all with warnings as errors (the
-  # justfile denies them in CI): formatting (`just fmt`, every Rust file),
-  # clippy with the workspace's lints (Cargo.toml) and the API docs as docs.rs
-  # builds them.
+  # Formatting (`just fmt`, every Rust file), clippy with the workspace's
+  # lints (Cargo.toml) and the API docs as docs.rs builds them, all with
+  # warnings as errors (the justfile denies them in CI).
   lint:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libglfw3-dev pkg-config
 
       - uses: actions/cache@v6
         with:
@@ -154,6 +151,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libglfw3-dev pkg-config
+
       - uses: actions/cache@v6
         with:
           path: |
@@ -168,81 +170,10 @@ jobs:
       - name: Check
         run: just ci-test-msrv
 
-  # The Cargo tests (`just ci-coverage`): the libraries' tests and the shared
-  # render, query and expression suites, on Linux (lavapipe) and macOS
-  # (Metal), with their line coverage uploaded to Codecov (codecov.yml). Like
-  # `just test-cargo`, the tests read the C++ core's test data from
-  # ../maplibre-native and its vendor/ submodules.
-  test-cargo:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-26.04, macos-15]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          path: maplibre-native-next
-
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ env.MAPLIBRE_NATIVE_REPOSITORY }}
-          ref: ${{ env.MAPLIBRE_NATIVE_REF }}
-          path: maplibre-native
-
-      - name: Fetch the C++ core's vendored submodules
-        run: git -C maplibre-native submodule update --init --recursive --depth 1 --jobs 8 -- vendor
-
-      # The GPU tests render through lavapipe, as in .bazelrc's ci config.
-      - name: Install system packages
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libvulkan1 mesa-vulkan-drivers
-          echo "VK_DRIVER_FILES=/usr/share/vulkan/icd.d/lvp_icd.json" >> "$GITHUB_ENV"
-
-      - uses: actions/cache@v6
-        with:
-          path: |
-            ~/.cargo/registry
-            maplibre-native-next/target
-          key: test-cargo-${{ runner.os }}-${{ hashFiles('maplibre-native-next/Cargo.lock') }}
-          restore-keys: test-cargo-${{ runner.os }}-
-
-      - uses: taiki-e/install-action@v2
-        with: { tool: 'just,cargo-llvm-cov' }
-
-      - name: Install Rust
-        run: |
-          rustup toolchain install stable --profile minimal --component llvm-tools-preview --no-self-update
-          rustup default stable
-
-      - name: Test
-        working-directory: maplibre-native-next
-        run: just ci-coverage
-
-      # The render suite's report and actual/diff images (cargo-llvm-cov
-      # builds in target/llvm-cov-target).
-      - name: Upload the render test results
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: render-tests-${{ runner.os }}
-          path: maplibre-native-next/target/llvm-cov-target/tmp/render_tests
-          if-no-files-found: ignore
-
-      - name: Upload the coverage to Codecov
-        uses: codecov/codecov-action@v7
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          working-directory: maplibre-native-next
-          files: target/llvm-cov/lcov.info
-
   # The one check for branch protection to require: it fails when a job above
   # failed or was cancelled.
   ci-passed:
-    needs: [test, test-cargo, release-crate, lint, msrv]
+    needs: [test, release-crate, lint, msrv]
     if: always()
     runs-on: ubuntu-26.04
     permissions: {}

@@ -4,10 +4,8 @@ use geometry::{Point, Polygon};
 use polylabel::polylabel;
 
 fn fixture(name: &str) -> Polygon<f64> {
-    let root = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    let path = std::path::Path::new(&root).join("maplibre+/vendor/polylabel/test/fixtures").join(name);
+    let path =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/vendor/polylabel/test/fixtures").join(name);
     let d: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap();
 
     d.as_array()

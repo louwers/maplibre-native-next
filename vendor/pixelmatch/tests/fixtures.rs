@@ -1,15 +1,11 @@
 // Ports vendor/maplibre-native-base/deps/pixelmatch-cpp/test/test.cpp
 //
-// Reads the fixtures in place from the C++ repo
-// (@maplibre//vendor:pixelmatch_fixtures).
+// Reads the fixtures from the copy of the C++ repo's files in testdata/.
 
 use std::path::{Path, PathBuf};
 
 fn fixture_dir() -> PathBuf {
-    let root = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    Path::new(&root).join("maplibre+/vendor/maplibre-native-base/deps/pixelmatch-cpp/test/fixtures")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/vendor/maplibre-native-base/deps/pixelmatch-cpp/test/fixtures")
 }
 
 fn read_image(name: &str) -> Vec<u8> {

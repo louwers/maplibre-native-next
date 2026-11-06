@@ -52,6 +52,7 @@ impl MapObserver for Observer {
 }
 
 #[test]
+#[ignore = "needs network access"]
 fn loads_liberty_over_https() {
     let run_loop = RunLoop::new();
     let observer = Rc::new(Observer::default());

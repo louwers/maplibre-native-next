@@ -22,8 +22,7 @@ use mln_util::image::PremultipliedImage;
 use mln_util::size::Size;
 
 fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+").join(relative)
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative)
 }
 
 fn read_file(relative: &str) -> Vec<u8> {
@@ -32,14 +31,15 @@ fn read_file(relative: &str) -> Vec<u8> {
 }
 
 /// `test::getImageDiff` (test/src/mln/test/util.cpp). The C++ writes
-/// `<base>/actual.png` next to the fixture; the port writes it to the test's
-/// undeclared outputs instead (the C++ tree is read-only).
+/// `<base>/actual.png` next to the fixture; the port writes it to
+/// target/tmp/local_glyph_rasterizer_test instead.
 fn get_image_diff(base: &str, actual: &PremultipliedImage, pixel_threshold: f64) -> f64 {
     let expected = decode_image(&read_file(&format!("{base}/expected.png"))).expect("decode expected.png");
 
-    if let Ok(dir) = std::env::var("TEST_UNDECLARED_OUTPUTS_DIR") {
+    let dir = std::path::Path::new(env!("CARGO_TARGET_TMPDIR")).join("local_glyph_rasterizer_test");
+    if std::fs::create_dir_all(&dir).is_ok() {
         let name = base.replace('/', "_");
-        let _ = std::fs::write(PathBuf::from(dir).join(format!("{name}-actual.png")), encode_png(actual));
+        let _ = std::fs::write(dir.join(format!("{name}-actual.png")), encode_png(actual));
     }
 
     if expected.size != actual.size {

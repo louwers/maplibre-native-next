@@ -5,8 +5,8 @@
 // Deviation: C++ wgpu-native creates the instance with default options
 // (all backends) and takes the HighPerformance adapter. The port restricts
 // the instance to `WGPU_BACKEND` if set (wgpu's env var, e.g. "vulkan"),
-// else Vulkan on Linux, so tests run on lavapipe (user.bazelrc's
-// VK_DRIVER_FILES) like the C++ CI; other platforms use wgpu's defaults.
+// else Vulkan on Linux, so tests run on lavapipe (VK_DRIVER_FILES) like
+// the C++ CI; other platforms use wgpu's defaults.
 // On Emscripten the instance is the browser's WebGPU through Dawn's webgpu.h
 // (emdawnwebgpu, as the C++ core uses there), via mln_wgpu_webgpu_h: wgpu
 // itself only has GLES on that target.

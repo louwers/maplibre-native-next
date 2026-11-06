@@ -2,8 +2,8 @@
 //
 // C++ writes test/fixtures/offline_database/offline.db (and
 // offline_sideload.db) next to the fixtures; every port writes a fresh file
-// in TEST_TMPDIR instead (the Rust harness runs tests in parallel), copied
-// from the fixtures read in place.
+// in the temporary directory instead (the Rust harness runs tests in
+// parallel), copied from the fixtures in testdata/.
 
 use std::path::PathBuf;
 use std::sync::Arc;

@@ -1,7 +1,7 @@
 name: release
 
 # Publishes the workspace in Cargo.toml to crates.io at its version: mln-rs
-# and the mln-rs-* libraries it re-exports. Then tags the commit v<version>
+# and its internal mln-rs-* crates. Then tags the commit v<version>
 # and creates a GitHub release. See RELEASING.md. Rerunning after a partial
 # failure finishes the job: packages crates.io already has at this version
 # are skipped.
@@ -39,7 +39,7 @@ jobs:
           rustup default stable
 
       # The version, and the packages to publish: all but the publish = false
-      # test helpers.
+      # ones.
       - name: Version
         run: |
           metadata=$(cargo metadata --no-deps --format-version 1 --locked)
@@ -47,9 +47,10 @@ jobs:
           echo "PACKAGES=$(jq -r '[.packages[] | select(.publish == null) | .name] | join(" ")' <<< "$metadata")" >> "$GITHUB_ENV"
 
       # Builds each package from its packaged sources. Packages resolve each
-      # other locally, so this works before any of them is on crates.io.
+      # other locally, so this works before any of them is on crates.io. The
+      # GLFW app is never released (justfile, `package`).
       - name: Package
-        run: cargo package --workspace --locked
+        run: cargo package --workspace --locked --exclude mln-rs-glfw
 
       # In dependency order, waiting for each to reach the index. Package
       # verified these exact packages, so skip the second build. A 429 is

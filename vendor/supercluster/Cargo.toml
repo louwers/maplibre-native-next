@@ -7,13 +7,12 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "supercluster"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [dependencies]
@@ -22,6 +21,8 @@ geometry.workspace = true
 kdbush.workspace = true
 libstdcxx.workspace = true
 
+# Port of supercluster/test/test.cpp over test/fixtures/places.json, read in
+# place.
 [[test]]
 name = "supercluster_fixtures_test"
 path = "tests/supercluster.rs"

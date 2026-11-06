@@ -1,23 +1,17 @@
-# The crates.io release (RELEASING.md). Bazel builds and tests the port
-# (PLAN.md §1); this workspace builds the same libraries with Cargo so they
-# can be published. Each library under crates/ and vendor/ is the package
-# mln-rs-<name> (library name unchanged, so the code still says `mln_util::`),
-# and the package here, mln-rs, re-exports them all. Users depend on mln-rs
-# only.
-#
-# It is also where Bazel gets its third-party crates (MODULE.bazel reads
-# this workspace and Cargo.lock), so their versions and features are set
-# here only. A library's dependencies are still listed twice: in its
-# BUILD.bazel and in its Cargo.toml. CI builds both, so a missing one fails
-# there.
+# The port and its crates.io release (RELEASING.md). Each library under
+# crates/ and vendor/ is the package mln-rs-<name> (library name unchanged,
+# so the code still says `mln_util::`), and the package here, mln-rs,
+# re-exports them all. Users depend on mln-rs only. The differential tests
+# against the C++ core (louwers/mln-rs-difftests) test the released crates.
 [workspace]
 resolver = "3"
 # The packages with `publish = false` are test helpers or unused by mln-rs.
 members = [
     "crates/*",
-    "third_party/bazel_crates",
+    "platform/glfw",
     "tools/expression-test",
     "tools/render-test",
+    "tools/style-codegen",
     "vendor/*",
     "vendor/earcut/test_fixtures",
 ]
@@ -25,7 +19,7 @@ members = [
 [workspace.package]
 # Every package is published at this version. To release, bump it here and
 # in the in-repo [workspace.dependencies] below (RELEASING.md).
-version = "0.0.8"
+version = "0.0.9"
 edition = "2024"
 # The oldest Rust the packages build with (mlt-core 0.22 needs 1.98). CI's
 # msrv job builds the workspace with it.
@@ -37,57 +31,69 @@ include = ["/src", "/tests"]
 
 [workspace.dependencies]
 # In-repo libraries. The exact version keeps a release's packages together.
-csscolorparser = { package = "mln-rs-csscolorparser", path = "vendor/csscolorparser", version = "=0.0.8" }
-earcut = { package = "mln-rs-earcut", path = "vendor/earcut", version = "=0.0.8" }
-feature = { package = "mln-rs-feature", path = "vendor/feature", version = "=0.0.8" }
-geojson = { package = "mln-rs-geojson", path = "vendor/geojson", version = "=0.0.8" }
-geojson_vt = { package = "mln-rs-geojson-vt", path = "vendor/geojson-vt", version = "=0.0.8" }
-geometry = { package = "mln-rs-geometry", path = "vendor/geometry", version = "=0.0.8" }
-kdbush = { package = "mln-rs-kdbush", path = "vendor/kdbush", version = "=0.0.8" }
-libstdcxx = { package = "mln-rs-libstdcxx", path = "vendor/libstdcxx", version = "=0.0.8" }
-mln_actor = { package = "mln-rs-actor", path = "crates/mln_actor", version = "=0.0.8" }
-mln_conversion = { package = "mln-rs-conversion", path = "crates/mln_conversion", version = "=0.0.8" }
-mln_expression = { package = "mln-rs-expression", path = "crates/mln_expression", version = "=0.0.8" }
-mln_gfx = { package = "mln-rs-gfx", path = "crates/mln_gfx", version = "=0.0.8" }
-mln_map = { package = "mln-rs-map", path = "crates/mln_map", version = "=0.0.8" }
-mln_map_types = { package = "mln-rs-map-types", path = "crates/mln_map_types", version = "=0.0.8" }
-mln_math = { package = "mln-rs-math", path = "crates/mln_math", version = "=0.0.8" }
-mln_platform_default = { package = "mln-rs-platform-default", path = "crates/mln_platform_default", version = "=0.0.8" }
-mln_platform_default_image = { package = "mln-rs-platform-default-image", path = "crates/mln_platform_default_image", version = "=0.0.8" }
-mln_renderer = { package = "mln-rs-renderer", path = "crates/mln_renderer", version = "=0.0.8" }
-mln_sprite = { package = "mln-rs-sprite", path = "crates/mln_sprite", version = "=0.0.8" }
-mln_storage = { package = "mln-rs-storage", path = "crates/mln_storage", version = "=0.0.8" }
-mln_storage_offline = { package = "mln-rs-storage-offline", path = "crates/mln_storage_offline", version = "=0.0.8" }
-mln_style = { package = "mln-rs-style", path = "crates/mln_style", version = "=0.0.8" }
-mln_style_types = { package = "mln-rs-style-types", path = "crates/mln_style_types", version = "=0.0.8" }
-mln_text = { package = "mln-rs-text", path = "crates/mln_text", version = "=0.0.8" }
-mln_tile = { package = "mln-rs-tile", path = "crates/mln_tile", version = "=0.0.8" }
-mln_tile_id = { package = "mln-rs-tile-id", path = "crates/mln_tile_id", version = "=0.0.8" }
-mln_util = { package = "mln-rs-util", path = "crates/mln_util", version = "=0.0.8" }
-mln_webgpu = { package = "mln-rs-webgpu", path = "crates/mln_webgpu", version = "=0.0.8" }
-mln_wgpu_webgpu_h = { package = "mln-rs-wgpu-webgpu-h", path = "crates/mln_wgpu_webgpu_h", version = "=0.0.8" }
-nunicode = { package = "mln-rs-nunicode", path = "vendor/nunicode", version = "=0.0.8" }
-pmtiles = { package = "mln-rs-pmtiles", path = "vendor/pmtiles", version = "=0.0.8" }
-polylabel = { package = "mln-rs-polylabel", path = "vendor/polylabel", version = "=0.0.8" }
-protozero = { package = "mln-rs-protozero", path = "vendor/protozero", version = "=0.0.8" }
-rapidjson = { package = "mln-rs-rapidjson", path = "vendor/rapidjson", version = "=0.0.8" }
-shelf_pack = { package = "mln-rs-shelf-pack", path = "vendor/shelf-pack", version = "=0.0.8" }
-supercluster = { package = "mln-rs-supercluster", path = "vendor/supercluster", version = "=0.0.8" }
-vector_tile = { package = "mln-rs-vector-tile", path = "vendor/vector-tile", version = "=0.0.8" }
-wagyu = { package = "mln-rs-wagyu", path = "vendor/wagyu", version = "=0.0.8" }
+cheap_ruler = { package = "mln-rs-cheap-ruler", path = "vendor/cheap-ruler", version = "=0.0.9" }
+csscolorparser = { package = "mln-rs-csscolorparser", path = "vendor/csscolorparser", version = "=0.0.9" }
+earcut = { package = "mln-rs-earcut", path = "vendor/earcut", version = "=0.0.9" }
+earcut_test_fixtures = { package = "mln-rs-earcut-test-fixtures", path = "vendor/earcut/test_fixtures", version = "=0.0.9" }
+feature = { package = "mln-rs-feature", path = "vendor/feature", version = "=0.0.9" }
+geojson = { package = "mln-rs-geojson", path = "vendor/geojson", version = "=0.0.9" }
+geojson_vt = { package = "mln-rs-geojson-vt", path = "vendor/geojson-vt", version = "=0.0.9" }
+geometry = { package = "mln-rs-geometry", path = "vendor/geometry", version = "=0.0.9" }
+kdbush = { package = "mln-rs-kdbush", path = "vendor/kdbush", version = "=0.0.9" }
+libstdcxx = { package = "mln-rs-libstdcxx", path = "vendor/libstdcxx", version = "=0.0.9" }
+mln_actor = { package = "mln-rs-actor", path = "crates/mln_actor", version = "=0.0.9" }
+mln_conversion = { package = "mln-rs-conversion", path = "crates/mln_conversion", version = "=0.0.9" }
+mln_expression = { package = "mln-rs-expression", path = "crates/mln_expression", version = "=0.0.9" }
+mln_gfx = { package = "mln-rs-gfx", path = "crates/mln_gfx", version = "=0.0.9" }
+mln_map = { package = "mln-rs-map", path = "crates/mln_map", version = "=0.0.9" }
+mln_map_types = { package = "mln-rs-map-types", path = "crates/mln_map_types", version = "=0.0.9" }
+mln_math = { package = "mln-rs-math", path = "crates/mln_math", version = "=0.0.9" }
+mln_platform_default = { package = "mln-rs-platform-default", path = "crates/mln_platform_default", version = "=0.0.9" }
+mln_platform_default_image = { package = "mln-rs-platform-default-image", path = "crates/mln_platform_default_image", version = "=0.0.9" }
+mln_renderer = { package = "mln-rs-renderer", path = "crates/mln_renderer", version = "=0.0.9" }
+mln_sprite = { package = "mln-rs-sprite", path = "crates/mln_sprite", version = "=0.0.9" }
+mln_storage = { package = "mln-rs-storage", path = "crates/mln_storage", version = "=0.0.9" }
+mln_storage_offline = { package = "mln-rs-storage-offline", path = "crates/mln_storage_offline", version = "=0.0.9" }
+mln_style = { package = "mln-rs-style", path = "crates/mln_style", version = "=0.0.9" }
+mln_style_types = { package = "mln-rs-style-types", path = "crates/mln_style_types", version = "=0.0.9" }
+mln_text = { package = "mln-rs-text", path = "crates/mln_text", version = "=0.0.9" }
+mln_tile = { package = "mln-rs-tile", path = "crates/mln_tile", version = "=0.0.9" }
+mln_tile_id = { package = "mln-rs-tile-id", path = "crates/mln_tile_id", version = "=0.0.9" }
+mln_util = { package = "mln-rs-util", path = "crates/mln_util", version = "=0.0.9" }
+mln_webgpu = { package = "mln-rs-webgpu", path = "crates/mln_webgpu", version = "=0.0.9" }
+mln_wgpu_webgpu_h = { package = "mln-rs-wgpu-webgpu-h", path = "crates/mln_wgpu_webgpu_h", version = "=0.0.9" }
+nunicode = { package = "mln-rs-nunicode", path = "vendor/nunicode", version = "=0.0.9" }
+pixelmatch = { package = "mln-rs-pixelmatch", path = "vendor/pixelmatch", version = "=0.0.9" }
+pmtiles = { package = "mln-rs-pmtiles", path = "vendor/pmtiles", version = "=0.0.9" }
+polylabel = { package = "mln-rs-polylabel", path = "vendor/polylabel", version = "=0.0.9" }
+protozero = { package = "mln-rs-protozero", path = "vendor/protozero", version = "=0.0.9" }
+rapidjson = { package = "mln-rs-rapidjson", path = "vendor/rapidjson", version = "=0.0.9" }
+render_test = { package = "mln-rs-render-test", path = "tools/render-test", version = "=0.0.9" }
+shelf_pack = { package = "mln-rs-shelf-pack", path = "vendor/shelf-pack", version = "=0.0.9" }
+style_codegen = { package = "mln-rs-style-codegen", path = "tools/style-codegen", version = "=0.0.9" }
+supercluster = { package = "mln-rs-supercluster", path = "vendor/supercluster", version = "=0.0.9" }
+vector_tile = { package = "mln-rs-vector-tile", path = "vendor/vector-tile", version = "=0.0.9" }
+wagyu = { package = "mln-rs-wagyu", path = "vendor/wagyu", version = "=0.0.9" }
 
-# Third-party crates, for both builds (Cargo.lock pins their versions). The
-# crates that only Bazel targets outside this workspace use are in
-# third_party/bazel_crates. Only add a crate when nothing in the C++ core has
-# to be ported for it (see PLAN.md, "Dependency map").
+# Third-party crates, for both builds (Cargo.lock pins their versions). Only
+# add a crate when nothing in the C++ core has to be ported for it (see
+# PLAN.md, "Dependency map").
 #
 # min_const_generics: Pod for any array length (mln_gfx's UBOs).
 bytemuck = { version = "1.25.2", features = ["derive", "min_const_generics"] }
+# Evaluated as a replacement for vendor/earcut and rejected: on polygons with
+# holes it differs from the C++ earcut.hpp (25% identical, 1.1% cover a
+# different area; see difftest/earcut_crate). Only that comparison uses it, so
+# a newer release can be re-checked.
+earcut_crate = { package = "earcut", version = "0.4.5" }
 # zlib backend (libz-sys) instead of miniz_oxide: util::compress output must
 # be byte-identical to the zlib the C++ links (offline database stored sizes
-# and ambient-cache accounting; OfflineDatabase.PutReturnsSize). Bazel links
-# the system zlib (MODULE.bazel).
+# and ambient-cache accounting; OfflineDatabase.PutReturnsSize).
 flate2 = { version = "1.1.11", default-features = false, features = ["zlib"] }
+# platform/glfw: links the system GLFW (dynamic-link) instead of downloading
+# prebuilt libraries in a build script; raw window handles give wgpu its
+# surface.
+glfw = { version = "0.63.0", default-features = false, features = ["dynamic-link", "raw-window-handle-v0-6", "wayland", "x11"] }
 harfrust = { version = "0.15.0" }
 # decodeWEBP (platform/default/src/mln/util/webp_reader.cpp); pure Rust.
 image-webp = { version = "0.2.4" }
@@ -98,6 +104,8 @@ image-webp = { version = "0.2.4" }
 mlt-core = { version = "0.22.1" }
 png = { version = "0.18.1" }
 pollster = { version = "1.0.1" }
+# The difftests' property tests.
+proptest = { version = "1.12.0" }
 regex = { version = "1.13.1" }
 # tools/render-test's JSON (with serde_json).
 serde = { version = "1.0.229", features = ["derive"] }

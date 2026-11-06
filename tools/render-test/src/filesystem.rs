@@ -159,8 +159,7 @@ pub fn recursive_directory_entries(root: &str) -> io::Result<Vec<String>> {
     Ok(out)
 }
 
-/// `directory_entry::is_regular_file()` (follows symlinks, such as
-/// .cargo/runfiles/maplibre+).
+/// `directory_entry::is_regular_file()` (follows symlinks).
 pub fn is_regular_file(path: &str) -> bool {
     fs::metadata(path).map(|m| m.is_file()).unwrap_or(false)
 }

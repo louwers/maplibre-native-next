@@ -7,17 +7,17 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# Only the tests use it (and tools/render-test).
-publish = false
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# Only the tests use it (and tools/render-test); published for
+# mln-rs-render-test and the difftests (louwers/mln-rs-difftests).
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "pixelmatch"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
+# Port of pixelmatch-cpp/test/test.cpp over its fixtures, read in place.
 [[test]]
 name = "pixelmatch_fixtures_test"
 path = "tests/fixtures.rs"

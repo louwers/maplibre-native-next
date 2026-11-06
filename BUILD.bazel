@@ -1,3 +1,0 @@
-# Crates live in //crates (ports of src/mln/<module>), //vendor (ports of
-# vendored C++ libraries), //difftest (Rust vs. C++ differential tests) and
-# //tools (test runners). See PLAN.md and PORTING.md.

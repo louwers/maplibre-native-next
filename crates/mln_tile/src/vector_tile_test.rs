@@ -4,7 +4,7 @@
 // VectorMVTTile, TileParameters and the renderer: they are in
 // crates/mln_renderer/tests/vector_tile_test.rs.
 
-use std::path::PathBuf;
+use std::path::Path;
 use std::sync::Arc;
 
 use feature::Identifier;
@@ -14,9 +14,7 @@ use mln_util::geometry::FeatureType;
 use crate::{VectorMLTTileData, VectorMVTTileData};
 
 fn read_file(path: &str) -> Vec<u8> {
-    let base =
-        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
-    std::fs::read(PathBuf::from(base).join("maplibre+").join(path)).unwrap()
+    std::fs::read(Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(path)).unwrap()
 }
 
 // gtest: VectorTileData.ParseResults

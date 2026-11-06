@@ -138,7 +138,7 @@ struct TypeQuery<'a> {
 }
 
 /// `RegExp.prototype.test(undefined)` tests the string "undefined".
-fn js_name<'a>(name: Option<&'a str>) -> &'a str {
+fn js_name(name: Option<&str>) -> &str {
     name.unwrap_or("undefined")
 }
 

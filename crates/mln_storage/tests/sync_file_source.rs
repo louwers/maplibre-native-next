@@ -4,7 +4,6 @@
 // depend on mln_storage.
 
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
@@ -16,8 +15,7 @@ use mln_storage::{AsyncRequest, Callback, ClientOptions, FileSource, Resource, R
 use mln_util::size::Size;
 
 fn read_file(relative: &str) -> Vec<u8> {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    let path = PathBuf::from(base).join("maplibre+").join(relative);
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative);
     std::fs::read(&path).unwrap_or_else(|e| panic!("Cannot read file {}: {e}", path.display()))
 }
 

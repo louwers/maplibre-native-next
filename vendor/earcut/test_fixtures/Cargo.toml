@@ -7,9 +7,8 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The earcut.hpp fixtures parser of earcut's tests and the difftests
-# (//vendor/earcut:earcut_test_fixtures).
-publish = false
+# The earcut.hpp fixtures parser of earcut's tests; published for the
+# difftests (louwers/mln-rs-difftests).
 
 [lib]
 name = "earcut_test_fixtures"

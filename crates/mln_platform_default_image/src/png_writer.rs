@@ -131,8 +131,7 @@ mod tests {
     // images of the declared size, and re-encoding them is lossless.
     #[test]
     fn render_test_expectations_round_trip() {
-        let root = std::env::var_os("RUNFILES_DIR").or_else(|| std::env::var_os("TEST_SRCDIR")).expect("runfiles");
-        let base = std::path::Path::new(&root).join("maplibre+/metrics/integration/render-tests");
+        let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/metrics/integration/render-tests");
         for test in [
             "background-color/default",
             "background-color/literal",

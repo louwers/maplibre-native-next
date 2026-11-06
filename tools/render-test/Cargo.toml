@@ -7,8 +7,8 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The runner of the shared render and query tests; only the tests use it.
-publish = false
+# The runner of the shared render and query tests; published for the
+# difftests (louwers/mln-rs-difftests).
 # The [[test]]s below; tests/ also holds their module.
 autotests = false
 
@@ -36,7 +36,7 @@ mln_renderer.workspace = true
 mln_storage.workspace = true
 mln_style.workspace = true
 mln_util.workspace = true
-pixelmatch = { package = "mln-rs-pixelmatch", path = "../../vendor/pixelmatch" }
+pixelmatch.workspace = true
 regex.workspace = true
 serde.workspace = true
 serde_json.workspace = true

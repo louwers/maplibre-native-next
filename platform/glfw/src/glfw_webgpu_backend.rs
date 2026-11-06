@@ -26,6 +26,8 @@ pub struct GLFWWebGPUBackend {
 }
 
 /// Creates the wgpu surface for `window`.
+// FFI: the window's raw display and window handles.
+#[allow(unsafe_code)]
 fn create_surface(instance: &wgpu::Instance, window: &glfw::PWindow) -> Result<wgpu::Surface<'static>, String> {
     // SAFETY (FFI): the raw Wayland/X11 handles stay valid while the window
     // lives, and the window outlives the surface: GLFWView owns both and

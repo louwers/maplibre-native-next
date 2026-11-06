@@ -1,19 +1,18 @@
 //! Fails when the checked-in generated style code (crates/mln_style/src)
-//! differs from what the generator writes for the C++ repo's v8.json.
+//! differs from what the generator writes for the C++ repo's v8.json (the
+//! copy in testdata/).
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-fn runfiles() -> PathBuf {
-    let base =
-        std::env::var("RUNFILES_DIR").or_else(|_| std::env::var("TEST_SRCDIR")).expect("RUNFILES_DIR or TEST_SRCDIR");
-    PathBuf::from(base)
+fn spec_path() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/scripts/style-spec-reference/v8.json")
 }
 
 #[test]
 fn generated_code_is_up_to_date() {
-    let spec_path = runfiles().join("maplibre+/scripts/style-spec-reference/v8.json");
+    let spec_path = spec_path();
     let spec = std::fs::read_to_string(&spec_path).unwrap_or_else(|e| panic!("{}: {e}", spec_path.display()));
-    let root = runfiles().join("_main/crates/mln_style/src");
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../crates/mln_style/src");
     let stale = style_codegen::check(&spec, &root).expect("generator");
     assert!(
         stale.is_empty(),
@@ -23,7 +22,7 @@ fn generated_code_is_up_to_date() {
 
 #[test]
 fn every_layer_type_is_generated() {
-    let spec_path = runfiles().join("maplibre+/scripts/style-spec-reference/v8.json");
+    let spec_path = spec_path();
     let spec = std::fs::read_to_string(&spec_path).unwrap();
     let files = style_codegen::generate(&spec).unwrap();
     let paths: Vec<&str> = files.iter().map(|f| f.path.as_str()).collect();

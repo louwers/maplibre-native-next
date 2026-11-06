@@ -10,10 +10,10 @@ use std::path::{Path, PathBuf};
 use parser::{collect_test_paths, parse_expression_ignores, parse_test_data};
 use runner::{TestRunOutput, TestStats, run_expression_test};
 
-/// The C++ repository's metrics directory, `$TEST_SRCDIR/maplibre+/metrics`
-/// (.cargo/config.toml sets `TEST_SRCDIR` for `cargo test` and `cargo run`).
+/// The copy of the C++ repository's metrics directory (testdata/metrics):
+/// the expression tests and the ignore list they use.
 pub fn find_metrics_dir() -> Option<PathBuf> {
-    let metrics = PathBuf::from(std::env::var_os("TEST_SRCDIR")?).join("maplibre+/metrics");
+    let metrics = Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata/metrics");
     metrics.join("integration/expression-tests").exists().then_some(metrics)
 }
 

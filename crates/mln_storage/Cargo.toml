@@ -7,13 +7,12 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "mln_storage"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [dependencies]
@@ -32,10 +31,13 @@ serde_json.workspace = true
 [target.'cfg(not(target_os = "emscripten"))'.dependencies]
 ureq.workspace = true
 
+# Ports test/util/http_timeout.test.cpp (marker `// gtest: Group.Name`).
 [[test]]
 name = "gtest_http_timeout"
 path = "tests/gtest_http_timeout.rs"
 
+# test/storage/sync_file_source.test.cpp: needs a Map (mln_map,
+# mln_platform_default depend on this crate, so not in the unit tests).
 [[test]]
 name = "sync_file_source_test"
 path = "tests/sync_file_source.rs"

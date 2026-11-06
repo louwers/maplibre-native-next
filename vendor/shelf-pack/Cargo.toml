@@ -7,15 +7,15 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "shelf_pack"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
+# Port of shelf-pack-cpp/test/test.cpp (no fixtures).
 [[test]]
 name = "shelf_pack_unit_test"
 path = "tests/shelf_pack.rs"

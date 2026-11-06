@@ -26,28 +26,19 @@ everyone working in this repo).
 - Port only what the current milestone needs, but port those code paths
   completely. For a C++ branch you skip, leave a `// TODO(port): <what>`
   comment. Don't add `todo!()` on paths that run.
-- No `unsafe` outside FFI (`//difftest`) and GPU buffer casts (use `bytemuck`).
+- No `unsafe` outside FFI and GPU buffer casts (use `bytemuck`).
 - Errors: where C++ throws, return `Result` with the same message; where C++
   returns `optional`/`expected`, use `Option`/`Result`.
 
 ## Build and test
 
-- Bazel only, always through `just bazel` (for example
-  `just bazel test //crates/mln_style/...`). Wrap long commands in `timeout`.
-  `just` lists the other tasks (justfile).
-- **One Bazel server is shared by everyone.** Commands queue on it, so:
-  - build and test only your own targets, plus targets you depend on;
-  - never build `//...` (other people's packages may be mid-edit);
-  - never `clean`, `shutdown`, `sync`, or pass startup flags, `--output_base`,
-    or new `--config`s. Only `--config=oracle-opt` exists.
-- `cargo test --workspace` runs the same library tests without the shared
-  server (README.md); the difftests and the tools' suites are Bazel only.
-  Every library also has a `Cargo.toml` (the crates.io release). When you
-  change a library's dependencies or tests in `BUILD.bazel`, change its
-  `Cargo.toml` the same way: `[dependencies]`, a `[[test]]` per `rust_test`
-  with sources, test-only dependencies in `[dev-dependencies]`. A new
-  library needs the steps in RELEASING.md ("Adding a library"). CI's
-  `release-crate` job checks the manifests.
+- Cargo, through the justfile where a task has a recipe (`just test`,
+  `just fmt`, ...; `just` lists them). Wrap long commands in `timeout`.
+- Each library is a package of the workspace (root `Cargo.toml`):
+  `[dependencies]`, a `[[test]]` per integration test with its sources in
+  `tests/`, test-only dependencies in `[dev-dependencies]` (in-repo ones by
+  path, without a version). A new library needs the steps in RELEASING.md
+  ("Adding a library"). CI's `release-crate` job checks the manifests.
 - Format with `just fmt` (rustfmt, `rustfmt.toml`); leave generated
   files ("Do not edit") as their generator writes them, and put
   `#[rustfmt::skip]` on a new one's `mod` declaration. CI's `lint` job also
@@ -55,61 +46,26 @@ everyone working in this repo).
   warnings as errors. The root `Cargo.toml` allows the clippy lints whose
   fixes would make the port read or behave less like the C++; for another
   such case, `#[allow]` it where it occurs and say why.
-- Third-party crates available as `@next_crates//:<name>`: the ones in the
-  root `Cargo.toml`'s `[workspace.dependencies]` (with their features) and,
-  for Bazel-only targets, in `third_party/bazel_crates/Cargo.toml`
-  (`earcut`, `glfw`, `proptest`, `serde`). If you need another one, ask in
-  `COORDINATION.md`; don't add it yourself.
-- Package pattern:
-
-  ```starlark
-  load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
-
-  # Ports src/mln/<module>.
-  rust_library(
-      name = "mln_x",
-      srcs = glob(["src/**/*.rs"]),
-      visibility = ["//visibility:public"],
-      deps = ["//crates/mln_util"],
-  )
-
-  rust_test(
-      name = "mln_x_test",
-      crate = ":mln_x",
-  )
-  ```
-
-- Shared C++ test data as Bazel data deps:
-  `data = ["@maplibre//metrics:render-test-files"]` (and
-  `:expression-test-files`); find them at runtime through the runfiles
-  directory (`RUNFILES_DIR`/`TEST_SRCDIR`, repository directory
-  `maplibre+`). Under `cargo test`, `TEST_SRCDIR` is `.cargo/runfiles`,
-  whose `maplibre+` links to `../maplibre-native`.
-- GPU tests: `user.bazelrc` passes `LD_LIBRARY_PATH` (Vulkan loader) and
-  `VK_DRIVER_FILES` (lavapipe) to tests.
+- Third-party crates: the ones in the root `Cargo.toml`'s
+  `[workspace.dependencies]` (with their features). If you need another
+  one, ask in `COORDINATION.md`; don't add it yourself.
+- C++ test data (fixtures, the render, query and expression suites, the
+  style spec): copy the files a test reads into its package's `testdata/`,
+  at their paths in maplibre-native (README.md, "Test data"), and read them
+  from `Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata")`. Write
+  outputs (actual and diff images) to `env!("CARGO_TARGET_TMPDIR")` in
+  integration tests, or the system's temporary directory.
+- GPU tests need an adapter: Metal on macOS, Vulkan on Linux (lavapipe
+  through `VK_DRIVER_FILES` without a GPU).
 
 ## Differential tests (`//difftest/<area>`)
 
-Rust must behave exactly like C++. For a ported function, add a difftest:
-
-```starlark
-cc_library(
-    name = "reference",
-    srcs = ["reference.cpp"],          # extern "C" wrappers around C++ calls
-    copts = ["-std=c++20"],
-    deps = ["@maplibre//:mbgl-core"],
-)
-
-rust_test(
-    name = "util_difftest",
-    srcs = ["util_difftest.rs"],
-    link_deps = [":reference"],
-    deps = [
-        "//crates/mln_util",
-        "@next_crates//:proptest",
-    ],
-)
-```
+Rust must behave exactly like C++. The difftests compare the released
+crates with the C++ core, and live in
+[mln-rs-difftests](https://github.com/louwers/mln-rs-difftests) (Bazel,
+which builds the C++ core and the C++ references); its README describes
+how to write one. To difftest an unreleased change, point that repository
+at this one (its README says how). For a ported function:
 
 - Pass POD values and `(ptr, len)` byte strings across the boundary, or JSON
   for structured values. C++ exceptions are caught in the wrapper and returned
@@ -117,14 +73,11 @@ rust_test(
 - Inputs: proptest strategies plus a hand-written list of edge cases
   (±0, NaN, ±inf, subnormals, boundaries, malformed strings).
 - Compare bit-exactly (`to_bits`); any NaN equals any NaN.
-- The oracle is built at `-c fastbuild`, so C++ `assert`s are live. Don't
-  generate inputs that violate a C++ precondition; note the case instead.
-- Also run them once with `--config=oracle-opt`.
+- The oracle is built with C++ `assert`s live. Don't generate inputs that
+  violate a C++ precondition; note the case instead.
 - A comparison pinned to the Linux oracle (glibc libm/strtod, libstdc++
-  ordering and hashing, x86-64 conversions, arm64 FMA contraction, or an
-  oracle linking `@maplibre//platform/linux`) gets
-  `target_compatible_with = ["@platforms//os:linux"]`, so wildcard runs skip
-  it on macOS; leave genuinely cross-platform comparisons unrestricted — they
+  ordering and hashing, x86-64 conversions, arm64 FMA contraction) runs on
+  Linux only; leave genuinely cross-platform comparisons unrestricted — they
   run on macOS CI too.
 
 ## Ownership
@@ -136,11 +89,10 @@ Exceptions:
   file it needs (for example `mat4.rs`) and append one `pub mod` /
   `pub use` line to `lib.rs`. Existing files belong to `expression`; ask in
   `COORDINATION.md` for changes to them. New files must not need new deps in
-  `crates/mln_util/BUILD.bazel` without asking first.
+  `crates/mln_util/Cargo.toml` without asking first.
 - `COORDINATION.md`: everyone appends; never rewrite others' entries.
-- Shared files (`MODULE.bazel`, `.bazelrc`, `user.bazelrc`, `justfile`,
-  `PLAN.md`, `PORTING.md`, the root `BUILD.bazel`, `../maplibre-native`)
-  belong to the coordinator. Request changes in `COORDINATION.md`.
+- Shared files (the root `Cargo.toml`, `justfile`, `PLAN.md`, `PORTING.md`,
+  `../maplibre-native`) belong to the coordinator. Request changes in `COORDINATION.md`.
 - Don't commit. Others are editing the same working tree.
 
 ## Interfaces for M1

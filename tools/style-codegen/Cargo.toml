@@ -1,0 +1,33 @@
+[package]
+name = "mln-rs-style-codegen"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+include.workspace = true
+# Generates crates/mln_style's style code; published for the difftests
+# (louwers/mln-rs-difftests).
+autotests = false
+
+[lib]
+name = "style_codegen"
+
+# `just generate-style-code`
+[[bin]]
+name = "style-codegen"
+path = "src/main.rs"
+
+[dependencies]
+csscolorparser.workspace = true
+serde_json.workspace = true
+
+# The C++ repo's `generate.py --check` for plugins, for the style code:
+# fails when crates/mln_style's generated files differ from fresh output.
+[[test]]
+name = "generated_code_test"
+path = "src/generated_code_test.rs"
+
+[lints]
+workspace = true

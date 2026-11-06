@@ -7,19 +7,19 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "polylabel"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [dependencies]
 geometry.workspace = true
 libstdcxx.workspace = true
 
+# Port of polylabel/test/test.cpp over its fixtures, read in place.
 [[test]]
 name = "polylabel_fixtures_test"
 path = "tests/polylabel.rs"

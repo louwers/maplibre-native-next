@@ -7,13 +7,12 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "mln_webgpu"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [dependencies]
@@ -33,22 +32,31 @@ wgpu = { workspace = true, features = ["default"] }
 [target.'cfg(target_os = "emscripten")'.dependencies]
 wgpu = { workspace = true, features = ["parking_lot", "std", "wgsl"] }
 
+# Headless wgpu smoke test: Vulkan (lavapipe) device, offscreen clear and
+# readback.
 [[test]]
 name = "smoke_test"
 path = "tests/smoke_test.rs"
 
+# The background shader end to end on the drawable path: HeadlessBackend,
+# BackgroundShader from the registry, a DrawableBuilder drawable in a
+# TileLayerGroup with the UBOs background_layer_tweaker.cpp sets, rendered
+# into the offscreen target and read back.
 [[test]]
 name = "background_test"
 path = "tests/background_test.rs"
 
+# Ports test/renderer/wgsl_preprocessor.test.cpp
 [[test]]
 name = "shader_group_preprocessor_test"
 path = "tests/shader_group_preprocessor.rs"
 
+# Compiles all extracted WGSL with wgpu (naga); the M1 shaders must compile.
 [[test]]
 name = "wgsl_compile_test"
 path = "tests/wgsl_compile_test.rs"
 
+# Ports test/util/offscreen_texture.test.cpp (marker `// gtest: Group.Name`).
 [[test]]
 name = "gtest_offscreen_texture"
 path = "tests/gtest_offscreen_texture.rs"

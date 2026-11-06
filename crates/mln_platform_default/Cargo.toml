@@ -7,13 +7,12 @@ description.workspace = true
 license.workspace = true
 repository.workspace = true
 include.workspace = true
-# The [[test]]s below are the BUILD.bazel rust_tests; tests/ also holds
-# their modules.
+# The [[test]]s below; tests/ also holds their modules.
 autotests = false
 
 [lib]
 name = "mln_platform_default"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [dependencies]
@@ -24,26 +23,40 @@ mln_renderer.workspace = true
 mln_util.workspace = true
 mln_webgpu.workspace = true
 
+# The M1 background render tests through Map -> HeadlessFrontend, without the
+# render-test runner (see the file comment).
 [[test]]
 name = "m1_background_render_test"
 path = "tests/m1_background_render_test.rs"
 
+# gtests-data: test/text/local_glyph_rasterizer.test.cpp (renders a map
+# through HeadlessFrontend with a StubFileSource).
 [[test]]
 name = "local_glyph_rasterizer_test"
 path = "tests/local_glyph_rasterizer_test.rs"
 
+# gtests-core: test/renderer/feature_tracking.test.cpp (all ignored until
+# rendered-feature tracking is ported; see the file comment).
 [[test]]
 name = "gtest_feature_tracking"
 path = "tests/gtest_feature_tracking.rs"
 
+# gtests-core: test/map/{map,prefetch,map_snapshotter}.test.cpp through Map
+# (over a StubFileSource/FakeFileSource) -> HeadlessFrontend. Shared fixture
+# in tests/support/mod.rs.
 [[test]]
 name = "gtest_map"
 path = "tests/gtest_map.rs"
 
+# gtests-core: test/api/{annotations,api_misuse,custom_geometry_source,
+# custom_layer,query}.test.cpp and test/api/recycle_map.cpp. Shared fixture
+# in tests/support/mod.rs.
 [[test]]
 name = "gtest_api"
 path = "tests/gtest_api.rs"
 
+# gtests-core: test/util/memory.test.cpp (Map over a StubFileSource with the
+# test/fixtures/resources styles). Shared fixture in tests/support/mod.rs.
 [[test]]
 name = "gtest_memory"
 path = "tests/gtest_memory.rs"

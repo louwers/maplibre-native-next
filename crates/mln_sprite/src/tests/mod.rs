@@ -9,10 +9,10 @@ use std::sync::{Arc, Mutex};
 
 use mln_util::logging::{Event, EventSeverity, Log, Observer};
 
-/// A path in the runfiles tree of the C++ repository (`maplibre+`).
+/// A path of the C++ repository, in the copy of its files these tests read
+/// (testdata/).
 pub fn cpp_path(relative: &str) -> PathBuf {
-    let base = std::env::var("TEST_SRCDIR").or_else(|_| std::env::var("RUNFILES_DIR")).expect("TEST_SRCDIR");
-    PathBuf::from(base).join("maplibre+").join(relative)
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("testdata").join(relative)
 }
 
 pub fn read_file(relative: &str) -> Vec<u8> {

@@ -135,9 +135,10 @@ mod tests {
     use super::*;
 
     fn style_json(id: &str) -> String {
-        let root = std::env::var_os("TEST_SRCDIR").expect("TEST_SRCDIR");
-        let path =
-            std::path::Path::new(&root).join("maplibre+/metrics/integration/render-tests").join(id).join("style.json");
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("testdata/metrics/integration/render-tests")
+            .join(id)
+            .join("style.json");
         std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
     }
 

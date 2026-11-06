@@ -17,10 +17,9 @@ use geometry::{Geometry, Point};
 use serde_json::Value as Json;
 
 fn load_file(name: &str) -> String {
-    let root = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
-    let path = std::path::Path::new(&root).join("maplibre+/vendor/maplibre-native-base/deps/geojson-vt-cpp").join(name);
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("testdata/vendor/maplibre-native-base/deps/geojson-vt-cpp")
+        .join(name);
     std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 

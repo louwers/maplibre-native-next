@@ -33,12 +33,10 @@ impl Node {
 }
 
 fn fixture_file(name: &str) -> String {
-    let root = std::env::var_os("RUNFILES_DIR")
-        .or_else(|| std::env::var_os("TEST_SRCDIR"))
-        .expect("RUNFILES_DIR or TEST_SRCDIR must be set");
     std::fs::read_to_string(
-        std::path::Path::new(&root)
-            .join("maplibre+/vendor/maplibre-native-base/deps/cheap-ruler-cpp/test/fixtures")
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("testdata")
+            .join("vendor/maplibre-native-base/deps/cheap-ruler-cpp/test/fixtures")
             .join(name),
     )
     .unwrap()

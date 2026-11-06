@@ -10,7 +10,7 @@ include.workspace = true
 
 [lib]
 name = "csscolorparser"
-# Bazel never runs doctests.
+# The doc comments have no examples to run.
 doctest = false
 
 [lints]
