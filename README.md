@@ -36,15 +36,7 @@ runs the runner itself, e.g. with a `--filter`.
 
 ## Test data
 
-The tests read files of the C++ repository (fixtures, the render, query
-and expression suites, the style spec) from copies in this repository:
-each package's `testdata/` holds the files its tests read, at their paths
-in maplibre-native. They were copied from
-[louwers/maplibre-native@4e03abe](https://github.com/louwers/maplibre-native/commit/4e03abe94cf562b10562c528578d109c7273694d)
-(maplibre/maplibre-native 8e144d0 plus build changes), under its licenses.
-`just update-testdata [checkout]` copies them again from a maplibre-native
-checkout (by default `../maplibre-native`); the render, query and expression
-suites are copied whole, so new tests come along.
+The tests read files of the C++ repository (fixtures, the render, query and expression suites, the style spec) from copies in this repository: each package's `testdata/` holds the files its tests read, at their paths in maplibre-native. They were copied from [johncarmack1984/maplibre-native@d171bf4](https://github.com/johncarmack1984/maplibre-native/commit/d171bf4b99343a27d0bfebf9ddf1ae79e5a616aa) (the globe and sky branches merged into [louwers/maplibre-native@4e03abe](https://github.com/louwers/maplibre-native/commit/4e03abe94cf562b10562c528578d109c7273694d), which is maplibre/maplibre-native 8e144d0 plus build changes), under its licenses. `just update-testdata [checkout]` copies them again from a maplibre-native checkout (by default `../maplibre-native`); the render, query and expression suites are copied whole, so new tests come along.
 
 The GPU tests need an adapter: Metal on macOS, Vulkan on Linux (without a
 GPU, lavapipe through `VK_DRIVER_FILES`). On NixOS, the justfile runs the

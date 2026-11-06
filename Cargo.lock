@@ -1255,6 +1255,7 @@ dependencies = [
  "mln-rs-renderer",
  "mln-rs-storage",
  "mln-rs-style",
+ "mln-rs-style-types",
  "mln-rs-util",
  "mln-rs-webgpu",
  "serde_json",
@@ -1283,6 +1284,8 @@ dependencies = [
  "mln-rs-renderer",
  "mln-rs-storage",
  "mln-rs-style",
+ "mln-rs-style-types",
+ "mln-rs-tile-id",
  "mln-rs-util",
 ]
 
@@ -1292,6 +1295,7 @@ version = "0.0.9"
 dependencies = [
  "mln-rs-geometry",
  "mln-rs-math",
+ "mln-rs-style-types",
  "mln-rs-tile-id",
  "mln-rs-util",
 ]
@@ -1324,7 +1328,9 @@ dependencies = [
  "mln-rs-renderer",
  "mln-rs-storage",
  "mln-rs-style",
+ "mln-rs-style-types",
  "mln-rs-test-server",
+ "mln-rs-tile-id",
  "mln-rs-util",
  "mln-rs-webgpu",
  "serde_json",
