@@ -54,7 +54,7 @@ impl Expression for FormatSectionOverride {
                 // provides context state, it takes precedence.
                 if context.global_state.is_none() {
                     if let Some(state) = e.get_captured_global_state() {
-                        let mut context_with_state = context.clone();
+                        let mut context_with_state = *context;
                         context_with_state.global_state = Some(state);
                         return e.get_expression().evaluate(&context_with_state);
                     }

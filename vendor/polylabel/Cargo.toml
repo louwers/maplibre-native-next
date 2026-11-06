@@ -25,3 +25,6 @@ path = "tests/polylabel.rs"
 
 [dev-dependencies]
 serde_json.workspace = true
+
+[lints]
+workspace = true

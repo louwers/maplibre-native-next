@@ -18,6 +18,8 @@ fn check_number(n: f64) -> Option<Value> {
 }
 
 /// `parseValue` of literal.cpp.
+// C++'s signature: `ctx` is only passed on to the recursive calls.
+#[allow(clippy::only_used_in_recursion)]
 pub(crate) fn parse_value(value: &Convertible<'_>, ctx: &mut ParsingContext) -> Option<Value> {
     if value.is_undefined() {
         return Some(Value::Null);

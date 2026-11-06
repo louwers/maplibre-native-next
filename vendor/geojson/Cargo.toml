@@ -24,3 +24,6 @@ serde_json.workspace = true
 [[test]]
 name = "geojson_fixtures_test"
 path = "tests/geojson.rs"
+
+[lints]
+workspace = true

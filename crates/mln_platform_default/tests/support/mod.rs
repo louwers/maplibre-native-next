@@ -131,7 +131,7 @@ pub fn assert_double_eq(actual: f64, expected: f64) {
         false
     } else {
         let (a, b) = (biased(actual), biased(expected));
-        (if a >= b { a - b } else { b - a }) <= 4
+        a.abs_diff(b) <= 4
     };
     assert!(ok, "expected {expected} (4 ULPs), got {actual}");
 }

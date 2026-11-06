@@ -20,3 +20,6 @@ wgpu = { workspace = true, features = ["default"] }
 # Emscripten doesn't provide.
 [target.'cfg(target_os = "emscripten")'.dependencies]
 wgpu = { workspace = true, features = ["parking_lot", "std", "wgsl"] }
+
+[lints]
+workspace = true

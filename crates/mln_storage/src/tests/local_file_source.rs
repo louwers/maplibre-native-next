@@ -63,8 +63,8 @@ fn request(fs: &LocalFileSource, resource: Resource) -> Response {
         }),
     ));
     run_loop.run();
-    let response = result.borrow_mut().take().expect("response");
-    response
+
+    result.borrow_mut().take().expect("response")
 }
 
 fn data(res: &Response) -> &[u8] {

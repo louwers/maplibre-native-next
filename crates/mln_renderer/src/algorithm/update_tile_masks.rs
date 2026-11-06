@@ -118,7 +118,7 @@ mod tests {
     fn validate(expected: Vec<(UnwrappedTileID, Vec<CanonicalTileID>)>) {
         let mut expected = expected;
         // std::map order
-        expected.sort_by(|a, b| a.0.cmp(&b.0));
+        expected.sort_by_key(|a| a.0);
         let tiles: Vec<FakeTile> = expected
             .iter()
             .map(|_| {

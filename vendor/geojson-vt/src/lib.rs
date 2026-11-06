@@ -240,17 +240,14 @@ impl GeoJSONVT {
         let z2 = f64::from(1u32.wrapping_shl(u32::from(z)));
         let id = to_id(z, x, y);
 
-        if !self.tiles.contains_key(&id) {
+        if let std::collections::hash_map::Entry::Vacant(e) = self.tiles.entry(id) {
             let tolerance = if z == options.max_zoom {
                 0.0
             } else {
                 options.tile.tolerance / (z2 * f64::from(options.tile.extent))
             };
 
-            self.tiles.insert(
-                id,
-                InternalTile::new(features, z, x, y, options.tile.extent, tolerance, options.tile.line_metrics),
-            );
+            e.insert(InternalTile::new(features, z, x, y, options.tile.extent, tolerance, options.tile.line_metrics));
             let count = self.stats.get(&z).map_or(1, |c| c.wrapping_add(1));
             self.stats.insert(z, count);
             self.total = self.total.wrapping_add(1);

@@ -13,3 +13,6 @@ publish = false
 [lib]
 name = "earcut_test_fixtures"
 doctest = false
+
+[lints]
+workspace = true

@@ -20,3 +20,6 @@ mln_util.workspace = true
 protozero.workspace = true
 skrifa.workspace = true
 unicode-bidi.workspace = true
+
+[lints]
+workspace = true

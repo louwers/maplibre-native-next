@@ -57,3 +57,6 @@ mln_storage = { package = "mln-rs-storage", path = "../mln_storage" }
 mln_style = { package = "mln-rs-style", path = "../mln_style" }
 pixelmatch = { package = "mln-rs-pixelmatch", path = "../../vendor/pixelmatch" }
 serde_json.workspace = true
+
+[lints]
+workspace = true

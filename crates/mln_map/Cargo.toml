@@ -28,3 +28,6 @@ mln_util.workspace = true
 [[test]]
 name = "gtest_action_journal"
 path = "tests/gtest_action_journal.rs"
+
+[lints]
+workspace = true

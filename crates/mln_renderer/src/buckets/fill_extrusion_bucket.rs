@@ -213,10 +213,7 @@ impl Bucket for FillExtrusionBucket {
 
             let rounded_corner_distance = *self.layout.get::<FillExtrusionRoundedCornerDistance>();
             if rounded_corner_distance > 0.0 && !ROUNDED_CORNERS_LOGGED.swap(true, Ordering::Relaxed) {
-                Log::warning(
-                    Event::Render,
-                    "TODO(port): fill-extrusion-rounded-corner-distance (roundPolygonCorners)".to_owned(),
-                );
+                Log::warning(Event::Render, "TODO(port): fill-extrusion-rounded-corner-distance (roundPolygonCorners)");
             }
 
             let mut total_vertices: usize = 0;

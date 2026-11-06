@@ -400,8 +400,7 @@ impl ShaderProgram {
         let find = |pat: &str, from: usize| source.get(from..).and_then(|s| s.find(pat)).map(|p| p + from);
         let find_char = |c: char, from: usize| source.get(from..).and_then(|s| s.find(c)).map(|p| p + from);
         let mut search_pos = 0usize;
-        loop {
-            let Some(group_token) = find("@group", search_pos) else { break };
+        while let Some(group_token) = find("@group", search_pos) {
             let Some(group_paren) = find_char('(', group_token) else { break };
             let mut group_start = group_paren + 1;
             while group_start < b.len() && is_space(b[group_start]) {

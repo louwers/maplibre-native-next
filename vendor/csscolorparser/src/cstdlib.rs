@@ -179,7 +179,7 @@ fn parse_float(s: &[u8], f: &Format) -> Parsed {
 
     // First look whether we are faced with a hexadecimal number.
     let mut hex = false;
-    if c == b'0' && at(s, i + 1).to_ascii_lowercase() == b'x' {
+    if c == b'0' && at(s, i + 1).eq_ignore_ascii_case(&b'x') {
         hex = true;
         i += 2;
     }
@@ -194,8 +194,8 @@ fn parse_float(s: &[u8], f: &Format) -> Parsed {
     // If no other digit but a '0' is found the result is 0.0.
     if !(is_digit(c)
         || (c == b'.' && (!hex || i != start_of_digits || at(s, i + 1).is_ascii_hexdigit()))
-        || (hex && i != start_of_digits && c.to_ascii_lowercase() == b'p')
-        || (!hex && c.to_ascii_lowercase() == b'e'))
+        || (hex && i != start_of_digits && c.eq_ignore_ascii_case(&b'p'))
+        || (!hex && c.eq_ignore_ascii_case(&b'e')))
     {
         let consumed = if i == start_of_digits { if hex { i - 1 } else { 0 } } else { i };
         return Parsed { negative, magnitude: Magnitude::Zero, consumed, erange: false };
@@ -369,10 +369,10 @@ pub fn strtoll(s: &[u8], base: u32) -> (i64, usize, bool) {
     // Recognize number prefix and if BASE is zero, figure it out ourselves.
     let mut base = base;
     if at(s, i) == b'0' {
-        if (base == 0 || base == 16) && at(s, i + 1).to_ascii_uppercase() == b'X' {
+        if (base == 0 || base == 16) && at(s, i + 1).eq_ignore_ascii_case(&b'X') {
             i += 2;
             base = 16;
-        } else if (base == 0 || base == 2) && at(s, i + 1).to_ascii_uppercase() == b'B' {
+        } else if (base == 0 || base == 2) && at(s, i + 1).eq_ignore_ascii_case(&b'B') {
             i += 2;
             base = 2;
         } else if base == 0 {
@@ -434,7 +434,7 @@ mod tests {
         assert_eq!(strtof(b"1.5"), (1.5, 3, false));
         assert_eq!(strtof(b"  -2e3x"), (-2000.0, 6, false));
         assert_eq!(strtof(b"0x1p-149").0.to_bits(), 1);
-        assert_eq!(strtof(b"0x1p-149").2, false);
+        assert!(!strtof(b"0x1p-149").2);
         assert_eq!(strtof(b"0x1p-150"), (0.0, 8, true));
         assert_eq!(strtof(b"1e39"), (f32::INFINITY, 4, true));
         assert_eq!(strtof(b"0x"), (0.0, 1, false));

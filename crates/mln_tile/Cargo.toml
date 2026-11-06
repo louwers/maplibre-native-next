@@ -22,3 +22,6 @@ mlt-core.workspace = true
 protozero.workspace = true
 vector_tile.workspace = true
 wagyu.workspace = true
+
+[lints]
+workspace = true

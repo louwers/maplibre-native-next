@@ -124,10 +124,9 @@ mod fixture_tests {
     // rather than as unsupported.
     #[test]
     fn jpeg_is_todo() {
-        for file in ["tile.jpeg"] {
-            let error = decode_image(&read_file(&format!("test/fixtures/image/{file}"))).unwrap_err();
-            assert!(error.starts_with("TODO(port)"), "{file}: {error}");
-        }
+        let file = "tile.jpeg";
+        let error = decode_image(&read_file(&format!("test/fixtures/image/{file}"))).unwrap_err();
+        assert!(error.starts_with("TODO(port)"), "{file}: {error}");
     }
 
     // Not in the C++ suite: the lossless DEM tiles of the render tests

@@ -68,7 +68,7 @@ fn parse_style_fixture(name: &str) -> Result<(), String> {
 #[test]
 fn parse_style() {
     let names = fixture_names();
-    assert!(names.len() > 0);
+    assert!(!names.is_empty());
     let mut failures = Vec::new();
     for name in &names {
         if let Err(failure) = parse_style_fixture(name) {

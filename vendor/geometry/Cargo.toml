@@ -11,3 +11,6 @@ include.workspace = true
 name = "geometry"
 # Bazel never runs doctests.
 doctest = false
+
+[lints]
+workspace = true

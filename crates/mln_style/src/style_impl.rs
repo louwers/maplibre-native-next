@@ -671,7 +671,7 @@ impl Impl {
     }
 
     pub fn get_default_camera(&self) -> CameraOptions {
-        self.default_camera.clone()
+        self.default_camera
     }
 
     // Images

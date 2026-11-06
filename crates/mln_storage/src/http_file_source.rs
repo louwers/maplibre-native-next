@@ -490,6 +490,8 @@ mod transport {
 /// callback, only through `readyState` reaching DONE. Such a request is tried
 /// again a few times before it fails with a connection error.
 #[cfg(target_os = "emscripten")]
+// FFI to emscripten_fetch.
+#[allow(unsafe_code)]
 mod transport {
     use super::{Transfer, range_header};
     use crate::resource::Resource;

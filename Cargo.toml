@@ -115,6 +115,50 @@ ureq = { version = "3.5.1" }
 # target.
 wgpu = { version = "30.0.1", default-features = false, features = ["custom"] }
 
+# Lints for every package (`[lints] workspace = true`): clippy's default set,
+# with warnings denied in CI (the `lint` job), except the lints whose fix
+# would make the port read or behave less like the C++ it mirrors.
+[workspace.lints.rust]
+# PORTING.md: no `unsafe` outside FFI. The FFI modules allow it.
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+# The C++ code's shape: nested ifs, index loops, `x >= a && x <= b`,
+# `x % n == 0`, `if c > 0 { a / c }`, `i * 4 + 0`, a value
+# default-constructed and then set, a variable declared and then assigned in
+# each branch, branches that do the same thing.
+collapsible_if = "allow"
+field_reassign_with_default = "allow"
+identity_op = "allow"
+if_same_then_else = "allow"
+manual_checked_ops = "allow"
+manual_is_multiple_of = "allow"
+manual_range_contains = "allow"
+needless_late_init = "allow"
+needless_range_loop = "allow"
+# The C++ names and signatures: enumerators, methods named like std trait
+# methods (`add`, `next`), `toString()`, files named like their module,
+# factories, constructors, long parameter lists and nested template types.
+enum_variant_names = "allow"
+inherent_to_string = "allow"
+module_inception = "allow"
+new_ret_no_self = "allow"
+new_without_default = "allow"
+should_implement_trait = "allow"
+too_many_arguments = "allow"
+type_complexity = "allow"
+# Readability over a saved clone or bounds check: the expression signature
+# tables list types as `&[n.clone()]` (C++'s `{n}`), and the pixel loops
+# step with `chunks_exact(4)`.
+chunks_exact_to_as_chunks = "allow"
+cloned_ref_to_slice_refs = "allow"
+# The C++ float behaviour: literals with all their digits, `!(a < b)` that
+# holds for NaN, and std::min/std::max where `clamp` would panic on NaN or
+# reversed bounds.
+excessive_precision = "allow"
+manual_clamp = "allow"
+neg_cmp_op_on_partial_ord = "allow"
+
 [package]
 name = "mln-rs"
 version.workspace = true
@@ -165,3 +209,6 @@ shelf_pack.workspace = true
 supercluster.workspace = true
 vector_tile.workspace = true
 wagyu.workspace = true
+
+[lints]
+workspace = true

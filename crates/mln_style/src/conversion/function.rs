@@ -571,7 +571,7 @@ fn convert_categorical_function(
     }
 
     if first.array_member(0).to_bool().is_some() {
-        let branches = convert_branches::<bool>(&type_, value, err, |v, e| convert::<bool>(v, e))?;
+        let branches = convert_branches::<bool>(&type_, value, err, convert::<bool>)?;
         return Some(categorical_bool(type_, property, branches, def));
     }
 
@@ -581,7 +581,7 @@ fn convert_categorical_function(
     }
 
     if first.array_member(0).to_string().is_some() {
-        let branches = convert_branches::<String>(&type_, value, err, |v, e| convert::<String>(v, e))?;
+        let branches = convert_branches::<String>(&type_, value, err, convert::<String>)?;
         return Some(categorical(type_, property, branches, def));
     }
 

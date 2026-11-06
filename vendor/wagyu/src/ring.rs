@@ -389,8 +389,7 @@ pub(crate) fn reverse_ring(pp: PointPtr, manager: &mut RingManager) {
     loop {
         let p = &mut manager.points[pp1];
         let pp2 = p.next;
-        p.next = p.prev;
-        p.prev = pp2;
+        std::mem::swap(&mut p.next, &mut p.prev);
         pp1 = pp2;
         if pp1 == pp {
             break;

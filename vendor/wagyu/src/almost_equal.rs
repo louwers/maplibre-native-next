@@ -19,7 +19,7 @@ fn sign_and_magnitude_to_biased(sam: u64) -> u64 {
 fn distance_between_sign_and_magnitude_numbers(sam1: u64, sam2: u64) -> u64 {
     let biased1 = sign_and_magnitude_to_biased(sam1);
     let biased2 = sign_and_magnitude_to_biased(sam2);
-    if biased1 >= biased2 { biased1 - biased2 } else { biased2 - biased1 }
+    biased1.abs_diff(biased2)
 }
 
 /// `FloatingPoint<double>(x).AlmostEquals(FloatingPoint<double>(y))`: at

@@ -621,7 +621,7 @@ fn set_max_parent_overscale_factor() {
             let z = res.tile_data.as_ref().unwrap().z;
             if z == 5 {
                 let end = end.clone();
-                timer.start(milliseconds(10), Duration::zero(), move || end());
+                timer.start(milliseconds(10), Duration::zero(), end);
             }
             // No tiles above zoom level 5 should be requested.
             assert!(5 <= i32::from(z), "requested z{z}");

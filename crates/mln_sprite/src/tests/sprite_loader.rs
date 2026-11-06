@@ -248,5 +248,5 @@ fn loading_cancel() {
 
     test.run();
     assert!(!*loaded.borrow(), "Should never be called");
-    let _ = test.end();
+    test.end();
 }

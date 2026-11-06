@@ -23,3 +23,6 @@ geometry.workspace = true
 [[test]]
 name = "cheap_ruler_fixtures_test"
 path = "tests/cheap_ruler.rs"
+
+[lints]
+workspace = true

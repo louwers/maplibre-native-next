@@ -237,7 +237,7 @@ pub fn decode_offline_region_definition(region: &[u8]) -> Result<OfflineRegionDe
     let min_zoom = member("min_zoom").and_then(Json::as_f64).unwrap_or_default();
     let max_zoom = member("max_zoom").map_or(f64::INFINITY, |v| v.as_f64().unwrap_or_default());
     let pixel_ratio = member("pixel_ratio").and_then(Json::as_f64).unwrap_or_default() as f32;
-    let include_ideographs = member("include_ideographs").map_or(true, |v| v.as_bool().unwrap_or_default());
+    let include_ideographs = member("include_ideographs").is_none_or(|v| v.as_bool().unwrap_or_default());
 
     if let Some(bounds) = member("bounds") {
         // `bounds` is present but may be invalid when `geometry` is valid:

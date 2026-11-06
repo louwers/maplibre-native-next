@@ -36,8 +36,8 @@ impl Step {
         }
     }
 
-    pub fn get_input(&self) -> &Box<dyn Expression> {
-        &self.input
+    pub fn get_input(&self) -> &dyn Expression {
+        &*self.input
     }
 
     pub fn get_covering_stops(&self, lower: f64, upper: f64) -> Range<f32> {

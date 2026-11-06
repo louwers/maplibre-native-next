@@ -32,6 +32,8 @@
 
 // webgpu.h constants keep their C names, also in patterns.
 #![allow(non_upper_case_globals)]
+// The crate is FFI to webgpu.h.
+#![allow(unsafe_code)]
 
 mod command;
 mod conv;

@@ -21,3 +21,6 @@ libstdcxx.workspace = true
 [[test]]
 name = "kdbush_source_test"
 path = "tests/kdbush.rs"
+
+[lints]
+workspace = true

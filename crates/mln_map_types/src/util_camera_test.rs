@@ -23,7 +23,7 @@ fn almost_equals_f64(a: f64, b: f64) -> bool {
         if bits & SIGN != 0 { (!bits).wrapping_add(1) } else { bits | SIGN }
     }
     let (a, b) = (biased(a), biased(b));
-    (if a >= b { a - b } else { b - a }) <= 4
+    a.abs_diff(b) <= 4
 }
 
 /// `ASSERT_DOUBLE_EQ(val1, val2)`.

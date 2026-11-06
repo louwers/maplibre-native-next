@@ -45,3 +45,6 @@ path = "tests/gtest_vulkan_acquire.rs"
 [[test]]
 name = "gtest_hash"
 path = "tests/gtest_hash.rs"
+
+[lints]
+workspace = true

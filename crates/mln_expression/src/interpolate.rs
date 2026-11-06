@@ -92,8 +92,8 @@ impl Interpolate {
         }
     }
 
-    pub fn get_input(&self) -> &Box<dyn Expression> {
-        &self.input
+    pub fn get_input(&self) -> &dyn Expression {
+        &*self.input
     }
 
     pub fn get_interpolator(&self) -> &Interpolator {

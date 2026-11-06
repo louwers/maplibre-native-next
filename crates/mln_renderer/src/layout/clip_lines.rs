@@ -1,7 +1,7 @@
 // Ports src/mln/layout/clip_lines.hpp and src/mln/layout/clip_lines.cpp
 // (`util::clipLines`): clips lines to the box [x1, x2) x [y1, y2).
 
-use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinate, GeometryCoordinates};
+use mln_tile_id::geometry_tile_data::{GeometryCollection, GeometryCoordinate};
 
 /// The C++ intersection expression
 /// `static_cast<int16_t>(std::round(a0 + (a1 - a0) * (static_cast<float>(edge - b0) / (b1 - b0))))`:
@@ -61,9 +61,7 @@ pub fn clip_lines(lines: &GeometryCollection, x1: i16, y1: i16, x2: i16, y2: i16
                 Some(back) => !back.is_empty() && back.last() != Some(&p0),
             };
             if start_new_line {
-                let mut new_line = GeometryCoordinates::new();
-                new_line.push(p0);
-                clipped_lines.push(new_line);
+                clipped_lines.push(vec![p0]);
             }
 
             clipped_lines.last_mut().expect("clipped_lines is not empty").push(p1);
@@ -77,6 +75,7 @@ pub fn clip_lines(lines: &GeometryCollection, x1: i16, y1: i16, x2: i16, y2: i16
 mod tests {
     use super::*;
     use geometry::Point;
+    use mln_tile_id::geometry_tile_data::GeometryCoordinates;
 
     fn collection(lines: &[&[(i16, i16)]]) -> GeometryCollection {
         GeometryCollection::from(

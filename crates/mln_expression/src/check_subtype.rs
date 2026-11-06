@@ -9,6 +9,9 @@ pub fn error_message(expected: &Type, t: &Type) -> String {
 
 /// `type::checkSubtype`: `None` if `t` is a subtype of `expected`, else the
 /// error message.
+// `if err.is_none() { return None; }` is C++'s `if (!err) return {};`: a
+// member matched, so `None` here is success, not an error to pass on.
+#[allow(clippy::question_mark)]
 pub fn check_subtype(expected: &Type, t: &Type) -> Option<String> {
     if *t == Type::Error {
         return None;

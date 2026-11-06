@@ -58,6 +58,8 @@ impl ConversionTraits for MockConvertible {
 
 // gtest: Conversion.Move
 #[test]
+// `b = a; a = b` are the C++ test's two moves, not a swap.
+#[allow(clippy::almost_swapped)]
 fn move_() {
     let dtor_counter = Rc::new(Cell::new(0));
 

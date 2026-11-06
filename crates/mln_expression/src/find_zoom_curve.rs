@@ -83,13 +83,13 @@ pub fn find_zoom_curve(e: &dyn Expression) -> ZoomCurveOrError<'_> {
         }
         Kind::Interpolate => {
             let curve = downcast::<Interpolate>(e).expect("Interpolate");
-            if zoom_input(&**curve.get_input()) {
+            if zoom_input(curve.get_input()) {
                 result = Some(ZoomCurve::Interpolate(curve));
             }
         }
         Kind::Step => {
             let step = downcast::<Step>(e).expect("Step");
-            if zoom_input(&**step.get_input()) {
+            if zoom_input(step.get_input()) {
                 result = Some(ZoomCurve::Step(step));
             }
         }

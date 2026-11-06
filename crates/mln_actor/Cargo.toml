@@ -23,3 +23,6 @@ mln_util.workspace = true
 [[test]]
 name = "mln_actor_gtest"
 path = "tests/gtest/main.rs"
+
+[lints]
+workspace = true

@@ -17,3 +17,6 @@ geometry.workspace = true
 mln_math.workspace = true
 mln_tile_id.workspace = true
 mln_util.workspace = true
+
+[lints]
+workspace = true

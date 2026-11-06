@@ -11,3 +11,6 @@ include.workspace = true
 name = "libstdcxx"
 # Bazel never runs doctests.
 doctest = false
+
+[lints]
+workspace = true

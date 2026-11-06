@@ -619,12 +619,8 @@ fn process_single_intersection(
             let ring_itr = i_ring.0;
             if !manager.is_hole(ring_itr) {
                 // Make the hole the origin!
-                let op1 = op_origin_1;
-                op_origin_1 = i_ring.1.op1;
-                i_ring.1.op1 = op1;
-                let op2 = op_origin_2;
-                op_origin_2 = i_ring.1.op2;
-                i_ring.1.op2 = op2;
+                std::mem::swap(&mut op_origin_1, &mut i_ring.1.op1);
+                std::mem::swap(&mut op_origin_2, &mut i_ring.1.op2);
                 i_ring.0 = ring_origin;
                 ring_origin = ring_itr;
                 ring_parent = ring_origin;

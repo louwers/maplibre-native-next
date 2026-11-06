@@ -147,10 +147,8 @@ fn tile_cover_points(
         sq_dist: f64,
     }
 
-    let mut t: Vec<ID> = Vec::new();
-
     // skip the first few allocations, assuming we usually end up with at least a few tiles
-    t.reserve(8);
+    let mut t: Vec<ID> = Vec::with_capacity(8);
 
     {
         let mut scan_line = |x0: i32, x1: i32, y: i32| {

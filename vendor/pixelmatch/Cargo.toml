@@ -20,3 +20,6 @@ doctest = false
 [[test]]
 name = "pixelmatch_fixtures_test"
 path = "tests/fixtures.rs"
+
+[lints]
+workspace = true

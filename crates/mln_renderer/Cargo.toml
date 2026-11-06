@@ -110,3 +110,6 @@ mln_sprite = { package = "mln-rs-sprite", path = "../mln_sprite" }
 mln_webgpu = { package = "mln-rs-webgpu", path = "../mln_webgpu" }
 pixelmatch = { package = "mln-rs-pixelmatch", path = "../../vendor/pixelmatch" }
 serde_json.workspace = true
+
+[lints]
+workspace = true

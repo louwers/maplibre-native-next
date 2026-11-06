@@ -69,7 +69,7 @@ fn copy() {
 }
 
 fn test_gen_init<const THRESHOLD: usize>() {
-    let input = vec![1, 2, 3];
+    let input = [1, 2, 3];
     let map = IntMap::<THRESHOLD>::from_generator(input.iter(), |x| (*x, 4 - x));
     assert_eq!(3, map.size(), "threshold {THRESHOLD}");
     assert_eq!(Some(&3), map.find(&1), "threshold {THRESHOLD}");

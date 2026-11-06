@@ -330,14 +330,11 @@ impl RenderOrchestrator {
             .zoom_history
             .update(update_parameters.transform_state.get_zoom() as f32, &update_parameters.time_point);
 
-        let transition_options = if is_map_mode_continuous {
-            update_parameters.transition_options.clone()
-        } else {
-            TransitionOptions::default()
-        };
+        let transition_options =
+            if is_map_mode_continuous { update_parameters.transition_options } else { TransitionOptions::default() };
 
         let transition_parameters =
-            TransitionParameters { now: update_parameters.time_point, transition: transition_options.clone() };
+            TransitionParameters { now: update_parameters.time_point, transition: transition_options };
         let transition_duration = transition_options.duration.unwrap_or(if is_map_mode_continuous {
             DEFAULT_TRANSITION_DURATION
         } else {

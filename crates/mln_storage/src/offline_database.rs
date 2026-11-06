@@ -1315,12 +1315,12 @@ impl OfflineDatabase {
             return Err(DatabaseError::MapboxTileLimitExceeded);
         }
 
-        if self.offline_mapbox_tile_count.is_some()
+        if let Some(count) = self.offline_mapbox_tile_count.as_mut()
             && resource.kind == Kind::Tile
             && is_canonical_url(&self.tile_server_options, &resource.url)
             && previously_unused
         {
-            *self.offline_mapbox_tile_count.as_mut().unwrap() += 1;
+            *count += 1;
         }
 
         Ok(size)

@@ -38,3 +38,6 @@ mln_style_types = { package = "mln-rs-style-types", path = "../mln_style_types" 
 mln_tile_id = { package = "mln-rs-tile-id", path = "../mln_tile_id" }
 nunicode = { package = "mln-rs-nunicode", path = "../../vendor/nunicode" }
 serde_json.workspace = true
+
+[lints]
+workspace = true

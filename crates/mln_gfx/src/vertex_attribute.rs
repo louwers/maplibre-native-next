@@ -265,6 +265,7 @@ impl VertexAttribute {
 pub type UniqueVertexAttribute = Box<VertexAttribute>;
 
 /// `gfx::VertexAttributeArray`: attributes by id.
+#[derive(Default)]
 pub struct VertexAttributeArray {
     attrs: [Option<UniqueVertexAttribute>; MAX_ATTRIBUTE_COUNT_PER_SHADER],
 }
@@ -272,12 +273,6 @@ pub struct VertexAttributeArray {
 /// `std::shared_ptr<VertexAttributeArray>`; drawables, builders and upload
 /// passes mutate it through the shared pointer.
 pub type VertexAttributeArrayPtr = Rc<RefCell<VertexAttributeArray>>;
-
-impl Default for VertexAttributeArray {
-    fn default() -> Self {
-        VertexAttributeArray { attrs: Default::default() }
-    }
-}
 
 impl VertexAttributeArray {
     pub fn new() -> Self {

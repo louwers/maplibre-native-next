@@ -1403,6 +1403,8 @@ fn free_camera_options_set_orientation() {
 
 // gtest: Transform.FreeCameraOptionsClampToBounds
 #[test]
+// The C++ test's expected values, rounded to six digits.
+#[allow(clippy::approx_constant)]
 fn free_camera_options_clamp_to_bounds() {
     let mut transform = new_transform();
     transform.resize(Size::new(100, 100)).unwrap();

@@ -37,7 +37,7 @@ fn number_to_string() {
     assert_eq!("-1.123456789", to_string_double(-1.123456789));
     assert_eq!("32768.123456789", to_string_double(32768.123456789));
     assert_eq!("-32768.123456789", to_string_double(-32768.123456789));
-    #[allow(clippy::excessive_precision)]
+    #[allow(clippy::approx_constant, clippy::excessive_precision)]
     let pi = 3.1415926535897932385128089594061862044327426701784;
     assert_eq!("3.141592653589793", to_string_double(pi));
     assert_eq!("-3.141592653589793", to_string_double(-pi));

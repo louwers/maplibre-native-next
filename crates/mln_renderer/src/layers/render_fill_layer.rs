@@ -196,7 +196,7 @@ impl RenderLayer for RenderFillLayer {
             && evaluated.get::<FillOpacity>().constant_or(&0.0) >= 1.0
         {
             // Supply both - evaluated based on opaquePassCutoff in render().
-            self.base.passes = self.base.passes | RenderPass::Opaque;
+            self.base.passes |= RenderPass::Opaque;
         }
         properties.base.render_passes = self.base.passes.underlying_type();
         self.base.evaluated_properties = Arc::new(properties);

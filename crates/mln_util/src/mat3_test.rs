@@ -14,7 +14,7 @@ fn float_eq(a: f32, b: f32) -> bool {
         if bits & 0x8000_0000 != 0 { (!bits).wrapping_add(1) } else { 0x8000_0000 | bits }
     }
     let (ba, bb) = (biased(a), biased(b));
-    (if ba >= bb { ba - bb } else { bb - ba }) <= 4
+    ba.abs_diff(bb) <= 4
 }
 
 macro_rules! expect_float_eq {

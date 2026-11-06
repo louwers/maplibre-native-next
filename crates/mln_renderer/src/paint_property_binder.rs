@@ -400,11 +400,8 @@ impl<T: BinderValue> PaintPropertyBinder<T> {
     pub fn uniform_value(&self, current_value: &PossiblyEvaluatedPropertyValue<T>) -> T {
         match &self.kind {
             PaintPropertyBinderKind::Constant { constant } => current_value.constant_or(constant),
-            _ => match current_value.constant() {
-                Some(constant) => constant,
-                // Uniform values for vertex attribute arrays are unused.
-                None => T::default(),
-            },
+            // Uniform values for vertex attribute arrays are unused.
+            _ => current_value.constant().unwrap_or_default(),
         }
     }
 

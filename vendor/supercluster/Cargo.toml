@@ -27,3 +27,6 @@ path = "tests/supercluster.rs"
 
 [dev-dependencies]
 serde_json.workspace = true
+
+[lints]
+workspace = true

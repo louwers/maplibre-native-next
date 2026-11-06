@@ -315,6 +315,8 @@ impl MapImpl {
             }
         };
 
+        // `update` takes C++'s `std::shared_ptr<UpdateParameters>` as an `Arc`.
+        #[allow(clippy::arc_with_non_send_sync)]
         self.renderer_frontend.update(Arc::new(params));
     }
 

@@ -110,7 +110,7 @@ impl LayerTweaker for RasterLayerTweaker {
                     else {
                         Log::error(
                             Event::General,
-                            "Invalid raster layer drawable: neither tile id nor image data is set.".to_owned(),
+                            "Invalid raster layer drawable: neither tile id nor image data is set.",
                         );
                         return;
                     };

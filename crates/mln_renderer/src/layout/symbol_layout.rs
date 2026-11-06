@@ -1372,6 +1372,9 @@ impl Layout for SymbolLayout {
     }
 
     /// `prepareSymbols(glyphMap, glyphPositions, imageMap, imagePositions)`.
+    // C++'s `if (ft.formattedText && ...)`: the text is borrowed where it is
+    // used, as `feature` is also passed on in between.
+    #[allow(clippy::unnecessary_unwrap)]
     fn prepare_symbols(
         &mut self,
         glyph_map: &GlyphMap,

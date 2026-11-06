@@ -34,3 +34,6 @@ supercluster.workspace = true
 
 [dev-dependencies]
 mln_tile = { package = "mln-rs-tile", path = "../mln_tile" }
+
+[lints]
+workspace = true

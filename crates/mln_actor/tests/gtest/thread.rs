@@ -32,6 +32,8 @@ impl TestObject {
         cb(1);
     }
 
+    // The C++ test moves a `std::unique_ptr<int>` into the thread.
+    #[allow(clippy::boxed_local)]
     fn transfer_in(&self, val: Box<i32>) {
         self.failures.expect(self.tid == std::thread::current().id(), "transferIn on child thread");
         self.failures.expect(*val == 1, "*val == 1");
@@ -124,7 +126,7 @@ impl TestWorker {
     }
 
     fn send_delayed(&self, cb: impl Fn() + 'static) {
-        self.timer.start(milliseconds(300), Duration::zero(), move || cb());
+        self.timer.start(milliseconds(300), Duration::zero(), cb);
     }
 }
 

@@ -18,7 +18,7 @@ fn reverse_horizontal(e: &mut Edge) {
 
 /// `start_list_on_local_maximum`: make a list start on a local maximum by
 /// shifting all the points not on a local maximum to the end.
-fn start_list_on_local_maximum(edges: &mut Vec<Edge>) {
+fn start_list_on_local_maximum(edges: &mut [Edge]) {
     if edges.len() <= 2 {
         return;
     }

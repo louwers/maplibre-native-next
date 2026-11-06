@@ -146,6 +146,8 @@ pub struct EntryV3 {
 const MAX_VARINT_LENGTH: usize = 64 / 7 + 1;
 
 /// `decode_varint_impl` (protozero's): `data` advances past the varint.
+// The fast path's `loop` is protozero's `do { ... } while (false)`.
+#[allow(clippy::never_loop)]
 fn decode_varint_impl(data: &mut &[u8]) -> Result<u64, Error> {
     let bytes = *data;
     let mut p = 0;

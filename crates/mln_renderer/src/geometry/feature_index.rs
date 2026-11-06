@@ -255,7 +255,7 @@ impl FeatureIndex {
         );
         let mut features = self.grid.query(&query_box);
 
-        features.sort_by(|a, b| b.sort_index.cmp(&a.sort_index));
+        features.sort_by_key(|feature| std::cmp::Reverse(feature.sort_index));
         let mut previous_sort_index = usize::MAX;
         for indexed_feature in &features {
             // If this feature is the same as the previous feature, skip it.

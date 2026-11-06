@@ -11,3 +11,6 @@ include.workspace = true
 name = "protozero"
 # Bazel never runs doctests.
 doctest = false
+
+[lints]
+workspace = true
