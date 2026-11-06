@@ -76,12 +76,15 @@ A new library under `crates/` or `vendor/` needs, next to its `BUILD.bazel`:
   `[dev-dependencies]`, in-repo ones by path without a version
   (`mln_style = { package = "mln-rs-style", path = "../mln_style" }`):
   Cargo drops those from the published package, so they may form cycles;
+- a `README.md`, its page on crates.io: copy one from another library, keep
+  the warning that it is an internal crate (with its `mln_rs::<name>` path)
+  and say what it ports. Cargo packages it without a `readme` key;
 - an entry in `[workspace.dependencies]` in the root `Cargo.toml`;
 - a dependency of mln-rs (root `[dependencies]`) and a `pub use` in
   `src/lib.rs`.
 
 A library that should not be released (a test helper) gets
-`publish = false` instead of the last two steps. A new
+`publish = false` instead of the README and the last two steps. A new
 third-party crate goes into `[workspace.dependencies]` only: Bazel takes its
 third-party crates from this workspace (`MODULE.bazel`). One that only
 Bazel targets outside the workspace use (difftests, tools, platform/glfw)
