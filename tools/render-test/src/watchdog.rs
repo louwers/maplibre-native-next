@@ -1,7 +1,6 @@
-// Port-only (no C++ counterpart): a per-test wall-clock limit for the
-// runner, so that one test that never finishes (a tile waiting forever for
-// a reply, a request loop) errors with "timed out" instead of blocking the
-// whole run. See DEVIATIONS.md.
+// A per-test wall-clock limit for the runner, so that one test that never
+// finishes (a tile waiting forever for a reply, a request loop) errors with
+// "timed out" instead of blocking the whole run. See DEVIATIONS.md.
 //
 // The map runs on the runner's thread and is not `Send`, so a hung test
 // cannot be stopped from outside. Instead the watchdog thread posts a task
@@ -26,7 +25,7 @@ pub struct TestTimedOut {
 
 impl TestTimedOut {
     pub fn message(&self) -> String {
-        format!("Test timed out after {} s (port-only per-test limit, --timeout)", self.limit.as_secs_f64())
+        format!("Test timed out after {} s (--timeout)", self.limit.as_secs_f64())
     }
 }
 

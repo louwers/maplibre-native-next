@@ -54,5 +54,10 @@ path = "tests/self_check.rs"
 name = "render_tests"
 path = "tests/render_tests.rs"
 
+# --jobs against a run in one process.
+[[test]]
+name = "jobs"
+path = "tests/jobs.rs"
+
 [lints]
 workspace = true

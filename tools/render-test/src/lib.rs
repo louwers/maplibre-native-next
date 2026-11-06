@@ -7,6 +7,7 @@
 
 pub mod file_source;
 pub mod filesystem;
+pub mod jobs;
 pub mod log;
 pub mod manifest_parser;
 pub mod map;

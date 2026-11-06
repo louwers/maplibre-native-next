@@ -67,7 +67,8 @@ pub struct TestStatistics {
 }
 
 /// Paths are strings: the runner derives test ids from them by offset.
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+/// Serialized for the workers of `--jobs` (jobs.rs).
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct TestPaths {
     pub style_path: String,
     pub expectations: Vec<String>,

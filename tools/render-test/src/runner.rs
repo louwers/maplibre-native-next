@@ -329,7 +329,7 @@ pub type TestOperation = Box<dyn Fn(&mut TestContext<'_>) -> bool>;
 pub type TestOperations = Vec<TestOperation>;
 
 /// `TestRunner::UpdateResults`.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum UpdateResults {
     No,
     Default,
@@ -350,7 +350,7 @@ pub struct TestRunner {
     /// Where actual.png and diff.png go. C++ writes them next to the test's
     /// style.json; the port never writes into the C++ tree.
     output_path: PathBuf,
-    /// Port-only: the per-test wall-clock limit (see watchdog.rs).
+    /// The per-test wall-clock limit (watchdog.rs).
     watchdog: Option<crate::watchdog::Watchdog>,
 }
 
@@ -366,8 +366,7 @@ impl TestRunner {
         TestRunner { maps: HashMap::new(), manifest, update_results, factory, self_check, output_path, watchdog: None }
     }
 
-    /// Port-only: errors a test that runs longer than `limit` (`None`: no
-    /// limit).
+    /// Errors a test that runs longer than `limit` (`None`: no limit).
     pub fn set_test_timeout(&mut self, limit: Option<Duration>) {
         self.watchdog = limit.map(crate::watchdog::Watchdog::new);
     }
@@ -895,7 +894,7 @@ impl TestRunner {
         ProxyFileSource::set_tracking_active(false);
 
         let mut ctx = TestContext::new(metadata);
-        // Port-only per-test time limit, stopped when `run` returns.
+        // The per-test time limit, stopped when `run` returns.
         let _watchdog_guard = self.watchdog.as_ref().map(crate::watchdog::Watchdog::arm);
 
         if !ctx.metadata.ignored_test {

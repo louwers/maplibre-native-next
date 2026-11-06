@@ -603,4 +603,9 @@ fn argument_parsing() {
     // Not ported: baselines are never written.
     assert_eq!(parse_arguments(&args(&["-p", OUR_MANIFEST, "-u", "platform"])), Err(1));
     assert!(parse_arguments(&args(&["-p", OUR_MANIFEST, "-s"])).unwrap().shuffle);
+    // --jobs (jobs.rs).
+    assert_eq!(parse_arguments(&args(&["-p", OUR_MANIFEST])).unwrap().jobs, 1);
+    assert_eq!(parse_arguments(&args(&["-p", OUR_MANIFEST, "--jobs=4"])).unwrap().jobs, 4);
+    assert_eq!(parse_arguments(&args(&["-p", OUR_MANIFEST, "--jobs", "0"])).unwrap().jobs, 0);
+    assert_eq!(parse_arguments(&args(&["-p", OUR_MANIFEST, "--jobs=many"])), Err(1));
 }

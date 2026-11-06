@@ -1,19 +1,26 @@
 // Ports render-test/render_test.cpp (`mln::runRenderTests`).
 //
-// Additions for the port, which never writes into the C++ tree:
+// Options that C++ does not have:
 // - `--output <dir>` (required): where actual.png, diff.png and the HTML
-//   report go. C++ writes them next to the tests and the manifest.
+//   report go. C++ writes them next to the tests and the manifest; this
+//   runner never writes into the C++ tree.
 // - `--self-check`: renders nothing; every test's "actual" image is its
 //   expected image, so the run exercises manifest parsing, metadata and
 //   operation parsing, comparison and reporting. Exits non-zero unless
 //   every test that runs passes (ignored ones included).
+// - `--timeout=<seconds>`: the per-test time limit (watchdog.rs).
+// - `--jobs=<n>`: runs the tests in n worker processes (jobs.rs), which run
+//   each test with the same `run_test` as the loop here.
 
 use std::path::{Path, PathBuf};
 
+use serde::{Deserialize, Serialize};
+
 use crate::filesystem;
+use crate::jobs;
 use crate::log::{self, Event};
-use crate::manifest_parser::ManifestParser;
-use crate::metadata::{TestMetadata, TestStatistics};
+use crate::manifest_parser::{Manifest, ManifestParser};
+use crate::metadata::{TestMetadata, TestPaths, TestStatistics};
 use crate::parser::{create_result_page, parse_test_metadata, serialize_json_value};
 use crate::runner::{ImplFactory, TestRunner, UpdateResults};
 
@@ -49,16 +56,20 @@ const HELP: &str = "  render-test {OPTIONS}
                                         defined by a manifest. \"rebaseline\"
                                         Updates or creates expected metrics for
                                         configuration defined by a manifest.
-      --output=[dir]                    (port) Directory for actual.png,
-                                        diff.png and the HTML report
-      --self-check                      (port) Compare each test's expected
-                                        image with itself instead of rendering
-      --timeout=[seconds]               (port) Error a test that runs longer
-                                        than this (default 60, 0: no limit)
+      --output=[dir]                    Directory for actual.png, diff.png
+                                        and the HTML report
+      --self-check                      Compare each test's expected image
+                                        with itself instead of rendering
+      --timeout=[seconds]               Error a test that runs longer than
+                                        this (default 60, 0: no limit)
+      --jobs=[n]                        Run the tests in n worker processes
+                                        (default 1: in this process; 0: one
+                                        per CPU)
 ";
 
-/// `ArgumentsTuple` plus the port's options.
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// `ArgumentsTuple` plus the options C++ does not have. Serialized for the
+/// workers of `--jobs` (jobs.rs).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Arguments {
     pub recycle_map: bool,
     pub shuffle: bool,
@@ -69,8 +80,15 @@ pub struct Arguments {
     pub test_filter: String,
     pub self_check: bool,
     pub output: Option<String>,
-    /// Port-only per-test wall-clock limit in milliseconds (0: none).
+    /// The per-test wall-clock limit in milliseconds (0: none).
     pub timeout_millis: u64,
+    /// The number of worker processes that run the tests (1: the tests run
+    /// in this process; 0: one per CPU). See jobs.rs.
+    pub jobs: usize,
+    /// Not an option: the `render-test` executable the workers
+    /// run (`None`: this executable). Tests, which run the runner from the
+    /// test harness, set the package's binary.
+    pub worker_program: Option<PathBuf>,
 }
 
 /// `parseArguments(argc, argv)` (args.hxx). C++ calls `exit(code)`; here
@@ -86,6 +104,7 @@ pub fn parse_arguments(args: &[String]) -> Result<Arguments, i32> {
     let mut self_check = false;
     let mut output: Option<String> = None;
     let mut timeout_millis: u64 = 60_000;
+    let mut jobs: usize = 1;
 
     let parse_error = |message: String| -> i32 {
         log::info(Event::General, HELP);
@@ -143,6 +162,12 @@ pub fn parse_arguments(args: &[String]) -> Result<Arguments, i32> {
                         .ok_or_else(|| {
                             parse_error(format!("Argument 'timeout' received invalid value type '{value}'"))
                         })?;
+                }
+                "jobs" => {
+                    let value = take_value("--jobs")?;
+                    jobs = value
+                        .parse()
+                        .map_err(|_| parse_error(format!("Argument 'jobs' received invalid value type '{value}'")))?;
                 }
                 _ => return Err(parse_error(format!("Flag could not be matched: {name}"))),
             }
@@ -231,6 +256,8 @@ pub fn parse_arguments(args: &[String]) -> Result<Arguments, i32> {
         self_check,
         output,
         timeout_millis,
+        jobs,
+        worker_program: None,
     })
 }
 
@@ -302,8 +329,149 @@ fn run_with_alternate_sources(
     }
 }
 
+/// The `TestRunner` of `runRenderTests`, with the per-test time limit.
+pub(crate) fn create_runner(
+    arguments: &Arguments,
+    manifest: Manifest,
+    factory: Option<ImplFactory>,
+    output_path: PathBuf,
+) -> TestRunner {
+    let mut runner = TestRunner::new(manifest, arguments.update_results, factory, arguments.self_check, output_path);
+    if !arguments.self_check && arguments.timeout_millis > 0 {
+        runner.set_test_timeout(Some(std::time::Duration::from_millis(arguments.timeout_millis)));
+    }
+    runner
+}
+
+/// One iteration of the `runRenderTests` loop: runs the test at `test_path`,
+/// sets its status and prints it. `None`: the test is skipped.
+pub(crate) fn run_test(
+    runner: &mut TestRunner,
+    test_path: &TestPaths,
+    ignores: &[(String, String)],
+    root_length: usize,
+    recycle_map: bool,
+) -> Option<TestMetadata> {
+    if !recycle_map {
+        runner.reset();
+    }
+
+    let (mut metadata, ignore_reason) = prepare_test(test_path, ignores, root_length)?;
+
+    if metadata.document_object_empty() {
+        metadata.metrics_errored += 1;
+        metadata.render_errored += 1;
+    } else {
+        runner.run(&mut metadata);
+    }
+
+    let mut errored =
+        metadata.metrics_errored != 0 || metadata.render_errored != 0 || metadata.label_cut_off_found != 0;
+    let mut passed = !errored && metadata.metrics_failed == 0 && metadata.render_failed == 0;
+
+    if passed {
+        run_with_alternate_sources(runner, &mut metadata, &mut errored, &mut passed);
+    }
+
+    finish_test(&mut metadata, ignore_reason.as_deref(), errored, passed);
+    Some(metadata)
+}
+
+/// The start of the `runRenderTests` loop body: the test's metadata, with
+/// its id, and its ignore reason if the ignores list it. `None` (after
+/// printing so) when the test is skipped: its ignore reason starts with
+/// "skip".
+pub(crate) fn prepare_test(
+    test_path: &TestPaths,
+    ignores: &[(String, String)],
+    root_length: usize,
+) -> Option<(TestMetadata, Option<String>)> {
+    let mut metadata = parse_test_metadata(test_path);
+
+    let default_expectations = test_path.default_expectations();
+    metadata.id = default_expectations[root_length + 1..default_expectations.len() - 1].to_string();
+    let id = metadata.id.clone();
+
+    // `pair.first == ignoreName` compares std::filesystem paths.
+    let ignore_name = Path::new(&id);
+    let mut ignore_reason = None;
+    if let Some((_, reason)) = ignores.iter().find(|(name, _)| Path::new(name) == ignore_name) {
+        metadata.ignored_test = true;
+        if reason.starts_with("skip") {
+            println!("{ANSI_COLOR_GRAY}* skipped {id} ({reason}){ANSI_COLOR_RESET}");
+            log::info(Event::General, &format!("* skipped {id}({reason})"));
+            return None;
+        }
+        ignore_reason = Some(reason.clone());
+    }
+    Some((metadata, ignore_reason))
+}
+
+/// The end of the `runRenderTests` loop body: the status and color of a
+/// test that ran, and its printed result. The statistics and the return
+/// code follow from the status (`tally`).
+pub(crate) fn finish_test(metadata: &mut TestMetadata, ignore_reason: Option<&str>, errored: bool, passed: bool) {
+    let id = metadata.id.clone();
+    if let Some(ignore_reason) = ignore_reason {
+        if passed {
+            metadata.status = "ignored passed".to_string();
+            metadata.color = "#E8A408".to_string();
+            println!("{ANSI_COLOR_YELLOW}* ignore {id} ({ignore_reason}){ANSI_COLOR_RESET}");
+            log::info(Event::General, &format!("* ignore {id} ({ignore_reason})"));
+        } else {
+            metadata.status = "ignored failed".to_string();
+            metadata.color = "#9E9E9E".to_string();
+            println!("{ANSI_COLOR_LIGHT_GRAY}* ignore {id} ({ignore_reason}){ANSI_COLOR_RESET}");
+            log::info(Event::General, &format!("* ignore {id} ({ignore_reason})"));
+        }
+    } else if passed {
+        metadata.status = "passed".to_string();
+        metadata.color = "green".to_string();
+        println!("{ANSI_COLOR_GREEN}* passed {id}{ANSI_COLOR_RESET}");
+        log::info(Event::General, &format!("* passed {id}"));
+    } else if errored {
+        metadata.status = "errored".to_string();
+        metadata.color = "red".to_string();
+        println!("{ANSI_COLOR_RED}* errored {id}{ANSI_COLOR_RESET}");
+        println!("{ANSI_COLOR_RED}* error: {}{ANSI_COLOR_RESET}", metadata.error_message);
+        log::info(Event::General, &format!("* errored {id}"));
+        log::info(Event::General, &format!("* error {}", metadata.error_message));
+    } else {
+        metadata.status = "failed".to_string();
+        metadata.color = "red".to_string();
+        println!("{ANSI_COLOR_RED}* failed {id}{ANSI_COLOR_RESET}");
+        log::info(Event::General, &format!("* failed {id}"));
+    }
+}
+
+/// The statistics and the return code of the tests that ran, in run order:
+/// an errored test that is not ignored sets 2, a failed one 3, and the last
+/// one wins.
+fn tally(metadatas: &[TestMetadata]) -> (TestStatistics, i32) {
+    let mut stats = TestStatistics::default();
+    let mut return_code = 0;
+    for metadata in metadatas {
+        match metadata.status.as_str() {
+            "ignored passed" => stats.ignore_passed_tests += 1,
+            "ignored failed" => stats.ignore_failed_tests += 1,
+            "passed" => stats.passed_tests += 1,
+            "errored" => {
+                stats.errored_tests += 1;
+                return_code = 2;
+            }
+            "failed" => {
+                stats.failed_tests += 1;
+                return_code = 3;
+            }
+            status => unreachable!("finish_test sets no status {status:?}"),
+        }
+    }
+    (stats, return_code)
+}
+
 /// What a run produced: the process exit code, the statistics and the
-/// metadata of every test that was not skipped, in run order.
+/// metadata of every test that was not skipped, in run order. (With
+/// `--jobs`, the metadata holds what the report shows: see jobs.rs.)
 #[derive(Debug)]
 pub struct RunResult {
     pub return_code: i32,
@@ -314,6 +482,12 @@ pub struct RunResult {
 /// `mln::runRenderTests(argc, argv, testStatus)`. `factory` creates the map
 /// for a test (`None`: only `--self-check` can pass).
 pub fn run_render_tests(args: &[String], factory: Option<ImplFactory>) -> i32 {
+    // A worker of a `--jobs` run (jobs.rs).
+    if let [_, flag, dir] = args
+        && flag == jobs::WORKER_FLAG
+    {
+        return jobs::run_worker(Path::new(dir), factory);
+    }
     match parse_arguments(args) {
         Ok(arguments) => run_render_tests_with(&arguments, factory).return_code,
         Err(code) => code,
@@ -322,17 +496,15 @@ pub fn run_render_tests(args: &[String], factory: Option<ImplFactory>) -> i32 {
 
 /// `runRenderTests` after argument parsing.
 pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>) -> RunResult {
-    let mut return_code = 0;
     let early = |return_code: i32| RunResult { return_code, stats: TestStatistics::default(), metadatas: Vec::new() };
 
-    let Arguments { recycle_map, shuffle, online, seed, manifest_path, update_results, test_filter, .. } =
-        arguments.clone();
+    let Arguments { recycle_map, shuffle, online, seed, manifest_path, test_filter, .. } = arguments.clone();
 
     crate::file_source::ProxyFileSource::set_offline(!online);
     // TODO(port): NetworkStatus::Set(online ? Online : Offline) (online file
     // source).
 
-    let Some(manifest_data) = ManifestParser::parse_manifest(&manifest_path, test_filter) else {
+    let Some(mut manifest_data) = ManifestParser::parse_manifest(&manifest_path, test_filter) else {
         return early(5);
     };
 
@@ -341,117 +513,29 @@ pub fn run_render_tests_with(arguments: &Arguments, factory: Option<ImplFactory>
         return early(1);
     };
 
-    // mln::util::RunLoop runLoop: created by the map factory (map::factory).
-    let mut runner = TestRunner::new(manifest_data, update_results, factory, arguments.self_check, output_path.clone());
-    if !arguments.self_check && arguments.timeout_millis > 0 {
-        runner.set_test_timeout(Some(std::time::Duration::from_millis(arguments.timeout_millis)));
-    }
     if shuffle {
         // printf("%d", uint32_t)
         println!("{ANSI_COLOR_YELLOW}Shuffle seed: {}{ANSI_COLOR_RESET}", seed as i32);
-        runner.do_shuffle(seed);
+        // The manifest, not the runner: a `--jobs` run has no runner here.
+        manifest_data.do_shuffle(seed);
     }
 
-    let ignores = runner.get_manifest().get_ignores().to_vec();
-    let test_paths = runner.get_manifest().get_test_paths().to_vec();
-    let root_length = runner.get_manifest().get_test_root_path().len();
-    let mut metadatas: Vec<TestMetadata> = Vec::with_capacity(test_paths.len());
+    let jobs = jobs::job_count(arguments.jobs, manifest_data.get_test_paths().len());
+    let metadatas = if jobs > 1 {
+        jobs::run_jobs(arguments, &manifest_data, &output_path, jobs)
+    } else {
+        let ignores = manifest_data.get_ignores().to_vec();
+        let test_paths = manifest_data.get_test_paths().to_vec();
+        let root_length = manifest_data.get_test_root_path().len();
+        // mln::util::RunLoop runLoop: created by the map factory (map::factory).
+        let mut runner = create_runner(arguments, manifest_data, factory, output_path.clone());
+        test_paths
+            .iter()
+            .filter_map(|test_path| run_test(&mut runner, test_path, &ignores, root_length, recycle_map))
+            .collect()
+    };
 
-    let mut stats = TestStatistics::default();
-
-    for test_path in &test_paths {
-        let mut metadata = parse_test_metadata(test_path);
-
-        if !recycle_map {
-            runner.reset();
-        }
-
-        let default_expectations = test_path.default_expectations();
-        metadata.id = default_expectations[root_length + 1..default_expectations.len() - 1].to_string();
-        let id = metadata.id.clone();
-
-        let mut should_ignore = false;
-        let mut ignore_reason = String::new();
-
-        // `pair.first == ignoreName` compares std::filesystem paths.
-        let ignore_name = Path::new(&id);
-        if let Some((_, reason)) = ignores.iter().find(|(name, _)| Path::new(name) == ignore_name) {
-            metadata.ignored_test = true;
-            should_ignore = true;
-            ignore_reason = reason.clone();
-            if ignore_reason.starts_with("skip") {
-                println!("{ANSI_COLOR_GRAY}* skipped {id} ({ignore_reason}){ANSI_COLOR_RESET}");
-                log::info(Event::General, &format!("* skipped {id}({ignore_reason})"));
-                continue;
-            }
-        }
-
-        if metadata.document_object_empty() {
-            metadata.metrics_errored += 1;
-            metadata.render_errored += 1;
-        } else {
-            runner.run(&mut metadata);
-        }
-
-        let mut errored =
-            metadata.metrics_errored != 0 || metadata.render_errored != 0 || metadata.label_cut_off_found != 0;
-        let mut passed = !errored && metadata.metrics_failed == 0 && metadata.render_failed == 0;
-
-        if passed {
-            run_with_alternate_sources(&mut runner, &mut metadata, &mut errored, &mut passed);
-        }
-
-        if should_ignore {
-            if passed {
-                metadata.status = "ignored passed".to_string();
-                metadata.color = "#E8A408".to_string();
-                stats.ignore_passed_tests += 1;
-                println!("{ANSI_COLOR_YELLOW}* ignore {id} ({ignore_reason}){ANSI_COLOR_RESET}");
-                log::info(Event::General, &format!("* ignore {id} ({ignore_reason})"));
-            } else {
-                metadata.status = "ignored failed".to_string();
-                metadata.color = "#9E9E9E".to_string();
-                stats.ignore_failed_tests += 1;
-                println!("{ANSI_COLOR_LIGHT_GRAY}* ignore {id} ({ignore_reason}){ANSI_COLOR_RESET}");
-                log::info(Event::General, &format!("* ignore {id} ({ignore_reason})"));
-            }
-        } else {
-            // Only fail the bots on render errors, this is a CI limitation that
-            // we need to succeed on metrics failed so the rebaseline bot can
-            // run next in the pipeline and collect the new baselines. The
-            // rebaseline bot will ultimately report the error and block the
-            // patch from being merged.
-            if metadata.render_errored != 0 || metadata.render_failed != 0 {
-                return_code = 1;
-            }
-
-            if passed {
-                metadata.status = "passed".to_string();
-                metadata.color = "green".to_string();
-                stats.passed_tests += 1;
-                println!("{ANSI_COLOR_GREEN}* passed {id}{ANSI_COLOR_RESET}");
-                log::info(Event::General, &format!("* passed {id}"));
-            } else if errored {
-                metadata.status = "errored".to_string();
-                metadata.color = "red".to_string();
-                stats.errored_tests += 1;
-                return_code = 2;
-                println!("{ANSI_COLOR_RED}* errored {id}{ANSI_COLOR_RESET}");
-                println!("{ANSI_COLOR_RED}* error: {}{ANSI_COLOR_RESET}", metadata.error_message);
-                log::info(Event::General, &format!("* errored {id}"));
-                log::info(Event::General, &format!("* error {}", metadata.error_message));
-            } else {
-                metadata.status = "failed".to_string();
-                metadata.color = "red".to_string();
-                stats.failed_tests += 1;
-                return_code = 3;
-                println!("{ANSI_COLOR_RED}* failed {id}{ANSI_COLOR_RESET}");
-                log::info(Event::General, &format!("* failed {id}"));
-            }
-        }
-
-        metadatas.push(metadata);
-    }
+    let (stats, mut return_code) = tally(&metadatas);
 
     let manifest_name = filesystem::stem(&manifest_path).to_string();
     let result_path = output_path.join(format!("{manifest_name}.html"));
