@@ -47,11 +47,11 @@ everyone working in this repo).
   with sources, test-only dependencies in `[dev-dependencies]`. A new
   library needs the steps in RELEASING.md ("Adding a library"). CI's
   `release-crate` job checks the manifests.
-- Third-party crates already available as `@next_crates//:<name>`: `bytemuck`,
-  `flate2`, `harfrust`, `png`,
-  `pollster`, `proptest`, `regex`, `rusqlite` (bundled SQLite), `serde`,
-  `serde_json` (`preserve_order`, `float_roundtrip`), `skrifa`, `wgpu`.
-  If you need another one, ask in `COORDINATION.md`; don't edit `MODULE.bazel`.
+- Third-party crates available as `@next_crates//:<name>`: the ones in the
+  root `Cargo.toml`'s `[workspace.dependencies]` (with their features) and,
+  for Bazel-only targets, in `third_party/bazel_crates/Cargo.toml`
+  (`earcut`, `glfw`, `proptest`, `serde`). If you need another one, ask in
+  `COORDINATION.md`; don't add it yourself.
 - Package pattern:
 
   ```starlark

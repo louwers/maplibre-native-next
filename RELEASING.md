@@ -19,8 +19,9 @@ The ports nothing in the release uses (`vendor/cheap-ruler`,
 1. Bump the version in `Cargo.toml`: `[workspace.package] version` and the
    `=<version>` of every in-repo entry in `[workspace.dependencies]`. A missed
    one fails every cargo command. Run `cargo check` to update `Cargo.lock`,
-   and merge that change to main. crates.io never replaces a published
-   version.
+   and a Bazel command (`scripts/bazel query @next_crates//:all`) to update
+   `MODULE.bazel.lock`, which records both files; merge that change to
+   main. crates.io never replaces a published version.
 2. Run the **release** workflow on main: Actions → release → Run workflow, or
    `gh workflow run release.yml --repo louwers/maplibre-native-next --ref main`.
 
@@ -80,8 +81,10 @@ A new library under `crates/` or `vendor/` needs, next to its `BUILD.bazel`:
 
 A library that should not be released (a test helper) gets
 `publish = false` instead of the last two steps. A new
-third-party crate goes into `[workspace.dependencies]` as well as
-`MODULE.bazel`, with the same features.
+third-party crate goes into `[workspace.dependencies]` only: Bazel takes its
+third-party crates from this workspace (`MODULE.bazel`). One that only
+Bazel targets outside the workspace use (difftests, tools, platform/glfw)
+goes into `third_party/bazel_crates/Cargo.toml` instead.
 
 ## Secrets and settings
 

@@ -41,7 +41,7 @@ def _wasm32_probe_transition_impl(settings, _attr):
     ]
 
     # getrandom has no browser backend unless a feature is enabled
-    # (MODULE.bazel). For compile checks only, pick backends that need no
+    # (Cargo.toml). For compile checks only, pick backends that need no
     # extra deps: 0.2's "custom" (an extern fn resolved at link time) and
     # 0.4's "unsupported" (returns an error).
     out[_PER_CRATE] = list(settings[_PER_CRATE]) + [

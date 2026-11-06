@@ -45,10 +45,14 @@ port, not a redesign:
   `maplibre/maplibre-native` commit
   `8e144d0eca082e8350335b2172a6dfdc939b9cef` plus the dependency changes
   below (and a `cc_static_library` load() that Bazel 9 needs).
-- Third-party crates are `crate.spec`s in `MODULE.bazel` (`@next_crates`),
-  and again in the root `Cargo.toml`. Crates in this repo are `rust_library`
-  targets with a `Cargo.toml` next to them; a new one is also listed in the
-  root `Cargo.toml` (RELEASING.md, "Adding a library").
+- Third-party crates are set in the root `Cargo.toml` workspace only:
+  `MODULE.bazel` reads it and `Cargo.lock` (`crate.from_cargo`) into
+  `@next_crates`, so both builds use the same versions and features. The
+  ones only Bazel targets use (difftests, tools, platform/glfw) are
+  dev-dependencies of `third_party/bazel_crates`, which Cargo never builds.
+  Crates in this repo are `rust_library` targets with a `Cargo.toml` next to
+  them; a new one is also listed in the root `Cargo.toml` (RELEASING.md,
+  "Adding a library").
 - The C++ core is never linked into the port. Only `//difftest/...` links
   `@maplibre//:mbgl-core`, as the reference implementation.
 - On NixOS everything runs through `scripts/bazel` (the C++ repo's `#linux`

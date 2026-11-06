@@ -41,36 +41,25 @@ use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
 
-# Third-party crates. Bazel is the build; the root Cargo.toml lists the same
-# crates with the same features for the crates.io release (RELEASING.md), so
-# change both. Crates in this repo are plain rust_library targets, so adding
-# one never touches this file. Only add a
-# crate here when nothing in the C++ core has to be ported for it (see
-# PLAN.md, "Dependency map"). The repo is not called "crates" because
-# @maplibre already uses that name for rustutils.
+# Third-party crates come from the root Cargo.toml workspace, the one the
+# crates.io release publishes (RELEASING.md): the crates its members depend
+# on, with their features, at the versions in Cargo.lock. Add or change one
+# there (third_party/bazel_crates for crates only Bazel targets use); nothing
+# here changes. The repo is not called "crates" because @maplibre already
+# uses that name for rustutils.
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
-crate.spec(
-    features = ["derive"],
-    package = "bytemuck",
-    version = "1",
+crate.from_cargo(
+    name = "next_crates",
+    cargo_lockfile = "//:Cargo.lock",
+    manifests = ["//:Cargo.toml"],
+    # Cargo keeps Cargo.lock; Bazel only reads it, and fails if it is out of
+    # date with the manifests (any `cargo` command in the workspace updates
+    # it).
+    skip_cargo_lockfile_overwrite = True,
 )
-# Evaluated as a replacement for //vendor/earcut and rejected: on polygons
-# with holes it differs from the C++ earcut.hpp (25% identical, 1.1% cover a
-# different area; see //difftest/earcut_crate). Only that comparison uses it,
-# so a newer release can be re-checked (crate_universe resolves 0.4.5 here).
-crate.spec(
-    package = "earcut",
-    version = "0.4",
-)
-# zlib backend (libz-sys) instead of miniz_oxide: util::compress output must be
-# byte-identical to the zlib the C++ links (offline database stored sizes and
-# ambient-cache accounting; OfflineDatabase.PutReturnsSize).
-crate.spec(
-    default_features = False,
-    features = ["zlib"],
-    package = "flate2",
-    version = "1",
-)
+
+# flate2's zlib backend (see Cargo.toml) links the system zlib, as the C++
+# does, instead of building libz-sys's bundled copy.
 crate.annotation(
     crate = "libz-sys",
     deps = ["@@//third_party/zlib:system"],
@@ -78,113 +67,14 @@ crate.annotation(
     repositories = ["next_crates"],
 )
 
-# platform/glfw: links the GLFW from the dev shell (dynamic-link) instead of
-# downloading prebuilt libraries in a build script; raw window handles give
-# wgpu its surface.
-crate.spec(
-    default_features = False,
-    features = [
-        "dynamic-link",
-        "raw-window-handle-v0-6",
-        "wayland",
-        "x11",
-    ],
-    package = "glfw",
-    version = "0.63",
-)
+# platform/glfw links the system GLFW (see
+# third_party/bazel_crates/Cargo.toml).
 crate.annotation(
     crate = "glfw-sys",
     deps = ["@@//third_party/glfw:system"],
     gen_build_script = "off",
     repositories = ["next_crates"],
 )
-crate.spec(
-    package = "harfrust",
-    version = "0.15",
-)
-
-# decodeWEBP (platform/default/src/mln/util/webp_reader.cpp); pure Rust.
-crate.spec(
-    package = "image-webp",
-    version = "0.2",
-)
-
-# MLT decoding: the Rust implementation of the MapLibre Tile spec, instead of
-# porting the C++ decoder (vendor/maplibre-tile-spec/cpp). Assumed correct
-# (user decision, 2026-11-04); the differential test against the C++ decoder
-# (//difftest/mlt) was removed with that decision.
-crate.spec(
-    package = "mlt-core",
-    version = "0.22",
-)
-crate.spec(
-    package = "png",
-    version = "0.18",
-)
-crate.spec(
-    package = "pollster",
-    version = "1",
-)
-crate.spec(
-    package = "proptest",
-    version = "1",
-)
-crate.spec(
-    package = "regex",
-    version = "1",
-)
-
-# The same engine as the C++ core's vendored SQLite, built from source like it.
-crate.spec(
-    features = ["bundled"],
-    package = "rusqlite",
-    version = "0.41",
-)
-crate.spec(
-    features = ["derive"],
-    package = "serde",
-    version = "1",
-)
-# preserve_order: rapidjson iterates object members in document order, and
-# the C++ relies on that (style parser, expression error order).
-# float_roundtrip: correctly rounded float parsing, like rapidjson's full
-# precision parse (the default parser can be off by an ULP).
-crate.spec(
-    features = [
-        "float_roundtrip",
-        "preserve_order",
-    ],
-    package = "serde_json",
-    version = "1",
-)
-crate.spec(
-    package = "skrifa",
-    version = "0.49",
-)
-
-# Candidate for ICU's ubidi (platform/default/src/mln/text/bidi.cpp); kept only
-# if //difftest/shaping shows it matches ICU on the test corpus.
-crate.spec(
-    package = "unicode-bidi",
-    version = "0.3",
-)
-
-# HTTP for the online file source (the C++ default platform uses curl).
-crate.spec(
-    package = "ureq",
-    version = "3",
-)
-
-# Ports the C++ WebGPU backend (src/mln/webgpu, which runs on Dawn or
-# wgpu-native) onto the Rust implementation of the same API. `custom` lets
-# //crates/mln_wgpu_webgpu_h plug in the browser's WebGPU (webgpu.h) on
-# Emscripten, where wgpu itself only has GLES; the default features stay.
-crate.spec(
-    features = ["custom"],
-    package = "wgpu",
-    version = "30",
-)
-crate.from_specs(name = "next_crates")
 use_repo(crate, "next_crates")
 
 # The difftests' SQLite (difftest/sqlite).

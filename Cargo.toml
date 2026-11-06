@@ -5,12 +5,20 @@
 # and the package here, mln-rs, re-exports them all. Users depend on mln-rs
 # only.
 #
-# A library's dependencies are listed twice: in its BUILD.bazel and in its
-# Cargo.toml. CI builds both, so a missing one fails there.
+# It is also where Bazel gets its third-party crates (MODULE.bazel reads
+# this workspace and Cargo.lock), so their versions and features are set
+# here only. A library's dependencies are still listed twice: in its
+# BUILD.bazel and in its Cargo.toml. CI builds both, so a missing one fails
+# there.
 [workspace]
 resolver = "3"
 # The packages with `publish = false` are test helpers or unused by mln-rs.
-members = ["crates/*", "vendor/*", "vendor/earcut/test_fixtures"]
+members = [
+    "crates/*",
+    "third_party/bazel_crates",
+    "vendor/*",
+    "vendor/earcut/test_fixtures",
+]
 
 [workspace.package]
 # Every package is published at this version. To release, bump it here and
@@ -63,29 +71,48 @@ supercluster = { package = "mln-rs-supercluster", path = "vendor/supercluster", 
 vector_tile = { package = "mln-rs-vector-tile", path = "vendor/vector-tile", version = "=0.0.8" }
 wagyu = { package = "mln-rs-wagyu", path = "vendor/wagyu", version = "=0.0.8" }
 
-# Third-party crates: the crate.specs of MODULE.bazel, with the versions
-# Bazel resolved as minimums. Keep the features in sync with MODULE.bazel.
-# min_const_generics: Pod for any array length (mln_gfx's UBOs). Bazel gets it
-# through wgpu's features; here each package is built on its own.
+# Third-party crates, for both builds (Cargo.lock pins their versions). The
+# crates that only Bazel targets outside this workspace use are in
+# third_party/bazel_crates. Only add a crate when nothing in the C++ core has
+# to be ported for it (see PLAN.md, "Dependency map").
+#
+# min_const_generics: Pod for any array length (mln_gfx's UBOs).
 bytemuck = { version = "1.25.2", features = ["derive", "min_const_generics"] }
-# zlib backend: util::compress output must be byte-identical to the zlib the
-# C++ links (see MODULE.bazel).
+# zlib backend (libz-sys) instead of miniz_oxide: util::compress output must
+# be byte-identical to the zlib the C++ links (offline database stored sizes
+# and ambient-cache accounting; OfflineDatabase.PutReturnsSize). Bazel links
+# the system zlib (MODULE.bazel).
 flate2 = { version = "1.1.11", default-features = false, features = ["zlib"] }
 harfrust = { version = "0.15.0" }
+# decodeWEBP (platform/default/src/mln/util/webp_reader.cpp); pure Rust.
 image-webp = { version = "0.2.4" }
+# MLT decoding: the Rust implementation of the MapLibre Tile spec, instead of
+# porting the C++ decoder (vendor/maplibre-tile-spec/cpp). Assumed correct
+# (user decision, 2026-11-04); the differential test against the C++ decoder
+# (//difftest/mlt) was removed with that decision.
 mlt-core = { version = "0.22.1" }
 png = { version = "0.18.1" }
 pollster = { version = "1.0.1" }
 regex = { version = "1.13.1" }
+# The same engine as the C++ core's vendored SQLite, built from source like it.
 rusqlite = { version = "0.41.1", features = ["bundled"] }
-# preserve_order and float_roundtrip: rapidjson's behaviour (see MODULE.bazel).
+# preserve_order: rapidjson iterates object members in document order, and
+# the C++ relies on that (style parser, expression error order).
+# float_roundtrip: correctly rounded float parsing, like rapidjson's full
+# precision parse (the default parser can be off by an ULP).
 serde_json = { version = "1.0.154", features = ["float_roundtrip", "preserve_order"] }
 skrifa = { version = "0.49.0" }
+# Candidate for ICU's ubidi (platform/default/src/mln/text/bidi.cpp); kept only
+# if //difftest/shaping shows it matches ICU on the test corpus.
 unicode-bidi = { version = "0.3.18" }
+# HTTP for the online file source (the C++ default platform uses curl).
 ureq = { version = "3.5.1" }
-# `custom` lets mln_wgpu_webgpu_h plug in the browser's WebGPU on Emscripten.
-# The default features are off here because Emscripten builds without them;
-# the crates turn them on for every other target.
+# Ports the C++ WebGPU backend (src/mln/webgpu, which runs on Dawn or
+# wgpu-native) onto the Rust implementation of the same API. `custom` lets
+# mln_wgpu_webgpu_h plug in the browser's WebGPU (webgpu.h) on Emscripten,
+# where wgpu itself only has GLES. The default features are off here because
+# Emscripten builds without them; the crates turn them on for every other
+# target.
 wgpu = { version = "30.0.1", default-features = false, features = ["custom"] }
 
 [package]
