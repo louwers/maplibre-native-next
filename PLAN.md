@@ -115,6 +115,7 @@ per pair when we get there, from the measured edges.
 | csscolorparser, rapidjson dtoa, pixelmatch, earcut, kdbush, supercluster, geojson-vt, polylabel, wagyu | ported | exact |
 | earcut: the `earcut` crate (georust) instead? | evaluated, rejected | `//difftest/earcut_crate`: identical without holes, but with holes only 25% identical and 1.1% of polygons cover a different area (earcut.js 3.x hole bridging); the port stays |
 | maplibre-tile-spec C++ decoder (MLT) | the `mlt-core` crate (user decision) | assumed correct (user decision, 2026-11-04); the difftest against the C++ decoder was removed, and mln-rs-difftests' `MODULE.bazel` fetches `maplibre-tile-spec` (which mbgl-core links) from GitHub, so that vendor submodule is never needed |
+| PMTiles (`pmtiles.hpp`) | the `pmtiles` crate (stadiamaps/pmtiles-rs, user decision, 2026-11-07), read through the ResourceLoader | TileJSON and tile bytes of the test fixtures identical to the former port; the differences are in `DEVIATIONS.md` |
 | protozero + vector-tile | hand-rolled MVT reader | exact |
 | sqlite | `rusqlite` (same engine) | exact; offline databases interchangeable both ways |
 | nunicode (collation, case mapping) | ported (`//vendor/nunicode`, tables generated from the vendored sources) | exact: every code point compared against C++ |

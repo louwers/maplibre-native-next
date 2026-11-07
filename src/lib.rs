@@ -34,7 +34,6 @@ pub use mln_tile_id;
 pub use mln_util;
 pub use mln_webgpu;
 pub use nunicode;
-pub use pmtiles;
 pub use polylabel;
 pub use protozero;
 pub use rapidjson;
