@@ -64,7 +64,6 @@ mln_util = { package = "mln-rs-util", path = "crates/mln_util", version = "=0.0.
 mln_webgpu = { package = "mln-rs-webgpu", path = "crates/mln_webgpu", version = "=0.0.10" }
 nunicode = { package = "mln-rs-nunicode", path = "vendor/nunicode", version = "=0.0.10" }
 pixelmatch = { package = "mln-rs-pixelmatch", path = "vendor/pixelmatch", version = "=0.0.10" }
-pmtiles = { package = "mln-rs-pmtiles", path = "vendor/pmtiles", version = "=0.0.10" }
 polylabel = { package = "mln-rs-polylabel", path = "vendor/polylabel", version = "=0.0.10" }
 protozero = { package = "mln-rs-protozero", path = "vendor/protozero", version = "=0.0.10" }
 rapidjson = { package = "mln-rs-rapidjson", path = "vendor/rapidjson", version = "=0.0.10" }
@@ -81,6 +80,8 @@ wagyu = { package = "mln-rs-wagyu", path = "vendor/wagyu", version = "=0.0.10" }
 #
 # min_const_generics: Pod for any array length (mln_gfx's UBOs).
 bytemuck = { version = "1.25.2", features = ["derive", "min_const_generics"] }
+# The buffers the `pmtiles` reader's backend hands it.
+bytes = { version = "1.12.1" }
 # Evaluated as a replacement for vendor/earcut and rejected: on polygons with
 # holes it differs from the C++ earcut.hpp (25% identical, 1.1% cover a
 # different area; see difftest/earcut_crate). Only that comparison uses it, so
@@ -104,6 +105,11 @@ image-webp = { version = "0.2.4" }
 # (user decision, 2026-11-04); the differential test against the C++ decoder
 # (//difftest/mlt) was removed with that decision.
 mlt-core = { version = "0.22.1" }
+# PMTiles reading (mln_storage's PMTilesFileSource): stadiamaps/pmtiles-rs
+# instead of porting vendor/PMTiles/cpp/pmtiles.hpp (user decision,
+# 2026-11-07). The default features are off: they read files and HTTP with
+# tokio, while the file source reads through the ResourceLoader.
+pmtiles = { version = "0.28.0", default-features = false }
 png = { version = "0.18.1" }
 pollster = { version = "1.0.1" }
 # The difftests' property tests.
@@ -216,7 +222,6 @@ mln_tile_id.workspace = true
 mln_util.workspace = true
 mln_webgpu.workspace = true
 nunicode.workspace = true
-pmtiles.workspace = true
 polylabel.workspace = true
 protozero.workspace = true
 rapidjson.workspace = true

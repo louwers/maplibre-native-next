@@ -285,7 +285,28 @@ account for it.
   `std::strtod` of text without a number read 0. MBTiles/PMTiles TileJSON
   documents are built member by member and written with //vendor/rapidjson's
   Writer (duplicate member names kept, as rapidjson's `AddMember` does).
-  pmtiles.hpp's reading half is ported as //vendor/pmtiles.
+- **[storage] PMTiles reading** (pmtiles_file_source.cpp, pmtiles.hpp). The
+  archives are read with the `pmtiles` crate (stadiamaps/pmtiles-rs) instead
+  of a port of pmtiles.hpp (user decision, 2026-11-07). Its reader is async:
+  each request runs as a future on the file source's thread, and the
+  reader's reads are the same ResourceLoader range requests
+  (`LoadingMethod::All`) as in C++. What changes:
+  - The first read of an archive is bytes 0-16383, the header and root
+    directory together (C++: the 127-byte header, then the root directory).
+    The metadata, leaf directories and tiles are read as in C++.
+  - A sub-request answered twice (a stale cached response, then the
+    revalidated one) counts once, with its first answer; C++ runs the rest of
+    the request again for the second, answering it twice.
+  - Up to 6 levels of leaf directories are read (C++: 3). The crate
+    validates more: an unknown tile type byte, a zero tile length, tile IDs
+    past zoom 31 and entries outside their section are errors.
+  - Error messages: a failed directory read reads "Error fetching PMTiles
+    tile: ..." (C++: "... directory: ..."), other reader errors "Error
+    reading PMTiles tile: ...", and the parse and coordinate errors carry
+    the crate's text (e.g. "Invalid tile: Invalid coordinate 0/1/0"; C++:
+    "Invalid tile: tile x/y outside zoom level bounds").
+  The C++ tests pass unchanged, and the TileJSON and tile bytes of the test
+  fixtures are identical to those of the former port of pmtiles.hpp.
 - **[storage] OfflineDownload** (offline_download.cpp). In
   //crates/mln_storage_offline (it parses styles and covers regions with
   tiles, which mln_storage can't depend on), with the canonicalize* half of

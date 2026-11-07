@@ -386,6 +386,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "fast_hilbert"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f551b382f601850b4f57052d064d1c60dca971aeee4ccb40ac103b87f766640"
+
+[[package]]
 name = "fastpfor"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1102,7 +1108,6 @@ dependencies = [
  "mln-rs-nunicode",
  "mln-rs-platform-default",
  "mln-rs-platform-default-image",
- "mln-rs-pmtiles",
  "mln-rs-polylabel",
  "mln-rs-protozero",
  "mln-rs-rapidjson",
@@ -1340,10 +1345,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mln-rs-pmtiles"
-version = "0.0.10"
-
-[[package]]
 name = "mln-rs-polylabel"
 version = "0.0.10"
 dependencies = [
@@ -1440,16 +1441,17 @@ dependencies = [
 name = "mln-rs-storage"
 version = "0.0.10"
 dependencies = [
+ "bytes",
  "mln-rs-actor",
  "mln-rs-feature",
  "mln-rs-geojson",
  "mln-rs-map",
  "mln-rs-platform-default",
  "mln-rs-platform-default-image",
- "mln-rs-pmtiles",
  "mln-rs-rapidjson",
  "mln-rs-test-server",
  "mln-rs-util",
+ "pmtiles",
  "rusqlite",
  "serde_json",
  "ureq",
@@ -1902,6 +1904,19 @@ name = "pkg-config"
 version = "0.3.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f6b464fbc74e149a392436b17d523f769e057cb6877f6a5c4618bc6f11800548"
+
+[[package]]
+name = "pmtiles"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a242b695fabc0870d663c3883e78ead4f888134c0e83fbf00fcc35d60005015"
+dependencies = [
+ "bytes",
+ "fast_hilbert",
+ "flate2",
+ "integer-encoding",
+ "thiserror",
+]
 
 [[package]]
 name = "png"
